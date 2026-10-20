@@ -1,6 +1,7 @@
 import Flutter
 import Darwin
 import UIKit
+import UserNotifications
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
@@ -8,11 +9,13 @@ import UIKit
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    UNUserNotificationCenter.current().delegate = self
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    PomaLocalAlerts.shared.attach(messenger: engineBridge.applicationRegistrar.messenger())
 
     let clockChannel = FlutterMethodChannel(
       name: "dev.poma.poma/timer_clock",
@@ -57,6 +60,26 @@ import UIKit
           details: nil
         ))
       }
+    }
+  }
+
+  override func userNotificationCenter(_ center: UNUserNotificationCenter,
+    willPresent notification: UNNotification,
+    withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+    if PomaLocalAlerts.owns(notification.request.identifier) {
+      completionHandler(PomaLocalAlerts.shared.shouldPresent(notification) ? [.alert, .sound] : [])
+    } else {
+      super.userNotificationCenter(center, willPresent: notification, withCompletionHandler: completionHandler)
+    }
+  }
+
+  override func userNotificationCenter(_ center: UNUserNotificationCenter,
+    didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+    if PomaLocalAlerts.owns(response.notification.request.identifier) {
+      PomaLocalAlerts.shared.handle(response)
+      completionHandler()
+    } else {
+      super.userNotificationCenter(center, didReceive: response, withCompletionHandler: completionHandler)
     }
   }
 }

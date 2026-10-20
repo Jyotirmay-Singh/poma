@@ -6,7 +6,7 @@ The current deliverable is a starter. Complete these before a production release
 
 - Pass timer, controller, database, widget, and migration tests on the pinned SDK.
 - Test on real Android and iOS phones: lock screen, background, process kill, force-stop, reboot, timezone and manual clock changes, low-power modes, and permission denial/revocation.
-- Implement native local notifications, cancellation/rescheduling, and action deduplication. Test Android's exact-alarm restrictions and Play eligibility; provide an honest inexact fallback. iOS does not allow arbitrary continuous background countdown execution.
+- Native local notifications, cancellation/rescheduling, action deduplication and an explicit Android inexact fallback are implemented. Finish physical-device acceptance in [NOTIFICATIONS.md](NOTIFICATIONS.md); no device delivery has passed, and changed iOS integration still needs macOS compilation/XCTest. Retain SCHEDULE_EXACT_ALARM eligibility review; USE_EXACT_ALARM/store approval is not claimed. iOS does not allow arbitrary continuous background countdown execution.
 - Preserve manually started phases. Auto-start chains are outside the confirmed scope; define special-break overlap semantics only if that deferred feature is approved.
 - Verify first launch, timer and break controls, local tasks/history/settings, restart recovery, and local alerts in airplane mode. No app feature may require signup or a network connection.
 - Test VoiceOver, TalkBack, 200% text, narrow screens, dark mode, landscape, contrast, hit targets, and reduced motion.

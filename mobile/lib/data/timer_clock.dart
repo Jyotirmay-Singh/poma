@@ -14,7 +14,11 @@ class NativeTimerClock implements TimerClock {
       final value = await _channel.invokeMapMethod<String, Object?>('sample');
       final utc = value?['utcMicros'];
       final elapsed = value?['elapsedMicros'];
-      if (utc is! int || elapsed is! int || elapsed < 0) {
+      final bootCount = value?['bootCount'];
+      if (utc is! int ||
+          elapsed is! int ||
+          elapsed < 0 ||
+          (bootCount != null && (bootCount is! int || bootCount < 0))) {
         throw const TimerClockException();
       }
       final duration = Duration(microseconds: elapsed);
@@ -24,6 +28,7 @@ class NativeTimerClock implements TimerClock {
       final reading = ClockReading(
         utcNow: DateTime.fromMicrosecondsSinceEpoch(utc, isUtc: true),
         elapsed: duration,
+        bootCount: bootCount as int?,
       );
       _lastElapsed = duration;
       return reading;

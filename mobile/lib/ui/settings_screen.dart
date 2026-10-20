@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../application/app_controller.dart';
+import '../application/local_alerts.dart';
 import '../domain/models.dart';
 import 'app_shell.dart';
 
@@ -101,19 +102,31 @@ class SettingsScreen extends StatelessWidget {
           style: TextStyle(height: 1.5),
         ),
         const SizedBox(height: 18),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        SwitchListTile.adaptive(
+          contentPadding: EdgeInsets.zero,
+          title: const Text('Completion alerts'),
+          subtitle: const Text(
+            'One alert for a phase you start. Sound follows your phone’s notification settings.',
+          ),
+          value: controller.alertsEnabled,
+          onChanged: controller.setCompletionAlerts,
+        ),
+        if (controller.alertMessage != null) Text(controller.alertMessage!),
+        Wrap(
+          spacing: 8,
           children: [
-            const Icon(Icons.notifications_off_outlined, size: 20),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Background alerts are not available yet. Your elapsed session is recovered when you return.',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  height: 1.5,
-                ),
+            TextButton(
+              onPressed: controller.openNotificationSettings,
+              child: const Text('Phone notification settings'),
+            ),
+            if (controller.alertAvailability == AlertAvailability.delayed)
+              TextButton(
+                onPressed: controller.requestPreciseAlerts,
+                child: const Text('Allow precise alerts'),
               ),
+            TextButton(
+              onPressed: () => controller.reconcile(forceAlerts: true),
+              child: const Text('Retry alerts'),
             ),
           ],
         ),

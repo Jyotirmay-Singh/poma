@@ -13,14 +13,33 @@ class AppShell extends StatefulWidget {
 }
 
 class _AppShellState extends State<AppShell> {
+  int _seenAlertOpenRevision = 0;
   int _tab = 0;
   @override
   Widget build(BuildContext context) {
     final controller = widget.controller;
+    if (_seenAlertOpenRevision != controller.alertOpenRevision) {
+      _seenAlertOpenRevision = controller.alertOpenRevision;
+      _tab = 0;
+    }
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
+            if (controller.alertMessage != null)
+              MaterialBanner(
+                content: Text(controller.alertMessage!),
+                actions: [
+                  TextButton(
+                    onPressed: () => controller.reconcile(forceAlerts: true),
+                    child: const Text('Retry'),
+                  ),
+                  TextButton(
+                    onPressed: controller.openNotificationSettings,
+                    child: const Text('Settings'),
+                  ),
+                ],
+              ),
             if (controller.clockError != null)
               MaterialBanner(
                 content: Text(controller.clockError!),

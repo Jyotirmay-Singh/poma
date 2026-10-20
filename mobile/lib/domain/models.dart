@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'alert_state.dart';
 
 enum FocusPhase {
   focus('Focus'),
@@ -148,6 +149,9 @@ class TimerSnapshot {
     this.runId,
     this.taskId,
     this.taskTitle,
+    this.bootCount,
+    this.elapsedDeadlineMicros,
+    this.segment = 0,
   });
 
   final FocusPhase phase;
@@ -160,6 +164,9 @@ class TimerSnapshot {
   final String? runId;
   final String? taskId;
   final String? taskTitle;
+  final int? bootCount;
+  final int? elapsedDeadlineMicros;
+  final int segment;
 
   Map<String, Object?> toJson() => {
     'phase': phase.name,
@@ -172,6 +179,9 @@ class TimerSnapshot {
     'runId': runId,
     'taskId': taskId,
     'taskTitle': taskTitle,
+    'bootCount': bootCount,
+    'elapsedDeadlineMicros': elapsedDeadlineMicros,
+    'segment': segment,
   };
 
   void validate() {
@@ -180,7 +190,12 @@ class TimerSnapshot {
         remainingMicros < 0 ||
         remainingMicros > totalSeconds * 1000000 ||
         completedRounds < 0 ||
-        completedRounds > 8) {
+        completedRounds > 8 ||
+        segment < 0 ||
+        (bootCount != null && bootCount! < 0) ||
+        (elapsedDeadlineMicros != null && elapsedDeadlineMicros! < 0) ||
+        (status != RunStatus.running &&
+            (bootCount != null || elapsedDeadlineMicros != null))) {
       throw const FormatException('Saved timer values are out of range.');
     }
     if ((taskId == null) != (taskTitle == null) ||
@@ -250,6 +265,9 @@ class TimerSnapshot {
         runId: json['runId'] as String?,
         taskId: json['taskId'] as String?,
         taskTitle: json['taskTitle'] as String?,
+        bootCount: json['bootCount'] as int?,
+        elapsedDeadlineMicros: json['elapsedDeadlineMicros'] as int?,
+        segment: (json['segment'] ?? 0) as int,
       );
       snapshot.validate();
       return snapshot;
@@ -268,6 +286,7 @@ class SavedState {
     List<FocusTask> tasks = const [],
     List<FocusSession> sessions = const [],
     this.selectedTaskId,
+    this.alerts = const AlertState(),
   }) : tasks = List.unmodifiable(tasks),
        sessions = List.unmodifiable(sessions);
 
@@ -276,6 +295,7 @@ class SavedState {
   final List<FocusTask> tasks;
   final List<FocusSession> sessions;
   final String? selectedTaskId;
+  final AlertState alerts;
 }
 
 String newLocalId() {

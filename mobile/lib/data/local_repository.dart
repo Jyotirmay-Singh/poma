@@ -5,6 +5,7 @@ import 'package:sqflite/sqflite.dart';
 
 import '../application/local_repository.dart';
 import '../domain/models.dart';
+import '../domain/alert_state.dart';
 import 'local_storage_policy.dart';
 
 class SqliteRepository implements LocalRepository {
@@ -29,7 +30,7 @@ class SqliteRepository implements LocalRepository {
     _database = await factory.openDatabase(
       location,
       options: OpenDatabaseOptions(
-        version: 1,
+        version: 2,
         onCreate: (db, _) async {
           await db.execute(
             'CREATE TABLE app_state (key TEXT PRIMARY KEY, value TEXT NOT NULL)',
@@ -43,10 +44,51 @@ class SqliteRepository implements LocalRepository {
           await db.execute(
             'CREATE INDEX sessions_ended_at ON sessions(ended_at)',
           );
+          await _createAlerts(db);
+        },
+        onUpgrade: (db, oldVersion, _) async {
+          if (oldVersion < 2) {
+            // Refuse corrupt legacy state before a schema change. Throwing
+            // rolls back this migration; startup retry preserves the data.
+            final rows = await db.query('app_state');
+            for (final row in rows) {
+              if (row['key'] == 'timer') {
+                TimerSnapshot.fromJson(
+                  jsonDecode(row['value'] as String) as Map<String, dynamic>,
+                );
+              }
+            }
+            await _createAlerts(db);
+          }
         },
       ),
     );
     return _database!;
+  }
+
+  static Future<void> _createAlerts(DatabaseExecutor db) async {
+    await db.execute(
+      'CREATE TABLE notification_state (id INTEGER PRIMARY KEY CHECK(id = 1), value TEXT NOT NULL)',
+    );
+    await db.execute(
+      'CREATE TABLE notification_receipts (key TEXT PRIMARY KEY, created_at INTEGER NOT NULL)',
+    );
+  }
+
+  @override
+  Future<String?> notificationDatabasePath() async => (await _open()).path;
+
+  @override
+  Future<bool> recordAlertReceipt(String key) async {
+    final db = await _open();
+    return db.transaction((txn) async {
+      await txn.insert('notification_receipts', {
+        'key': key,
+        'created_at': DateTime.now().toUtc().millisecondsSinceEpoch,
+      }, conflictAlgorithm: ConflictAlgorithm.ignore);
+      final changed = await txn.rawQuery('SELECT changes() AS n');
+      return changed.single['n'] == 1;
+    });
   }
 
   @override
@@ -56,7 +98,14 @@ class SqliteRepository implements LocalRepository {
       for (final row in await db.query('app_state'))
         row['key'] as String: row['value'] as String,
     };
+    final alerts = await db.query('notification_state', where: 'id = 1');
     return SavedState(
+      alerts: alerts.isEmpty
+          ? const AlertState()
+          : AlertState.fromJson(
+              jsonDecode(alerts.single['value'] as String)
+                  as Map<String, dynamic>,
+            ),
       settings: state['settings'] == null
           ? const TimerSettings()
           : TimerSettings.fromJson(
@@ -86,6 +135,10 @@ class SqliteRepository implements LocalRepository {
     // cannot be counted twice, even if the process exits during this write.
     await db.transaction((txn) async {
       final batch = txn.batch();
+      batch.insert('notification_state', {
+        'id': 1,
+        'value': jsonEncode(state.alerts.toJson()),
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
       final values = {
         'settings': jsonEncode(state.settings.toJson()),
         if (state.timer != null) 'timer': jsonEncode(state.timer!.toJson()),

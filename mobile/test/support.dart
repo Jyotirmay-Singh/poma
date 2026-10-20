@@ -6,8 +6,10 @@ class FakeClock implements TimerClock {
   FakeClock([DateTime? now]) : utcNow = now ?? DateTime.utc(2026, 10, 20, 9);
   DateTime utcNow;
   Duration elapsed = Duration.zero;
-  ClockReading get reading => ClockReading(utcNow: utcNow, elapsed: elapsed);
+  ClockReading get reading =>
+      ClockReading(utcNow: utcNow, elapsed: elapsed, bootCount: bootCount);
   bool failReads = false;
+  int? bootCount;
   @override
   Future<ClockReading> sample() async {
     if (failReads) throw const TimerClockException();
@@ -25,6 +27,16 @@ class MemoryRepository implements LocalRepository {
   SavedState state;
   bool failWrites = false;
   int writes = 0;
+  final Set<String> receipts = {};
+  bool failReceipts = false;
+  @override
+  Future<String?> notificationDatabasePath() async => null;
+  @override
+  Future<bool> recordAlertReceipt(String key) async {
+    if (failReceipts) throw StateError('Receipt write failed');
+    return receipts.add(key);
+  }
+
   @override
   Future<SavedState> load() async => state;
   @override

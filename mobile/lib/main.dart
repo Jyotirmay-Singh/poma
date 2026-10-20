@@ -7,6 +7,8 @@ import 'application/local_repository.dart';
 import 'data/local_repository.dart';
 import 'data/local_storage_policy.dart';
 import 'data/timer_clock.dart';
+import 'data/local_alerts.dart';
+import 'application/local_alerts.dart';
 import 'domain/timer_engine.dart';
 import 'ui/app_shell.dart';
 import 'ui/theme.dart';
@@ -22,10 +24,16 @@ void main() {
 }
 
 class PomaLoader extends StatefulWidget {
-  const PomaLoader({super.key, this.repositoryFactory, this.clockFactory});
+  const PomaLoader({
+    super.key,
+    this.repositoryFactory,
+    this.clockFactory,
+    this.alertsFactory,
+  });
 
   final LocalRepository Function()? repositoryFactory;
   final TimerClock Function()? clockFactory;
+  final LocalAlerts Function()? alertsFactory;
   @override
   State<PomaLoader> createState() => _PomaLoaderState();
 }
@@ -47,6 +55,9 @@ class _PomaLoaderState extends State<PomaLoader> {
     return _controller = await AppController.create(
       repository,
       clock: widget.clockFactory?.call() ?? NativeTimerClock(),
+      alerts:
+          widget.alertsFactory?.call() ??
+          (widget.repositoryFactory == null ? NativeLocalAlerts() : null),
     );
   }
 

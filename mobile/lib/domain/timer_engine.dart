@@ -1,12 +1,18 @@
 import 'models.dart';
 
 class ClockReading {
-  ClockReading({required DateTime utcNow, required this.elapsed})
-    : utcNow = utcNow.toUtc() {
-    if (elapsed.isNegative) throw const TimerClockException();
+  ClockReading({
+    required DateTime utcNow,
+    required this.elapsed,
+    this.bootCount,
+  }) : utcNow = utcNow.toUtc() {
+    if (elapsed.isNegative || (bootCount != null && bootCount! < 0)) {
+      throw const TimerClockException();
+    }
   }
   final DateTime utcNow;
   final Duration elapsed;
+  final int? bootCount;
 }
 
 abstract interface class TimerClock {
@@ -76,8 +82,16 @@ class TimerEngine {
       _taskId = restored.taskId;
       _taskTitle = restored.taskTitle;
       _deadline = restored.deadline?.toUtc();
+      _segment = restored.segment;
       if (_status == RunStatus.running) {
-        _remaining = _deadline!.difference(now.utcNow);
+        final sameBoot =
+            restored.bootCount != null &&
+            restored.bootCount == now.bootCount &&
+            restored.elapsedDeadlineMicros != null;
+        _remaining = sameBoot
+            ? Duration(microseconds: restored.elapsedDeadlineMicros!) -
+                  now.elapsed
+            : _deadline!.difference(now.utcNow);
         if (_remaining > Duration(seconds: _totalSeconds)) {
           _remaining = Duration(seconds: _totalSeconds);
           _deadline = now.utcNow.add(_remaining);
@@ -95,6 +109,7 @@ class TimerEngine {
   late int _totalSeconds;
   int _completedRounds = 0;
   int _revision = 0;
+  int _segment = 0;
   bool _recoveryAdjusted = false;
   late Duration _remaining;
   Duration _anchor = Duration.zero;
@@ -133,6 +148,11 @@ class TimerEngine {
     runId: _runId,
     taskId: _taskId,
     taskTitle: _taskTitle,
+    bootCount: _status == RunStatus.running ? _now.bootCount : null,
+    elapsedDeadlineMicros: _status == RunStatus.running
+        ? (_anchor + _remaining).inMicroseconds
+        : null,
+    segment: _segment,
   );
 
   TimerTransition reconcile(ClockReading now) =>
@@ -263,6 +283,7 @@ class TimerEngine {
   }
 
   void _run(ClockReading now) {
+    _segment++;
     _anchor = now.elapsed;
     _deadline = now.utcNow.add(_remaining);
     _status = RunStatus.running;

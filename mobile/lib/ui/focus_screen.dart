@@ -181,10 +181,36 @@ class _TimerControls extends StatelessWidget {
       style: FilledButton.styleFrom(backgroundColor: accent),
       onPressed: timer.controlsLocked
           ? null
-          : () => controller.toggleTimer(
-              expectedRevision: revision,
-              displayedStatus: displayedStatus,
-            ),
+          : () async {
+              if (displayedStatus == RunStatus.ready &&
+                  controller.needsAlertPermission) {
+                final enable = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Know when your time is up'),
+                    content: const Text(
+                      'Allow completion alerts while your phone is locked or you use another app. Your phone controls sound and delivery.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text('Not now'),
+                      ),
+                      FilledButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: const Text('Enable alerts'),
+                      ),
+                    ],
+                  ),
+                );
+                if (enable == null) return;
+                await controller.setCompletionAlerts(enable);
+              }
+              await controller.toggleTimer(
+                expectedRevision: revision,
+                displayedStatus: displayedStatus,
+              );
+            },
       icon: Icon(
         timer.status == RunStatus.running
             ? Icons.pause_rounded

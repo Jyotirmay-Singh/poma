@@ -14,6 +14,7 @@ There is no automatic data recovery after uninstalling Poma or losing the phone.
 - Tasks: add, rename, complete, select for focus, and delete.
 - Completed focus history, daily totals, and a seven-day view.
 - Transactional SQLite persistence, duplicate completion protection, visible save failures, and retry.
+- Native OS-scheduled completion alerts, permission/settings controls, cancellation, and Open timer / Dismiss actions. Android offers an inexact fallback when precise alarms are unavailable.
 - System, light, and dark appearances; screen-reader labels and layouts that accommodate large text.
 
 Each phase starts manually. Leaving the app can complete **one existing session**; it never manufactures a chain of unattended focus sessions. A skipped or reset session does not count. A task is attached when a focus session starts, and its original title stays in history after a rename or deletion.
@@ -45,7 +46,7 @@ For iOS, use a **Mac with Xcode** and the Flutter iOS prerequisites. From `mobil
 
 ## Verification
 
-The Session 2 suite has 76 passing automated tests on the pinned SDK, covering timer boundaries, fractional pause/resume, clock and recovery failures, stale UI/actions, strict controls, cycle changes, tasks, transactional SQLite rollback/retry, backup preparation, startup retry, and narrow/large-text layouts. Rendering writes and ticker lifecycle are checked explicitly. The GitHub workflow enforces the dependency lockfile, formatting, analysis, automated tests, an Android build, and an iOS simulator build plus native backup-policy tests. Changed Swift integration and physical-device clock/backup checks remain unverified until run on macOS and phones. The timer transition table, invariants, reconciliation contract and platform limitations are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+The suite has 96 passing Flutter tests, including scheduling/cancellation, interrupted database/OS updates, permission-flow UI, v1-to-v2 migration, rollback/retry, timer recovery, strict controls and large-text layouts. Six Android JVM tests cover elapsed/reboot and receiver-identity policy. Rendering writes and ticker lifecycle are checked explicitly. CI enforces the lockfile, formatting, analysis, Flutter/native tests, an Android build, and iOS simulator compilation/XCTest. Changed Swift integration and all physical-device notification/clock/backup checks remain unverified until run on macOS and phones. See the [alert protocol and device evidence matrix](docs/NOTIFICATIONS.md) and [architecture](docs/ARCHITECTURE.md).
 
 Build outputs, signing keys, SDK configuration, and local development notes are excluded from source control.
 
@@ -57,7 +58,9 @@ The app has no backend or network dependency. [docs/ARCHITECTURE.md](docs/ARCHIT
 
 ## Starter boundaries
 
-This is a working foundation. Native scheduled notifications, notification actions, widgets, special-break schedules, and export/import are not implemented. **Native local alerts are a required session-3 milestone; there is currently no alert while the app is closed.** Strict mode restricts controls inside Poma; it does not lock the phone or stop other apps. Time recovery across a restart relies on the device's wall clock; manual clock changes while the process is closed can affect recovery.
+This is a working foundation. Native local alerts/actions use `flutter_local_notifications` 22.3.2 for permission/settings APIs and app-owned one-shot Android elapsed alarms / iOS interval requests. They require no running Dart countdown, internet, or developer tools after registration. **Actual delivery remains unobserved on both platforms; iOS integration still needs macOS compilation/tests.** Permission, Focus/DND, exact-access revocation, force-stop, reboot and OEM policies can prevent or delay alerts. Android same-boot restoration uses persisted elapsed identity; reboot and iOS process-restoration fallback rely on UTC and can be affected by manual clock changes. Each next phase still starts manually.
+
+Widgets, special-break schedules, and export/import remain unimplemented. Strict mode restricts controls inside Poma; it does not lock the phone or stop other apps. Delivery and force-quit limitations, source references and blocked device cases are recorded in [docs/NOTIFICATIONS.md](docs/NOTIFICATIONS.md).
 
 Production signing is unconfigured. The launcher icon and application identifiers still need release branding. Finish the device, accessibility, performance, backup/privacy, and signing checks in [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) before distribution.
 

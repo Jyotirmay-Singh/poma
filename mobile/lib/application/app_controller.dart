@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import 'local_repository.dart';
+import 'alert_coordinator.dart';
+import 'local_alerts.dart';
+import '../domain/alert_state.dart';
 import '../domain/models.dart';
 import '../domain/timer_engine.dart';
 
@@ -14,11 +17,15 @@ class TimerAlertIntent {
     required this.phase,
     required this.remainingMicros,
     required this.deadlineUtc,
+    this.notificationId,
+    this.generation,
   });
   final String runId;
   final FocusPhase phase;
   final int remainingMicros;
   final DateTime deadlineUtc;
+  final int? notificationId;
+  final int? generation;
 }
 
 class ReconciliationResult {
@@ -28,12 +35,14 @@ class ReconciliationResult {
     required this.persistence,
     required this.clockSucceeded,
     this.alert,
+    this.alertAvailability,
   });
   final TimerSnapshot snapshot;
   final TimerTransition transition;
   final PersistenceOutcome persistence;
   final bool clockSucceeded;
   final TimerAlertIntent? alert;
+  final AlertAvailability? alertAvailability;
 }
 
 class AppController extends ChangeNotifier {
@@ -42,6 +51,7 @@ class AppController extends ChangeNotifier {
     SavedState state,
     this.clock,
     ClockReading now,
+    LocalAlerts? alerts,
   ) : tasks = state.tasks.toList(),
       sessions = state.sessions.toList(),
       selectedTaskId = state.selectedTaskId,
@@ -49,11 +59,16 @@ class AppController extends ChangeNotifier {
         settings: state.settings,
         restored: state.timer,
         now: now,
-      );
+      ),
+      _savedAlerts = state.alerts,
+      _alerts = alerts == null
+          ? null
+          : AlertCoordinator(alerts, repository, state.alerts);
 
   static Future<AppController> create(
     LocalRepository repository, {
     required TimerClock clock,
+    LocalAlerts? alerts,
   }) async {
     final state = await repository.load();
     state.timer?.validate();
@@ -62,8 +77,9 @@ class AppController extends ChangeNotifier {
       state,
       clock,
       await clock.sample(),
+      alerts,
     );
-    final result = await controller.reconcile();
+    final result = await controller.reconcile(forceAlerts: true);
     if (!result.clockSucceeded) {
       controller.dispose();
       throw const TimerClockException();
@@ -74,6 +90,29 @@ class AppController extends ChangeNotifier {
   final LocalRepository repository;
   final TimerEngine timer;
   final TimerClock clock;
+  final AlertCoordinator? _alerts;
+  final AlertState _savedAlerts;
+  AlertAvailability? get alertAvailability => _alerts?.availability;
+  bool get needsAlertPermission =>
+      _alerts != null && !_alerts.state.permissionRequested;
+  bool get alertsEnabled => _alerts?.state.enabled ?? false;
+  int get alertOpenRevision => _alerts?.openRevision ?? 0;
+  String? get alertMessage {
+    // Explain an unanswered permission choice at Start, not as a denial.
+    if (needsAlertPermission && alertAvailability == AlertAvailability.denied) {
+      return null;
+    }
+    return switch (alertAvailability) {
+      AlertAvailability.delayed =>
+        'Alerts may be delayed. Allow precise alerts in Settings.',
+      AlertAvailability.denied =>
+        'Completion alerts are off in your phone’s notification settings.',
+      AlertAvailability.failed || AlertAvailability.unavailable =>
+        'Completion alert could not be registered. Your timer is kept. Try again.',
+      _ => null,
+    };
+  }
+
   TimerSettings get settings => timer.settings;
   final List<FocusTask> tasks;
   final List<FocusSession> sessions;
@@ -112,11 +151,20 @@ class AppController extends ChangeNotifier {
     return _enqueue(
       TimerAction.reconcile,
       checkpoint: !foreground && timer.status != RunStatus.ready,
+      forceAlerts: foreground,
     );
   }
 
-  Future<ReconciliationResult> reconcile({String? expectedRunId}) =>
-      _enqueue(TimerAction.reconcile, expectedRunId: expectedRunId);
+  Future<ReconciliationResult> reconcile({
+    String? expectedRunId,
+    bool forceAlerts = false,
+    bool checkpoint = false,
+  }) => _enqueue(
+    TimerAction.reconcile,
+    expectedRunId: expectedRunId,
+    forceAlerts: forceAlerts,
+    checkpoint: checkpoint,
+  );
   Future<ReconciliationResult> refresh() => reconcile();
 
   Future<ReconciliationResult> toggleTimer({
@@ -143,6 +191,18 @@ class AppController extends ChangeNotifier {
 
   Future<ReconciliationResult> updateSettings(TimerSettings next) =>
       _enqueue(TimerAction.updateSettings, nextSettings: next);
+
+  Future<ReconciliationResult> setCompletionAlerts(bool enabled) => _enqueue(
+    TimerAction.reconcile,
+    alertsEnabled: enabled,
+    requestPermission: enabled,
+    forceAlerts: true,
+  );
+  Future<void> openNotificationSettings() async => _alerts?.port.openSettings();
+  Future<void> requestPreciseAlerts() async {
+    await _alerts?.port.requestExactAccess();
+    await reconcile(forceAlerts: true);
+  }
 
   Future<ReconciliationResult> _control(
     TimerAction action, {
@@ -182,6 +242,9 @@ class AppController extends ChangeNotifier {
     FocusTask? task,
     TimerSettings? nextSettings,
     bool checkpoint = false,
+    bool forceAlerts = false,
+    bool? alertsEnabled,
+    bool requestPermission = false,
   }) {
     final operation = _commands.then((_) async {
       if (_disposed) return _idleResult();
@@ -207,18 +270,28 @@ class AppController extends ChangeNotifier {
         return _idleResult(clockSucceeded: false);
       }
       clockError = null;
+      if (alertsEnabled != null) _alerts?.setEnabled(alertsEnabled);
       final completed = transition.completion;
       if (completed != null && !sessions.any((s) => s.id == completed.id)) {
         sessions.insert(0, completed);
       }
       // Capture state in command order before allowing another user action.
-      final save = transition.changed || checkpoint ? _persist() : null;
       final snapshot = timer.snapshot();
+      final alertChanged = _alerts?.update(snapshot, now) ?? false;
+      final save =
+          transition.changed ||
+              checkpoint ||
+              alertChanged ||
+              alertsEnabled != null
+          ? _persist()
+          : null;
       final alert = timer.status == RunStatus.running
           ? TimerAlertIntent(
               runId: timer.runId!,
               phase: timer.phase,
               remainingMicros: timer.remainingMicros,
+              notificationId: _alerts?.state.current?.notificationId,
+              generation: _alerts?.state.current?.generation,
               deadlineUtc: now.utcNow.add(
                 Duration(microseconds: timer.remainingMicros),
               ),
@@ -231,12 +304,33 @@ class AppController extends ChangeNotifier {
                 ? PersistenceOutcome.notRequired
                 : PersistenceOutcome.failed)
           : await save;
+      if (_alerts != null &&
+          (forceAlerts ||
+              transition.changed ||
+              alertChanged ||
+              alertsEnabled != null)) {
+        try {
+          await _alerts.initialize(() {
+            unawaited(reconcile(forceAlerts: true, checkpoint: true));
+          });
+          if (requestPermission && persistence != PersistenceOutcome.failed) {
+            await _alerts.port.requestPermission();
+          }
+          await _alerts.synchronize(
+            durable: persistence != PersistenceOutcome.failed,
+          );
+        } catch (_) {
+          _alerts.availability = AlertAvailability.failed;
+        }
+        _notify();
+      }
       return ReconciliationResult(
         snapshot: snapshot,
         transition: transition,
         persistence: persistence,
         clockSucceeded: true,
         alert: alert,
+        alertAvailability: alertAvailability,
       );
     });
     // A failed caller must not poison later commands.
@@ -258,6 +352,7 @@ class AppController extends ChangeNotifier {
             ? PersistenceOutcome.notRequired
             : PersistenceOutcome.failed,
         clockSucceeded: clockSucceeded ?? clockError == null,
+        alertAvailability: alertAvailability,
       );
 
   void _notify() {
@@ -303,7 +398,10 @@ class AppController extends ChangeNotifier {
     _changed();
   }
 
-  void retrySave() => _persist();
+  Future<void> retrySave() async {
+    await _enqueue(TimerAction.reconcile, checkpoint: true, forceAlerts: true);
+  }
+
   Future<void> flush() async {
     await _commands;
     await _writes;
@@ -342,6 +440,7 @@ class AppController extends ChangeNotifier {
       tasks: tasks,
       sessions: sessions,
       selectedTaskId: selectedTaskId,
+      alerts: _alerts?.state ?? _savedAlerts,
     );
     // Serialize writes in the order of user actions; later state cannot be
     // overwritten by an earlier, slower database transaction.
@@ -368,6 +467,7 @@ class AppController extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     _ticker?.cancel();
+    _alerts?.port.dispose();
     super.dispose();
   }
 }
