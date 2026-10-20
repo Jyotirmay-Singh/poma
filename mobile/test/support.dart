@@ -1,4 +1,4 @@
-import 'package:poma/data/local_repository.dart';
+import 'package:poma/application/local_repository.dart';
 import 'package:poma/domain/models.dart';
 import 'package:poma/domain/timer_engine.dart';
 

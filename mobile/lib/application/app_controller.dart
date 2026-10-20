@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../data/local_repository.dart';
+import 'local_repository.dart';
 import '../domain/models.dart';
 import '../domain/timer_engine.dart';
 

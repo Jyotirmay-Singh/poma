@@ -15,10 +15,10 @@ Reviewed sources:
 | Built-in task list | SQLite-backed tasks attached to a focus session | Implemented |
 | Dark theme | System, light, dark | Implemented |
 | Strict mode | Disable app timer controls during an active phase | Implemented, app-only |
-| Desktop notifications | Native scheduled local notifications and permission UX | Session 3 |
+| Desktop notifications | Native scheduled local notifications and permission UX | Required session 3 milestone |
 | Full-screen breaks | Optional in-app break page, respecting mobile OS limits | Current timer break phase; no forced overlay |
 | Special breaks | Timezone-aware scheduled breaks with explicit conflict rules | Deferred |
-| Auto-start work | Opt-in phase policy; avoid fictitious unattended completions | Deferred; manual phases now |
+| Auto-start work | Each focus/break phase starts through a user action | Outside the confirmed mobile scope |
 | Tray, always-on-top, native titlebar | Mobile navigation / future notification controls or widgets | Desktop-only features omitted |
 | Desktop updater | Play Store / App Store release process | Session 7 |
 | Voice assistance and extra cues | Optional native alerts after accessibility review | Deferred |
@@ -26,3 +26,5 @@ Reviewed sources:
 History and weekly summaries are new mobile design choices. The familiar 25/5/15, four-round default is the starter's selected Pomodoro policy; the small inspected upstream timer files do not establish those duration values. No claim of full source review or exact desktop feature parity is made.
 
 REA is useful for packaged APK/IPA/Electron evidence and can inspect our build artifacts later. Ordinary available source is inspected directly; decompilation is not needed to understand these reference files.
+
+Session 1 rechecked the five pinned source files above on 20 October 2026. The packaged `assets/licenses/pomatez.txt` matches the upstream MIT license after line-ending normalization. The complete notice remains in `THIRD_PARTY_NOTICES.md` and the app's license registry. ZIP/Android SDK tools suffice for package/manifest verification; no REA connection, desktop shell, unrelated MCP server, or native analysis engine is needed for this source review.

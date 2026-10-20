@@ -97,7 +97,7 @@ class SettingsScreen extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         const Text(
-          'Tasks and sessions are saved on this device. No account, ads, or tracking. Device backup settings may include app data.',
+          'Tasks, settings, and history stay on this phone. Poma excludes this data from automatic backups. There is no automatic recovery if you uninstall Poma or lose the phone. No account, ads, or tracking.',
           style: TextStyle(height: 1.5),
         ),
         const SizedBox(height: 18),

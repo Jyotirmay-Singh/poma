@@ -7,7 +7,7 @@ The current deliverable is a starter. Complete these before a production release
 - Pass timer, controller, database, widget, and migration tests on the pinned SDK.
 - Test on real Android and iOS phones: lock screen, background, process kill, force-stop, reboot, timezone and manual clock changes, low-power modes, and permission denial/revocation.
 - Implement native local notifications, cancellation/rescheduling, and action deduplication. Test Android's exact-alarm restrictions and Play eligibility; provide an honest inexact fallback. iOS does not allow arbitrary continuous background countdown execution.
-- Decide auto-start and special-break overlap semantics before adding those features.
+- Preserve manually started phases. Auto-start chains are outside the confirmed scope; define special-break overlap semantics only if that deferred feature is approved.
 - Verify first launch, timer and break controls, local tasks/history/settings, restart recovery, and local alerts in airplane mode. No app feature may require signup or a network connection.
 - Test VoiceOver, TalkBack, 200% text, narrow screens, dark mode, landscape, contrast, hit targets, and reduced motion.
 
@@ -15,7 +15,7 @@ The current deliverable is a starter. Complete these before a production release
 
 - Add explicit migrations and failure-injection fixtures. Avoid full-history rewrites and unbounded in-memory loading.
 - Implement export/import and validation if promised, plus data retention and deletion.
-- Decide Android Auto Backup/iCloud backup behavior and disclose it accurately. Current data is local app storage, with OS backup behavior inherited from platform defaults.
+- Verify the implemented backup exclusions on devices: Android legacy/cloud-backup/device-transfer rules and iOS database-directory exclusion (including SQLite sidecars). Native iOS compilation/tests and actual OS backup/transfer behavior remain unverified. Keep the no-automatic-recovery disclosure accurate; an older OS backup is not retroactively removed.
 - Review sensitive task content, lock-screen notification privacy, and logs. Do not claim database encryption; none is implemented.
 - Keep accounts, backend services, cloud synchronization, remote configuration, and personal-profile collection outside the product scope. Retain settings, tasks, and history locally as requested.
 - Verify no secrets, signing keys, debug endpoints, analytics, or unnecessary permissions ship.

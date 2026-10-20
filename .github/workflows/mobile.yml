@@ -25,7 +25,7 @@ jobs:
           flutter-version: '3.44.2'
           channel: stable
           cache: true
-      - run: flutter pub get
+      - run: flutter pub get --enforce-lockfile
       - run: dart format --output=none --set-exit-if-changed lib test
       - run: flutter analyze
       - run: flutter test
@@ -47,5 +47,9 @@ jobs:
           flutter-version: '3.44.2'
           channel: stable
           cache: true
-      - run: flutter pub get
+      - run: flutter pub get --enforce-lockfile
       - run: flutter build ios --simulator --no-codesign
+      - name: Test native iOS backup exclusions
+        run: |
+          device_id="$(xcrun simctl list devices available --json | python3 -c 'import json,sys; print(next(device["udid"] for devices in json.load(sys.stdin)["devices"].values() for device in devices if device["name"].startswith("iPhone")))')"
+          xcodebuild test -workspace ios/Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=iOS Simulator,id=$device_id" CODE_SIGNING_ALLOWED=NO

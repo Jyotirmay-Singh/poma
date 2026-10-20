@@ -3,7 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'application/app_controller.dart';
+import 'application/local_repository.dart';
 import 'data/local_repository.dart';
+import 'data/local_storage_policy.dart';
 import 'ui/app_shell.dart';
 import 'ui/theme.dart';
 
@@ -18,14 +20,16 @@ void main() {
 }
 
 class PomaLoader extends StatefulWidget {
-  const PomaLoader({super.key});
+  const PomaLoader({super.key, this.repositoryFactory});
+
+  final LocalRepository Function()? repositoryFactory;
   @override
   State<PomaLoader> createState() => _PomaLoaderState();
 }
 
 class _PomaLoaderState extends State<PomaLoader> {
   late Future<AppController> _loading;
-  SqliteRepository? _repository;
+  LocalRepository? _repository;
   AppController? _controller;
   @override
   void initState() {
@@ -35,7 +39,7 @@ class _PomaLoaderState extends State<PomaLoader> {
 
   Future<AppController> _load() async {
     await _repository?.close();
-    final repository = SqliteRepository();
+    final repository = widget.repositoryFactory?.call() ?? SqliteRepository();
     _repository = repository;
     return _controller = await AppController.create(repository);
   }
@@ -60,8 +64,10 @@ class _PomaLoaderState extends State<PomaLoader> {
                         children: [
                           const Icon(Icons.storage_outlined, size: 40),
                           const SizedBox(height: 20),
-                          const Text(
-                            'Your saved data could not be opened.',
+                          Text(
+                            snapshot.error is LocalStoragePreparationException
+                                ? 'Local storage privacy settings could not be applied.'
+                                : 'Your saved data could not be opened.',
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 12),
@@ -71,7 +77,9 @@ class _PomaLoaderState extends State<PomaLoader> {
                           ),
                           const SizedBox(height: 20),
                           FilledButton(
-                            onPressed: () => setState(() => _loading = _load()),
+                            onPressed: () => setState(() {
+                              _loading = _load();
+                            }),
                             child: const Text('Try again'),
                           ),
                         ],

@@ -33,8 +33,12 @@ class TimerEngine {
       _runId = restored.runId;
       _taskId = restored.taskId;
       _taskTitle = restored.taskTitle;
+      if (status != RunStatus.ready &&
+          (_startedAt == null || _runId == null || _runId!.isEmpty)) {
+        throw FormatException('The saved ${status.name} timer is incomplete.');
+      }
       if (status == RunStatus.running) {
-        if (restored.deadline == null || _startedAt == null || _runId == null) {
+        if (restored.deadline == null) {
           throw const FormatException('The saved running timer is incomplete.');
         }
         _remaining = restored.deadline!.difference(this.clock.utcNow);

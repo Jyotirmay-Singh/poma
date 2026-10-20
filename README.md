@@ -2,7 +2,9 @@
 
 An offline Pomodoro app for **Android and iOS**, built with Flutter and SQLite.
 
-Focus sessions, tasks, settings, and history work entirely offline after installation. Data stays in local app storage, subject to the phone's backup settings. No signup or server is required.
+Focus sessions, tasks, settings, and history work entirely offline after installation. Data stays in local app storage. Android declares automatic-backup and device-transfer exclusions; iOS marks the SQLite directory as excluded before opening it. Real-device validation remains pending on both platforms, and the changed iOS integration still needs macOS compilation/tests. No signup or server is required. After installation, the app needs no computer, development server, REA/MCP connection, or AI model.
+
+There is no automatic data recovery after uninstalling Poma or losing the phone. These exclusions do not remove copies that an older version may already have placed in an OS backup.
 
 ## What works now
 
@@ -43,19 +45,19 @@ For iOS, use a **Mac with Xcode** and the Flutter iOS prerequisites. From `mobil
 
 ## Verification
 
-The starter's 22 automated tests and static analysis passed on the pinned SDK. Android arm64 debug and optimized packages were built locally. Physical-device testing and native iOS compilation remain outstanding. The GitHub workflow checks formatting, analysis, tests, an Android build, and an iOS simulator build.
+The foundation's 31 automated tests passed on the pinned SDK, covering timer recovery, tasks, transactional SQLite storage, backup-preparation failures, startup retry, and narrow/large-text layouts. The GitHub workflow enforces the dependency lockfile, formatting, analysis, automated tests, an Android build, and an iOS simulator build plus native backup-policy tests. The existing starter's Android and iOS CI passed; the changed Swift integration and physical-device checks remain unverified until run on macOS and phones.
 
 Build outputs, signing keys, SDK configuration, and local development notes are excluded from source control.
 
 ## Architecture
 
-`mobile/lib/domain/` owns the timer and immutable records. `application/` coordinates actions, lifecycle, and serialized saves. `data/` implements the SQLite repository. `ui/` contains the four screens. The domain has no Flutter imports.
+`mobile/lib/domain/` owns the timer and immutable records. `application/` owns the persistence contract and coordinates actions, lifecycle, and serialized saves. `data/` implements SQLite and the local storage policy. `ui/` contains the four screens. The domain has no Flutter imports; the application does not import the data implementation. The entry point wires the layers together.
 
 The app has no backend or network dependency. [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) describes the clock, persistence, resource policy, and data decisions. Accounts, cloud storage, and syncing are outside the product scope.
 
 ## Starter boundaries
 
-This is a working foundation. Native scheduled notifications, notification actions, widgets, special-break schedules, and export/import are not implemented. **There is no alert while the app is closed.** Strict mode restricts controls inside Poma; it does not lock the phone or stop other apps. Time recovery across a restart relies on the device's wall clock; manual clock changes while the process is closed can affect recovery.
+This is a working foundation. Native scheduled notifications, notification actions, widgets, special-break schedules, and export/import are not implemented. **Native local alerts are a required session-3 milestone; there is currently no alert while the app is closed.** Strict mode restricts controls inside Poma; it does not lock the phone or stop other apps. Time recovery across a restart relies on the device's wall clock; manual clock changes while the process is closed can affect recovery.
 
 Production signing is unconfigured. The launcher icon and application identifiers still need release branding. Finish the device, accessibility, performance, backup/privacy, and signing checks in [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) before distribution.
 

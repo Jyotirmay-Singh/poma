@@ -3,26 +3,29 @@ import 'dart:convert';
 import 'package:path/path.dart' as path;
 import 'package:sqflite/sqflite.dart';
 
+import '../application/local_repository.dart';
 import '../domain/models.dart';
-
-abstract interface class LocalRepository {
-  Future<SavedState> load();
-  Future<void> save(SavedState state);
-  Future<void> close();
-}
+import 'local_storage_policy.dart';
 
 class SqliteRepository implements LocalRepository {
-  SqliteRepository({DatabaseFactory? factory, this.databasePath})
-    : factory = factory ?? databaseFactory;
+  SqliteRepository({
+    DatabaseFactory? factory,
+    this.databasePath,
+    LocalStoragePolicy? storagePolicy,
+  }) : factory = factory ?? databaseFactory,
+       storagePolicy = storagePolicy ?? LocalStoragePolicy();
 
   final DatabaseFactory factory;
   final String? databasePath;
+  final LocalStoragePolicy storagePolicy;
   Database? _database;
 
   Future<Database> _open() async {
     if (_database != null) return _database!;
     final location =
         databasePath ?? path.join(await factory.getDatabasesPath(), 'poma.db');
+    // The directory exclusion also covers SQLite journal/WAL/SHM files.
+    await storagePolicy.prepareDirectory(path.dirname(location));
     _database = await factory.openDatabase(
       location,
       options: OpenDatabaseOptions(

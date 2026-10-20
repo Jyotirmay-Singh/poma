@@ -5,11 +5,42 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poma/application/app_controller.dart';
+import 'package:poma/data/local_storage_policy.dart';
+import 'package:poma/domain/models.dart';
 import 'package:poma/main.dart';
 import 'support.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  testWidgets('startup privacy failure offers retry and retains saved tasks', (
+    tester,
+  ) async {
+    final repository = PreparationFailureRepository(
+      SavedState(
+        tasks: const [FocusTask(id: 'kept', title: 'Saved task')],
+      ),
+    );
+    await tester.pumpWidget(PomaLoader(repositoryFactory: () => repository));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Local storage privacy settings could not be applied.'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Try again. Your existing data will be kept.'),
+      findsOneWidget,
+    );
+    expect(repository.state.tasks.single.title, 'Saved task');
+    repository.failPreparation = false;
+    await tester.tap(find.text('Try again'));
+    await tester.pumpAndSettle();
+    expect(find.text('25:00'), findsOneWidget);
+    await tester.tap(find.text('Tasks').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Saved task'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+  });
   setUpAll(() async {
     if (!const bool.fromEnvironment('POMA_SCREENSHOTS')) return;
     final sdk = Platform.environment['FLUTTER_ROOT'];
@@ -121,4 +152,15 @@ void main() {
       });
     }
   });
+}
+
+class PreparationFailureRepository extends MemoryRepository {
+  PreparationFailureRepository(super.initial);
+  bool failPreparation = true;
+
+  @override
+  Future<SavedState> load() async {
+    if (failPreparation) throw const LocalStoragePreparationException();
+    return super.load();
+  }
 }

@@ -122,6 +122,56 @@ void main() {
     }
     expect(timer.completedRounds, 0);
   });
+  test('restored paused focus resumes with its original identity and task', () {
+    timer.start(
+      task: const FocusTask(id: 'task', title: 'Original title'),
+    );
+    clock.advance(const Duration(minutes: 5));
+    timer.pause();
+    final snapshot = TimerSnapshot.fromJson(timer.snapshot().toJson());
+    final nextClock = FakeClock(DateTime.utc(2026, 10, 23));
+    final restored = TimerEngine(
+      settings: timer.settings,
+      clock: nextClock,
+      restored: snapshot,
+    );
+    restored.start(
+      task: const FocusTask(id: 'different', title: 'Different task'),
+    );
+    nextClock.advance(const Duration(minutes: 20));
+    final completed = restored.tick()!;
+    expect(completed.id, snapshot.runId);
+    expect(completed.startedAt, snapshot.startedAt);
+    expect(completed.taskId, 'task');
+    expect(completed.taskTitle, 'Original title');
+    expect(restored.phase, FocusPhase.shortBreak);
+    expect(restored.status, RunStatus.ready);
+    expect(restored.tick(), isNull);
+  });
+
+  test('incomplete paused identities fail before a session can be resumed', () {
+    for (final identity in [
+      (null, DateTime.utc(2026, 10, 20)),
+      ('', DateTime.utc(2026, 10, 20)),
+      ('session', null),
+    ]) {
+      expect(
+        () => TimerEngine(
+          settings: const TimerSettings(),
+          restored: TimerSnapshot(
+            phase: FocusPhase.focus,
+            status: RunStatus.paused,
+            totalSeconds: 1500,
+            remainingMicros: 1200000000,
+            completedRounds: 0,
+            runId: identity.$1,
+            startedAt: identity.$2,
+          ),
+        ),
+        throwsFormatException,
+      );
+    }
+  });
   test('skipping and resetting never count a focus session', () {
     timer.start();
     clock.advance(const Duration(minutes: 3));
