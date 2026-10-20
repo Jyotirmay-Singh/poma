@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poma/application/app_controller.dart';
+import 'package:poma/application/local_repository.dart';
 import 'package:poma/data/local_repository.dart';
 import 'package:poma/data/local_storage_policy.dart';
 import 'package:poma/domain/models.dart';
@@ -200,6 +201,7 @@ void main() {
             reopened,
             clock: FakeClock(clock.utcNow.add(const Duration(days: 1))),
           );
+          await restored.loadHistory();
           expect(restored.sessions, hasLength(1));
           expect(restored.sessions.single.id, id);
           expect(restored.sessions.single.taskTitle, 'Snapshot title');
@@ -261,7 +263,7 @@ void main() {
         final bytes = File(dbPath).readAsBytesSync();
         await expectLater(
           AppController.create(repo, clock: clock),
-          throwsFormatException,
+          throwsA(isA<StorageFailure>()),
         );
         await repo.close();
         expect(File(dbPath).readAsBytesSync(), orderedEquals(bytes));

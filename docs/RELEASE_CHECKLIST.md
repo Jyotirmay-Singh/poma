@@ -13,8 +13,8 @@ The current deliverable is a starter. Complete these before a production release
 
 ## Data and privacy
 
-- Add explicit migrations and failure-injection fixtures. Avoid full-history rewrites and unbounded in-memory loading.
-- Implement export/import and validation if promised, plus data retention and deletion.
+- Explicit v1/v2→v3 migrations, incremental transactions, indexed pagination, failure fixtures and local retention/deletion are implemented. Keep [LOCAL_DATA.md](LOCAL_DATA.md) current and run the durability suite, including process-exit probes, before release.
+- Export/import is deferred and must not delay the core offline release. If later promised, require a versioned validated format, size limits, duplicate rules and a destructive-conflict preview.
 - Verify the implemented backup exclusions on devices: Android legacy/cloud-backup/device-transfer rules and iOS database-directory exclusion (including SQLite sidecars). Native iOS compilation/tests and actual OS backup/transfer behavior remain unverified. Keep the no-automatic-recovery disclosure accurate; an older OS backup is not retroactively removed.
 - Review sensitive task content, lock-screen notification privacy, and logs. Do not claim database encryption; none is implemented.
 - Keep accounts, backend services, cloud synchronization, remote configuration, and personal-profile collection outside the product scope. Retain settings, tasks, and history locally as requested.

@@ -51,5 +51,13 @@ class FakeAlerts implements LocalAlerts {
   }
 
   @override
+  Future<void> clearForReset() async {
+    if (failBefore) throw StateError('OS unavailable');
+    pending.clear();
+    queue.clear();
+    if (failAfter) throw StateError('Interrupted cleanup');
+  }
+
+  @override
   void dispose() {}
 }

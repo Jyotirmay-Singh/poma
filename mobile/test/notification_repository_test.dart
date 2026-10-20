@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poma/application/app_controller.dart';
+import 'package:poma/application/local_repository.dart';
 import 'package:poma/data/local_repository.dart';
 import 'package:poma/domain/models.dart';
 import 'package:poma/domain/timer_engine.dart';
@@ -113,7 +114,7 @@ void main() {
         factory: databaseFactoryFfi,
         databasePath: path,
       );
-      await expectLater(repository.load(), throwsA(isA<FormatException>()));
+      await expectLater(repository.load(), throwsA(isA<StorageFailure>()));
       await repository.close();
       expect(File(path).readAsBytesSync(), orderedEquals(bytes));
       final db = await databaseFactoryFfi.openDatabase(path);

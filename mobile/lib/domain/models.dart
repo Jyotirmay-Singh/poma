@@ -63,8 +63,19 @@ class TimerSettings {
   };
 
   factory TimerSettings.fromJson(Map<String, dynamic> json) {
-    int bounded(String key, int fallback, int max) =>
-        (json[key] as int? ?? fallback).clamp(1, max);
+    int bounded(String key, int fallback, int max) {
+      final value = json.containsKey(key) ? json[key] : fallback;
+      if (value is! int || value < 1 || value > max) {
+        throw const FormatException('Invalid saved settings.');
+      }
+      return value;
+    }
+
+    if ((json.containsKey('strictMode') && json['strictMode'] is! bool) ||
+        (json.containsKey('appearance') &&
+            !['system', 'light', 'dark'].contains(json['appearance']))) {
+      throw const FormatException('Invalid saved settings.');
+    }
     return TimerSettings(
       focusMinutes: bounded('focusMinutes', 25, 120),
       shortBreakMinutes: bounded('shortBreakMinutes', 5, 60),
@@ -94,11 +105,23 @@ class FocusTask {
     'position': position,
   };
 
-  factory FocusTask.fromRow(Map<String, Object?> row) => FocusTask(
-    id: row['id'] as String,
-    title: row['title'] as String,
-    done: row['done'] == 1,
-  );
+  factory FocusTask.fromRow(Map<String, Object?> row) {
+    if (row['id'] is! String ||
+        (row['id'] as String).trim().isEmpty ||
+        row['title'] is! String ||
+        (row['title'] as String).trim().isEmpty ||
+        (row['title'] as String).length > 160 ||
+        ![0, 1].contains(row['done']) ||
+        row['position'] is! int ||
+        (row['position'] as int) < 0) {
+      throw const FormatException('Invalid saved task.');
+    }
+    return FocusTask(
+      id: row['id'] as String,
+      title: row['title'] as String,
+      done: row['done'] == 1,
+    );
+  }
 }
 
 class FocusSession {
@@ -127,14 +150,30 @@ class FocusSession {
     'task_title': taskTitle,
   };
 
-  factory FocusSession.fromRow(Map<String, Object?> row) => FocusSession(
-    id: row['id'] as String,
-    startedAt: DateTime.parse(row['started_at'] as String),
-    endedAt: DateTime.parse(row['ended_at'] as String),
-    focusSeconds: row['focus_seconds'] as int,
-    taskId: row['task_id'] as String?,
-    taskTitle: row['task_title'] as String?,
-  );
+  factory FocusSession.fromRow(Map<String, Object?> row) {
+    if (row['id'] is! String ||
+        (row['id'] as String).trim().isEmpty ||
+        row['focus_seconds'] is! int ||
+        (row['focus_seconds'] as int) < 1 ||
+        (row['focus_seconds'] as int) > 7200 ||
+        (row['task_id'] != null &&
+            (row['task_id'] is! String ||
+                (row['task_id'] as String).trim().isEmpty)) ||
+        (row['task_title'] != null &&
+            (row['task_title'] is! String ||
+                (row['task_title'] as String).trim().isEmpty ||
+                (row['task_title'] as String).length > 160))) {
+      throw const FormatException('Invalid saved session.');
+    }
+    return FocusSession(
+      id: row['id'] as String,
+      startedAt: storedTimestamp(row['started_at']),
+      endedAt: storedTimestamp(row['ended_at']),
+      focusSeconds: row['focus_seconds'] as int,
+      taskId: row['task_id'] as String?,
+      taskTitle: row['task_title'] as String?,
+    );
+  }
 }
 
 class TimerSnapshot {
@@ -287,6 +326,9 @@ class SavedState {
     List<FocusSession> sessions = const [],
     this.selectedTaskId,
     this.alerts = const AlertState(),
+    this.revision = 0,
+    this.lastCommitId,
+    this.cleanupPending = false,
   }) : tasks = List.unmodifiable(tasks),
        sessions = List.unmodifiable(sessions);
 
@@ -296,6 +338,34 @@ class SavedState {
   final List<FocusSession> sessions;
   final String? selectedTaskId;
   final AlertState alerts;
+  final int revision;
+  final String? lastCommitId;
+  final bool cleanupPending;
+}
+
+DateTime storedTimestamp(Object? value) {
+  if (value is! String) throw const FormatException('Invalid timestamp.');
+  final match = RegExp(
+    r'^([+-]?\d{4,6})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,6})?(Z|[+-]\d{2}:\d{2})$',
+  ).firstMatch(value);
+  if (match == null) throw const FormatException('Invalid timestamp.');
+  final year = int.parse(match[1]!);
+  final month = int.parse(match[2]!);
+  final day = int.parse(match[3]!);
+  final date = DateTime.utc(year, month, day);
+  final offset = match[7]!;
+  if (date.year != year ||
+      date.month != month ||
+      date.day != day ||
+      int.parse(match[4]!) > 23 ||
+      int.parse(match[5]!) > 59 ||
+      int.parse(match[6]!) > 59 ||
+      (offset != 'Z' &&
+          (int.parse(offset.substring(1, 3)) > 23 ||
+              int.parse(offset.substring(4, 6)) > 59))) {
+    throw const FormatException('Invalid timestamp.');
+  }
+  return DateTime.parse(value).toUtc();
 }
 
 String newLocalId() {

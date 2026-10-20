@@ -1,0 +1,12 @@
+PRAGMA user_version = 1;
+CREATE TABLE app_state (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+CREATE TABLE tasks (id TEXT PRIMARY KEY, title TEXT NOT NULL, done INTEGER NOT NULL, position INTEGER NOT NULL);
+CREATE TABLE sessions (id TEXT PRIMARY KEY, started_at TEXT NOT NULL, ended_at TEXT NOT NULL, focus_seconds INTEGER NOT NULL, task_id TEXT, task_title TEXT);
+CREATE INDEX sessions_ended_at ON sessions(ended_at);
+INSERT INTO app_state VALUES ('settings', '{"focusMinutes":30,"shortBreakMinutes":5,"longBreakMinutes":15,"rounds":4,"strictMode":false,"appearance":"dark"}');
+INSERT INTO app_state VALUES ('selectedTaskId', 'task-b');
+INSERT INTO app_state VALUES ('timer', '{"phase":"focus","status":"paused","totalSeconds":1800,"remainingMicros":123456789,"completedRounds":2,"deadline":null,"startedAt":"2026-10-20T23:50:00.000Z","runId":"legacy-run","taskId":"task-b","taskTitle":"Original title"}');
+INSERT INTO tasks VALUES ('task-b','Renamed title',0,0);
+INSERT INTO tasks VALUES ('task-a','Completed task',1,7);
+INSERT INTO sessions VALUES ('legacy-a','2026-10-19T23:35:00.000Z','2026-10-20T00:00:00.000Z',1500,'deleted-task','Historic title');
+INSERT INTO sessions VALUES ('legacy-b','2026-10-19T23:35:00.000001Z','2026-10-20T00:00:00.000001Z',1500,NULL,NULL);

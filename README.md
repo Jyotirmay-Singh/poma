@@ -12,12 +12,15 @@ There is no automatic data recovery after uninstalling Poma or losing the phone.
 - Start, pause, resume, reset, skip, and app-level strict mode.
 - Sleep-inclusive native elapsed clocks, exact pause/resume, saved deadlines, and recovery after a process restart.
 - Tasks: add, rename, complete, select for focus, and delete.
-- Completed focus history, daily totals, and a seven-day view.
-- Transactional SQLite persistence, duplicate completion protection, visible save failures, and retry.
+- Indexed focus history with 50-session Newer/Older pages, daily totals, and a seven-day view.
+- Incremental transactional SQLite persistence, v1/v2 migrations, duplicate completion protection, visible save failures, and retry.
+- Confirmed session/history deletion and full local data reset, with interrupted alert cleanup recovery.
 - Native OS-scheduled completion alerts, permission/settings controls, cancellation, and Open timer / Dismiss actions. Android offers an inexact fallback when precise alarms are unavailable.
 - System, light, and dark appearances; screen-reader labels and layouts that accommodate large text.
 
 Each phase starts manually. Leaving the app can complete **one existing session**; it never manufactures a chain of unattended focus sessions. A skipped or reset session does not count. A task is attached when a focus session starts, and its original title stays in history after a rename or deletion.
+
+History stays on the phone until explicitly deleted. Settings provides clear-history and full-reset controls; full reset abandons even a strict running phase. After a write failure, further edits can remain in memory with an unsaved warning: they may be lost if the app closes. An unreadable database is never silently deleted or replaced. Export/import is deferred and does not block the core offline release. See [local data, retention and recovery](docs/LOCAL_DATA.md).
 
 ## Run
 
@@ -46,7 +49,7 @@ For iOS, use a **Mac with Xcode** and the Flutter iOS prerequisites. From `mobil
 
 ## Verification
 
-The suite has 96 passing Flutter tests, including scheduling/cancellation, interrupted database/OS updates, permission-flow UI, v1-to-v2 migration, rollback/retry, timer recovery, strict controls and large-text layouts. Six Android JVM tests cover elapsed/reboot and receiver-identity policy. Rendering writes and ticker lifecycle are checked explicitly. CI enforces the lockfile, formatting, analysis, Flutter/native tests, an Android build, and iOS simulator compilation/XCTest. Changed Swift integration and all physical-device notification/clock/backup checks remain unverified until run on macOS and phones. See the [alert protocol and device evidence matrix](docs/NOTIFICATIONS.md) and [architecture](docs/ARCHITECTURE.md).
+The Flutter suite covers scheduling/cancellation, interrupted database/OS updates, permission-flow UI, fixed v1/v2-to-v3 migrations, real SQLite storage exhaustion, process exits before/after commit, rollback/retry, delayed saves, 100,000-row pagination, deletion, timer recovery, strict controls and large-text layouts. Six Android JVM tests cover elapsed/reboot and receiver-identity policy. Rendering writes and ticker lifecycle are checked explicitly. CI enforces the lockfile, formatting, analysis, Flutter/native tests, an Android build, and iOS simulator compilation/XCTest. Changed Swift integration and all physical-device notification/clock/backup/offline-restart checks remain unverified until run on macOS and phones. See the [local durability checks](docs/LOCAL_DATA.md), [alert protocol and device evidence matrix](docs/NOTIFICATIONS.md), and [architecture](docs/ARCHITECTURE.md).
 
 Build outputs, signing keys, SDK configuration, and local development notes are excluded from source control.
 

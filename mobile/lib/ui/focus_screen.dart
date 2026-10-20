@@ -23,9 +23,8 @@ class FocusScreen extends StatelessWidget {
         : (Theme.of(context).brightness == Brightness.dark
               ? const Color(0xFF81D4CF)
               : pomaTeal);
-    final today = controller.sessionsOn(DateTime.now());
-    final minutes =
-        today.fold(0, (sum, session) => sum + session.focusSeconds) ~/ 60;
+    final today = controller.todaySummary;
+    final minutes = (today?.focusSeconds ?? 0) ~/ 60;
     final task = controller.selectedTask;
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
@@ -156,9 +155,17 @@ class FocusScreen extends StatelessWidget {
           children: [
             Text('Today', style: Theme.of(context).textTheme.titleSmall),
             Text(
-              '${today.length} ${today.length == 1 ? 'session' : 'sessions'}     $minutes min focused',
+              controller.summaryError ??
+                  (today == null
+                      ? 'Loading today’s focus…'
+                      : '${today.count} ${today.count == 1 ? 'session' : 'sessions'}     $minutes min focused'),
               style: TextStyle(color: colors.onSurfaceVariant),
             ),
+            if (controller.summaryError != null)
+              TextButton(
+                onPressed: controller.loadSummaries,
+                child: const Text('Retry totals'),
+              ),
           ],
         ),
       ],

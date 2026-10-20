@@ -25,5 +25,6 @@ abstract interface class LocalAlerts {
   Future<void> requestExactAccess();
   Future<List<AlertResponse>> responses();
   Future<void> acknowledgeResponse(AlertResponse response);
+  Future<void> clearForReset();
   void dispose();
 }

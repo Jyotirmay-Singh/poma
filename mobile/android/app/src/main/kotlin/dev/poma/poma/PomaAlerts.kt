@@ -64,6 +64,16 @@ object PomaAlerts {
                                     "generation" to item.getLong("generation"), "action" to item.getString("action"))
                             }.toList())
                         }
+                        "clearForReset" -> {
+                            // SQLite's reset marker is committed before this idempotent cleanup.
+                            val saved = requireNotNull(state(context))
+                            check(saved.optJSONObject("current") == null)
+                            synchronize(context, JSONObject().put("enabled", false))
+                            manager(context).cancelAll()
+                            persist(context, "responses", "{}")
+                            persist(context, "registered", "[]")
+                            result.success(null)
+                        }
                         "acknowledgeResponse" -> {
                             val queue = JSONObject(prefs(context).getString("responses", "{}")!!)
                             queue.remove(call.argument<String>("key"))

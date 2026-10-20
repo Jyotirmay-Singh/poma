@@ -61,6 +61,10 @@ final class PomaAlertResponses {
     queue.removeValue(forKey: receipt)
     defaults.set(queue, forKey: key)
   }
+  func clear() {
+    lock.lock(); defer { lock.unlock() }
+    defaults.removeObject(forKey: key)
+  }
 }
 
 final class PomaLocalAlerts {
@@ -106,6 +110,18 @@ final class PomaLocalAlerts {
         }
         self.synchronize(state, permitted: arguments["permitted"] as? Bool == true, result: result)
       case "responses": result(self.journal.values)
+      case "clearForReset":
+        guard let saved = self.committedState(), saved.current == nil else {
+          result(FlutterError(code: "reset_not_saved", message: "Data reset must be saved first", details: nil)); return
+        }
+        self.center.getPendingNotificationRequests { requests in
+          self.center.removePendingNotificationRequests(withIdentifiers: requests.filter { Self.owns($0.identifier) }.map(\.identifier))
+          self.center.getDeliveredNotifications { delivered in
+            self.center.removeDeliveredNotifications(withIdentifiers: delivered.filter { Self.owns($0.request.identifier) }.map { $0.request.identifier })
+            self.journal.clear()
+            DispatchQueue.main.async { result(nil) }
+          }
+        }
       case "acknowledgeResponse":
         if let key = arguments["key"] as? String { self.journal.acknowledge(key) }
         result(nil)

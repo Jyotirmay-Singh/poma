@@ -158,6 +158,17 @@ class TimerEngine {
   TimerTransition reconcile(ClockReading now) =>
       apply(TimerAction.reconcile, now);
 
+  /// Explicit user data deletion is separate from strict phase controls.
+  void deleteLocalData(ClockReading now) {
+    _now = now;
+    _settings = const TimerSettings();
+    _completedRounds = 0;
+    _segment = 0;
+    _recoveryAdjusted = false;
+    _prepare(FocusPhase.focus);
+    _revision++;
+  }
+
   TimerTransition apply(
     TimerAction action,
     ClockReading now, {

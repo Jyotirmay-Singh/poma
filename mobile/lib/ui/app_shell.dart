@@ -21,6 +21,7 @@ class _AppShellState extends State<AppShell> {
     if (_seenAlertOpenRevision != controller.alertOpenRevision) {
       _seenAlertOpenRevision = controller.alertOpenRevision;
       _tab = 0;
+      controller.showInsights(false);
     }
     return Scaffold(
       body: SafeArea(
@@ -60,6 +61,18 @@ class _AppShellState extends State<AppShell> {
                   ),
                 ],
               ),
+            if (controller.cleanupPending && controller.saveError == null)
+              MaterialBanner(
+                content: const Text(
+                  'Data deletion needs retry before starting another timer.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: controller.retrySave,
+                    child: const Text('Finish deletion'),
+                  ),
+                ],
+              ),
             Expanded(
               child: switch (_tab) {
                 0 => FocusScreen(
@@ -76,7 +89,10 @@ class _AppShellState extends State<AppShell> {
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tab,
-        onDestinationSelected: (tab) => setState(() => _tab = tab),
+        onDestinationSelected: (tab) {
+          controller.showInsights(tab == 2);
+          setState(() => _tab = tab);
+        },
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.timelapse_outlined),

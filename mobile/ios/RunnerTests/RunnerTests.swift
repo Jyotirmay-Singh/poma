@@ -70,6 +70,17 @@ class RunnerTests: XCTestCase {
     XCTAssertEqual(journal.values.count, 20)
   }
 
+  func testResetClearsResponseJournalIdempotently() throws {
+    let suite = "poma-reset-test-" + UUID().uuidString
+    let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+    defer { defaults.removePersistentDomain(forName: suite) }
+    let journal = PomaAlertResponses(defaults: defaults)
+    journal.append(runId: "old-run", generation: 9, action: "open")
+    journal.clear()
+    journal.clear()
+    XCTAssertTrue(PomaAlertResponses(defaults: defaults).values.isEmpty)
+  }
+
   func testExclusionPreservesDatabaseAndSidecars() throws {
     let directory = FileManager.default.temporaryDirectory
       .appendingPathComponent("poma-backup-test-" + UUID().uuidString, isDirectory: true)

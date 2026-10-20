@@ -3,6 +3,7 @@ import '../application/app_controller.dart';
 import '../application/local_alerts.dart';
 import '../domain/models.dart';
 import 'app_shell.dart';
+import 'insights_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({required this.controller, super.key});
@@ -130,6 +131,71 @@ class SettingsScreen extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: 24),
+        const Text(
+          'History is kept until you delete it. Export/import is not available yet. Deleting data cannot be undone.',
+        ),
+        TextButton.icon(
+          icon: const Icon(Icons.delete_outline),
+          label: const Text('Clear focus history'),
+          onPressed: () async {
+            if (await confirmDeletion(
+                  context,
+                  title: 'Clear focus history?',
+                  message:
+                      'Delete all completed sessions and their totals? Your tasks, settings, and current timer stay.',
+                ) &&
+                context.mounted) {
+              final success = await controller.deleteHistory();
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      success
+                          ? 'Focus history deleted.'
+                          : controller.deletionError!,
+                    ),
+                  ),
+                );
+              }
+            }
+          },
+        ),
+        TextButton.icon(
+          icon: const Icon(Icons.delete_forever_outlined),
+          label: const Text('Delete all local data'),
+          onPressed: () async {
+            if (await confirmDeletion(
+                  context,
+                  title: 'Delete all local data?',
+                  message:
+                      'Stop the current timer, cancel Poma alerts, delete all tasks and history, and restore app defaults? This also stops a strict session.',
+                ) &&
+                context.mounted) {
+              final success = await controller.deleteAllLocalData();
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      success
+                          ? 'Local data deleted.'
+                          : controller.deletionError!,
+                    ),
+                  ),
+                );
+              }
+            }
+          },
+        ),
+        if (controller.deletionError != null || controller.cleanupPending) ...[
+          Text(
+            controller.deletionError ?? 'Local alert cleanup is unfinished.',
+          ),
+          TextButton(
+            onPressed: controller.retrySave,
+            child: const Text('Retry deletion'),
+          ),
+        ],
         const SizedBox(height: 24),
         TextButton.icon(
           onPressed: () => showAboutDialog(

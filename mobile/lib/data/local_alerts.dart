@@ -92,5 +92,8 @@ class NativeLocalAlerts implements LocalAlerts {
   Future<void> acknowledgeResponse(AlertResponse response) async =>
       _channel.invokeMethod<void>('acknowledgeResponse', {'key': response.key});
   @override
+  Future<void> clearForReset() => _channel.invokeMethod<void>('clearForReset');
+
+  @override
   void dispose() => _channel.setMethodCallHandler(null);
 }

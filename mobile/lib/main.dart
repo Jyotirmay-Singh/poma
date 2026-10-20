@@ -87,6 +87,8 @@ class _PomaLoaderState extends State<PomaLoader> {
                                 : snapshot.error
                                       is LocalStoragePreparationException
                                 ? 'Local storage privacy settings could not be applied.'
+                                : snapshot.error is StorageFailure
+                                ? (snapshot.error as StorageFailure).message
                                 : 'Your saved data could not be opened.',
                             textAlign: TextAlign.center,
                           ),
