@@ -1,0 +1,26 @@
+.tools/
+artifacts/
+.agents/
+.codex/
+.aws/
+.idea/
+.vscode/
+
+# Machine-specific instructions and local build-session material.
+RTK.md
+docs/REA_SETUP.md
+docs/SESSION_PROMPTS.md
+docs/PROGRESS.md
+docs/VALIDATION.md
+
+# Credentials and signing material.
+*.jks
+*.keystore
+*.p12
+*.p8
+*.mobileprovision
+key.properties
+.env
+.env.*
+!.env.example
+
