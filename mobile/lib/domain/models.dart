@@ -174,18 +174,91 @@ class TimerSnapshot {
     'taskTitle': taskTitle,
   };
 
-  factory TimerSnapshot.fromJson(Map<String, dynamic> json) => TimerSnapshot(
-    phase: FocusPhase.values.byName(json['phase'] as String),
-    status: RunStatus.values.byName(json['status'] as String),
-    totalSeconds: (json['totalSeconds'] as int).clamp(1, 7200),
-    remainingMicros: (json['remainingMicros'] as int).clamp(0, 7200000000),
-    completedRounds: (json['completedRounds'] as int).clamp(0, 8),
-    deadline: DateTime.tryParse(json['deadline'] as String? ?? ''),
-    startedAt: DateTime.tryParse(json['startedAt'] as String? ?? ''),
-    runId: json['runId'] as String?,
-    taskId: json['taskId'] as String?,
-    taskTitle: json['taskTitle'] as String?,
-  );
+  void validate() {
+    if (totalSeconds < 1 ||
+        totalSeconds > 7200 ||
+        remainingMicros < 0 ||
+        remainingMicros > totalSeconds * 1000000 ||
+        completedRounds < 0 ||
+        completedRounds > 8) {
+      throw const FormatException('Saved timer values are out of range.');
+    }
+    if ((taskId == null) != (taskTitle == null) ||
+        (taskId != null &&
+            (taskId!.trim().isEmpty ||
+                taskTitle!.trim().isEmpty ||
+                taskTitle!.length > 160))) {
+      throw const FormatException('The saved task snapshot is incomplete.');
+    }
+    if (status == RunStatus.ready) {
+      if (remainingMicros != totalSeconds * 1000000 ||
+          deadline != null ||
+          startedAt != null ||
+          runId != null ||
+          taskId != null) {
+        throw const FormatException('The saved ready timer is inconsistent.');
+      }
+    } else if (startedAt == null ||
+        runId == null ||
+        runId!.trim().isEmpty ||
+        (status == RunStatus.running && deadline == null) ||
+        (status == RunStatus.paused &&
+            (deadline != null || remainingMicros == 0))) {
+      throw const FormatException('The saved active timer is incomplete.');
+    }
+  }
+
+  factory TimerSnapshot.fromJson(Map<String, dynamic> json) {
+    DateTime? timestamp(String key) {
+      final value = json[key];
+      if (value == null) return null;
+      if (value is! String) throw const FormatException('Invalid timestamp.');
+      final parts = RegExp(
+        r'^([+-]?\d{4,6})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,6})?(Z|[+-]\d{2}:\d{2})$',
+      ).firstMatch(value);
+      if (parts == null) throw const FormatException('Invalid timestamp.');
+      final year = int.parse(parts[1]!);
+      final month = int.parse(parts[2]!);
+      final day = int.parse(parts[3]!);
+      final calendar = DateTime.utc(year, month, day);
+      final offset = parts[7]!;
+      if (calendar.year != year ||
+          calendar.month != month ||
+          calendar.day != day ||
+          int.parse(parts[4]!) > 23 ||
+          int.parse(parts[5]!) > 59 ||
+          int.parse(parts[6]!) > 59 ||
+          (offset != 'Z' &&
+              (int.parse(offset.substring(1, 3)) > 23 ||
+                  int.parse(offset.substring(4, 6)) > 59))) {
+        throw const FormatException('Timestamp components are out of range.');
+      }
+      final date = DateTime.parse(value);
+      if (!date.isUtc) throw const FormatException('UTC offset is required.');
+      return date.toUtc();
+    }
+
+    try {
+      final snapshot = TimerSnapshot(
+        phase: FocusPhase.values.byName(json['phase'] as String),
+        status: RunStatus.values.byName(json['status'] as String),
+        totalSeconds: json['totalSeconds'] as int,
+        remainingMicros: json['remainingMicros'] as int,
+        completedRounds: json['completedRounds'] as int,
+        deadline: timestamp('deadline'),
+        startedAt: timestamp('startedAt'),
+        runId: json['runId'] as String?,
+        taskId: json['taskId'] as String?,
+        taskTitle: json['taskTitle'] as String?,
+      );
+      snapshot.validate();
+      return snapshot;
+    } on FormatException {
+      rethrow;
+    } catch (_) {
+      throw const FormatException('The saved timer has invalid fields.');
+    }
+  }
 }
 
 class SavedState {

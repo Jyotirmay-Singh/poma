@@ -6,6 +6,8 @@ import 'application/app_controller.dart';
 import 'application/local_repository.dart';
 import 'data/local_repository.dart';
 import 'data/local_storage_policy.dart';
+import 'data/timer_clock.dart';
+import 'domain/timer_engine.dart';
 import 'ui/app_shell.dart';
 import 'ui/theme.dart';
 
@@ -20,9 +22,10 @@ void main() {
 }
 
 class PomaLoader extends StatefulWidget {
-  const PomaLoader({super.key, this.repositoryFactory});
+  const PomaLoader({super.key, this.repositoryFactory, this.clockFactory});
 
   final LocalRepository Function()? repositoryFactory;
+  final TimerClock Function()? clockFactory;
   @override
   State<PomaLoader> createState() => _PomaLoaderState();
 }
@@ -41,7 +44,10 @@ class _PomaLoaderState extends State<PomaLoader> {
     await _repository?.close();
     final repository = widget.repositoryFactory?.call() ?? SqliteRepository();
     _repository = repository;
-    return _controller = await AppController.create(repository);
+    return _controller = await AppController.create(
+      repository,
+      clock: widget.clockFactory?.call() ?? NativeTimerClock(),
+    );
   }
 
   @override
@@ -65,7 +71,10 @@ class _PomaLoaderState extends State<PomaLoader> {
                           const Icon(Icons.storage_outlined, size: 40),
                           const SizedBox(height: 20),
                           Text(
-                            snapshot.error is LocalStoragePreparationException
+                            snapshot.error is TimerClockException
+                                ? 'Timer time could not be read. Try again. Your data is kept.'
+                                : snapshot.error
+                                      is LocalStoragePreparationException
                                 ? 'Local storage privacy settings could not be applied.'
                                 : 'Your saved data could not be opened.',
                             textAlign: TextAlign.center,
@@ -118,7 +127,9 @@ class _PomaAppState extends State<PomaApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    widget.controller.setForeground(true);
+    widget.controller.setForeground(
+      WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed,
+    );
   }
 
   @override

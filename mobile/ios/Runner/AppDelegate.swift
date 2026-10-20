@@ -1,4 +1,5 @@
 import Flutter
+import Darwin
 import UIKit
 
 @main
@@ -12,6 +13,22 @@ import UIKit
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+
+    let clockChannel = FlutterMethodChannel(
+      name: "dev.poma.poma/timer_clock",
+      binaryMessenger: engineBridge.applicationRegistrar.messenger()
+    )
+    clockChannel.setMethodCallHandler { call, result in
+      guard call.method == "sample" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      // CLOCK_MONOTONIC_RAW includes system sleep and is unaffected by wall time.
+      result([
+        "utcMicros": Int64(Date().timeIntervalSince1970 * 1_000_000),
+        "elapsedMicros": Int64(clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW) / 1_000)
+      ])
+    }
 
     let channel = FlutterMethodChannel(
       name: "dev.poma.poma/local_storage",

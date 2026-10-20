@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:poma/application/app_controller.dart';
 import 'package:poma/data/local_repository.dart';
 import 'package:poma/data/local_storage_policy.dart';
 import 'package:poma/domain/models.dart';
@@ -93,8 +95,8 @@ void main() {
       );
       final timer = TimerEngine(
         settings: const TimerSettings(focusMinutes: 30),
-        clock: FakeClock(),
-      )..start();
+        now: FakeClock().reading,
+      )..apply(TimerAction.start, FakeClock().reading);
       await repository.save(
         SavedState(
           settings: timer.settings,
@@ -147,6 +149,129 @@ void main() {
       await repository.save(SavedState());
       expect((await repository.load()).selectedTaskId, isNull);
       await repository.close();
+    },
+  );
+
+  test(
+    'failed SQLite completion rolls back timer and history; retry survives reopen',
+    () async {
+      final dir = Directory.systemTemp.createTempSync('poma-transaction-test-');
+      final dbPath = '${dir.path}/poma.db';
+      final repo = SqliteRepository(
+        factory: databaseFactoryFfi,
+        databasePath: dbPath,
+      );
+      final clock = FakeClock();
+      final app = await AppController.create(repo, clock: clock);
+      try {
+        app.addTask('Snapshot title');
+        await app.flush();
+        final started = await app.toggleTimer();
+        final id = started.snapshot.runId;
+        final raw = await databaseFactoryFfi.openDatabase(
+          dbPath,
+          options: OpenDatabaseOptions(singleInstance: false),
+        );
+        try {
+          await raw.execute(
+            "CREATE TRIGGER reject_completion BEFORE INSERT ON sessions BEGIN SELECT RAISE(ABORT, 'test failure'); END",
+          );
+          clock.advance(const Duration(days: 2));
+          final result = await app.reconcile();
+          expect(result.persistence, PersistenceOutcome.failed);
+          expect(app.timer.status, RunStatus.ready);
+          final persisted = await repo.load();
+          expect(persisted.timer!.runId, id);
+          expect(persisted.timer!.status, RunStatus.running);
+          expect(persisted.sessions, isEmpty);
+          await raw.execute('DROP TRIGGER reject_completion');
+        } finally {
+          await raw.close();
+        }
+        app.retrySave();
+        await app.flush();
+        await repo.close();
+        final reopened = SqliteRepository(
+          factory: databaseFactoryFfi,
+          databasePath: dbPath,
+        );
+        try {
+          final restored = await AppController.create(
+            reopened,
+            clock: FakeClock(clock.utcNow.add(const Duration(days: 1))),
+          );
+          expect(restored.sessions, hasLength(1));
+          expect(restored.sessions.single.id, id);
+          expect(restored.sessions.single.taskTitle, 'Snapshot title');
+          expect(restored.sessions.single.endedAt, started.snapshot.deadline);
+          expect(restored.timer.phase, FocusPhase.shortBreak);
+          expect(restored.timer.status, RunStatus.ready);
+          expect(restored.timer.completedRounds, 1);
+          await restored.reconcile();
+          expect(restored.sessions, hasLength(1));
+          restored.dispose();
+        } finally {
+          await reopened.close();
+        }
+      } finally {
+        app.dispose();
+        await repo.close();
+        dir.deleteSync(recursive: true);
+      }
+    },
+  );
+
+  test(
+    'malformed persisted timer fails startup without rewriting SQLite bytes',
+    () async {
+      final dir = Directory.systemTemp.createTempSync(
+        'poma-invalid-timer-test-',
+      );
+      final dbPath = '${dir.path}/poma.db';
+      final repo = SqliteRepository(
+        factory: databaseFactoryFfi,
+        databasePath: dbPath,
+      );
+      final clock = FakeClock();
+      final timer = TimerEngine(
+        settings: const TimerSettings(),
+        now: clock.reading,
+      )..apply(TimerAction.start, clock.reading);
+      try {
+        await repo.save(
+          SavedState(
+            timer: timer.snapshot(),
+            tasks: const [FocusTask(id: 'kept', title: 'Keep data')],
+          ),
+        );
+        await repo.close();
+        final raw = await databaseFactoryFfi.openDatabase(dbPath);
+        await raw.update(
+          'app_state',
+          {
+            'value': jsonEncode({
+              ...timer.snapshot().toJson(),
+              'remainingMicros': -1,
+            }),
+          },
+          where: 'key = ?',
+          whereArgs: ['timer'],
+        );
+        await raw.close();
+        final bytes = File(dbPath).readAsBytesSync();
+        await expectLater(
+          AppController.create(repo, clock: clock),
+          throwsFormatException,
+        );
+        await repo.close();
+        expect(File(dbPath).readAsBytesSync(), orderedEquals(bytes));
+        final inspect = await databaseFactoryFfi.openDatabase(dbPath);
+        expect((await inspect.query('tasks')).single['title'], 'Keep data');
+        await inspect.close();
+      } finally {
+        await repo.close();
+        dir.deleteSync(recursive: true);
+      }
     },
   );
 }

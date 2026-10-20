@@ -1,172 +1,303 @@
 import 'models.dart';
 
+class ClockReading {
+  ClockReading({required DateTime utcNow, required this.elapsed})
+    : utcNow = utcNow.toUtc() {
+    if (elapsed.isNegative) throw const TimerClockException();
+  }
+  final DateTime utcNow;
+  final Duration elapsed;
+}
+
 abstract interface class TimerClock {
-  DateTime get utcNow;
-  Duration get elapsed;
+  Future<ClockReading> sample();
 }
 
-class SystemTimerClock implements TimerClock {
-  final Stopwatch _stopwatch = Stopwatch()..start();
-  @override
-  DateTime get utcNow => DateTime.now().toUtc();
-  @override
-  Duration get elapsed => _stopwatch.elapsed;
+class TimerClockException implements Exception {
+  const TimerClockException();
 }
 
-/// A countdown anchored to elapsed time, never to the number of UI callbacks.
-/// UTC deadlines are used only when restoring a previous process.
+enum TimerAction {
+  reconcile,
+  start,
+  resume,
+  pause,
+  reset,
+  skip,
+  selectPhase,
+  updateSettings,
+}
+
+enum TimerCommandOutcome {
+  unchanged,
+  applied,
+  blocked,
+  stale,
+  completionConsumed,
+}
+
+class TimerTransition {
+  const TimerTransition({
+    required this.changed,
+    required this.outcome,
+    this.completedPhase = false,
+    this.completion,
+    this.previousRunId,
+  });
+  final bool changed;
+  final bool completedPhase;
+  final FocusSession? completion;
+
+  /// Identity to cancel/replace even when a break ends without focus history.
+  final String? previousRunId;
+  final TimerCommandOutcome outcome;
+}
+
+/// Synchronous state machine. Callers sample an injectable clock once per
+/// operation. Callback frequency and wall time never drive live elapsed time.
 class TimerEngine {
   TimerEngine({
-    required this.settings,
-    TimerClock? clock,
+    required TimerSettings settings,
+    required ClockReading now,
     TimerSnapshot? restored,
-  }) : clock = clock ?? SystemTimerClock() {
+  }) : _settings = TimerSettings.fromJson(settings.toJson()),
+       _now = now {
     if (restored == null) {
       _prepare(FocusPhase.focus);
     } else {
-      phase = restored.phase;
-      status = restored.status;
-      totalSeconds = restored.totalSeconds;
-      completedRounds = restored.completedRounds;
+      restored.validate();
+      _phase = restored.phase;
+      _status = restored.status;
+      _totalSeconds = restored.totalSeconds;
+      _completedRounds = restored.completedRounds;
       _remaining = Duration(microseconds: restored.remainingMicros);
       _startedAt = restored.startedAt;
       _runId = restored.runId;
       _taskId = restored.taskId;
       _taskTitle = restored.taskTitle;
-      if (status != RunStatus.ready &&
-          (_startedAt == null || _runId == null || _runId!.isEmpty)) {
-        throw FormatException('The saved ${status.name} timer is incomplete.');
-      }
-      if (status == RunStatus.running) {
-        if (restored.deadline == null) {
-          throw const FormatException('The saved running timer is incomplete.');
+      _deadline = restored.deadline?.toUtc();
+      if (_status == RunStatus.running) {
+        _remaining = _deadline!.difference(now.utcNow);
+        if (_remaining > Duration(seconds: _totalSeconds)) {
+          _remaining = Duration(seconds: _totalSeconds);
+          _deadline = now.utcNow.add(_remaining);
+          _recoveryAdjusted = true;
         }
-        _remaining = restored.deadline!.difference(this.clock.utcNow);
-        if (_remaining > Duration(seconds: totalSeconds)) {
-          _remaining = Duration(seconds: totalSeconds);
-        }
-        _anchor = this.clock.elapsed;
+        _anchor = now.elapsed;
       }
     }
   }
 
-  final TimerClock clock;
-  TimerSettings settings;
-  late FocusPhase phase;
-  late RunStatus status;
-  late int totalSeconds;
-  int completedRounds = 0;
+  TimerSettings _settings;
+  ClockReading _now;
+  late FocusPhase _phase;
+  late RunStatus _status;
+  late int _totalSeconds;
+  int _completedRounds = 0;
+  int _revision = 0;
+  bool _recoveryAdjusted = false;
   late Duration _remaining;
   Duration _anchor = Duration.zero;
+  DateTime? _deadline;
   DateTime? _startedAt;
   String? _runId;
   String? _taskId;
   String? _taskTitle;
 
-  Duration get _rawRemaining => status == RunStatus.running
-      ? _remaining - (clock.elapsed - _anchor)
+  TimerSettings get settings => _settings;
+  FocusPhase get phase => _phase;
+  RunStatus get status => _status;
+  int get totalSeconds => _totalSeconds;
+  int get completedRounds => _completedRounds;
+  int get displayedRounds => _completedRounds.clamp(0, _settings.rounds);
+  int get revision => _revision;
+  String? get runId => _runId;
+  Duration get _rawRemaining => _status == RunStatus.running
+      ? _remaining - (_now.elapsed - _anchor)
       : _remaining;
-  int get remainingSeconds =>
-      (_rawRemaining.inMicroseconds / Duration.microsecondsPerSecond)
-          .ceil()
-          .clamp(0, totalSeconds);
-  double get progress => (1 - remainingSeconds / totalSeconds).clamp(0.0, 1.0);
-  bool get controlsLocked => settings.strictMode && status == RunStatus.running;
+  int get remainingMicros =>
+      _rawRemaining.inMicroseconds.clamp(0, _totalSeconds * 1000000);
+  int get remainingSeconds => (remainingMicros + 999999) ~/ 1000000;
+  double get progress => 1 - remainingMicros / (_totalSeconds * 1000000);
+  bool get controlsLocked =>
+      _settings.strictMode && _status == RunStatus.running;
 
   TimerSnapshot snapshot() => TimerSnapshot(
-    phase: phase,
-    status: status,
-    totalSeconds: totalSeconds,
-    remainingMicros: _rawRemaining.inMicroseconds.clamp(0, 7200000000),
-    completedRounds: completedRounds,
-    deadline: status == RunStatus.running
-        ? clock.utcNow.add(_rawRemaining)
-        : null,
+    phase: _phase,
+    status: _status,
+    totalSeconds: _totalSeconds,
+    remainingMicros: remainingMicros,
+    completedRounds: _completedRounds,
+    deadline: _deadline,
     startedAt: _startedAt,
     runId: _runId,
     taskId: _taskId,
     taskTitle: _taskTitle,
   );
 
-  void start({FocusTask? task}) {
-    if (status == RunStatus.running) return;
-    if (status == RunStatus.ready) {
-      _startedAt = clock.utcNow;
-      _runId = newLocalId();
-      _taskId = task?.id;
-      _taskTitle = task?.title;
+  TimerTransition reconcile(ClockReading now) =>
+      apply(TimerAction.reconcile, now);
+
+  TimerTransition apply(
+    TimerAction action,
+    ClockReading now, {
+    int? expectedRevision,
+    String? expectedRunId,
+    FocusTask? task,
+    FocusPhase? selectedPhase,
+    TimerSettings? nextSettings,
+  }) {
+    if (now.elapsed < _now.elapsed) throw const TimerClockException();
+    if (action == TimerAction.selectPhase && selectedPhase == null ||
+        action == TimerAction.updateSettings && nextSettings == null) {
+      throw ArgumentError('This timer command needs its value.');
     }
-    _anchor = clock.elapsed;
-    status = RunStatus.running;
-  }
-
-  void pause() {
-    if (status != RunStatus.running || controlsLocked) return;
-    _remaining = _rawRemaining;
-    status = RunStatus.paused;
-  }
-
-  void reset() {
-    if (!controlsLocked) _prepare(phase);
-  }
-
-  void selectPhase(FocusPhase next) {
-    if (!controlsLocked) _prepare(next);
-  }
-
-  void skip() {
-    if (controlsLocked) return;
-    _advance();
-  }
-
-  void updateSettings(TimerSettings next) {
-    settings = next;
-    // A running or paused session keeps the duration it started with.
-    if (status == RunStatus.ready) _prepare(phase);
-  }
-
-  FocusSession? tick() {
-    if (status != RunStatus.running || _rawRemaining > Duration.zero) {
-      return null;
+    final beforeRevision = _revision;
+    final beforeRunId = _runId;
+    final recovered = _recoveryAdjusted;
+    _recoveryAdjusted = false;
+    if (recovered) _revision++;
+    _now = now;
+    final expired =
+        _status == RunStatus.running && _rawRemaining <= Duration.zero;
+    FocusSession? completion;
+    if (expired) {
+      if (_phase == FocusPhase.focus) {
+        completion = FocusSession(
+          id: _runId!,
+          startedAt: _startedAt!,
+          endedAt: _deadline!,
+          focusSeconds: _totalSeconds,
+          taskId: _taskId,
+          taskTitle: _taskTitle,
+        );
+        _completedRounds = (_completedRounds + 1).clamp(0, 8);
+      }
+      _advance();
+      _revision++;
     }
-    final endedAt = clock.utcNow.add(_rawRemaining);
-    FocusSession? completed;
-    if (phase == FocusPhase.focus) {
-      completed = FocusSession(
-        id: _runId!,
-        startedAt: _startedAt!,
-        endedAt: endedAt,
-        focusSeconds: totalSeconds,
-        taskId: _taskId,
-        taskTitle: _taskTitle,
+    TimerTransition result(
+      TimerCommandOutcome outcome, [
+      bool changed = false,
+    ]) => TimerTransition(
+      changed: expired || recovered || changed,
+      completedPhase: expired,
+      completion: completion,
+      previousRunId: beforeRunId,
+      outcome: outcome,
+    );
+    if (expectedRevision != null && expectedRevision != beforeRevision ||
+        expectedRunId != null && expectedRunId != beforeRunId) {
+      return result(TimerCommandOutcome.stale);
+    }
+    if (action == TimerAction.reconcile) {
+      return result(
+        expired || recovered
+            ? TimerCommandOutcome.applied
+            : TimerCommandOutcome.unchanged,
       );
-      completedRounds = (completedRounds + 1).clamp(0, settings.rounds);
     }
-    _advance();
-    return completed;
+    if (expired && action != TimerAction.updateSettings) {
+      return result(TimerCommandOutcome.completionConsumed);
+    }
+    if (action == TimerAction.updateSettings) {
+      var next = TimerSettings.fromJson(nextSettings!.toJson());
+      if (controlsLocked) {
+        next = _settings.copyWith(appearance: next.appearance);
+      }
+      if (_sameSettings(_settings, next)) {
+        return result(
+          controlsLocked
+              ? TimerCommandOutcome.blocked
+              : TimerCommandOutcome.unchanged,
+        );
+      }
+      _settings = next;
+      if (_status == RunStatus.ready) _prepare(_phase);
+    } else {
+      if (controlsLocked) return result(TimerCommandOutcome.blocked);
+      switch (action) {
+        case TimerAction.start:
+          if (_status != RunStatus.ready) {
+            return result(TimerCommandOutcome.unchanged);
+          }
+          _startedAt = now.utcNow;
+          _runId = newLocalId();
+          _taskId = task?.id;
+          _taskTitle = task?.title;
+          _run(now);
+        case TimerAction.resume:
+          if (_status != RunStatus.paused) {
+            return result(TimerCommandOutcome.unchanged);
+          }
+          _run(now);
+        case TimerAction.pause:
+          if (_status != RunStatus.running) {
+            return result(TimerCommandOutcome.unchanged);
+          }
+          _remaining = _rawRemaining;
+          _status = RunStatus.paused;
+          _deadline = null;
+        case TimerAction.reset:
+          if (_status == RunStatus.ready &&
+              _totalSeconds == _settings.secondsFor(_phase)) {
+            return result(TimerCommandOutcome.unchanged);
+          }
+          _prepare(_phase);
+        case TimerAction.skip:
+          _advance();
+        case TimerAction.selectPhase:
+          if (_status == RunStatus.ready &&
+              selectedPhase == _phase &&
+              _totalSeconds == _settings.secondsFor(_phase)) {
+            return result(TimerCommandOutcome.unchanged);
+          }
+          _prepare(selectedPhase!);
+        case TimerAction.reconcile:
+        case TimerAction.updateSettings:
+          throw StateError('Command already handled.');
+      }
+    }
+    _revision++;
+    return result(TimerCommandOutcome.applied, true);
+  }
+
+  void _run(ClockReading now) {
+    _anchor = now.elapsed;
+    _deadline = now.utcNow.add(_remaining);
+    _status = RunStatus.running;
   }
 
   void _advance() {
-    if (phase == FocusPhase.focus) {
+    if (_phase == FocusPhase.focus) {
       _prepare(
-        completedRounds >= settings.rounds
+        _completedRounds >= _settings.rounds
             ? FocusPhase.longBreak
             : FocusPhase.shortBreak,
       );
     } else {
-      if (phase == FocusPhase.longBreak) completedRounds = 0;
+      if (_phase == FocusPhase.longBreak) _completedRounds = 0;
       _prepare(FocusPhase.focus);
     }
   }
 
   void _prepare(FocusPhase next) {
-    phase = next;
-    status = RunStatus.ready;
-    totalSeconds = settings.secondsFor(next);
-    _remaining = Duration(seconds: totalSeconds);
+    _phase = next;
+    _status = RunStatus.ready;
+    _totalSeconds = _settings.secondsFor(next);
+    _remaining = Duration(seconds: _totalSeconds);
+    _deadline = null;
     _startedAt = null;
     _runId = null;
     _taskId = null;
     _taskTitle = null;
   }
+
+  static bool _sameSettings(TimerSettings a, TimerSettings b) =>
+      a.focusMinutes == b.focusMinutes &&
+      a.shortBreakMinutes == b.shortBreakMinutes &&
+      a.longBreakMinutes == b.longBreakMinutes &&
+      a.rounds == b.rounds &&
+      a.strictMode == b.strictMode &&
+      a.appearance == b.appearance;
 }

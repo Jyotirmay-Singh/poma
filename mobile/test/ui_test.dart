@@ -20,7 +20,12 @@ void main() {
         tasks: const [FocusTask(id: 'kept', title: 'Saved task')],
       ),
     );
-    await tester.pumpWidget(PomaLoader(repositoryFactory: () => repository));
+    await tester.pumpWidget(
+      PomaLoader(
+        repositoryFactory: () => repository,
+        clockFactory: FakeClock.new,
+      ),
+    );
     await tester.pumpAndSettle();
     expect(
       find.text('Local storage privacy settings could not be applied.'),
@@ -115,6 +120,38 @@ void main() {
     await tester.pumpAndSettle();
     expect(controller.tasks.single.done, isTrue);
   });
+  testWidgets(
+    'callbacks from the previous frame cannot start or select the successor',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final clock = FakeClock();
+      final app = await AppController.create(MemoryRepository(), clock: clock);
+      await tester.pumpWidget(PomaApp(controller: app));
+      await app.toggleTimer();
+      await tester.pump();
+      final oldToggle = tester
+          .widget<FilledButton>(find.byKey(const Key('timer-toggle')))
+          .onPressed!;
+      final oldSelection = tester
+          .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Long break'))
+          .onSelected!;
+      clock.advance(const Duration(minutes: 25));
+      await app.reconcile();
+      // Do not repaint: these callbacks still represent the old running frame.
+      oldToggle();
+      oldSelection(true);
+      await app.flush();
+      expect(app.timer.phase, FocusPhase.shortBreak);
+      expect(app.timer.status, RunStatus.ready);
+      expect(app.sessions, hasLength(1));
+      await tester.pumpWidget(const SizedBox.shrink());
+      await app.flush();
+      app.dispose();
+    },
+  );
   testWidgets('all four screens fit a small phone with 200 percent text', (
     tester,
   ) async {

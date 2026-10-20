@@ -10,7 +10,7 @@ There is no automatic data recovery after uninstalling Poma or losing the phone.
 
 - Focus, short-break, and long-break timers with configurable durations and cycle length.
 - Start, pause, resume, reset, skip, and app-level strict mode.
-- Elapsed-time countdown, saved deadlines, and recovery after a process restart.
+- Sleep-inclusive native elapsed clocks, exact pause/resume, saved deadlines, and recovery after a process restart.
 - Tasks: add, rename, complete, select for focus, and delete.
 - Completed focus history, daily totals, and a seven-day view.
 - Transactional SQLite persistence, duplicate completion protection, visible save failures, and retry.
@@ -45,7 +45,7 @@ For iOS, use a **Mac with Xcode** and the Flutter iOS prerequisites. From `mobil
 
 ## Verification
 
-The foundation's 31 automated tests passed on the pinned SDK, covering timer recovery, tasks, transactional SQLite storage, backup-preparation failures, startup retry, and narrow/large-text layouts. The GitHub workflow enforces the dependency lockfile, formatting, analysis, automated tests, an Android build, and an iOS simulator build plus native backup-policy tests. The existing starter's Android and iOS CI passed; the changed Swift integration and physical-device checks remain unverified until run on macOS and phones.
+The Session 2 suite has 76 passing automated tests on the pinned SDK, covering timer boundaries, fractional pause/resume, clock and recovery failures, stale UI/actions, strict controls, cycle changes, tasks, transactional SQLite rollback/retry, backup preparation, startup retry, and narrow/large-text layouts. Rendering writes and ticker lifecycle are checked explicitly. The GitHub workflow enforces the dependency lockfile, formatting, analysis, automated tests, an Android build, and an iOS simulator build plus native backup-policy tests. Changed Swift integration and physical-device clock/backup checks remain unverified until run on macOS and phones. The timer transition table, invariants, reconciliation contract and platform limitations are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 Build outputs, signing keys, SDK configuration, and local development notes are excluded from source control.
 

@@ -21,6 +21,16 @@ class _AppShellState extends State<AppShell> {
       body: SafeArea(
         child: Column(
           children: [
+            if (controller.clockError != null)
+              MaterialBanner(
+                content: Text(controller.clockError!),
+                actions: [
+                  TextButton(
+                    onPressed: controller.reconcile,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
             if (controller.saveError != null)
               MaterialBanner(
                 content: Text(controller.saveError!),

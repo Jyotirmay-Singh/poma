@@ -16,6 +16,7 @@ class FocusScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final timer = controller.timer;
+    final timerRevision = timer.revision;
     final colors = Theme.of(context).colorScheme;
     final accent = timer.phase == FocusPhase.focus
         ? colors.primary
@@ -45,7 +46,10 @@ class FocusScreen extends StatelessWidget {
                 showCheckmark: false,
                 onSelected: timer.controlsLocked
                     ? null
-                    : (_) => controller.selectPhase(phase),
+                    : (_) => controller.selectPhase(
+                        phase,
+                        expectedRevision: timerRevision,
+                      ),
                 visualDensity: VisualDensity.standard,
               ),
           ],
@@ -57,7 +61,7 @@ class FocusScreen extends StatelessWidget {
         const SizedBox(height: 10),
         Semantics(
           label:
-              '${timer.completedRounds} of ${controller.settings.rounds} focus rounds completed',
+              '${timer.displayedRounds} of ${controller.settings.rounds} focus rounds completed',
           child: ExcludeSemantics(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -78,7 +82,7 @@ class FocusScreen extends StatelessWidget {
                   ),
                 const SizedBox(width: 12),
                 Text(
-                  '${timer.completedRounds}/${controller.settings.rounds}',
+                  '${timer.displayedRounds}/${controller.settings.rounds}',
                   style: TextStyle(color: colors.onSurfaceVariant),
                 ),
               ],
@@ -170,10 +174,17 @@ class _TimerControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final timer = controller.timer;
+    final revision = timer.revision;
+    final displayedStatus = timer.status;
     final primary = FilledButton.icon(
       key: const Key('timer-toggle'),
       style: FilledButton.styleFrom(backgroundColor: accent),
-      onPressed: timer.controlsLocked ? null : controller.toggleTimer,
+      onPressed: timer.controlsLocked
+          ? null
+          : () => controller.toggleTimer(
+              expectedRevision: revision,
+              displayedStatus: displayedStatus,
+            ),
       icon: Icon(
         timer.status == RunStatus.running
             ? Icons.pause_rounded
@@ -191,13 +202,17 @@ class _TimerControls extends StatelessWidget {
     );
     final reset = IconButton.filledTonal(
       tooltip: 'Reset timer',
-      onPressed: timer.controlsLocked ? null : controller.resetTimer,
+      onPressed: timer.controlsLocked
+          ? null
+          : () => controller.resetTimer(expectedRevision: revision),
       icon: const Icon(Icons.replay_rounded),
       constraints: const BoxConstraints(minWidth: 56, minHeight: 56),
     );
     final skip = IconButton.filledTonal(
       tooltip: 'Skip to next phase',
-      onPressed: timer.controlsLocked ? null : controller.skipTimer,
+      onPressed: timer.controlsLocked
+          ? null
+          : () => controller.skipTimer(expectedRevision: revision),
       icon: const Icon(Icons.skip_next_rounded),
       constraints: const BoxConstraints(minWidth: 56, minHeight: 56),
     );
