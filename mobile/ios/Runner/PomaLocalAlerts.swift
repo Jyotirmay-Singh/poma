@@ -21,8 +21,10 @@ struct PomaAlertRequest: Decodable {
     let remaining = min(maximumRemainingMicros, elapsedDeadlineMicros - elapsedNow)
     guard remaining > 0, !runId.isEmpty, generation > 0, notificationId > 0 else { return nil }
     let content = UNMutableNotificationContent()
-    content.title = phase == "focus" ? "Focus complete" : "Break complete"
-    content.body = "Open Poma when you’re ready."
+    content.title = phase == "focus"
+      ? NSLocalizedString("alert_focus_complete", value: "Focus complete", comment: "Focus completion notification")
+      : NSLocalizedString("alert_break_complete", value: "Break complete", comment: "Break completion notification")
+    content.body = NSLocalizedString("alert_body", value: "Open Poma when you’re ready.", comment: "Notification body")
     content.sound = .default
     content.categoryIdentifier = PomaLocalAlerts.category.identifier
     content.userInfo = ["pomaRunId": runId, "pomaGeneration": generation]
@@ -70,8 +72,8 @@ final class PomaAlertResponses {
 final class PomaLocalAlerts {
   static let shared = PomaLocalAlerts()
   static let category = UNNotificationCategory(identifier: "poma_completion", actions: [
-    UNNotificationAction(identifier: "open", title: "Open timer", options: [.foreground]),
-    UNNotificationAction(identifier: "dismiss", title: "Dismiss", options: [])
+    UNNotificationAction(identifier: "open", title: NSLocalizedString("alert_open", value: "Open timer", comment: "Open timer action"), options: [.foreground]),
+    UNNotificationAction(identifier: "dismiss", title: NSLocalizedString("alert_dismiss", value: "Dismiss", comment: "Dismiss notification action"), options: [])
   ], intentIdentifiers: [], options: [.customDismissAction])
   private var channel: FlutterMethodChannel?
   private let center = UNUserNotificationCenter.current()
@@ -79,6 +81,18 @@ final class PomaLocalAlerts {
   private var timeObservers: [NSObjectProtocol] = []
 
   static func owns(_ identifier: String) -> Bool { identifier.hasPrefix("poma.timer.") }
+
+  static func acceptsResponse(current: PomaAlertRequest?, previous: PomaAlertRequest?,
+    runId: String, generation: Int64) -> Bool {
+    if let current, current.matches(runId: runId, generation: generation) { return true }
+    if let previous, previous.matches(runId: runId, generation: generation) { return true }
+    return false
+  }
+
+  static func canRemoveDelivered(current: PomaAlertRequest?, generation: Int64) -> Bool {
+    guard let current else { return true }
+    return current.generation == generation
+  }
 
   func attach(messenger: FlutterBinaryMessenger) {
     let bridge = FlutterMethodChannel(name: "dev.poma.poma/local_alerts", binaryMessenger: messenger)
@@ -201,9 +215,11 @@ final class PomaLocalAlerts {
     let info = response.notification.request.content.userInfo
     guard let run = info["pomaRunId"] as? String,
       let generation = info["pomaGeneration"] as? NSNumber,
-      let state = committedState(),
-      state.current?.matches(runId: run, generation: generation.int64Value) == true ||
-        state.previous?.matches(runId: run, generation: generation.int64Value) == true else { return }
+      let state = committedState() else { return }
+    // Explicit request values avoid a Swift 6.3.3 release-optimizer ownership
+    // crash in chained optional projections of this decoded state.
+    guard Self.acceptsResponse(current: state.current, previous: state.previous,
+      runId: run, generation: generation.int64Value) else { return }
     let action: String
     switch response.actionIdentifier {
     case "open", UNNotificationDefaultActionIdentifier: action = "open"
@@ -212,7 +228,7 @@ final class PomaLocalAlerts {
     }
     journal.append(runId: run, generation: generation.int64Value, action: action)
     // A stale dismissal cannot cancel a resumed segment with the same OS ID.
-    if action == "dismiss", state.current == nil || state.current?.generation == generation.int64Value {
+    if action == "dismiss", Self.canRemoveDelivered(current: state.current, generation: generation.int64Value) {
       center.removeDeliveredNotifications(withIdentifiers: [response.notification.request.identifier])
     }
     DispatchQueue.main.async { self.channel?.invokeMethod("changed", arguments: nil) }

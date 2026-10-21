@@ -169,6 +169,10 @@ void main() {
         await app.flush();
         final started = await app.toggleTimer();
         final id = started.snapshot.runId;
+        // The fixture changes the schema through a second connection. Drain
+        // controller aggregate reads before DDL so the test injects its
+        // intended trigger failure, rather than an unrelated SQLite lock.
+        await app.loadSummaries();
         final raw = await databaseFactoryFfi.openDatabase(
           dbPath,
           options: OpenDatabaseOptions(singleInstance: false),
@@ -185,6 +189,7 @@ void main() {
           expect(persisted.timer!.runId, id);
           expect(persisted.timer!.status, RunStatus.running);
           expect(persisted.sessions, isEmpty);
+          await app.loadSummaries();
           await raw.execute('DROP TRIGGER reject_completion');
         } finally {
           await raw.close();

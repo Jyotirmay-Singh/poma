@@ -2,22 +2,20 @@ import 'package:flutter/material.dart';
 import '../application/app_controller.dart';
 import '../domain/models.dart';
 import 'app_shell.dart';
+import 'copy.dart';
 
 class TasksScreen extends StatelessWidget {
   const TasksScreen({required this.controller, super.key});
   final AppController controller;
   @override
-  Widget build(BuildContext context) => ListView(
-    padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
+  Widget build(BuildContext context) => PomaPage(
+    controller: controller,
     children: [
-      const ScreenHeading(
-        title: 'Give your time a purpose.',
-        subtitle: 'Choose a task. Keep the list simple.',
-      ),
+      ScreenHeading(title: context.copy.tasks, subtitle: context.copy.taskHelp),
       FilledButton.icon(
         onPressed: () => _taskDialog(context),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Add a task'),
+        label: Text(context.copy.addTask),
       ),
       const SizedBox(height: 24),
       if (controller.tasks.isEmpty)
@@ -31,24 +29,36 @@ class TasksScreen extends StatelessWidget {
                 color: Theme.of(context).colorScheme.primary,
               ),
               const SizedBox(height: 18),
-              const Text(
-                'What would you like to work on?',
+              Text(
+                context.copy.emptyTasks,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 19, fontWeight: FontWeight.w500),
+                style: const TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Start with one small, achievable task.',
-                textAlign: TextAlign.center,
-              ),
+              Text(context.copy.emptyTasksHelp, textAlign: TextAlign.center),
             ],
           ),
         ),
+      if (controller.tasks.isNotEmpty &&
+          controller.tasks.every((task) => task.done)) ...[
+        Semantics(header: true, child: Text(context.copy.allDone)),
+        const SizedBox(height: 8),
+        Text(context.copy.allDoneHelp),
+      ],
       for (final task in controller.tasks.where((task) => !task.done))
         _taskRow(context, task),
       if (controller.tasks.any((task) => task.done)) ...[
         const SizedBox(height: 24),
-        const Text('Completed', style: TextStyle(fontWeight: FontWeight.w600)),
+        Semantics(
+          header: true,
+          child: Text(
+            context.copy.completed,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
         const SizedBox(height: 8),
         for (final task in controller.tasks.where((task) => task.done))
           _taskRow(context, task),
@@ -65,31 +75,46 @@ class TasksScreen extends StatelessWidget {
         color: selected
             ? Theme.of(context).colorScheme.primary.withValues(alpha: .08)
             : Colors.transparent,
-        child: ListTile(
-          contentPadding: const EdgeInsets.only(left: 0, right: 0),
-          leading: Checkbox(
-            value: task.done,
-            semanticLabel: 'Complete ${task.title}',
-            onChanged: (_) => controller.toggleTask(task.id),
-          ),
-          title: Text(
-            task.title,
-            style: TextStyle(
-              decoration: task.done ? TextDecoration.lineThrough : null,
+        child: Semantics(
+          selected: selected,
+          child: ListTile(
+            key: ValueKey('task-${task.id}'),
+            contentPadding: const EdgeInsets.only(left: 0, right: 0),
+            leading: Checkbox(
+              value: task.done,
+              semanticLabel: task.done
+                  ? context.copy.markIncomplete(task.title)
+                  : context.copy.markComplete(task.title),
+              onChanged: (_) => controller.toggleTask(task.id),
             ),
-          ),
-          subtitle: selected ? const Text('Selected for focus') : null,
-          onTap: task.done ? null : () => controller.selectTask(task.id),
-          trailing: PopupMenuButton<String>(
-            tooltip: 'Options for ${task.title}',
-            onSelected: (action) {
-              if (action == 'edit') _taskDialog(context, task: task);
-              if (action == 'delete') controller.deleteTask(task.id);
-            },
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'edit', child: Text('Rename')),
-              PopupMenuItem(value: 'delete', child: Text('Delete')),
-            ],
+            title: Text(
+              task.title,
+              style: TextStyle(
+                decoration: task.done ? TextDecoration.lineThrough : null,
+              ),
+            ),
+            subtitle: task.done
+                ? null
+                : Text(
+                    selected
+                        ? context.copy.selectedTask
+                        : context.copy.selectTask,
+                  ),
+            onTap: task.done ? null : () => controller.selectTask(task.id),
+            trailing: PopupMenuButton<String>(
+              tooltip: context.copy.taskOptions(task.title),
+              onSelected: (action) {
+                if (action == 'edit') _taskDialog(context, task: task);
+                if (action == 'delete') controller.deleteTask(task.id);
+              },
+              itemBuilder: (_) => [
+                PopupMenuItem(value: 'edit', child: Text(context.copy.rename)),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Text(context.copy.delete),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -130,26 +155,32 @@ class _TaskDialogState extends State<_TaskDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    title: Text(widget.initial == null ? 'Add a task' : 'Rename task'),
+    scrollable: true,
+    title: Text(
+      widget.initial == null ? context.copy.addTask : context.copy.renameTask,
+    ),
     content: Form(
       key: _formKey,
       child: TextFormField(
         controller: _input,
+        key: const Key('task-name'),
         autofocus: true,
         maxLength: 160,
+        textInputAction: TextInputAction.done,
         textCapitalization: TextCapitalization.sentences,
-        decoration: const InputDecoration(labelText: 'What will you work on?'),
-        validator: (value) =>
-            value == null || value.trim().isEmpty ? 'Enter a task name.' : null,
+        decoration: InputDecoration(labelText: context.copy.taskName),
+        validator: (value) => value == null || value.trim().isEmpty
+            ? context.copy.enterTask
+            : null,
         onFieldSubmitted: (_) => _submit(),
       ),
     ),
     actions: [
       TextButton(
         onPressed: () => Navigator.pop(context),
-        child: const Text('Cancel'),
+        child: Text(context.copy.cancel),
       ),
-      FilledButton(onPressed: _submit, child: const Text('Save task')),
+      FilledButton(onPressed: _submit, child: Text(context.copy.saveTask)),
     ],
   );
   @override

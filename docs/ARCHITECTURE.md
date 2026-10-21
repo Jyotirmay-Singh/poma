@@ -4,7 +4,7 @@
 
 Poma targets Android and iOS and works entirely offline after installation, with no signup, login, backend, or app-managed cloud sync. Settings, tasks, and history are remembered on the phone. Flutter shares UI and domain logic across both platforms. It carries an engine cost, so it is not assumed to produce the smallest possible binary. Two independently native apps could reduce some runtime overhead but would duplicate implementation and testing; Kotlin Multiplatform with native UI is a valid alternative if later measurements justify that cost.
 
-Flutter + system SQLite + a small state controller is the selected baseline. No backend service, hosting, authentication provider, or embedded Go/Python/Ruby runtime is needed. Direct production packages beyond Flutter are `sqflite`, `path` and exactly pinned `flutter_local_notifications` 22.3.2; `sqflite_common_ffi` is for database tests on the host. The package's public permission/settings APIs are wrapped in data; app-owned native adapters supply one-shot elapsed/interval scheduling. See [native alert protocol and device evidence](NOTIFICATIONS.md).
+Flutter + system SQLite + a small state controller is the selected baseline. No backend service, hosting, authentication provider, or embedded Go/Python/Ruby runtime is needed. Direct production packages beyond Flutter are `sqflite`, `path`, exactly pinned `flutter_local_notifications` 22.3.2, and `intl` 0.20.2 (matching the pinned SDK's `flutter_localizations`). SDK localization support provides English product resources and bundled calendar formatting; no translation download is used. `sqflite_common_ffi` is for database tests on the host; SDK `integration_test` is development tooling. The notification package's public permission/settings APIs are wrapped in data; app-owned native adapters supply one-shot elapsed/interval scheduling. See [native alert protocol and device evidence](NOTIFICATIONS.md).
 
 Dependency direction: UI → application → domain; data implements the application's `LocalRepository` port and uses domain records. The entry point chooses SQLite. The application never imports the data layer, and domain code imports neither Flutter nor database packages. Existing row/JSON mapping helpers are pure Dart; storage execution and platform calls remain in data/native code.
 
@@ -85,6 +85,15 @@ No downloaded fonts, videos, raster illustration bundle, analytics, ads, backgro
 
 Provisional engineering targets, not established results: compressed arm64 release APK at or below 20 MiB, p95 frames within the 60 Hz frame budget on the chosen baseline phone, and a median cold launch under 1.5 seconds on that phone. Record device, OS, build mode, ABI, sample count, and methods. Debug build size and simulator speed are not release measurements. Battery and memory budgets need real-device baselines before setting a defensible numeric limit.
 
+Session 6 retains the startup alert/restoration safety barrier and reduces a
+demonstrated duplicate summary read from two to one per meaningful startup or
+foreground/calendar event. Unchanged events read/write nothing. A native
+one-shot fully-drawn marker reports the first restored screen separately from
+Android's initial-display timestamp; it does not control the timer. Fresh G54
+release results, accounting scopes, collector limitations and remaining gates
+are in [release evidence](RELEASE_EVIDENCE.md). No framework rewrite, assumed
+battery benefit or numeric memory/energy promise follows from source structure.
+
 ## Offline product contract
 
 All Pomodoro functions must remain usable in airplane mode: focus and break cycles, custom durations, start/pause/resume/reset/skip, strict mode, tasks, history, appearance settings, and native local alerts subject to OS permission/delivery policy. Persist state in SQLite so restarting the app does not require a server or an account. Notification permission is a local OS choice and must not depend on signup or remote push registration.
@@ -101,6 +110,12 @@ See [Apple's backup guidance](https://developer.apple.com/documentation/foundati
 
 ## Design intent
 
+Screen refinement retains SQLite v3 and native alert wire identities unchanged. The controller exposes read-only active task snapshot metadata, save-failure kind and a transient completed-run/phase notice. Only actual completion transitions set this notice, including overdue launch recovery; subsequent effective timer controls/full reset clear it. It is not inferred from history or persisted as a new schema field. Ready timers reopened after an already-saved completion do not claim a fresh completion. The shell limits live-region presentation to the first viewing of a completed run; the dial countdown is not a live region.
+
+Each screen's errors and content share one scroll region. Measured navigation labels wrap when required; large-text Focus uses a labeled phase picker. Timer text is measured before being placed in the ring and may flow below it without clamping accessibility scaling. History and settings controls reflow; exact daily text accompanies the supplementary chart. App-only strict-mode limits and actual alert availability are stated plainly, with OS-settings/retry actions. No rendering callback schedules an alert, writes data or requests permission.
+
+English ICU resources include placeholders/plurals and safety messages. Product locales remain English only; device calendar locale and 12/24-hour preference are formatted separately from the supported translation list, with bundled locale data and safe fallback. Native alert content uses Android/iOS English string resources. There is no schema migration, translated task data or change to the persisted UTC instants. See [screen verification](UI_VERIFICATION.md) and the [accessibility ledger](ACCESSIBILITY.md).
+
 Palette: paper silver `#F8F9FD`, slate `#252D43`, muted slate `#5F687E`, iris `#6854C8`, teal `#147D80`; dark surface `#1C2332`. System typography avoids network and font payload. Timer digits use tabular figures. The instrument-like dial is the single visual emphasis. All primary actions are literal and use native controls.
 
 The layout is a vertically scrollable, left-aligned page with a centered timer, primary action, selected task, and daily totals. Four stable destinations expose focus, tasks, insights, and settings. Large text stacks timer controls vertically. No decorative gradients or looping animations are required.
@@ -111,7 +126,8 @@ Focus                     Tasks / Insights / Settings
   phase choices             content and real empty states
       timer dial            native controls
       cycle count
-  reset / start / skip
+  primary start / pause / resume
+  reset / skip
   selected task
   daily totals
 ---------------- bottom navigation -----------------

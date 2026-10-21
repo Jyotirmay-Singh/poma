@@ -1,6 +1,7 @@
 name: Mobile checks
 
 on:
+  workflow_dispatch:
   pull_request:
   push:
     branches: [main, master]
@@ -11,9 +12,13 @@ permissions:
 jobs:
   verify-android:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      POMA_ANDROID_EVIDENCE: ${{ github.workspace }}/artifacts/ci-android-evidence
     defaults:
       run:
         working-directory: mobile
+        shell: bash
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -25,8 +30,14 @@ jobs:
           flutter-version: '3.44.2'
           channel: stable
           cache: true
+      - name: Record Android build environment
+        run: |
+          mkdir -p "$POMA_ANDROID_EVIDENCE"
+          git rev-parse HEAD > "$POMA_ANDROID_EVIDENCE/source-revision.txt"
+          flutter --version --machine > "$POMA_ANDROID_EVIDENCE/flutter-version.json"
+          java -version > "$POMA_ANDROID_EVIDENCE/java-version.txt" 2>&1
       - run: flutter pub get --enforce-lockfile
-      - run: dart format --output=none --set-exit-if-changed lib test
+      - run: dart format --output=none --set-exit-if-changed lib test integration_test tool
       - run: flutter analyze
       - run: flutter test
       - run: flutter build apk --debug --target-platform android-arm64
@@ -42,12 +53,73 @@ jobs:
         with:
           name: poma-android-debug
           path: mobile/build/app/outputs/flutter-apk/app-debug.apk
+      - name: Build unsigned release APKs by ABI
+        # Keep normal pub/tooling preparation: --no-pub can retain a debug-only native registrant.
+        run: flutter build apk --release --split-per-abi 2>&1 | tee "$POMA_ANDROID_EVIDENCE/release-apk-build.log"
+      - name: Build unsigned release app bundle
+        run: flutter build appbundle --release 2>&1 | tee "$POMA_ANDROID_EVIDENCE/release-appbundle-build.log"
+      - name: Record unsigned Android release artifacts
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import zipfile
+
+          evidence = Path(os.environ["POMA_ANDROID_EVIDENCE"])
+          apks = sorted(Path("build/app/outputs/flutter-apk").glob("app-*-release.apk"))
+          bundle = Path("build/app/outputs/bundle/release/app-release.aab")
+          if not apks or not bundle.is_file():
+              raise SystemExit("Expected split release APKs and release app bundle were not produced")
+          records = []
+          for artifact in [*apks, bundle]:
+              with artifact.open("rb") as stream:
+                  digest = hashlib.file_digest(stream, "sha256").hexdigest()
+              with zipfile.ZipFile(artifact) as archive:
+                  prefix = "base/lib/" if artifact.suffix == ".aab" else "lib/"
+                  abis = sorted({name[len(prefix):].split("/")[0] for name in archive.namelist()
+                                 if name.startswith(prefix) and name.endswith(".so")})
+              records.append({"path": artifact.as_posix(), "bytes": artifact.stat().st_size,
+                              "sha256": digest, "abis": abis, "buildMode": "release"})
+          manifest = {"sourceRevision": (evidence / "source-revision.txt").read_text().strip(),
+                      "expectedSigning": "Unsigned: no release signing configuration or credentials supplied",
+                      "limitations": ["Artifact sizes are not installed footprint or store download estimates",
+                                      "CI compilation is not physical-device performance or offline acceptance"],
+                      "artifacts": records}
+          (evidence / "artifact-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+          (evidence / "artifact-hashes.sha256").write_text("".join(
+              f'{item["sha256"]}  {item["path"]}\n' for item in records))
+          print(json.dumps(records, indent=2))
+          PY
+      - name: Retain unsigned Android release artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: poma-android-unsigned-release
+          path: |
+            mobile/build/app/outputs/flutter-apk/app-*-release.apk
+            mobile/build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Retain Android release build evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: poma-android-release-evidence
+          path: ${{ env.POMA_ANDROID_EVIDENCE }}
+          if-no-files-found: warn
+          retention-days: 14
 
   compile-ios:
     runs-on: macos-latest
+    timeout-minutes: 45
+    env:
+      POMA_IOS_EVIDENCE: ${{ github.workspace }}/artifacts/ci-ios-evidence
     defaults:
       run:
         working-directory: mobile
+        shell: bash
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
@@ -55,9 +127,49 @@ jobs:
           flutter-version: '3.44.2'
           channel: stable
           cache: true
-      - run: flutter pub get --enforce-lockfile
-      - run: flutter build ios --simulator --no-codesign
+      - name: Record iOS build environment
+        run: |
+          mkdir -p "$POMA_IOS_EVIDENCE"
+          git rev-parse HEAD > "$POMA_IOS_EVIDENCE/source-revision.txt"
+          sw_vers > "$POMA_IOS_EVIDENCE/macos-version.txt"
+          xcodebuild -version > "$POMA_IOS_EVIDENCE/xcode-version.txt"
+          xcodebuild -showsdks > "$POMA_IOS_EVIDENCE/xcode-sdks.txt"
+          xcrun --sdk iphoneos --show-sdk-version > "$POMA_IOS_EVIDENCE/iphoneos-sdk-version.txt"
+          flutter --version --machine > "$POMA_IOS_EVIDENCE/flutter-version.json"
+          xcrun simctl list devices available --json > "$POMA_IOS_EVIDENCE/simulators.json"
+          printf '%s\n' 'Pinned Flutter 3.44.2 iOS native registration retains development plugins. Inspect the actual archive before drawing production-dependency conclusions.' > "$POMA_IOS_EVIDENCE/packaging-limitations.txt"
+      - name: Resolve locked iOS dependencies
+        run: flutter pub get --enforce-lockfile 2>&1 | tee "$POMA_IOS_EVIDENCE/dependencies.log"
+      - name: Compile iOS simulator app
+        run: flutter build ios --simulator --no-codesign 2>&1 | tee "$POMA_IOS_EVIDENCE/simulator-build.log"
       - name: Test native iOS storage and local alerts
         run: |
-          device_id="$(xcrun simctl list devices available --json | python3 -c 'import json,sys; print(next(device["udid"] for devices in json.load(sys.stdin)["devices"].values() for device in devices if device["name"].startswith("iPhone")))')"
-          xcodebuild test -workspace ios/Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=iOS Simulator,id=$device_id" CODE_SIGNING_ALLOWED=NO
+          device_id="$(python3 -c 'import json,sys; print(next(device["udid"] for devices in json.load(sys.stdin)["devices"].values() for device in devices if device["name"].startswith("iPhone")))' < "$POMA_IOS_EVIDENCE/simulators.json")"
+          printf '%s\n' "$device_id" > "$POMA_IOS_EVIDENCE/selected-simulator.txt"
+          xcodebuild test -workspace ios/Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=iOS Simulator,id=$device_id" -destination-timeout 120 -resultBundlePath "$POMA_IOS_EVIDENCE/RunnerTests.xcresult" CODE_SIGNING_ALLOWED=NO 2>&1 | tee "$POMA_IOS_EVIDENCE/native-tests.log"
+      - name: Compile unsigned iOS release app
+        run: |
+          flutter build ios --release --no-codesign --verbose 2>&1 | tee "$POMA_IOS_EVIDENCE/unsigned-release-build.log"
+          cp .flutter-plugins-dependencies "$POMA_IOS_EVIDENCE/flutter-plugins-dependencies.json"
+          # This archive is inspection evidence, not an installable IPA or a signed release.
+          ditto -c -k --sequesterRsrc --keepParent build/ios/iphoneos/Runner.app "$POMA_IOS_EVIDENCE/poma-ios-unsigned-release.app.zip"
+          shasum -a 256 "$POMA_IOS_EVIDENCE/poma-ios-unsigned-release.app.zip" > "$POMA_IOS_EVIDENCE/unsigned-release.sha256"
+          stat -f '%z' "$POMA_IOS_EVIDENCE/poma-ios-unsigned-release.app.zip" > "$POMA_IOS_EVIDENCE/unsigned-release.bytes"
+          if codesign -d --verbose=2 build/ios/iphoneos/Runner.app > "$POMA_IOS_EVIDENCE/root-signature.txt" 2>&1; then
+            printf '%s\n' 'Unexpected root signature: inspect root-signature.txt before treating this archive as unsigned.'
+            exit 1
+          fi
+      - name: Summarize native iOS test results
+        if: always()
+        run: |
+          if [ -d "$POMA_IOS_EVIDENCE/RunnerTests.xcresult" ]; then
+            xcrun xcresulttool get test-results summary --path "$POMA_IOS_EVIDENCE/RunnerTests.xcresult" > "$POMA_IOS_EVIDENCE/native-test-summary.json"
+          fi
+      - name: Retain iOS compilation and test evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: poma-ios-build-and-test-evidence
+          path: ${{ env.POMA_IOS_EVIDENCE }}
+          if-no-files-found: warn
+          retention-days: 14

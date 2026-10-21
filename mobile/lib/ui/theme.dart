@@ -28,6 +28,14 @@ ThemeData pomaTheme(Brightness brightness) {
     colorScheme: colors,
     scaffoldBackgroundColor: colors.surface,
     visualDensity: VisualDensity.standard,
+    materialTapTargetSize: MaterialTapTargetSize.padded,
+    iconButtonTheme: IconButtonThemeData(
+      style: IconButton.styleFrom(minimumSize: const Size(48, 48)),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+    ),
+    chipTheme: const ChipThemeData(side: BorderSide(color: Color(0xFF747B8C))),
     // System type works offline and adds no font assets to the app.
     textTheme: textTheme,
     filledButtonTheme: FilledButtonThemeData(

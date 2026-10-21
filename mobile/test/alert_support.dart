@@ -9,6 +9,8 @@ class FakeAlerts implements LocalAlerts {
   bool failAfter = false;
   bool failActionAck = false;
   int permissionRequests = 0;
+  int settingsOpens = 0;
+  int exactRequests = 0;
   int syncs = 0;
   void Function()? onEvent;
   @override
@@ -39,9 +41,15 @@ class FakeAlerts implements LocalAlerts {
   }
 
   @override
-  Future<void> openSettings() async {}
+  Future<void> openSettings() async {
+    settingsOpens++;
+  }
+
   @override
-  Future<void> requestExactAccess() async {}
+  Future<void> requestExactAccess() async {
+    exactRequests++;
+  }
+
   @override
   Future<List<AlertResponse>> responses() async => queue.toList();
   @override

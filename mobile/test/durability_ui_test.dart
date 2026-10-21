@@ -31,6 +31,11 @@ void main() {
     await tester.tap(find.text('Retry history'));
     await app.loadSummaries();
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.textContaining('Finish your first focus session'),
+      300,
+    );
+    await tester.pumpAndSettle();
     expect(
       find.textContaining('Finish your first focus session'),
       findsOneWidget,
@@ -62,17 +67,28 @@ void main() {
       expect(app.sessions.length, 50);
       expect(app.historyPage!.hasOlder, isTrue);
       await tester.scrollUntilVisible(find.text('Older'), 500, maxScrolls: 30);
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Older'));
       await tester.pumpAndSettle();
       expect(app.sessions.length, 5);
       expect(app.historyPage!.hasNewer, isTrue);
-      await tester.ensureVisible(find.byTooltip('Delete session').first);
-      await tester.tap(find.byTooltip('Delete session').first);
+      final deleteSession = find
+          .byWidgetPredicate(
+            (widget) =>
+                widget is IconButton &&
+                widget.key is ValueKey<String> &&
+                (widget.key as ValueKey<String>).value.startsWith(
+                  'delete-session-',
+                ),
+          )
+          .first;
+      await tester.ensureVisible(deleteSession);
+      await tester.tap(deleteSession);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
       expect(repository.state.sessions.length, 55);
-      await tester.tap(find.byTooltip('Delete session').first);
+      await tester.tap(deleteSession);
       await tester.pumpAndSettle();
       await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
       await tester.pumpAndSettle();
@@ -118,12 +134,12 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
       await tester.pumpAndSettle();
       expect(app.cleanupPending, isTrue);
-      expect(find.text('Retry deletion'), findsOneWidget);
       alerts.failBefore = false;
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
       await tester.scrollUntilVisible(find.text('Retry deletion'), 300);
       await tester.pumpAndSettle();
+      expect(find.text('Retry deletion'), findsOneWidget);
       await tester.tap(find.text('Retry deletion'));
       await tester.pumpAndSettle();
       expect(app.cleanupPending, isFalse);

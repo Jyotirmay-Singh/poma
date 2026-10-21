@@ -43,6 +43,21 @@ class RunnerTests: XCTestCase {
     XCTAssertTrue(alert().matches(runId: "persisted-session", generation: 3))
     XCTAssertFalse(alert().matches(runId: "persisted-session", generation: 2))
     XCTAssertFalse(alert().matches(runId: "old-session", generation: 3))
+    let current = alert(generation: 4)
+    let previous = alert(generation: 3)
+    XCTAssertTrue(PomaLocalAlerts.acceptsResponse(current: current, previous: previous,
+      runId: "persisted-session", generation: 4))
+    XCTAssertTrue(PomaLocalAlerts.acceptsResponse(current: current, previous: previous,
+      runId: "persisted-session", generation: 3))
+    XCTAssertFalse(PomaLocalAlerts.acceptsResponse(current: current, previous: previous,
+      runId: "old-session", generation: 3))
+    XCTAssertFalse(PomaLocalAlerts.acceptsResponse(current: current, previous: previous,
+      runId: "persisted-session", generation: 2))
+    XCTAssertFalse(PomaLocalAlerts.acceptsResponse(current: nil, previous: nil,
+      runId: "persisted-session", generation: 3))
+    XCTAssertTrue(PomaLocalAlerts.canRemoveDelivered(current: nil, generation: 3))
+    XCTAssertTrue(PomaLocalAlerts.canRemoveDelivered(current: current, generation: 4))
+    XCTAssertFalse(PomaLocalAlerts.canRemoveDelivered(current: current, generation: 3))
   }
 
   func testResponseJournalSurvivesRecreationAndDeduplicatesTaps() throws {
