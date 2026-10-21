@@ -6,6 +6,7 @@ Every external command is routed through RTK and raw Poma-only results are kept.
 """
 
 import argparse
+import hashlib
 from datetime import datetime, timezone
 import json
 import math
@@ -100,6 +101,7 @@ def main():
     parser.add_argument("--serial", required=True)
     parser.add_argument("--package", default="dev.poma.poma")
     parser.add_argument("--fixture", required=True, choices=("empty", "100000"))
+    parser.add_argument("--artifact", type=Path, help="Exact installed APK; its hash binds samples to the release artifact")
     parser.add_argument("--samples", type=int, default=30)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--environment-only", action="store_true")
@@ -111,6 +113,10 @@ def main():
     if args.output.exists():
         parser.error("output already exists; preserve prior evidence and choose a new path")
     result = {"recordedUtc": datetime.now(timezone.utc).isoformat(), "collector": "profile_android.py/2", "fixture": args.fixture, "serial": args.serial, "package": args.package, "usableFrameMarkerDeclared": args.usable_frame_marker, "environment": device.environment(), "samples": [], "limitations": ["Developer-attached release measurements; not disconnected acceptance.", "Warm requests clear/recreate the activity while retaining the process; Android LaunchState remains authoritative.", "TotalTime is initial display latency, not a usable timer measurement.", "Only explicitly declared, source-verified restored-UI markers can establish usable timer latency.", "No battery saving or energy claim can be derived from USB-powered launch runs."]}
+    if args.artifact:
+        data = args.artifact.read_bytes()
+        result["artifact"] = {"path": str(args.artifact.resolve()), "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+    result["memoryBefore"] = device.shell("dumpsys", "meminfo", args.package, check=False)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     def save():
         args.output.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
@@ -128,6 +134,7 @@ def main():
             values = [int(sample["fields"]["TotalTime"]) for sample in samples if sample.get("fields", {}).get("TotalTime", "").strip().isdigit()]
             usable = [sample["fullyDrawnMs"] for sample in samples if sample.get("fullyDrawnMs") is not None] if args.usable_frame_marker else []
             result["summary"][kind] = {"validSamples": len(samples), "totalTimeSamples": len(values), "initialDisplayMedianMs": percentile(values, 50), "initialDisplayP95Ms": percentile(values, 95), "usableTimerSamples": len(usable), "usableTimerMedianMs": percentile(usable, 50), "usableTimerP95Ms": percentile(usable, 95), "launchStates": [sample.get("fields", {}).get("LaunchState") for sample in samples]}
+        result["memoryAfter"] = device.shell("dumpsys", "meminfo", args.package, check=False)
         save()
     print(json.dumps({"output": str(args.output), "summary": result.get("summary")}), flush=True)
 

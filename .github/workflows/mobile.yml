@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      POMA_ANDROID_EVIDENCE: ${{ runner.temp }}/poma-android-evidence
+      POMA_ANDROID_EVIDENCE: ${{ github.workspace }}/artifacts/ci-android-evidence
     defaults:
       run:
         working-directory: mobile
@@ -37,7 +37,7 @@ jobs:
           flutter --version --machine > "$POMA_ANDROID_EVIDENCE/flutter-version.json"
           java -version > "$POMA_ANDROID_EVIDENCE/java-version.txt" 2>&1
       - run: flutter pub get --enforce-lockfile
-      - run: dart format --output=none --set-exit-if-changed lib test integration_test
+      - run: dart format --output=none --set-exit-if-changed lib test integration_test tool
       - run: flutter analyze
       - run: flutter test
       - run: flutter build apk --debug --target-platform android-arm64
@@ -107,7 +107,7 @@ jobs:
         if: always()
         with:
           name: poma-android-release-evidence
-          path: ${{ runner.temp }}/poma-android-evidence
+          path: ${{ env.POMA_ANDROID_EVIDENCE }}
           if-no-files-found: warn
           retention-days: 14
 
@@ -115,7 +115,7 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 45
     env:
-      POMA_IOS_EVIDENCE: ${{ runner.temp }}/poma-ios-evidence
+      POMA_IOS_EVIDENCE: ${{ github.workspace }}/artifacts/ci-ios-evidence
     defaults:
       run:
         working-directory: mobile
@@ -170,6 +170,6 @@ jobs:
         if: always()
         with:
           name: poma-ios-build-and-test-evidence
-          path: ${{ runner.temp }}/poma-ios-evidence
+          path: ${{ env.POMA_IOS_EVIDENCE }}
           if-no-files-found: warn
           retention-days: 14
