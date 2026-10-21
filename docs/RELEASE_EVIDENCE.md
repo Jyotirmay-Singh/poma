@@ -45,21 +45,37 @@ performance evidence.
 
 ## Artifact size and packaged evidence
 
-Fresh release values will be filled only from completed builds and verified
-artifacts. Historical Session 1 optimized APKs and Session 5 debug APKs do not
-establish current release size or performance.
+The fresh Windows builds below use optimized release mode. Separate installable
+copies use the existing Android development certificate; production signing is
+unconfigured. Their signature and 16 KiB alignment checks passed. The source
+fingerprint immediately before the split build was
+`4e677001d4df4bfc99c418c6e1a9e5495c7b6750a57e8927fa0a80fb9059e246`.
+Later collector/CI/document edits do not change the app sources used in these
+artifacts. Historical Session 1 optimized and Session 5 debug outputs remain
+historical evidence.
 
-| Item | Status |
+| Fresh artifact | Exact bytes | SHA-256 |
+| --- | ---: | --- |
+| ARMv7 validation APK | 15,907,884 | `d5a05b53eb9c59256c68758e8730ab8326fa62784a692a30a597c9c2d644d1ea` |
+| ARM64 validation APK, installed on G54 | 18,361,384 | `c162a616d26800f3b165670191e1d3f19f4adb610fc1b42cb88d1f1494a13632` |
+| x86_64 validation APK | 19,770,402 | `c4203bd523d2d9e6905ed626ee798bd88c42bc00d5f5d30b79b28fa4730d02c3` |
+| Unsigned AAB, all supported ABIs | 51,631,477 | `44f82c34318c298fd9cd909155618da8d1b902194d9691dce8250729d390071f` |
+
+| Download/distribution metric | Status |
 | --- | --- |
-| Per-ABI optimized APK bytes/hash/signature | Pending fresh builds |
-| App Bundle bytes/hash | Pending fresh build |
-| G54-specific bundletool download estimate | Unmeasured |
+| G54-specific bundletool compressed split estimate | **8,440,294 bytes**, min=max for retained device spec |
 | Actual Play-reported download/installed size | Unmeasured; no store submission |
 | iOS signed IPA / App Store estimate | Unmeasured; signing/distribution gated |
 
 The provisional arm64 artifact budget is **20 MiB** (20,971,520 bytes). APK file
 bytes, bundletool's compressed split-download estimate, installed footprint and
 actual store-reported size must occupy different fields.
+
+The ARM64 APK is **17.51 MiB**, passing that artifact budget. Bundletool 1.18.3
+SHA-256 is `a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29`.
+Its generated device splits use the development certificate. Exact certificate
+DN/digests, signer output, unsigned source hashes, member hashes, size CSV and
+device-spec identity are retained under `artifacts/session-6/final/`.
 
 REA 6.7.0 supports built-in archive inventory here without a disassembler. Export
 its complete evidence bundle, root/member hashes, manifest IDs, evidence IDs,
@@ -68,6 +84,20 @@ not prove runtime dependency use, alert delivery, energy consumption, signature
 validity or absence of network activity. Android SDK tools independently decode
 the manifest/resources and verify alignment/signatures. Native decompilers are
 not installed to list archive members.
+
+REA inspected all four fresh archives: each APK has 93 ZIP entries plus its root
+occurrence; the AAB has 107 entries plus its root. Complete exported records are
+`rea-arm64-evidence.json` and `rea-all-packages.json`. Inspection parent IDs:
+
+- ARM64: `ev_30107e3b5d05844e667c8ae8af57561c33f4ec456d752a2a653abcec188af092`.
+- ARMv7: `ev_99cdf08c44191f46be0d9d7ed1a25d62173323b879f5a224b4280bc3cbd511d0`.
+- x86_64: `ev_3c56ea2a11bdd957791d2b5b79b0a3d22dbdcc41788e0965550864443a6c9fc2`.
+- AAB: `ev_111d302a4bb5acf792d6a04656e2350ef2309e4b1ad21bf4ff12ccfcd69e6f8a`.
+
+ARM64 Flutter identification
+`ev_babb9671b75e936b401bec567701a27932dc2ba238a25692b72c700f20348f1f`
+observes packaged AOT and engine libraries. It makes no SDK lookup. Root/member
+digests and inventory coverage are retained independently of source inspection.
 
 ## Performance method and findings
 
@@ -81,7 +111,13 @@ meaningful event. The focused baseline suite passed 23 tests. Raw counts, source
 hash and method are in `startup-work-baseline.json` and `startup-work-method.md`.
 These are host call counts, not physical-phone latency or battery measurements.
 
-The optimization target is duplicate read requests only. Timer recovery,
+The implemented change reduces each of those two reads to **one**, with zero
+startup history-page reads and zero unchanged-event writes retained. Counted
+before/after results are in `startup-work-baseline.json` and
+`startup-work-after.json`; the final complete suite has **157 passing Flutter
+tests**. Its EXPLAIN check exercises production pagination SQL. This establishes
+less repository work; the launch samples below do not establish a phone speedup.
+Timer recovery,
 transactional completion, native action ingestion and alert repair remain in
 the serialized safety path. Native alert bootstrap and whole-app tick rebuilds
 are candidates for profiling; they are not removed on an assumed speed benefit.
@@ -116,16 +152,54 @@ collector/device-idle baseline; do not invent a numeric memory/energy budget or
 claim a saving smaller than measurement variability.
 
 The initial observed phone was USB powered, 100% charged and 37.0 °C, with an
-active 120 Hz display. That condition cannot establish unplugged battery use.
+active 120 Hz display. Later battery, thermal, radio and brightness readings
+belong to their individual raw runs; the conditions are not silently equated.
+USB-connected measurements cannot establish unplugged battery use.
+
+| Empty-history release launch | Samples | Initial display median / p95 | Usable timer median / p95 |
+| --- | ---: | --- | --- |
+| Preserved baseline cold | 30 | 460 / 528 ms | Unmeasured; earlier marker ambiguous |
+| Preserved baseline warm | 30 | 398 / 443 ms | Unmeasured; earlier marker ambiguous |
+| Current APK cold | 30 | 538 / 649 ms | **597 / 729 ms** |
+| Current APK warm | 30 | 464 / 543 ms | **516 / 590 ms** |
+
+The first-install baseline initial display was **700 ms**, kept separately from
+the repeated samples. First-install usable latency remains unmeasured. Every
+current launch has a unique correlated restored-screen marker and the expected
+COLD/WARM state. Current median cold usable latency passes the provisional
+1.5-second target. The earlier and later runs are not matched conditions and
+must not be described as a demonstrated latency improvement. Raw records:
+`baseline/launch-empty-complete.json`, `baseline/first-install-launch.json` and
+`final/launch-empty.json`.
 
 | Metric | Current result |
 | --- | --- |
-| Cold/warm initial display and usable timer | Unmeasured |
-| First-install launch | Unmeasured |
+| Empty-history cold/warm launch | Measured above; 100,000-session fixture pending |
+| First-install launch | Initial display measured above; usable latency unmeasured |
 | Frame p50/p95/p99 and missed deadlines | Unmeasured |
 | RSS / PSS / CPU by state | Unmeasured |
 | Idle/background polling, I/O and wakes on phone | Unmeasured |
 | Matched unplugged energy windows | Unmeasured |
+
+An initial baseline idle foreground trace contains **1.158385 ms** scheduled
+Poma CPU in **40.063569 s** (0.002891% of one core), three scheduled slices on
+runtime GC/finalizer threads, no rendered Poma frames, and 40 constant process-RSS
+samples at **183,263,232 bytes**. It does not establish all idle/background cases
+or a frame pass. Android `dumpsys` separately reported about 544,226 KiB total
+RSS / 422,495 KiB PSS including 363,138 KiB driver graphics after repeated warm
+recreation. These accounting scopes differ; memory remains a measured baseline
+and investigation item, not a claimed saving.
+
+Trace SHA-256: `232637af58d03a42e9d4468bff316b18d68c43117265a1d2e1728d7c729b2488`.
+Device Perfetto is v46; the official Windows processor is v58.2-add693d8b,
+SHA-256 `adfa6bad3d72be3ba9b83fa2b17b69fa13b3ab1cad0f42e52b86188bd5f0f997`.
+The trace reports one empty power-rail packet and 198 systrace parse failures;
+its available process counters include RSS/swap but no I/O byte counters.
+Scheduler observations are retained, while rail energy, complete atrace behavior
+and per-second SQLite-write absence cannot be inferred from missing counters.
+The corrected summary uses service start/disable timestamps, since raw trace
+bounds include older process metadata. Failed collector attempts and the first
+incorrect denominator summary remain preserved, labeled and superseded.
 
 ## Offline and privacy acceptance
 
@@ -174,11 +248,30 @@ No universal delivery or second-perfect force-stop/reboot guarantee is made.
 The user has an iPhone 16 but no Mac or paid Apple Developer membership and wants
 indefinite free use. Seven-day personal signing is not a durable distribution
 solution; no temporary sideloading or paid service is configured. macOS GitHub CI
-can compile the current simulator/unsigned release and run all ten Swift tests.
+ can compile the current simulator/unsigned release and run all ten Swift tests.
 An unsigned `.app.zip` is inspection-only, not an installable IPA or device test.
 Physical Instruments profiling still needs access to a Mac connected to the
 iPhone. Signing, installed acceptance, actual backup/transfer behavior, energy,
 and iOS store sizes remain gated until those prerequisites exist.
+
+The approved [draft PR](https://github.com/Jyotirmay-Singh/poma/pull/1) retains the
+local Session 5/6 source while leaving the local branch, index and uncommitted
+files intact. CI run `39643673748` at `a2a8fc5bb7973b4a981971fe619bbf659cb97718`
+passed Android checks/builds, iOS simulator compilation and **all ten Swift
+tests**. macOS 26.6.2 / Xcode 26.6 (17F113) / iPhoneOS SDK 26.5 were recorded.
+The tests ran on an iPhone 17 Pro **simulator**, iOS 26.4.1; they establish no
+iPhone 16 physical behavior. The subsequent unsigned device release build
+**failed** with a condensed SwiftCompile error. A verbose diagnostic rerun is
+in progress; no unsigned release archive or successful iOS release compilation
+is claimed yet. Retained iOS evidence artifact `12366324235`, ZIP SHA-256
+`a1d75a1df08472096b2f873e54a067a7ed9f6d125cf250025aaa3e4507eed4b7`,
+includes the xcresult, summary, environment and failure log.
+
+An earlier workflow validation failure used an unsupported context in job-level
+environment paths. It was corrected to workspace paths; failed run
+`39642726025` remains historical. GitHub connector writes were unavailable;
+the explicitly approved draft was pushed through the existing Git connection.
+No merge or store publication occurred.
 
 Production signing, owner-controlled identifiers/branding, store policy review
 and submission remain separate release gates. No backend, account, cloud sync,

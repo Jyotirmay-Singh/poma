@@ -85,6 +85,15 @@ No downloaded fonts, videos, raster illustration bundle, analytics, ads, backgro
 
 Provisional engineering targets, not established results: compressed arm64 release APK at or below 20 MiB, p95 frames within the 60 Hz frame budget on the chosen baseline phone, and a median cold launch under 1.5 seconds on that phone. Record device, OS, build mode, ABI, sample count, and methods. Debug build size and simulator speed are not release measurements. Battery and memory budgets need real-device baselines before setting a defensible numeric limit.
 
+Session 6 retains the startup alert/restoration safety barrier and reduces a
+demonstrated duplicate summary read from two to one per meaningful startup or
+foreground/calendar event. Unchanged events read/write nothing. A native
+one-shot fully-drawn marker reports the first restored screen separately from
+Android's initial-display timestamp; it does not control the timer. Fresh G54
+release results, accounting scopes, collector limitations and remaining gates
+are in [release evidence](RELEASE_EVIDENCE.md). No framework rewrite, assumed
+battery benefit or numeric memory/energy promise follows from source structure.
+
 ## Offline product contract
 
 All Pomodoro functions must remain usable in airplane mode: focus and break cycles, custom durations, start/pause/resume/reset/skip, strict mode, tasks, history, appearance settings, and native local alerts subject to OS permission/delivery policy. Persist state in SQLite so restarting the app does not require a server or an account. Notification permission is a local OS choice and must not depend on signup or remote push registration.

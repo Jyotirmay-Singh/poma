@@ -11,8 +11,9 @@ The reviewed source implements an offline Android/iOS app with no account, backe
 | App-owned source/configuration | Permissions, storage preparation, data deletion and notification payload design; bounded network/log/secret-pattern review | Does not establish actual OS delivery, network traffic, backup behavior or every dependency's behavior |
 | Installed package metadata/licenses | Exact declared production dependency closure and local primary-license texts | Includes platform-specific packages; not a list of all code shipped after tree shaking/R8 |
 | Previous release output | Historical baseline only | Its manifest lacks the current notification receivers/permissions and its license asset lacks current notifications/intl entries; do not use it for this release |
-| Fresh Android release packages | Pending parent release evidence | Hash, merged resources/permissions, signing and retained REA evidence must bind every packaged claim |
-| iOS release IPA | Unverified | No macOS build, signed IPA, installed package or merged privacy-manifest result was supplied to this review |
+| Fresh Android release packages | Package-verified; [exact hashes and REA IDs](RELEASE_EVIDENCE.md) | Does not establish every device/OS behavior |
+| iOS simulator/native tests | CI-verified: simulator compilation and ten Swift tests passed | Simulator results are not physical iPhone behavior |
+| iOS device release / signed IPA | Initial unsigned release compilation failed; diagnostic rerun pending | No valid release archive, signed IPA, installed package or merged release privacy-manifest result yet |
 | Physical phones, backup/transfer and traffic | Unverified | Parent inventory reports a connected G54 on Android 15; no installed-app backup/transfer, disconnected acceptance or attributable traffic outcome has been supplied to this review |
 
 No result below claims database encryption, universally disabled OS backups, erasure of older backups, forensic erasure, or measured battery/latency improvements.
@@ -32,6 +33,18 @@ There is no user-profile, contact, location, advertising-ID or account field in 
 
 Android source declares `POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM` and `RECEIVE_BOOT_COMPLETED`. The alarm, dismiss and restore receivers are private. `SCHEDULE_EXACT_ALARM` supports the user-selected precise alert path, with an inexact fallback; store eligibility/approval is not established here. `RECEIVE_BOOT_COMPLETED` supports event-driven restoration. No main-source `INTERNET`, app wake-lock, foreground-service, restricted `USE_EXACT_ALARM`, contacts, location or DND-bypass permission is declared. Android's merged signature-protected dynamic-receiver permission, when supplied by AndroidX, is different from an extra user data permission. Inspect the fresh release manifest rather than assuming dependency manifests add nothing.
 
+The current ARM64 release manifest was decoded with Android build tools 36.0.0
+and bound to SHA-256
+`c162a616d26800f3b165670191e1d3f19f4adb610fc1b42cb88d1f1494a13632`.
+It retains the three app permissions, the notification library's normal
+`VIBRATE` permission and the signature-protected dynamic-receiver permission.
+Vibration is an OS notification-channel capability; the app adds no vibration
+loop or custom vibration request. Existing channel preferences are preserved.
+No `INTERNET`, `ACCESS_NETWORK_STATE`, wake-lock or foreground-service permission
+appears. The package is not debuggable. Resource decoding resolves the obfuscated
+backup XML paths and confirms all nine domains at `.` in legacy/cloud/transfer
+sections. This establishes packaged rules, not universal backup prevention.
+
 iOS source adds no remote-push entitlement or continuous background-execution mode. Its app privacy manifest declares no tracking/collected-data categories and required API reasons `35F9.1` for boot-time interval measurement and `CA92.1` for app-private UserDefaults. The installed notification plugin also declares `CA92.1` with no tracking or collected-data categories; sqflite_darwin's local privacy manifest declares no accessed API or collected-data categories. These are reviewed declarations, not a signed-IPA or App Store approval result. Preserve all merged framework/plugin manifests when the IPA is available.
 
 Notification permission is explained at the first Start rather than launch. Denial leaves timer controls usable; settings expose alert enablement, OS settings and retry. Permission denial/revocation and exact-access revocation still require phone observation.
@@ -42,7 +55,7 @@ Android's main manifest sets `allowBackup=false` and references both `backup_rul
 
 On iOS, `LocalRepository._openOnce` awaits privacy preparation on the database's parent directory before `openDatabase`. `LocalBackupPolicy.exclude` resolves/canonicalizes the directory, rejects paths outside the app container and the container root, creates the directory if required, sets `isExcludedFromBackup=true` and reads the attribute back. A missing bridge or failed preparation produces a retryable startup error, preserving existing data. Excluding the directory is intended to include `poma.db`, `poma.db-wal`, `poma.db-shm`, `poma.db-journal` and subsequently created sidecars.
 
-Three Swift backup-policy tests cover existing database/sidecar preservation, creating an excluded directory before the database exists and rejecting an outside-container path. They remain unrun in this Windows review. Reading back an attribute or passing those tests would establish the attribute policy, not prove the contents of every iCloud/Finder backup or Quick Start/device-transfer path.
+Three Swift backup-policy tests cover existing database/sidecar preservation, creating an excluded directory before the database exists and rejecting an outside-container path. They passed within the ten-test macOS simulator run recorded in [release evidence](RELEASE_EVIDENCE.md). These tests establish the simulator attribute policy, not the contents of every iCloud/Finder backup or Quick Start/device-transfer path. Physical directory attributes and backup/transfer observations remain gated.
 
 The SQLite-directory attribute does not cover standard iOS UserDefaults. `poma.alert.database` stores a local database path and `poma.alert.responses` stores opaque run/generation/action metadata. No task title or full focus history is written there by the reviewed code. This metadata remains in the backup inventory; do not describe every app-private byte as excluded. Android's broad shared-preference exclusions also cover its native alert metadata. Full reset may retain non-content configuration such as the native database location.
 
@@ -120,6 +133,23 @@ The direct packages support SQLite, path handling, bundled locale formatting and
 
 The Dart graph is not the complete native license inventory. The installed Android notification plugin declares AndroidX core/media, Gson 2.12.0 and desugar_jdk_libs 2.1.4; resolution may select newer conflict-resolved AndroidX versions. Both inspected iOS Swift packages depend on the local FlutterFramework and carry privacy resources. Preserve the final Android resolved runtime graph, native Maven licenses/notices, Flutter engine notices and final Swift/framework resources with each release. No macOS resolution or native complete-license approval is claimed here.
 
+The fresh Android `releaseRuntimeClasspath` graph is now retained. Its 52 unique
+selected Maven coordinates have 29 locally available POM records declaring
+Apache 2.0 variants; 23 have no cached POM in this bounded review. Those missing
+records are unresolved coverage, not proof of unlicensed dependencies. The
+graph includes resolved AndroidX core 1.13.1, Kotlin stdlib 2.3.20 and Flutter
+embedding revision `77e2e94772b6eb43759e34ed1ad7da4674e19cab`.
+`android-release-runtime-graph.log` and
+`native-maven-license-declarations.json` retain exact declarations and limits.
+Complete native/embedded notice clearance remains a distribution gate.
+
+The APK contains `NOTICES.Z` (110,357 bytes), decoding offline to 1,377,731 bytes,
+SHA-256 `b886055b4ba708a086ee1b89084b2a21b85e1a151046d79f928299902c7aebae`,
+and the separate Pomatez license asset. Notices include the notification,
+SQLite, intl and http package names. A license-name occurrence does not establish
+reachable AOT code or observed network activity. The full text is retained;
+engine notices are not reduced to Flutter's top-level license.
+
 Pomatez's MIT text is already bundled and registered with the About → View licenses flow. Flutter's generated `NOTICES.Z` and the explicit Pomatez asset must be present in the fresh package and readable offline. Preserve original copyright/license texts and required notices for included BSD/MIT/Apache material. Do not reduce the mixed engine inventory to the SDK's top-level BSD license. The declared Linux MPL package requires separate inclusion/source-license assessment if a future target actually ships it. A primary-file classification is not a complete legal clearance for every native or embedded subcomponent.
 
 ## Bounded secrets and network review
@@ -142,10 +172,11 @@ The local review used Python 3.14.2 and RTK 1.0.1. Later snapshots retain the ex
 - `artifacts/session-6/dependency-license-inventory-final.json`, evidence ID `POMA-DEPENDENCIES-20261021-final`: final source graph/license snapshot with tool/script identity, 1,442,587 bytes, SHA-256 `ca06b515fa0c63d855093f6d4be205a3b86136927f91f88549fbbe0c8e611dfb`.
 - `artifacts/session-6/privacy-source-audit-final.json`, evidence ID `POMA-PRIVACY-SOURCE-20261021-final`: final source identities after controller/measurement additions and regenerated privacy copy, 9,930 bytes, SHA-256 `29fa0eefa51ba17f3b69802ad14b3580b93b47e298d7b4341b250c56c4b5a729`.
 - Reviewed lockfile SHA-256: `64ce0ae60072093a53fb57e305e7f8f944383e54e55852f6d8b0063ffb9d84ef`; graph SHA-256: `614d858aa7ff26d43d96813e445902b260c3c303cd06d83e2fa1485858088d10`. Re-run and retain a new identity if those inputs change.
+- Later source audit including the corrected launch marker: `privacy-source-audit-release-validated.json`, 9,928 bytes, SHA-256 `ec8ebc1ae1f5c1509d6ad29832d3b27256ed5b578ca967c61b67cf7d0187ac2a`; 42 files, zero matches for the bounded network/log/secret patterns. Its dependency/license companion is 1,442,585 bytes, SHA-256 `6b93890d93b1029987c81ca81a6591c44b887da032cbb46e2544b85a85b38763`.
 
 | Release observation | Status in this review | Required evidence |
 | --- | --- | --- |
-| Fresh Android merged permissions, backup resources, native receivers and licenses | Pending | Exact APK/AAB hash, tool version, inventory/resource output and any REA evidence IDs |
+| Fresh Android merged permissions, backup resources, native receivers and Dart/license assets | Package-verified | Exact hashes, REA IDs and decoded resources in the release report; full native license clearance remains open |
 | Signed iOS entitlements, merged privacy manifests and license resources | Unverified | IPA hash, Xcode/SDK, signing/install identity and focused packaged evidence |
 | Android cloud/legacy backup and device transfer | Unverified | Named model, OS/OEM, transport, synthetic DB/sidecars/preferences, restore/transfer result and limitations |
 | iOS backup and device transfer | Unverified | Directory/sidecar attributes plus observed supported backup/restore and transfer result; attribute tests alone do not pass this row |

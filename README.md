@@ -51,6 +51,14 @@ For iOS, use a **Mac with Xcode** and the Flutter iOS prerequisites. From `mobil
 
 ## Verification
 
+Release validation is now running on a Motorola G54 with Android 15. Fresh
+release APKs/AAB, package inspection, launch samples and the distinct remaining
+gates are recorded in [release evidence](docs/RELEASE_EVIDENCE.md). These are
+development-signed validation packages. Disconnected acceptance, physical iOS
+behavior, backup/transfer behavior, unplugged energy and store sizes remain
+unverified until observed. Current macOS CI has compiled the simulator app and
+passed all ten Swift tests; unsigned device release compilation is being repaired.
+
 The screen refinement includes a real-SQLite UI close/reopen flow and populated light/dark viewport tests at 100%/200% text. See [screen verification and disconnected phone procedure](docs/UI_VERIFICATION.md) and the [accessibility issue ledger](docs/ACCESSIBILITY.md). Host semantic/layout/contrast checks do not establish TalkBack or VoiceOver behavior. Physical-device checks and iOS compilation remain open.
 
 The Flutter suite covers scheduling/cancellation, interrupted database/OS updates, permission-flow UI, fixed v1/v2-to-v3 migrations, real SQLite storage exhaustion, process exits before/after commit, rollback/retry, delayed saves, 100,000-row pagination, deletion, timer recovery, strict controls and large-text layouts. Six Android JVM tests cover elapsed/reboot and receiver-identity policy. Rendering writes and ticker lifecycle are checked explicitly. CI enforces the lockfile, formatting, analysis, Flutter/native tests, an Android build, and iOS simulator compilation/XCTest. Changed Swift integration and all physical-device notification/clock/backup/offline-restart checks remain unverified until run on macOS and phones. See the [local durability checks](docs/LOCAL_DATA.md), [alert protocol and device evidence matrix](docs/NOTIFICATIONS.md), and [architecture](docs/ARCHITECTURE.md).
