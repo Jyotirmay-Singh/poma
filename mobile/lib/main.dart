@@ -8,10 +8,13 @@ import 'data/local_repository.dart';
 import 'data/local_storage_policy.dart';
 import 'data/timer_clock.dart';
 import 'data/local_alerts.dart';
+import 'data/launch_reporter.dart';
 import 'application/local_alerts.dart';
 import 'domain/timer_engine.dart';
 import 'ui/app_shell.dart';
 import 'ui/theme.dart';
+import 'ui/copy.dart';
+import 'l10n/poma_localizations.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,6 +48,7 @@ class _PomaLoaderState extends State<PomaLoader> {
   @override
   void initState() {
     super.initState();
+    unawaited(DeviceFormats.initialize());
     _loading = _load();
   }
 
@@ -68,47 +72,56 @@ class _PomaLoaderState extends State<PomaLoader> {
       if (snapshot.hasData) return PomaApp(controller: snapshot.data!);
       return MaterialApp(
         title: 'Poma',
+        localizationsDelegates: PomaLocalizations.localizationsDelegates,
+        supportedLocales: PomaLocalizations.supportedLocales,
         debugShowCheckedModeBanner: false,
         theme: pomaTheme(Brightness.light),
-        home: Scaffold(
-          body: SafeArea(
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(28),
-                child: snapshot.hasError
-                    ? Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.storage_outlined, size: 40),
-                          const SizedBox(height: 20),
-                          Text(
-                            snapshot.error is TimerClockException
-                                ? 'Timer time could not be read. Try again. Your data is kept.'
-                                : snapshot.error
-                                      is LocalStoragePreparationException
-                                ? 'Local storage privacy settings could not be applied.'
-                                : snapshot.error is StorageFailure
-                                ? (snapshot.error as StorageFailure).message
-                                : 'Your saved data could not be opened.',
-                            textAlign: TextAlign.center,
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: SafeArea(
+              child: Center(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(28),
+                    child: snapshot.hasError
+                        ? Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.storage_outlined, size: 40),
+                              const SizedBox(height: 20),
+                              Text(
+                                snapshot.error is TimerClockException
+                                    ? context.copy.clockError
+                                    : snapshot.error
+                                          is LocalStoragePreparationException
+                                    ? context.copy.startupPrivacy
+                                    : snapshot.error is StorageFailure
+                                    ? storageMessage(
+                                        context.copy,
+                                        (snapshot.error as StorageFailure).kind,
+                                      )
+                                    : context.copy.startupRead,
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                context.copy.tryAgainHelp,
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 20),
+                              FilledButton(
+                                onPressed: () => setState(() {
+                                  _loading = _load();
+                                }),
+                                child: Text(context.copy.tryAgain),
+                              ),
+                            ],
+                          )
+                        : CircularProgressIndicator(
+                            semanticsLabel: context.copy.opening,
                           ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'Try again. Your existing data will be kept.',
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 20),
-                          FilledButton(
-                            onPressed: () => setState(() {
-                              _loading = _load();
-                            }),
-                            child: const Text('Try again'),
-                          ),
-                        ],
-                      )
-                    : const CircularProgressIndicator(
-                        semanticsLabel: 'Opening Poma',
-                      ),
+                  ),
+                ),
               ),
             ),
           ),
@@ -139,10 +152,14 @@ class _PomaAppState extends State<PomaApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    unawaited(DeviceFormats.initialize());
     WidgetsBinding.instance.addObserver(this);
     widget.controller.setForeground(
       WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed,
     );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(reportFirstUsableFrame());
+    });
   }
 
   @override
@@ -153,6 +170,16 @@ class _PomaAppState extends State<PomaApp> with WidgetsBindingObserver {
     animation: widget.controller,
     builder: (context, _) => MaterialApp(
       title: 'Poma',
+      localizationsDelegates: PomaLocalizations.localizationsDelegates,
+      supportedLocales: PomaLocalizations.supportedLocales,
+      themeAnimationDuration:
+          WidgetsBinding
+              .instance
+              .platformDispatcher
+              .accessibilityFeatures
+              .disableAnimations
+          ? Duration.zero
+          : kThemeAnimationDuration,
       debugShowCheckedModeBanner: false,
       theme: pomaTheme(Brightness.light),
       darkTheme: pomaTheme(Brightness.dark),

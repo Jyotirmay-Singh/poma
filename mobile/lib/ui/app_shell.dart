@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../application/app_controller.dart';
+import '../application/local_repository.dart';
+import 'copy.dart';
 import 'focus_screen.dart';
 import 'insights_screen.dart';
 import 'settings_screen.dart';
@@ -15,6 +17,12 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   int _seenAlertOpenRevision = 0;
   int _tab = 0;
+  String? _announcedRun;
+  void _goTo(int tab) {
+    widget.controller.showInsights(tab == 2);
+    setState(() => _tab = tab);
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = widget.controller;
@@ -23,113 +31,179 @@ class _AppShellState extends State<AppShell> {
       _tab = 0;
       controller.showInsights(false);
     }
+    final copy = context.copy;
+    final notice = controller.lastPhaseCompletion;
+    final announceCompletion =
+        _tab == 0 && notice != null && _announcedRun != notice.runId;
+    if (announceCompletion) _announcedRun = notice.runId;
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            if (controller.alertMessage != null)
-              MaterialBanner(
-                content: Text(controller.alertMessage!),
-                actions: [
-                  TextButton(
-                    onPressed: () => controller.reconcile(forceAlerts: true),
-                    child: const Text('Retry'),
-                  ),
-                  TextButton(
-                    onPressed: controller.openNotificationSettings,
-                    child: const Text('Settings'),
-                  ),
-                ],
-              ),
-            if (controller.clockError != null)
-              MaterialBanner(
-                content: Text(controller.clockError!),
-                actions: [
-                  TextButton(
-                    onPressed: controller.reconcile,
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            if (controller.saveError != null)
-              MaterialBanner(
-                content: Text(controller.saveError!),
-                actions: [
-                  TextButton(
-                    onPressed: controller.retrySave,
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            if (controller.cleanupPending && controller.saveError == null)
-              MaterialBanner(
-                content: const Text(
-                  'Data deletion needs retry before starting another timer.',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: controller.retrySave,
-                    child: const Text('Finish deletion'),
-                  ),
-                ],
-              ),
-            Expanded(
-              child: switch (_tab) {
-                0 => FocusScreen(
-                  controller: controller,
-                  onTasks: () => setState(() => _tab = 1),
-                ),
-                1 => TasksScreen(controller: controller),
-                2 => InsightsScreen(controller: controller),
-                _ => SettingsScreen(controller: controller),
-              },
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _tab,
-        onDestinationSelected: (tab) {
-          controller.showInsights(tab == 2);
-          setState(() => _tab = tab);
+        bottom: false,
+        child: switch (_tab) {
+          0 => FocusScreen(
+            controller: controller,
+            onTasks: () => _goTo(1),
+            announceCompletion: announceCompletion,
+          ),
+          1 => TasksScreen(controller: controller),
+          2 => InsightsScreen(controller: controller),
+          _ => SettingsScreen(controller: controller),
         },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.timelapse_outlined),
-            selectedIcon: Icon(Icons.timelapse),
-            label: 'Focus',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.checklist_outlined),
-            label: 'Tasks',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.bar_chart_outlined),
-            label: 'Insights',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.tune_outlined),
-            label: 'Settings',
-          ),
-        ],
+      ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final labels = [
+              copy.focus,
+              copy.tasks,
+              copy.insights,
+              copy.settings,
+            ];
+            const icons = [
+              Icons.timelapse,
+              Icons.checklist,
+              Icons.bar_chart,
+              Icons.tune,
+            ];
+            final style = Theme.of(context).textTheme.labelLarge!;
+            var requiredWidth = 0.0;
+            for (final label in labels) {
+              final text = TextPainter(
+                text: TextSpan(text: label, style: style),
+                textScaler: MediaQuery.textScalerOf(context),
+                textDirection: Directionality.of(context),
+              )..layout();
+              if (text.width + 32 > requiredWidth) {
+                requiredWidth = text.width + 32;
+              }
+              text.dispose();
+            }
+            final columns = requiredWidth * 4 > constraints.maxWidth - 16
+                ? 2
+                : 4;
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Wrap(
+                children: [
+                  for (var i = 0; i < 4; i++)
+                    SizedBox(
+                      width: (constraints.maxWidth - 16) / columns,
+                      child: Semantics(
+                        selected: _tab == i,
+                        child: TextButton(
+                          key: Key('destination-$i'),
+                          style: TextButton.styleFrom(
+                            minimumSize: const Size(48, 64),
+                            foregroundColor: _tab == i
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                            backgroundColor: _tab == i
+                                ? Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withValues(alpha: .10)
+                                : null,
+                          ),
+                          onPressed: () => _goTo(i),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ExcludeSemantics(child: Icon(icons[i])),
+                              const SizedBox(height: 4),
+                              Text(labels[i], textAlign: TextAlign.center),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
 }
 
+/// Notices share the page scroll region, keeping controls reachable even when
+/// multiple failures are visible with large text.
+class PomaPage extends StatelessWidget {
+  const PomaPage({required this.controller, required this.children, super.key});
+  final AppController controller;
+  final List<Widget> children;
+  @override
+  Widget build(BuildContext context) => ListView(
+    padding: const EdgeInsets.fromLTRB(24, 20, 24, 28),
+    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+    children: [
+      if (controller.clockError != null)
+        _Notice(
+          message: context.copy.clockError,
+          action: context.copy.retry,
+          onPressed: controller.reconcile,
+        ),
+      if (controller.saveError != null)
+        _Notice(
+          message: storageMessage(
+            context.copy,
+            controller.saveFailureKind ?? StorageFailureKind.write,
+          ),
+          action: context.copy.retry,
+          onPressed: controller.retrySave,
+        ),
+      if (controller.cleanupPending && controller.saveError == null)
+        _Notice(
+          message: context.copy.cleanupNotice,
+          action: context.copy.finishDeletion,
+          onPressed: controller.retrySave,
+        ),
+      ...children,
+    ],
+  );
+}
+
+class _Notice extends StatelessWidget {
+  const _Notice({
+    required this.message,
+    required this.action,
+    required this.onPressed,
+  });
+  final String message;
+  final String action;
+  final VoidCallback onPressed;
+  @override
+  Widget build(BuildContext context) => Semantics(
+    liveRegion: true,
+    child: Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(message),
+          TextButton(onPressed: onPressed, child: Text(action)),
+          const Divider(),
+        ],
+      ),
+    ),
+  );
+}
+
 class ScreenHeading extends StatelessWidget {
   const ScreenHeading({
     required this.title,
-    required this.subtitle,
+    this.subtitle,
     this.action,
     super.key,
   });
   final String title;
-  final String subtitle;
+  final String? subtitle;
   final Widget? action;
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 24),
+    padding: const EdgeInsets.only(bottom: 20),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -137,21 +211,25 @@ class ScreenHeading extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -.7,
+              Semantics(
+                header: true,
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-              const SizedBox(height: 6),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  height: 1.45,
+              if (subtitle != null) ...[
+                const SizedBox(height: 6),
+                Text(
+                  subtitle!,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    height: 1.45,
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),

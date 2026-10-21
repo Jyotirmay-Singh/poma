@@ -17,6 +17,8 @@ There is no automatic data recovery after uninstalling Poma or losing the phone.
 - Confirmed session/history deletion and full local data reset, with interrupted alert cleanup recovery.
 - Native OS-scheduled completion alerts, permission/settings controls, cancellation, and Open timer / Dismiss actions. Android offers an inexact fallback when precise alarms are unavailable.
 - System, light, and dark appearances; screen-reader labels and layouts that accommodate large text.
+- Phase-specific start actions and inline completion feedback; current and next task labels, accessible daily totals, and permission-specific alert recovery.
+- English localization resources and offline calendar formatting using the device locale and time preference.
 
 Each phase starts manually. Leaving the app can complete **one existing session**; it never manufactures a chain of unattended focus sessions. A skipped or reset session does not count. A task is attached when a focus session starts, and its original title stays in history after a rename or deletion.
 
@@ -48,6 +50,8 @@ Set `POMA_FLUTTER_SDK` to your SDK directory if Flutter is not on PATH. Install 
 For iOS, use a **Mac with Xcode** and the Flutter iOS prerequisites. From `mobile/`, run `rtk proxy flutter run -d <ios-device-id>`. Device distribution and store submission require Apple signing.
 
 ## Verification
+
+The screen refinement includes a real-SQLite UI close/reopen flow and populated light/dark viewport tests at 100%/200% text. See [screen verification and disconnected phone procedure](docs/UI_VERIFICATION.md) and the [accessibility issue ledger](docs/ACCESSIBILITY.md). Host semantic/layout/contrast checks do not establish TalkBack or VoiceOver behavior. Physical-device checks and iOS compilation remain open.
 
 The Flutter suite covers scheduling/cancellation, interrupted database/OS updates, permission-flow UI, fixed v1/v2-to-v3 migrations, real SQLite storage exhaustion, process exits before/after commit, rollback/retry, delayed saves, 100,000-row pagination, deletion, timer recovery, strict controls and large-text layouts. Six Android JVM tests cover elapsed/reboot and receiver-identity policy. Rendering writes and ticker lifecycle are checked explicitly. CI enforces the lockfile, formatting, analysis, Flutter/native tests, an Android build, and iOS simulator compilation/XCTest. Changed Swift integration and all physical-device notification/clock/backup/offline-restart checks remain unverified until run on macOS and phones. See the [local durability checks](docs/LOCAL_DATA.md), [alert protocol and device evidence matrix](docs/NOTIFICATIONS.md), and [architecture](docs/ARCHITECTURE.md).
 

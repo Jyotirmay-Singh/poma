@@ -326,12 +326,29 @@ void main() {
         after: HistoryCursor.forSession(second.sessions.first),
       );
       expect(back.sessions.map((s) => s.id), first.sessions.map((s) => s.id));
-      final plan = await db.rawQuery(
-        'EXPLAIN QUERY PLAN SELECT id FROM sessions WHERE ended_at_utc_micros <= ? AND (ended_at_utc_micros < ? OR id < ?) ORDER BY ended_at_utc_micros DESC,id DESC LIMIT 51',
-        [start, start, '099000'],
-      );
-      expect(plan.toString(), contains('SEARCH'));
-      expect(plan.toString(), contains('sessions_end_id'));
+      // Match the production UNION seeks in both directions. Each branch must
+      // seek the composite index, including the equal-timestamp ID boundary.
+      for (final newer in [false, true]) {
+        final comparison = newer ? '>' : '<';
+        final direction = newer ? 'ASC' : 'DESC';
+        final plan = await db.rawQuery(
+          'EXPLAIN QUERY PLAN SELECT * FROM sessions WHERE ended_at_utc_micros = ? AND id $comparison ? UNION ALL SELECT * FROM sessions WHERE ended_at_utc_micros $comparison ? ORDER BY ended_at_utc_micros $direction,id $direction LIMIT 51',
+          [start, '099000', start],
+        );
+        final details = plan.map((row) => row['detail'] as String).toList();
+        expect(
+          details.where(
+            (detail) =>
+                detail.contains('SEARCH sessions') &&
+                detail.contains('sessions_end_id'),
+          ),
+          hasLength(2),
+        );
+        expect(
+          details.any((detail) => detail.contains('SCAN sessions')),
+          isFalse,
+        );
+      }
       final app = await AppController.create(repository, clock: FakeClock());
       expect(app.sessions, isEmpty); // No startup history fetch.
       await app.loadHistory();

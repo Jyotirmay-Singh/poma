@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../domain/timer_engine.dart';
+import '../domain/models.dart';
+import 'copy.dart';
 
 class TimerDial extends StatelessWidget {
   const TimerDial({required this.timer, required this.color, super.key});
@@ -13,55 +15,87 @@ class TimerDial extends StatelessWidget {
       final seconds = timer.remainingSeconds;
       final time =
           '${(seconds ~/ 60).toString().padLeft(2, '0')}:${(seconds % 60).toString().padLeft(2, '0')}';
+      final timeStyle = DefaultTextStyle.of(context).style.copyWith(
+        fontSize: diameter / 8.5,
+        fontWeight: FontWeight.w500,
+        letterSpacing: -1.5,
+        fontFeatures: const [FontFeature.tabularFigures()],
+      );
+      final phaseStyle = DefaultTextStyle.of(context).style.copyWith(
+        color: Theme.of(context).colorScheme.onSurface,
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+      );
+      final numberMetrics = TextPainter(
+        text: TextSpan(text: time, style: timeStyle),
+        textScaler: MediaQuery.textScalerOf(context),
+        textDirection: Directionality.of(context),
+      )..layout();
+      final phaseMetrics = TextPainter(
+        text: TextSpan(
+          text: phaseName(context.copy, timer.phase),
+          style: phaseStyle,
+        ),
+        textScaler: MediaQuery.textScalerOf(context),
+        textDirection: Directionality.of(context),
+      )..layout(maxWidth: diameter - 40);
+      final fits =
+          numberMetrics.width <= diameter - 40 &&
+          numberMetrics.height + phaseMetrics.height + 43 <= diameter - 40;
+      numberMetrics.dispose();
+      phaseMetrics.dispose();
+      final icon = Icon(
+        timer.phase == FocusPhase.focus
+            ? Icons.spa_outlined
+            : Icons.coffee_outlined,
+        color: color,
+        size: 27,
+      );
+      final number = Text(time, textAlign: TextAlign.center, style: timeStyle);
+      final phase = Text(
+        phaseName(context.copy, timer.phase),
+        textAlign: TextAlign.center,
+        style: phaseStyle,
+      );
       return Semantics(
         label:
-            '${timer.phase.label}, ${seconds ~/ 60} minutes ${seconds % 60} seconds remaining',
+            '${phaseName(context.copy, timer.phase)}, ${switch (timer.status) {
+              RunStatus.ready => context.copy.ready,
+              RunStatus.running => context.copy.running,
+              RunStatus.paused => context.copy.paused,
+            }}',
+        value: context.copy.remaining(seconds ~/ 60, seconds % 60),
         child: ExcludeSemantics(
-          child: SizedBox.square(
-            dimension: diameter,
-            child: CustomPaint(
-              painter: _DialPainter(
-                color: color,
-                track: Theme.of(context).colorScheme.outlineVariant,
-                progress: timer.progress,
-              ),
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(28),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        timer.phase.name == 'focus'
-                            ? Icons.spa_outlined
-                            : Icons.coffee_outlined,
-                        color: color,
-                        size: 27,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox.square(
+                dimension: diameter,
+                child: CustomPaint(
+                  painter: _DialPainter(
+                    color: color,
+                    track: Theme.of(context).colorScheme.outlineVariant,
+                    progress: timer.progress,
+                  ),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          icon,
+                          const SizedBox(height: 12),
+                          if (fits) number,
+                          const SizedBox(height: 4),
+                          phase,
+                        ],
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        time,
-                        style: TextStyle(
-                          fontSize: diameter / 7.5,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: -1.5,
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        timer.phase.label,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
+              if (!fits) ...[const SizedBox(height: 12), number],
+            ],
           ),
         ),
       );

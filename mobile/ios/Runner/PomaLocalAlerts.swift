@@ -21,8 +21,10 @@ struct PomaAlertRequest: Decodable {
     let remaining = min(maximumRemainingMicros, elapsedDeadlineMicros - elapsedNow)
     guard remaining > 0, !runId.isEmpty, generation > 0, notificationId > 0 else { return nil }
     let content = UNMutableNotificationContent()
-    content.title = phase == "focus" ? "Focus complete" : "Break complete"
-    content.body = "Open Poma when you’re ready."
+    content.title = phase == "focus"
+      ? NSLocalizedString("alert_focus_complete", value: "Focus complete", comment: "Focus completion notification")
+      : NSLocalizedString("alert_break_complete", value: "Break complete", comment: "Break completion notification")
+    content.body = NSLocalizedString("alert_body", value: "Open Poma when you’re ready.", comment: "Notification body")
     content.sound = .default
     content.categoryIdentifier = PomaLocalAlerts.category.identifier
     content.userInfo = ["pomaRunId": runId, "pomaGeneration": generation]
@@ -70,8 +72,8 @@ final class PomaAlertResponses {
 final class PomaLocalAlerts {
   static let shared = PomaLocalAlerts()
   static let category = UNNotificationCategory(identifier: "poma_completion", actions: [
-    UNNotificationAction(identifier: "open", title: "Open timer", options: [.foreground]),
-    UNNotificationAction(identifier: "dismiss", title: "Dismiss", options: [])
+    UNNotificationAction(identifier: "open", title: NSLocalizedString("alert_open", value: "Open timer", comment: "Open timer action"), options: [.foreground]),
+    UNNotificationAction(identifier: "dismiss", title: NSLocalizedString("alert_dismiss", value: "Dismiss", comment: "Dismiss notification action"), options: [])
   ], intentIdentifiers: [], options: [.customDismissAction])
   private var channel: FlutterMethodChannel?
   private let center = UNUserNotificationCenter.current()

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+        AAC000012026102100000001 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = AAC000012026102100000002 /* Localizable.strings */; };
         AAB000012026102000000001 /* PomaLocalAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAB000012026102000000002 /* PomaLocalAlerts.swift */; };
         AAB000012026102000000003 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = AAB000012026102000000004 /* PrivacyInfo.xcprivacy */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
@@ -44,6 +45,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+        AAC000012026102100000002 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
         AAB000012026102000000002 /* PomaLocalAlerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomaLocalAlerts.swift; sourceTree = "<group>"; };
         AAB000012026102000000004 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
@@ -128,6 +130,7 @@
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
                 AAB000012026102000000002 /* PomaLocalAlerts.swift */,
                 AAB000012026102000000004 /* PrivacyInfo.xcprivacy */,
+                AAC000012026102100000002 /* Localizable.strings */,
 				7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 			);
@@ -233,6 +236,7 @@
 			files = (
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
                 AAB000012026102000000003 /* PrivacyInfo.xcprivacy in Resources */,
+                AAC000012026102100000001 /* Localizable.strings in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,

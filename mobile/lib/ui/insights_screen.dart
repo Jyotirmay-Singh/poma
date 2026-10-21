@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import '../application/app_controller.dart';
 import '../application/local_repository.dart';
 import 'app_shell.dart';
+import 'copy.dart';
 
 class InsightsScreen extends StatelessWidget {
   const InsightsScreen({required this.controller, super.key});
   final AppController controller;
   @override
   Widget build(BuildContext context) {
+    final copy = context.copy;
     final now = controller.localNow;
     final days = List.generate(
       7,
@@ -15,119 +17,154 @@ class InsightsScreen extends StatelessWidget {
     );
     final summaries = controller.summaries;
     final complete = summaries != null && summaries.length == 7;
-    final minutes = days.map((day) {
-      for (final summary in summaries ?? <DaySummary>[]) {
-        if (summary.date.year == day.year &&
-            summary.date.month == day.month &&
-            summary.date.day == day.day) {
-          return summary.focusSeconds ~/ 60;
-        }
-      }
-      return 0;
-    }).toList();
-    final largest = minutes.fold(1, (max, value) => value > max ? value : max);
+    final daily = days
+        .map(
+          (day) =>
+              summaries
+                  ?.where(
+                    (s) =>
+                        s.date.year == day.year &&
+                        s.date.month == day.month &&
+                        s.date.day == day.day,
+                  )
+                  .firstOrNull ??
+              DaySummary(day, 0, 0),
+        )
+        .toList();
+    final largest = daily.fold(
+      1,
+      (max, day) => day.focusSeconds > max ? day.focusSeconds : max,
+    );
     final colors = Theme.of(context).colorScheme;
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
+    return PomaPage(
+      controller: controller,
       children: [
-        const ScreenHeading(
-          title: 'Small sessions add up.',
-          subtitle: 'Your focus, one day at a time.',
-        ),
+        ScreenHeading(title: copy.insights, subtitle: copy.weekHelp),
         Text(
           complete
-              ? '${minutes.reduce((a, b) => a + b)} min'
-              : 'Loading focus totals…',
+              ? copy.minutes(
+                  daily.fold(0, (sum, day) => sum + day.focusSeconds) ~/ 60,
+                )
+              : copy.loadingTotals,
           style: Theme.of(
             context,
-          ).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w600),
+          ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
-        const SizedBox(height: 4),
         Text(
-          'Focused over the last 7 days',
+          copy.lastSevenDays,
           style: TextStyle(color: colors.onSurfaceVariant),
         ),
-        const SizedBox(height: 24),
         if (controller.summaryError != null) ...[
-          Text(controller.summaryError!),
+          Text(copy.totalsReadError),
           TextButton(
             onPressed: controller.loadSummaries,
-            child: const Text('Retry totals'),
+            child: Text(copy.retryTotals),
           ),
         ],
-        if (complete)
-          SizedBox(
-            height: 200,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                for (var i = 0; i < days.length; i++)
-                  Expanded(
-                    child: Semantics(
-                      label:
-                          '${MaterialLocalizations.of(context).formatMediumDate(days[i])}, ${minutes[i]} minutes focused',
-                      child: ExcludeSemantics(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 5),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text(
-                                '${minutes[i]}',
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                              const SizedBox(height: 8),
-                              Container(
-                                height: minutes[i] == 0
-                                    ? 3
-                                    : 110 * minutes[i] / largest,
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: i == 6
-                                      ? colors.primary
-                                      : colors.primary.withValues(alpha: .25),
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(7),
+        if (complete) ...[
+          const SizedBox(height: 24),
+          // The chart is supplementary. Exact dates, session counts and amounts
+          // are always available as text and one semantic node per day below.
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth < 300 ||
+                  MediaQuery.textScalerOf(context).scale(1) > 1.3) {
+                return const SizedBox.shrink();
+              }
+              return ExcludeSemantics(
+                child: SizedBox(
+                  height: 160,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      for (var i = 0; i < daily.length; i++)
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Container(
+                                  height: daily[i].focusSeconds == 0
+                                      ? 3
+                                      : 110 * daily[i].focusSeconds / largest,
+                                  width: double.infinity,
+                                  color: colors.primary,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  DeviceFormats.weekday(context, days[i]),
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                const [
-                                  'M',
-                                  'T',
-                                  'W',
-                                  'T',
-                                  'F',
-                                  'S',
-                                  'S',
-                                ][days[i].weekday - 1],
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: colors.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ),
+                    ],
                   ),
-              ],
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+          Semantics(
+            header: true,
+            child: Text(
+              copy.dailyTotals,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
-        const SizedBox(height: 32),
+          for (var i = 0; i < daily.length; i++)
+            Semantics(
+              label: copy.dailySummary(
+                '${DeviceFormats.date(context, days[i])}${i == 6 ? ', ${copy.today}' : ''}',
+                daily[i].count,
+                daily[i].focusSeconds ~/ 60,
+              ),
+              child: ExcludeSemantics(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    spacing: 16,
+                    runSpacing: 4,
+                    children: [
+                      Text(
+                        '${DeviceFormats.date(context, days[i])}${i == 6 ? ' (${copy.today})' : ''}',
+                      ),
+                      Text(
+                        copy.todayTotals(
+                          daily[i].count,
+                          daily[i].focusSeconds ~/ 60,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
+        const SizedBox(height: 24),
         const Divider(),
-        const SizedBox(height: 18),
-        Text('Recent sessions', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 12),
+        Semantics(
+          header: true,
+          child: Text(
+            copy.recentSessions,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+        ),
         const SizedBox(height: 12),
         if (controller.historyLoading)
-          const LinearProgressIndicator(semanticsLabel: 'Loading history'),
+          LinearProgressIndicator(semanticsLabel: copy.loadingHistory),
         if (controller.historyError != null) ...[
-          Text(controller.historyError!),
+          Text(copy.historyReadError),
           TextButton(
             onPressed: controller.retryHistory,
-            child: const Text('Retry history'),
+            child: Text(copy.retryHistory),
           ),
         ],
         if (controller.historyLoaded &&
@@ -136,39 +173,51 @@ class InsightsScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 24),
             child: Text(
-              'Finish your first focus session to see it here.\nSkipped sessions are not counted.',
+              copy.emptyHistory,
               style: TextStyle(color: colors.onSurfaceVariant, height: 1.6),
             ),
           ),
         for (final session in controller.sessions)
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: Icon(
-              Icons.check_circle_outline_rounded,
-              color: colors.primary,
-            ),
-            title: Text(session.taskTitle ?? 'Focus session'),
-            subtitle: Text(
-              '${MaterialLocalizations.of(context).formatMediumDate(session.endedAt.toLocal())} at ${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(session.endedAt.toLocal()))}',
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${session.focusSeconds ~/ 60} min'),
-                IconButton(
-                  tooltip: 'Delete session',
-                  icon: const Icon(Icons.delete_outline),
-                  onPressed: () async {
-                    if (await confirmDeletion(
-                          context,
-                          title: 'Delete session?',
-                          message:
-                              'Remove this completed session from history and focus totals?',
-                        ) &&
-                        context.mounted) {
-                      await controller.deleteHistory(id: session.id);
-                    }
-                  },
+                Text(
+                  session.taskTitle ?? copy.focusSession,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  copy.sessionDate(
+                    DeviceFormats.date(context, session.endedAt.toLocal()),
+                    DeviceFormats.time(context, session.endedAt.toLocal()),
+                  ),
+                ),
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 12,
+                  children: [
+                    Text(copy.minutes(session.focusSeconds ~/ 60)),
+                    IconButton(
+                      key: ValueKey('delete-session-${session.id}'),
+                      tooltip: copy.deleteNamedSession(
+                        session.taskTitle ?? copy.focusSession,
+                        DeviceFormats.date(context, session.endedAt.toLocal()),
+                      ),
+                      icon: const Icon(Icons.delete_outline),
+                      onPressed: () async {
+                        if (await confirmDeletion(
+                              context,
+                              title: copy.deleteSessionTitle,
+                              message: copy.deleteSessionHelp,
+                            ) &&
+                            context.mounted) {
+                          await controller.deleteHistory(id: session.id);
+                        }
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -187,7 +236,7 @@ class InsightsScreen extends StatelessWidget {
                       ),
                     )
                   : null,
-              child: const Text('Newer'),
+              child: Text(copy.newer),
             ),
             TextButton(
               onPressed:
@@ -200,16 +249,18 @@ class InsightsScreen extends StatelessWidget {
                       ),
                     )
                   : null,
-              child: const Text('Older'),
+              child: Text(copy.older),
             ),
             TextButton(
-              onPressed: () => controller.loadHistory(),
-              child: const Text('Latest'),
+              onPressed: controller.historyLoading
+                  ? null
+                  : () => controller.loadHistory(),
+              child: Text(copy.latest),
             ),
           ],
         ),
-        const Text('History stays on this phone until you delete it.'),
-        if (controller.deletionError != null) Text(controller.deletionError!),
+        Text(copy.historyRetention),
+        if (controller.deletionError != null) Text(copy.deletionSaveError),
       ],
     );
   }
@@ -223,16 +274,17 @@ Future<bool> confirmDeletion(
     await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        scrollable: true,
         title: Text(title),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(context.copy.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            child: Text(context.copy.delete),
           ),
         ],
       ),

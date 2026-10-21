@@ -7,10 +7,23 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
+    // Flutter's first frame can be PomaLoader. Report usability only after the
+    // restored timer screen has painted, through launch_metrics below.
+    override fun onFlutterUiDisplayed() {}
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         PomaAlerts.attach(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
         PomaAlerts.captureOpen(applicationContext, intent)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "dev.poma.poma/launch_metrics")
+            .setMethodCallHandler { call, result ->
+                if (call.method == "firstUsableFrame") {
+                    reportFullyDrawn()
+                    result.success(null)
+                } else {
+                    result.notImplemented()
+                }
+            }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "dev.poma.poma/timer_clock")
             .setMethodCallHandler { call, result ->
                 if (call.method == "sample") {

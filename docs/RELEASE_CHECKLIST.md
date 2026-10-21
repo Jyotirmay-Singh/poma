@@ -10,6 +10,7 @@ The current deliverable is a starter. Complete these before a production release
 - Preserve manually started phases. Auto-start chains are outside the confirmed scope; define special-break overlap semantics only if that deferred feature is approved.
 - Verify first launch, timer and break controls, local tasks/history/settings, restart recovery, and local alerts in airplane mode. No app feature may require signup or a network connection.
 - Test VoiceOver, TalkBack, 200% text, narrow screens, dark mode, landscape, contrast, hit targets, and reduced motion.
+- Screen refinements have host widget/SQLite flow and named viewport coverage; retain the open physical checks in [ACCESSIBILITY.md](ACCESSIBILITY.md) and execute [UI_VERIFICATION.md](UI_VERIFICATION.md) on disconnected standalone installations. The native integration entry point is not proof of those checks and remains unrun without devices.
 
 ## Data and privacy
 

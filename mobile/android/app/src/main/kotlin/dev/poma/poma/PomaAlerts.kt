@@ -122,8 +122,8 @@ object PomaAlerts {
 
     private fun createChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= 26) {
-            val value = NotificationChannel(CHANNEL, "Timer completions", NotificationManager.IMPORTANCE_DEFAULT)
-            value.description = "Completion of a focus or break you started"
+            val value = NotificationChannel(CHANNEL, context.getString(R.string.alert_channel), NotificationManager.IMPORTANCE_DEFAULT)
+            value.description = context.getString(R.string.alert_channel_description)
             value.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
                 AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION).build())
             // Existing channels preserve the person's sound/importance/DND choices.
@@ -226,13 +226,13 @@ object PomaAlerts {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val builder = if (Build.VERSION.SDK_INT >= 26) Notification.Builder(context, CHANNEL) else Notification.Builder(context)
         builder.setSmallIcon(dev.poma.poma.R.drawable.ic_stat_poma)
-            .setContentTitle(if (request.getString("phase") == "focus") "Focus complete" else "Break complete")
-            .setContentText("Open Poma when you’re ready.")
+            .setContentTitle(context.getString(if (request.getString("phase") == "focus") R.string.alert_focus_complete else R.string.alert_break_complete))
+            .setContentText(context.getString(R.string.alert_body))
             .setCategory(Notification.CATEGORY_REMINDER).setVisibility(Notification.VISIBILITY_PRIVATE)
             .setOnlyAlertOnce(true).setAutoCancel(true).setContentIntent(openPending)
             .setDeleteIntent(dismissPending)
-            .addAction(Notification.Action.Builder(null, "Open timer", openPending).build())
-            .addAction(Notification.Action.Builder(null, "Dismiss", dismissPending).build())
+            .addAction(Notification.Action.Builder(null, context.getString(R.string.alert_open), openPending).build())
+            .addAction(Notification.Action.Builder(null, context.getString(R.string.alert_dismiss), dismissPending).build())
         if (Build.VERSION.SDK_INT < 26) builder.setDefaults(Notification.DEFAULT_SOUND or Notification.DEFAULT_VIBRATE)
         manager(context).notify(request.getInt("notificationId"), builder.build())
         alarmIntent(context, request, false)?.cancel()
