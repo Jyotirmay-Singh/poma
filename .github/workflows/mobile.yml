@@ -149,7 +149,7 @@ jobs:
           xcodebuild test -workspace ios/Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=iOS Simulator,id=$device_id" -destination-timeout 120 -resultBundlePath "$POMA_IOS_EVIDENCE/RunnerTests.xcresult" CODE_SIGNING_ALLOWED=NO 2>&1 | tee "$POMA_IOS_EVIDENCE/native-tests.log"
       - name: Compile unsigned iOS release app
         run: |
-          flutter build ios --release --no-codesign 2>&1 | tee "$POMA_IOS_EVIDENCE/unsigned-release-build.log"
+          flutter build ios --release --no-codesign --verbose 2>&1 | tee "$POMA_IOS_EVIDENCE/unsigned-release-build.log"
           cp .flutter-plugins-dependencies "$POMA_IOS_EVIDENCE/flutter-plugins-dependencies.json"
           # This archive is inspection evidence, not an installable IPA or a signed release.
           ditto -c -k --sequesterRsrc --keepParent build/ios/iphoneos/Runner.app "$POMA_IOS_EVIDENCE/poma-ios-unsigned-release.app.zip"

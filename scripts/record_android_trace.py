@@ -15,6 +15,7 @@ def main():
     parser.add_argument('--serial', required=True)
     parser.add_argument('--package', default='dev.poma.poma')
     parser.add_argument('--state', required=True)
+    parser.add_argument('--artifact', type=Path, help='Exact installed release APK for hash binding')
     parser.add_argument('--seconds', type=int, default=40)
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
@@ -76,6 +77,9 @@ data_sources { config { name: "android.power" android_power_config {
     remote_trace = f'/data/misc/perfetto-traces/poma-{token}.pftrace'
     record = {'recordedUtc': datetime.now(timezone.utc).isoformat(), 'collector': 'record_android_trace.py/1', 'package': args.package, 'serial': args.serial, 'declaredState': args.state, 'requestedSeconds': args.seconds, 'devicePerfettoVersion': adb('shell', 'perfetto', '--version'), 'before': snapshot('before'), 'limitations': ['State is declared by the operator and must be corroborated with UI/lifecycle evidence.', 'This is a connected OS-instrumented run, not disconnected acceptance.', 'The OS collector samples process/battery counters once per second; that is measurement overhead, not app-managed polling.', 'Raw local traces may contain system and other-process scheduling metadata; shared summaries must select Poma only.', 'USB-powered counters cannot establish unplugged app energy or battery savings.']}
     metadata = args.output / 'metadata.json'
+    if args.artifact:
+        data = args.artifact.read_bytes()
+        record['artifact'] = {'path': str(args.artifact.resolve()), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
     metadata.write_text(json.dumps(record, indent=2) + '\n', encoding='utf-8')
     # The traced service cannot read shell-owned /data/local/tmp on all devices.
     capture = adb('shell', 'perfetto', '--txt', '-c', '-', '-o', remote_trace, input_text=config, timeout=args.seconds + 120)
