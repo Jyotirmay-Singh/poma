@@ -5,6 +5,10 @@ artifacts/
 .aws/
 .idea/
 .vscode/
+__pycache__/
+*.py[cod]
+hs_err_pid*.log
+replay_pid*.log
 
 # Machine-specific instructions and local build-session material.
 RTK.md

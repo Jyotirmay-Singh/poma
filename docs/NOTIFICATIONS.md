@@ -1,8 +1,10 @@
 # Native local alerts and device evidence
 
-Updated 20 October 2026. Android native integration builds and host tests exercise the protocol. **No physical notification delivery has been observed on Android or iOS. iOS compilation and XCTest execution are blocked by the absence of macOS/Xcode.** This is not a production delivery certification.
+Updated 21 October 2026. Android native integration builds and host tests exercise the protocol; current screen/build verification is in [UI_VERIFICATION.md](UI_VERIFICATION.md). **No physical notification delivery has been observed on Android or iOS. iOS compilation and XCTest execution are blocked by the absence of macOS/Xcode.** This is not a production delivery certification.
 
 ## Phone capability
+
+The screen refinement retains this scheduling/action protocol. English native notification content is prepared as platform string resources; alert settings/Focus status derive from actual adapter availability and permission choice. Denial links to phone settings, delayed Android mode offers precise access, and failures offer retry. New host UI evidence and the disconnected acceptance procedure are in [UI_VERIFICATION.md](UI_VERIFICATION.md); the historical protocol baseline results below do not constitute a new phone observation. All physical matrix cells remain unobserved.
 
 Start one focus or break in Poma. The phone registers a one-shot system request; no internet, account, computer, developer server, push provider, backend, foreground service, or continuously executing Dart countdown is needed for its later delivery. Every successor is ready until the person starts it. Notification permission and OS policy still apply.
 
@@ -42,7 +44,7 @@ SQLite and notification services cannot share one atomic transaction. A crash ca
 
 ## Device evidence matrix
 
-Available checks observed on the final implementation:
+Historical Session 3 protocol baseline (current screen/build results are in UI_VERIFICATION.md):
 
 | Check | Observed result |
 | --- | --- |

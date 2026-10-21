@@ -11,6 +11,12 @@ import '../domain/timer_engine.dart';
 
 enum PersistenceOutcome { notRequired, saved, failed }
 
+class PhaseCompletionNotice {
+  const PhaseCompletionNotice(this.runId, this.phase);
+  final String runId;
+  final FocusPhase phase;
+}
+
 class TimerAlertIntent {
   const TimerAlertIntent({
     required this.runId,
@@ -93,12 +99,15 @@ class AppController extends ChangeNotifier {
       controller.dispose();
       throw const TimerClockException();
     }
-    unawaited(controller.loadSummaries());
     return controller;
   }
 
   final LocalRepository repository;
   final TimerEngine timer;
+  PhaseCompletionNotice? _lastPhaseCompletion;
+  PhaseCompletionNotice? get lastPhaseCompletion => _lastPhaseCompletion;
+  String? get activeTaskTitle => timer.snapshot().taskTitle;
+  String? get activeTaskId => timer.snapshot().taskId;
   final TimerClock clock;
   final AlertCoordinator? _alerts;
   AlertState _savedAlerts;
@@ -128,6 +137,8 @@ class AppController extends ChangeNotifier {
   final List<FocusSession> sessions;
   String? selectedTaskId;
   String? saveError;
+  StorageFailureKind? _saveFailureKind;
+  StorageFailureKind? get saveFailureKind => _saveFailureKind;
   String? clockError;
   Timer? _ticker;
   Future<void> _writes = Future.value();
@@ -193,7 +204,6 @@ class AppController extends ChangeNotifier {
     if (_foreground == foreground) return Future.value(_idleResult());
     _foreground = foreground;
     _scheduleMidnight();
-    if (foreground) _refreshReads();
     if (!foreground) _syncTicker();
     return _enqueue(
       TimerAction.reconcile,
@@ -306,6 +316,7 @@ class AppController extends ChangeNotifier {
       try {
         now = await clock.sample();
         if (_disposed || epoch != _actionEpoch) return _idleResult();
+        final previousPhase = timer.phase;
         transition = timer.apply(
           action,
           now,
@@ -315,6 +326,16 @@ class AppController extends ChangeNotifier {
           task: task,
           nextSettings: nextSettings,
         );
+        if (transition.completedPhase && transition.previousRunId != null) {
+          _lastPhaseCompletion = PhaseCompletionNotice(
+            transition.previousRunId!,
+            previousPhase,
+          );
+        } else if (transition.changed &&
+            action != TimerAction.reconcile &&
+            action != TimerAction.updateSettings) {
+          _lastPhaseCompletion = null;
+        }
       } on TimerClockException {
         clockError =
             'Timer time could not be read. Try again. Your data is kept.';
@@ -325,13 +346,14 @@ class AppController extends ChangeNotifier {
       clockError = null;
       final previousDay = localNow;
       _calendarUtc = now.utcNow;
-      if (forceAlerts) _refreshReads();
-      if (previousDay.day != localNow.day ||
+      final dayChanged =
+          previousDay.day != localNow.day ||
           previousDay.month != localNow.month ||
-          previousDay.year != localNow.year) {
-        _refreshReads();
-        _scheduleMidnight();
-      }
+          previousDay.year != localNow.year;
+      // Reconciliation owns startup/resume reads after updating calendar time.
+      // Coalesce a forced refresh and a day change into the same bounded read.
+      if (forceAlerts || dayChanged) _refreshReads();
+      if (dayChanged) _scheduleMidnight();
       if (alertsEnabled != null) _alerts?.setEnabled(alertsEnabled);
       final completed = transition.completion;
       if (completed != null &&
@@ -592,12 +614,16 @@ class AppController extends ChangeNotifier {
             _attempt = null;
           }
           saveError = null;
+          _saveFailureKind = null;
           if (!cleanupPending) deletionError = null;
           _refreshReads();
           _notify();
           return PersistenceOutcome.saved;
         })
         .catchError((Object error, StackTrace stack) {
+          _saveFailureKind = error is StorageFailure
+              ? error.kind
+              : StorageFailureKind.write;
           saveError = error is StorageFailure
               ? error.message
               : const StorageFailure(StorageFailureKind.write).message;
@@ -744,6 +770,7 @@ class AppController extends ChangeNotifier {
       timer.deleteLocalData(
         ClockReading(utcNow: _calendarUtc, elapsed: Duration.zero),
       );
+      _lastPhaseCompletion = null;
       tasks.clear();
       sessions.clear();
       selectedTaskId = null;

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../application/app_controller.dart';
 import '../application/local_alerts.dart';
-import '../domain/models.dart';
 import 'app_shell.dart';
+import 'copy.dart';
 import 'insights_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -10,140 +10,128 @@ class SettingsScreen extends StatelessWidget {
   final AppController controller;
   @override
   Widget build(BuildContext context) {
+    final copy = context.copy;
     final settings = controller.settings;
     final locked = controller.timer.controlsLocked;
-    void update(TimerSettings next) => controller.updateSettings(next);
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
+    return PomaPage(
+      controller: controller,
       children: [
-        const ScreenHeading(
-          title: 'Find your rhythm.',
-          subtitle: 'A little structure. Room to make it yours.',
-        ),
+        ScreenHeading(title: copy.settings, subtitle: copy.settingsHelp),
+        _Section(copy.timing),
         _DurationControl(
-          label: 'Focus duration',
+          label: copy.focusDuration,
           value: settings.focusMinutes,
           max: 120,
           enabled: !locked,
-          onChanged: (v) => update(settings.copyWith(focusMinutes: v)),
+          onChanged: (v) =>
+              controller.updateSettings(settings.copyWith(focusMinutes: v)),
         ),
         _DurationControl(
-          label: 'Short break duration',
+          label: copy.shortDuration,
           value: settings.shortBreakMinutes,
           max: 60,
           enabled: !locked,
-          onChanged: (v) => update(settings.copyWith(shortBreakMinutes: v)),
+          onChanged: (v) => controller.updateSettings(
+            settings.copyWith(shortBreakMinutes: v),
+          ),
         ),
         _DurationControl(
-          label: 'Long break duration',
+          label: copy.longDuration,
           value: settings.longBreakMinutes,
           max: 120,
           enabled: !locked,
-          onChanged: (v) => update(settings.copyWith(longBreakMinutes: v)),
+          onChanged: (v) =>
+              controller.updateSettings(settings.copyWith(longBreakMinutes: v)),
         ),
         _DurationControl(
-          label: 'Focus rounds before a long break',
+          label: copy.cycleRounds,
           value: settings.rounds,
           max: 8,
-          unit: 'rounds',
+          rounds: true,
           enabled: !locked,
-          onChanged: (v) => update(settings.copyWith(rounds: v)),
+          onChanged: (v) =>
+              controller.updateSettings(settings.copyWith(rounds: v)),
         ),
-        const SizedBox(height: 8),
-        Text(
-          'Duration changes apply to your next session.',
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 24),
-        const Divider(),
+        Text(copy.durationHelp),
+        const SizedBox(height: 16),
         SwitchListTile.adaptive(
           contentPadding: EdgeInsets.zero,
-          title: const Text('Strict mode'),
-          subtitle: const Text(
-            'Lock pause, reset, and skip until the current session finishes.',
-          ),
+          title: Text(copy.strictMode),
+          subtitle: Text(copy.strictHelp),
           value: settings.strictMode,
           onChanged: locked
               ? null
-              : (v) => update(settings.copyWith(strictMode: v)),
+              : (v) =>
+                    controller.updateSettings(settings.copyWith(strictMode: v)),
         ),
-        const Divider(),
-        const SizedBox(height: 18),
-        Text('Appearance', style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 12),
+        _Section(copy.appearance),
         Wrap(
           spacing: 8,
           runSpacing: 8,
           children: [
-            for (final entry in const {
-              'system': 'System',
-              'light': 'Light',
-              'dark': 'Dark',
+            for (final entry in {
+              'system': copy.system,
+              'light': copy.light,
+              'dark': copy.dark,
             }.entries)
               ChoiceChip(
                 label: Text(entry.value),
                 selected: settings.appearance == entry.key,
-                onSelected: (_) =>
-                    update(settings.copyWith(appearance: entry.key)),
+                onSelected: (_) => controller.updateSettings(
+                  settings.copyWith(appearance: entry.key),
+                ),
               ),
           ],
         ),
-        const SizedBox(height: 30),
-        const Divider(),
-        const SizedBox(height: 20),
-        Text(
-          'Your space stays yours.',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          'Tasks, settings, and history stay on this phone. Poma excludes this data from automatic backups. There is no automatic recovery if you uninstall Poma or lose the phone. No account, ads, or tracking.',
-          style: TextStyle(height: 1.5),
-        ),
-        const SizedBox(height: 18),
+        _Section(copy.alerts),
         SwitchListTile.adaptive(
           contentPadding: EdgeInsets.zero,
-          title: const Text('Completion alerts'),
-          subtitle: const Text(
-            'One alert for a phase you start. Sound follows your phone’s notification settings.',
-          ),
+          title: Text(copy.completionAlerts),
+          subtitle: Text(copy.alertHelp),
           value: controller.alertsEnabled,
-          onChanged: controller.setCompletionAlerts,
+          onChanged: controller.alertAvailability == null
+              ? null
+              : controller.setCompletionAlerts,
         ),
-        if (controller.alertMessage != null) Text(controller.alertMessage!),
+        Text(alertStatus(copy, controller)),
         Wrap(
           spacing: 8,
           children: [
-            TextButton(
-              onPressed: controller.openNotificationSettings,
-              child: const Text('Phone notification settings'),
-            ),
+            if (controller.needsAlertPermission)
+              TextButton(
+                onPressed: () => controller.setCompletionAlerts(true),
+                child: Text(copy.enableAlerts),
+              ),
+            if (controller.alertAvailability != null)
+              TextButton(
+                onPressed: controller.openNotificationSettings,
+                child: Text(copy.phoneSettings),
+              ),
             if (controller.alertAvailability == AlertAvailability.delayed)
               TextButton(
                 onPressed: controller.requestPreciseAlerts,
-                child: const Text('Allow precise alerts'),
+                child: Text(copy.preciseAlerts),
               ),
-            TextButton(
-              onPressed: () => controller.reconcile(forceAlerts: true),
-              child: const Text('Retry alerts'),
-            ),
+            if (controller.alertAvailability == AlertAvailability.failed ||
+                controller.alertAvailability == AlertAvailability.unavailable)
+              TextButton(
+                onPressed: () => controller.reconcile(forceAlerts: true),
+                child: Text(copy.retryAlerts),
+              ),
           ],
         ),
-        const SizedBox(height: 24),
-        const Text(
-          'History is kept until you delete it. Export/import is not available yet. Deleting data cannot be undone.',
-        ),
+        _Section(copy.localData),
+        Text(copy.privacyHelp, style: const TextStyle(height: 1.5)),
+        const SizedBox(height: 16),
+        Text(copy.deletionHelp),
         TextButton.icon(
           icon: const Icon(Icons.delete_outline),
-          label: const Text('Clear focus history'),
+          label: Text(copy.clearHistory),
           onPressed: () async {
             if (await confirmDeletion(
                   context,
-                  title: 'Clear focus history?',
-                  message:
-                      'Delete all completed sessions and their totals? Your tasks, settings, and current timer stay.',
+                  title: copy.clearHistoryTitle,
+                  message: copy.clearHistoryHelp,
                 ) &&
                 context.mounted) {
               final success = await controller.deleteHistory();
@@ -151,9 +139,7 @@ class SettingsScreen extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      success
-                          ? 'Focus history deleted.'
-                          : controller.deletionError!,
+                      success ? copy.historyDeleted : copy.deletionSaveError,
                     ),
                   ),
                 );
@@ -163,13 +149,12 @@ class SettingsScreen extends StatelessWidget {
         ),
         TextButton.icon(
           icon: const Icon(Icons.delete_forever_outlined),
-          label: const Text('Delete all local data'),
+          label: Text(copy.deleteAll),
           onPressed: () async {
             if (await confirmDeletion(
                   context,
-                  title: 'Delete all local data?',
-                  message:
-                      'Stop the current timer, cancel Poma alerts, delete all tasks and history, and restore app defaults? This also stops a strict session.',
+                  title: copy.deleteAllTitle,
+                  message: copy.deleteAllHelp,
                 ) &&
                 context.mounted) {
               final success = await controller.deleteAllLocalData();
@@ -178,8 +163,8 @@ class SettingsScreen extends StatelessWidget {
                   SnackBar(
                     content: Text(
                       success
-                          ? 'Local data deleted.'
-                          : controller.deletionError!,
+                          ? copy.localDataDeleted
+                          : copy.deletionCleanupError,
                     ),
                   ),
                 );
@@ -189,35 +174,46 @@ class SettingsScreen extends StatelessWidget {
         ),
         if (controller.deletionError != null || controller.cleanupPending) ...[
           Text(
-            controller.deletionError ?? 'Local alert cleanup is unfinished.',
+            controller.cleanupPending
+                ? copy.deletionCleanupError
+                : copy.deletionSaveError,
           ),
           TextButton(
             onPressed: controller.retrySave,
-            child: const Text('Retry deletion'),
+            child: Text(copy.retryDeletion),
           ),
         ],
         const SizedBox(height: 24),
         TextButton.icon(
+          icon: const Icon(Icons.info_outline),
+          label: Text(copy.about),
           onPressed: () => showAboutDialog(
             context: context,
             applicationName: 'Poma',
             applicationVersion: '0.1.0',
-            children: const [
-              Text(
-                'An offline Pomodoro companion for Android and iOS. Inspired by the MIT-licensed Pomatez project.',
-              ),
-              SizedBox(height: 12),
-              Text(
-                'Pomatez © 2024 Roldan Montilla Jr.\nSee THIRD_PARTY_NOTICES.md in the source distribution.',
-              ),
+            children: [
+              Text(copy.aboutHelp),
+              const SizedBox(height: 12),
+              Text(copy.attribution),
             ],
           ),
-          icon: const Icon(Icons.info_outline_rounded),
-          label: const Text('About Poma'),
         ),
       ],
     );
   }
+}
+
+class _Section extends StatelessWidget {
+  const _Section(this.title);
+  final String title;
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 24, bottom: 12),
+    child: Semantics(
+      header: true,
+      child: Text(title, style: Theme.of(context).textTheme.titleMedium),
+    ),
+  );
 }
 
 class _DurationControl extends StatelessWidget {
@@ -227,47 +223,60 @@ class _DurationControl extends StatelessWidget {
     required this.max,
     required this.enabled,
     required this.onChanged,
-    this.unit = 'min',
+    this.rounds = false,
   });
   final String label;
   final int value;
   final int max;
   final bool enabled;
   final ValueChanged<int> onChanged;
-  final String unit;
+  final bool rounds;
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 10),
+    padding: const EdgeInsets.symmetric(vertical: 8),
     child: Wrap(
       alignment: WrapAlignment.spaceBetween,
       crossAxisAlignment: WrapCrossAlignment.center,
       spacing: 16,
       runSpacing: 4,
       children: [
-        SizedBox(
-          width: 180,
-          child: Text(label, style: const TextStyle(fontSize: 15)),
-        ),
-        Row(
+        SizedBox(width: 180, child: Text(label)),
+        Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            IconButton(
-              tooltip: 'Decrease $label',
-              onPressed: enabled && value > 1
-                  ? () => onChanged(value - 1)
-                  : null,
-              icon: const Icon(Icons.remove_circle_outline_rounded),
+            Semantics(
+              label: label,
+              value: rounds
+                  ? context.copy.rounds(value)
+                  : context.copy.minutes(value),
+              child: ExcludeSemantics(
+                child: Text(
+                  rounds
+                      ? context.copy.rounds(value)
+                      : context.copy.minutes(value),
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
             ),
-            Text(
-              '$value $unit',
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-            IconButton(
-              tooltip: 'Increase $label',
-              onPressed: enabled && value < max
-                  ? () => onChanged(value + 1)
-                  : null,
-              icon: const Icon(Icons.add_circle_outline_rounded),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  tooltip: context.copy.decrease(label),
+                  onPressed: enabled && value > 1
+                      ? () => onChanged(value - 1)
+                      : null,
+                  icon: const Icon(Icons.remove_circle_outline),
+                ),
+                const SizedBox(width: 16),
+                IconButton(
+                  tooltip: context.copy.increase(label),
+                  onPressed: enabled && value < max
+                      ? () => onChanged(value + 1)
+                      : null,
+                  icon: const Icon(Icons.add_circle_outline),
+                ),
+              ],
             ),
           ],
         ),

@@ -326,17 +326,49 @@ void main() {
         after: HistoryCursor.forSession(second.sessions.first),
       );
       expect(back.sessions.map((s) => s.id), first.sessions.map((s) => s.id));
-      final plan = await db.rawQuery(
-        'EXPLAIN QUERY PLAN SELECT id FROM sessions WHERE ended_at_utc_micros <= ? AND (ended_at_utc_micros < ? OR id < ?) ORDER BY ended_at_utc_micros DESC,id DESC LIMIT 51',
-        [start, start, '099000'],
+      // Intercept the real repository's SQL, including existence probes. No
+      // separately maintained copy of its pagination query is explained here.
+      final plans = <List<Map<String, Object?>>>[];
+      final inspected = SqliteRepository(
+        factory: _PlanFactory(databaseFactoryFfi, plans),
+        databasePath: path,
       );
-      expect(plan.toString(), contains('SEARCH'));
-      expect(plan.toString(), contains('sessions_end_id'));
+      final inspectedOlder = await inspected.readHistoryPage(
+        before: HistoryCursor.forSession(first.sessions.last),
+      );
+      final inspectedNewer = await inspected.readHistoryPage(
+        after: HistoryCursor.forSession(second.sessions.first),
+      );
+      expect(
+        inspectedOlder.sessions.map((s) => s.id),
+        second.sessions.map((s) => s.id),
+      );
+      expect(
+        inspectedNewer.sessions.map((s) => s.id),
+        first.sessions.map((s) => s.id),
+      );
+      expect(plans, hasLength(6)); // Two pages plus both boundary probes each.
+      for (final plan in plans) {
+        final details = plan.map((row) => row['detail'] as String).toList();
+        expect(
+          details.where(
+            (detail) =>
+                detail.contains('SEARCH sessions') &&
+                detail.contains('sessions_end_id'),
+          ),
+          hasLength(2),
+        );
+        expect(
+          details.any((detail) => detail.contains('SCAN sessions')),
+          isFalse,
+        );
+      }
       final app = await AppController.create(repository, clock: FakeClock());
       expect(app.sessions, isEmpty); // No startup history fetch.
       await app.loadHistory();
       expect(app.sessions.length, 50);
       app.dispose();
+      await inspected.close();
     },
   );
 
@@ -674,6 +706,61 @@ void main() {
       app.dispose();
     },
   );
+}
+
+class _PlanFactory implements DatabaseFactory {
+  _PlanFactory(this.delegate, this.plans);
+  final DatabaseFactory delegate;
+  final List<List<Map<String, Object?>>> plans;
+
+  @override
+  Future<Database> openDatabase(
+    String path, {
+    OpenDatabaseOptions? options,
+  }) async =>
+      _PlanDatabase(await delegate.openDatabase(path, options: options), plans);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _PlanDatabase implements Database {
+  _PlanDatabase(this.delegate, this.plans);
+  final Database delegate;
+  final List<List<Map<String, Object?>>> plans;
+
+  @override
+  Future<T> transaction<T>(
+    Future<T> Function(Transaction txn) action, {
+    bool? exclusive,
+  }) => delegate.transaction(
+    (txn) => action(_PlanTransaction(txn, plans)),
+    exclusive: exclusive,
+  );
+
+  @override
+  Future<void> close() => delegate.close();
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _PlanTransaction implements Transaction {
+  _PlanTransaction(this.delegate, this.plans);
+  final Transaction delegate;
+  final List<List<Map<String, Object?>>> plans;
+
+  @override
+  Future<List<Map<String, Object?>>> rawQuery(
+    String sql, [
+    List<Object?>? arguments,
+  ]) async {
+    plans.add(await delegate.rawQuery('EXPLAIN QUERY PLAN $sql', arguments));
+    return delegate.rawQuery(sql, arguments);
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 class GatedRepository extends MemoryRepository {
