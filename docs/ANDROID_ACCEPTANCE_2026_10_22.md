@@ -18,7 +18,72 @@ The current-mode source previously passed 163 Flutter tests, analysis and
 formatting. The older Session 6 launch, CPU, package and CI observations retain
 their original identities; they are not measurements of the updated UI.
 
-## Acceptance status
+## Session 8: reset hang under repair
+
+Physical acceptance of build 2005 later failed: Android displayed “Poma isn't
+responding” while a full-reset confirmation was open during a strict phase.
+Android recorded an input-dispatch timeout waiting 10,004 ms for a MotionEvent.
+No target SQLite error line was captured at that point; the target backtrace
+request returned no usable stdout. This establishes a hang, not a fully sampled
+root-cause stack. Full reset has **not passed**.
+
+Source inspection identified native SQLite/journal operations on the platform
+thread, including receivers, which can contend with sqflite work needing that
+thread for replies. The pending revision moves bridge and receiver work to one
+serial blocking work queue, uses `goAsync()`/`finish()` for receiver lifetime, and
+posts Flutter event notifications back to the platform thread. It adds no timer
+polling, foreground service, wake lock or automatic successor start. New native
+regressions model a blocked read whose completion needs the caller and verify
+serial ordering. Checks and physical retests are pending under
+`artifacts/session-8/`. Earlier CI results and package hashes do not cover it.
+
+## Earlier native-connection revision
+
+Build **2005**, optimized ARM64, validation development certificate, is
+**18,295,848 bytes (17.45 MiB)**; SHA-256
+`043cd518b90b45797d490f5e394678171f2a2970550ae6f7c379c0e0ebf5c47f`.
+Before-build source fingerprint:
+`07147586aa0f482c90ae66ee9b864e17ae6e53afa0107ff5bb05c5a2117f788d`.
+The signed copy passed signature and 16 KiB alignment verification. ARM64
+artifact size passes the provisional 20 MiB budget; store sizes are unmeasured.
+Other ABI/AAB results from Session 6 remain historical, not refreshed builds.
+
+All **165 Flutter tests and six native tests**, formatting, analysis and locked
+offline dependency resolution passed in `checks-native-cache/`. No public API,
+SQLite schema, automatic chain, account or backend was introduced. Draft branch
+source commit: `ea3b6c6b0fc4ec424cf32a146599d74ef1b7fcc4`; a separate CI workflow
+was dispatched for it: [run 39719244904](https://github.com/Jyotirmay-Singh/poma/actions/runs/39719244904).
+The preceding shared-Dart revision passed Android and iOS CI in run 39717780053.
+Physical retests are retained under `native-cache/`.
+
+| Current build 2005 check | Observed status |
+| --- | --- |
+| Five start/resume registrations | Passed, attached |
+| Another app then return during active phase | Passed, attached; no registration error |
+| Effective exact-access revocation | UID mode ignore/package default recorded; running focus restored with explicit delayed availability; pause/reset work |
+| Target-process SQLite errors after those cases | Zero matching SQLite-error lines in the scoped supporting sample; not proof against every possible race |
+| Inexact delivery timing | Unmeasured; registration/fallback availability is distinct from actual delivery |
+| Ordinary process kill and exactly-once recovery | Passed, attached; PID absent before expiry, generic native focus alert posted; history 6 → 7 and remains 7 after second process restart; Short break stays ready, 1 of 2 |
+| Locked short-break alert | Posted while keyguard showing/asleep; recovered ready Focus, history remains 7 |
+| Force-stop | No alert posted; history 7 → 8 and remains 8 on second reopen; Long break ready |
+| Notification revocation / settings link | Denial shown during active focus; actual system settings link opened; no alert; history 8 → 9; grant reflected after Back to app |
+| Clear history / task delete / paused restart | Observed; history cleared while task/settings retained, task deleted, paused remaining survived ordinary process death |
+| Full reset | FAILED — subsequent input-dispatch ANR; not accepted |
+| Disconnected matrix | Unverified |
+
+REA 6.7.0 inventoried 93 ZIP members plus the root, with complete
+central-directory coverage and zero integrity contradictions. Inspection ID:
+`ev_c21ae554bbc6cd97969606d836859bf777f90151a373be29fddfe0788f49bed5`;
+complete export `final/rea-native-cache-evidence.json`, member hashes also in
+`final/native-cache-archive-members.json`. Static inventory is not execution,
+energy or delivery proof. No disassembler was installed.
+
+The refreshed 30-file source-pattern review has no network/log/secret-marker
+hits in its bounded scope. SDK permission inventory and packaged notices are
+retained in `native-cache/privacy-refresh.json`. License, backup/transfer,
+encryption and traffic limitations from the earlier review still apply.
+
+## Earlier build 2002–2004 acceptance observations
 
 Earlier revised installation: release-mode ARM64 build **2004**, development
 certificate, **18,295,848 bytes (17.45 MiB)**, SHA-256

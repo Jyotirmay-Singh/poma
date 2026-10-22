@@ -16,6 +16,8 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.SystemClock
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
@@ -28,7 +30,7 @@ object PomaAlerts {
     private const val CHANNEL = "poma_timer_completion_v1"
     private const val OPEN = "dev.poma.poma.OPEN_TIMER"
     private const val PREFS = "poma_local_alerts"
-    private var channel: MethodChannel? = null
+    @Volatile private var channel: MethodChannel? = null
     private var alertDatabase: SQLiteDatabase? = null
     private var alertDatabasePath: String? = null
 
@@ -46,6 +48,9 @@ object PomaAlerts {
     fun attach(context: Context, messenger: BinaryMessenger) {
         channel = MethodChannel(messenger, "dev.poma.poma/local_alerts").also { bridge ->
             bridge.setMethodCallHandler { call, result ->
+                // SQLite can wait for a sqflite transaction whose next response
+                // needs Android's main looper. Never hold that looper here.
+                AlertWorkQueue.execute {
                 try {
                     when (call.method) {
                         "configure" -> {
@@ -90,6 +95,7 @@ object PomaAlerts {
                     }
                 } catch (_: Exception) {
                     result.error("local_alert_failed", "Completion alert could not be updated", null)
+                }
                 }
             }
         }
@@ -269,13 +275,18 @@ object PomaAlerts {
         queue.put("action:$run:$generation:$action", JSONObject().put("runId", run)
             .put("generation", generation).put("action", action))
         persist(context, "responses", queue.toString())
-        channel?.invokeMethod("changed", null)
+        notifyChanged()
     }
 
     fun captureOpen(context: Context, intent: Intent?) {
         if (intent?.action != OPEN) return
-        queueResponse(context, intent.getStringExtra("runId") ?: "", intent.getLongExtra("generation", -1), "open")
+        val run = intent.getStringExtra("runId") ?: ""
+        val generation = intent.getLongExtra("generation", -1)
         intent.action = Intent.ACTION_MAIN // Activity recreation must not enqueue again.
+        AlertWorkQueue.execute {
+            try { queueResponse(context, run, generation, "open") }
+            catch (_: Exception) { /* preserve the journal for next app entry */ }
+        }
     }
 
     fun dismiss(context: Context, intent: Intent) {
@@ -293,7 +304,13 @@ object PomaAlerts {
 
     fun restore(context: Context) {
         state(context)?.let { synchronize(context, it) }
-        channel?.invokeMethod("changed", null)
+        notifyChanged()
+    }
+
+    private fun notifyChanged() {
+        // Flutter channel invocations belong on the platform thread; database
+        // work and SharedPreferences journals stay on the serial worker.
+        Handler(Looper.getMainLooper()).post { channel?.invokeMethod("changed", null) }
     }
 
     fun detach() {
@@ -304,16 +321,29 @@ object PomaAlerts {
 
 class PomaAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        try { PomaAlerts.deliver(context, intent) } catch (_: Exception) { /* repair on next app entry */ }
+        val app = context.applicationContext
+        val copy = Intent(intent)
+        finishAlertWork { PomaAlerts.deliver(app, copy) }
     }
 }
 class PomaDismissReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        try { PomaAlerts.dismiss(context, intent) } catch (_: Exception) { /* preserve timer/database */ }
+        val app = context.applicationContext
+        val copy = Intent(intent)
+        finishAlertWork { PomaAlerts.dismiss(app, copy) }
     }
 }
 class PomaRestoreReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        try { PomaAlerts.restore(context) } catch (_: Exception) { /* unavailable until unlock/re-entry */ }
+        val app = context.applicationContext
+        finishAlertWork { PomaAlerts.restore(app) }
+    }
+}
+
+private fun BroadcastReceiver.finishAlertWork(work: () -> Unit) {
+    val pending = goAsync()
+    AlertWorkQueue.execute {
+        try { work() } catch (_: Exception) { /* repair on unlock/next app entry */ }
+        finally { pending.finish() }
     }
 }
