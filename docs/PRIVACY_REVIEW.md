@@ -12,6 +12,14 @@ terms; four metadata/variant coordinates have no separate cached runtime archive
 Flutter's complete generated engine/Dart notices remain separate and included.
 This is bounded notice preparation, not universal legal clearance.
 
+Final build2007 package checks passed: no INTERNET/wake-lock/foreground-service
+permission, allowBackup=false, all nine domains excluded in each packaged
+legacy/cloud/transfer section, current offline policy/notices and no packaged
+signing-key file. The new public support URL is displayed as selectable text;
+it is not an automatic network request. Unsigned macOS archive inspection
+retains four privacy manifests, expected required API reasons and no root ATS
+override/background mode. Exact hashes/limits are in RELEASE_CANDIDATE.md.
+
 The later Session 8 evidence below supersedes older tables: iOS unsigned release
 compilation did succeed, ten Swift simulator tests passed, Android coarse UID
 traffic/selective backup and named phone recovery checks were observed. Those

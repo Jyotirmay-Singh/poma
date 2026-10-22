@@ -1,4 +1,24 @@
-# Release evidence — current Session 8 and historical records
+# Release evidence — current candidate and historical records
+
+## Owner-ID release candidate 1.0.0+2007 — 22 October 2026
+
+Current application source: `d0a6a4204258ec0ab4d44ff26ea79fd065b71f25`.
+[CI 39820922409](https://github.com/Jyotirmay-Singh/poma/actions/runs/39820922409)
+passed the release-only Android and macOS jobs. Three new release UI/legal tests,
+formatting and analysis passed; the 183 unchanged baseline tests were reused.
+The signed Android APK/AAB and macOS unsigned iOS archive, all hashes/signers,
+package inspections and modeled download are recorded in RELEASE_CANDIDATE.md
+and the portable release-2007-evidence.json. Raw records are under ignored
+artifacts/release-2007/. ARM64 APK17.48MiB meets the20MiB artifact budget;
+G54 modeled download8,468,423bytes is not a store-reported size.
+
+No phone is attached: build2007 native integration, physical first offline launch,
+notification matrix, screenshots, startup/frames/energy and backup/transfer remain
+unobserved. iOS compilation/archive happened on macOS26.6.2/Xcode26.6, not Windows;
+the archive is unsigned and not an IPA. Paid Apple signing and physical iPhone
+installation/accessibility remain open. No store/TestFlight/public app release.
+
+The Session8 and older records below retain their historical source/build scopes.
 
 Read [the test completion ledger](TEST_LEDGER.md) before planning checks. Completed results are reusable; a new session or documentation edit does not require repeats. [All 183 automated tests](AUTOMATED_TEST_RESULTS.md) are indexed by name and stable ID.
 

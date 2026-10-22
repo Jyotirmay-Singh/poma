@@ -1,0 +1,94 @@
+{
+  "sourceCommit": "d0a6a4204258ec0ab4d44ff26ea79fd065b71f25",
+  "applicationId": "com.jyotirmaysingh.poma",
+  "version": "1.0.0+2007",
+  "lockfileSha256": "64ce0ae60072093a53fb57e305e7f8f944383e54e55852f6d8b0063ffb9d84ef",
+  "artifacts": [
+    {
+      "path": "artifacts\\release-2007\\final\\poma-1.0.0-2007-android-arm64-release-test.apk",
+      "bytes": 18330655,
+      "sha256": "b0a12f845bde38a9e6a6be8eb15b99cb025fa8da83299764f6c8fb729df0080b",
+      "kind": "installable Android release test APK"
+    },
+    {
+      "path": "artifacts\\release-2007\\final\\poma-1.0.0-2007-upload.aab",
+      "bytes": 51603344,
+      "sha256": "b6a7034d0105a7e5391bef5ba6216b47aefe752b3e25d257f26c982cd4206904",
+      "kind": "signed Android upload AAB"
+    },
+    {
+      "path": "artifacts\\release-2007\\final\\poma-1.0.0-2007-ios-UNSIGNED.xcarchive.zip",
+      "bytes": 46753575,
+      "sha256": "bffcabe53bad89d8687a11a03a88958aba5236808e7c7db33ec931a3b1019183",
+      "kind": "unsigned macOS-built iOS inspection archive; not installable"
+    }
+  ],
+  "androidCertificateSha256": "3037138217eca1e603bde6cd0134659c100191bf64fc2fdd15499c1dcdf54d87",
+  "androidBuildMode": "optimized release",
+  "ci": {
+    "runId": 39820922409,
+    "url": "https://github.com/Jyotirmay-Singh/poma/actions/runs/39820922409",
+    "android": "passed",
+    "macOSSimulatorAndUnsignedArchive": "passed",
+    "fullBaselineSuites": "not rerun; reused by source guard"
+  },
+  "baseline": {
+    "sourceCommit": "2613cbcb552095c5a37573729d2086def3ed81a8",
+    "ciRun": 39729543402,
+    "passedTestsReused": 183,
+    "flutter": 165,
+    "androidJVM": 8,
+    "swiftSimulator": 10
+  },
+  "newChecks": {
+    "focusedFlutterTests": 3,
+    "formatting": "passed",
+    "staticAnalysis": "passed",
+    "missingSigningExplicitRelease": "correctly rejected",
+    "missingSigningAggregateBuild": "correctly rejected",
+    "androidPackage": {
+      "apkSignature": "passed",
+      "aabSignature": "passed",
+      "matchingCertificate": "passed",
+      "16KiBAlignment": "passed",
+      "packageVersion": "passed",
+      "noDebugOrInternet": "passed",
+      "nativeReceivers": "passed",
+      "bundledLegalAndFlutterNotices": "passed",
+      "apkAabSharedPayloadParity": "passed",
+      "arm64ArtifactBudget20MiB": "passed"
+    },
+    "iOSInspection": {
+      "archiveIntegrity": "passed",
+      "sourceIdentity": "passed",
+      "versionAndBundleId": "passed",
+      "rootUnsigned": "passed",
+      "noBackgroundModesOrATSOverride": "passed",
+      "bundledLegalAssets": "passed",
+      "privacyManifestReasons": "passed",
+      "noXCTestDylibLoadReference": "passed"
+    }
+  },
+  "modeledG54DownloadBytes": 8468423,
+  "downloadModel": "bundletool 1.18.3, previously recorded G54/API 35 spec; not store size",
+  "iosBuildHost": {
+    "macOS": "26.6.2",
+    "Xcode": "26.6 (17F113)",
+    "Flutter": "3.44.2",
+    "Dart": "3.12.2"
+  },
+  "physicalDeviceResults": {
+    "android2007": "not run: no attached phone",
+    "iPhone2007": "not run: signing/installation access missing"
+  },
+  "openGates": [
+    "physical exact-candidate offline/native-integration/notification/control/accessibility matrix and screenshots",
+    "candidate first-install and five-cold/five-warm startup measurements",
+    "attributable frame p95 and matched unplugged energy",
+    "actual backup/transfer and sidecar behavior",
+    "paid Apple signing/team/profiles and signed IPA/physical iPhone acceptance",
+    "store ID reservation, public policy URL, notice/legal scope and owner authorization for external distribution"
+  ],
+  "rawEvidenceRoot": "artifacts/release-2007 (ignored local files; preserve with workspace)",
+  "publication": "no store/TestFlight submission, public app release or download link created"
+}

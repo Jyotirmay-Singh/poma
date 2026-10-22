@@ -11,6 +11,13 @@ artifact receipts and blocked device/signing scopes. A new final-package smoke
 test is justified by the changed ID/signing/launch assets; it is not a request
 to repeat old-build acceptance or the historical test cohorts.
 
+New candidate evidence: CI39820922409 at app commit
+`d0a6a4204258ec0ab4d44ff26ea79fd065b71f25` passed Android/macOS. Three new
+About/legal tests passed (listed separately in AUTOMATED_TEST_RESULTS.md), along
+with changed-file formatting/analysis, signed APK/AAB verification, missing-key
+rejection and unsigned macOS iOS archive inspection. No old suite/120-launch
+cohort/CPU-RSS/phone flow was repeated. Physical candidate cases remain open.
+
 Updated 22 October 2026. This is the authoritative continuation index. It records existing results; documentation work ran **zero app tests, builds or phone actions**. Read this before planning verification. Detailed raw methods, hashes, tool versions and REA evidence IDs remain in [release evidence](RELEASE_EVIDENCE.md), [Android acceptance](ANDROID_ACCEPTANCE_2026_10_22.md), and the ignored evidence directories below.
 
 ## Reuse completed work

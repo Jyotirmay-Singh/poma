@@ -58,6 +58,16 @@ airplane mode, explicitly turn Wi-Fi/data off, then open from the launcher.
 Use the candidate-specific walkthrough in that report. Reconnecting for package
 inspection is a separate operation and must not interrupt disconnected checks.
 
+The repeatable verification collector is `scripts/verify_android_release.py`.
+Supply `--java`, `--build-tools`, `--rtk`, `--source-commit` and `--output` for
+the exact build; it retains signature/alignment/manifest logs, inventories and
+SHA256SUMS. This release's collector deliberately expects 1.0.0/build2007 and
+refuses to replace a named candidate with different bytes. Update the expected
+version and allocate a new output directory for a future candidate. The
+`estimate_android_download.ps1` helper takes `-Bundle`, `-DeviceSpec` and
+`-OutputDirectory` and signs generated splits with the external owner key. A
+previously recorded device spec yields a model only, never a new phone result.
+
 ## iOS: macOS compilation versus installation
 
 The release-only CI path compiles an iOS simulator app and creates an unsigned

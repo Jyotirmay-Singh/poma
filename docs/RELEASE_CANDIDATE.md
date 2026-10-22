@@ -1,4 +1,4 @@
-# Poma 1.0.0 build 2007 candidate preparation
+# Poma 1.0.0 build 2007 release candidate
 
 This report tracks the new owner-ID candidate separately from development build
 2006. The release is not store-ready while the gates below remain open.
@@ -23,7 +23,51 @@ scrolling; a pushed document route needed its first pump before real asset I/O.
 Those were test-harness fixes, not timer/database regressions. The focused retry
 passes; raw attempts remain under `artifacts/release-2007/checks/`.
 
-## Candidate-specific standalone phone run — not yet observed
+
+## Built candidate and actual results
+
+Frozen application source: `d0a6a4204258ec0ab4d44ff26ea79fd065b71f25` on `codex/poma-offline-release`.
+[CI 39820922409](https://github.com/Jyotirmay-Singh/poma/actions/runs/39820922409)
+passed Android and macOS release-only jobs. Full baseline suites were deliberately
+reused, not reported as new passes. Later report/verification-tool changes do not
+change the compiled application.
+
+All artifacts are under ignored `artifacts/release-2007/final/`:
+
+| Artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `poma-1.0.0-2007-android-arm64-release-test.apk` | 18,330,655 | `b0a12f845bde38a9e6a6be8eb15b99cb025fa8da83299764f6c8fb729df0080b` |
+| `poma-1.0.0-2007-upload.aab` | 51,603,344 | `b6a7034d0105a7e5391bef5ba6216b47aefe752b3e25d257f26c982cd4206904` |
+| `poma-1.0.0-2007-ios-UNSIGNED.xcarchive.zip` | 46,753,575 | `bffcabe53bad89d8687a11a03a88958aba5236808e7c7db33ec931a3b1019183` |
+
+The APK is installable and the AAB is an owner upload-key signed Play candidate.
+The iOS ZIP is an **unsigned macOS-built inspection archive**, never an installable
+IPA, TestFlight build or phone result. The Android certificate SHA-256 is
+`3037138217eca1e603bde6cd0134659c100191bf64fc2fdd15499c1dcdf54d87`; it is the owner's new RSA-3072 upload certificate,
+not Android Debug or a future Play-managed signing certificate.
+
+| New check | Actual result |
+| --- | --- |
+| Changed-file format/static analysis | Passed locally and in CI for five changed Dart inputs |
+| Focused About/policy/200%-text tests | Three passed in CI; corrected local About retry passed. These add three distinct tests, not another 183-test run |
+| Missing signing credentials | Explicit assembleRelease and aggregate build dry runs correctly rejected release signing |
+| Android signatures/metadata/alignment | APK/AAB verified, matching owner signer, expected ID/version, non-debuggable, 16 KiB alignment |
+| APK/AAB payload parity | Shared ARM64 native libraries and Flutter assets identical |
+| Android package privacy | No INTERNET/wake-lock/foreground-service permission; allowBackup=false; nine domains excluded in each legacy/cloud/transfer section; three private app receivers retained; no signing-key file packaged |
+| Offline legal assets | Current policy/native/Pomatez texts match source; complete generated Flutter notices retained (1,377,731 decoded bytes) |
+| ARM64 size | **17.48 MiB**, passes provisional 20 MiB artifact budget |
+| Modeled G54 download | **8,468,423 bytes** using bundletool 1.18.3 and the previously recorded G54/API 35 spec; owner-key signed generated splits. Not store size or a new device observation |
+| iOS compilation/archive | Passed on **macOS 26.6.2 / Xcode 26.6 (17F113)**, Flutter 3.44.2/Dart 3.12.2; never built on Windows |
+| iOS static inspection | Expected ID/version; unsigned root; matching legal assets; four privacy manifests with app API reasons retained; no root ATS override/background modes; three Mach-O load inventories with no XCTest dylib reference. Bounded evidence only |
+
+Portable summary: `docs/release-2007-evidence.json`. Raw receipts, member inventories,
+signature/alignment/backup XML logs, CI logs/environment and size model are retained
+under `artifacts/release-2007/`. macOS artifact ID 12444517812 has downloaded ZIP
+SHA-256 `b7874e1744e76f7fa759b4b1aea9a367be1c4304422574a45076cfa12198a2d7`.
+These files and developer tools are not runtime dependencies. No app/store release
+or public download was published.
+
+## Candidate-specific standalone phone run â€” not yet observed
 
 No phone was attached at the initial installation check. No installation,
 launch, alert, screenshot, startup, energy or transfer result for build 2007
@@ -58,11 +102,11 @@ continuous app execution. Every next phase still requires a manual Start.
 
 - Android phone connection: native integration entry point, exact candidate
   installation, first offline opening, matrix, TalkBack and real screenshots.
-- Candidate ARM64 artifact budget ≤20 MiB, bundletool download estimate and
+- Candidate ARM64 artifact budget â‰¤20 MiB, bundletool download estimate and
   five cold/five warm usable-startup samples (<1.5 s cold median); first-install
   startup is a separate measurement. Store-reported download size is unavailable
   before authorized store processing.
-- Attributable frame p95 (60 Hz provisional ≤16.67 ms), matched three-by-20-minute
+- Attributable frame p95 (60 Hz provisional â‰¤16.67 ms), matched three-by-20-minute
   unplugged energy windows, and actual backup/transfer including sidecars.
   No device/instrumentation means open, not passed. Do not repeat the old
   120-launch cohort, seeding or empty frame/rail captures.

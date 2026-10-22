@@ -5,11 +5,16 @@
 Use RELEASE_CANDIDATE.md for current build/check receipts and remaining gates.
 Permanent ID configuration, original icon/splash, private Android upload signing,
 offline policy/support and store-material drafts are implemented. Store ID
-reservation, physical candidate acceptance, final size/startup/device observations,
+reservation, physical candidate acceptance, startup/device observations,
 signed iOS distribution and authorized publication remain evidence gates.
 The new release-only CI path verifies unchanged core/lockfile inputs and checks
 About/legal/build changes without replaying the 183 baseline tests. No previous
 phone, launch, CPU/RSS or migration result is relabelled as a new artifact pass.
+
+Build 2007 now has passed signed APK/AAB verification, the 17.48 MiB ARM64 size
+gate, an 8,468,423-byte modeled G54 download, three new focused tests and CI
+39820922409 on Android/macOS. The macOS iOS archive is unsigned/non-installable.
+See the candidate report for exact hashes and evidence; physical gates remain open.
 
 Complete these gates before a production release. **Read [the test ledger](TEST_LEDGER.md) first.** It closes completed checks for their recorded source/build and supersedes historical pending instructions. Do not rerun tests/builds/measurements for session changes or documentation-only edits. General checklist verbs below describe release requirements, not an instruction to repeat completed evidence; act only on a specifically unverified scope or a justified affected regression.
 

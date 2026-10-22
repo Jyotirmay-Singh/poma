@@ -1,5 +1,21 @@
 # Completed automated test inventory
 
+## Build 2007 additions — separate from the 183 baseline results
+
+At app source `d0a6a4204258ec0ab4d44ff26ea79fd065b71f25`, CI39820922409
+passed these three new tests in `mobile/test/release_ui_test.dart`:
+
+| Stable ID | Passed test |
+| --- | --- |
+| RC-LEGAL-01 | bundled policy explains backup metadata and logical deletion offline |
+| RC-ABOUT-01 | About shows release version and public support from Settings |
+| RC-A11Y-01 | offline legal text remains scrollable at 200 percent text |
+
+Raw CI log: artifacts/release-2007/ci-android-job.json. Two initial local
+test-harness setup issues and the corrected About retry remain documented in
+RELEASE_CANDIDATE.md. The 183 results below are reused baseline evidence,
+not a newly executed combined suite. Native physical integration is still open.
+
 This indexes **existing passed results**; generating this document did not run tests.
 Read [the test ledger](TEST_LEDGER.md) before scheduling any checks. These tests are closed for the recorded source; a new session or documentation edit is not a reason to run them again.
 

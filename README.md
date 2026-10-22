@@ -3,7 +3,9 @@
 An offline Pomodoro app for **Android and iOS**, built with Flutter and SQLite.
 
 **Release candidate 1.0.0+2007:** owner IDs, private Android upload signing,
-original native icon/splash and offline legal/support screens are prepared.
+original native icon/splash and offline legal/support screens are built. Android
+and macOS CI passed; the signed ARM64 APK is 17.48 MiB. The iOS archive is unsigned
+inspection evidence, not an installable IPA.
 See [candidate status and open gates](docs/RELEASE_CANDIDATE.md),
 [build/install instructions](docs/BUILD_AND_INSTALL.md), and
 [store-material drafts](docs/STORE_MATERIALS.md). Build-2006 phone results do
