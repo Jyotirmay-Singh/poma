@@ -1,7 +1,5 @@
 .tools/
 artifacts/
-.agents/
-.codex/
 .aws/
 .idea/
 .vscode/
@@ -10,10 +8,26 @@ __pycache__/
 hs_err_pid*.log
 replay_pid*.log
 
-# Machine-specific instructions and local build-session material.
+# Local AI-agent configuration and instructions (including nested copies).
+.agents/
+.codex/
+.codexignore
+.codex*.toml
+AGENTS.md
+AGENTS.override.md
+CODEX.md
+codex.md
 RTK.md
+
+# Generated session reports and scratch files, not application assets.
+/output/
+/tmp/
+
+# Machine-specific setup, prompts and historical handoff notes.
 docs/REA_SETUP.md
-docs/SESSION_PROMPTS.md
+docs/SESSION_*.md
+docs/*_HANDOFF.md
+docs/*_ACCOMPLISHMENTS*.md
 docs/PROGRESS.md
 docs/VALIDATION.md
 
