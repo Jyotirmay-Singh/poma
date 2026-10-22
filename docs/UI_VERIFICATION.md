@@ -2,6 +2,22 @@
 
 Updated 21 October 2026. This milestone preserves Flutter 3.44.2, manual phase starts, SQLite v3, the database location/backup exclusions, and the existing native one-shot alert protocol. No account, backend, cloud option, remote asset, downloaded font, analytics or ad dependency was introduced.
 
+## Current-mode Focus screen — 22 October 2026
+
+The Focus screen displays only the current phase in the timer dial. Mode chips and the large-text phase picker are removed, the dial sits directly below the page heading, and the countdown has a larger type size. Purple identifies focus; teal identifies both break phases. The current-phase name remains visible and included in the timer's semantic readout. The text block is measured against the circular inner bounds; enlarged countdowns move below the ring before they crowd its tick marks.
+
+The existing timer prepares a short break after each completed focus, returns to focus after a short break, and prepares a long break after the configured final focus round. Finishing the long break resets the round counter and prepares focus. Every successor waits for Start. Saved phases, durations, controls, strict mode, completion history and alert behavior continue through the existing controller and timer engine.
+
+The updated UI checks exercise one-, three-, and four-round cycles with distinct configured durations, and reject stale Start/Reset/Skip callbacks after completion. The current-phase capture checks exercise a two-round cycle in both themes at 100%/200% text, including phase names, countdowns, Start labels, semantic readouts, contrast, tap targets, and scrolling. Capture output can be redirected with `--dart-define=POMA_SCREENSHOT_DIR=../artifacts/current-mode`; the default remains `artifacts/session-5/`.
+
+Final host result for this update: **163 Flutter tests passed**, including all 29 refinement tests. **38 host-rendered captures** are saved in ignored `artifacts/current-mode/`, with metadata in `screenshots.json` and the complete suite result in `flutter-tests.log`. Twelve captures specifically show the three current phases in both themes at normal and 200% text. The captures were visually reviewed for spacing and legibility; they are supporting host evidence for the phone acceptance procedure below.
+
+Reproduce the current-mode checks and captures from the repository root:
+
+```powershell
+rtk proxy pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/flutter.ps1 test --no-pub --dart-define=POMA_SCREENSHOTS=true --dart-define=POMA_SCREENSHOT_DIR=../artifacts/current-mode
+```
+
 ## Automated functional evidence
 
 Final host results: **150 Flutter tests passed**, **26 capture/refinement tests passed**, six Android JVM tests passed, static analysis found no issues, formatting reported 40 files unchanged, offline enforced lockfile resolution passed, and the fresh Android arm64 debug APK built successfully. There are **26 captures**. Local structured results, final APK size/hash and unobserved-device statuses are recorded in ignored `artifacts/session-5-verification.json`. No new hosted CI or physical-device result is claimed.

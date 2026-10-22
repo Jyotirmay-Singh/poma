@@ -16,7 +16,7 @@ Reviewed sources:
 | Dark theme | System, light, dark | Implemented |
 | Strict mode | Disable app timer controls during an active phase | Implemented, app-only |
 | Desktop notifications | Native scheduled local notifications and permission UX | Required session 3 milestone |
-| Full-screen breaks | Optional in-app break page, respecting mobile OS limits | Current timer break phase; no forced overlay |
+| Full-screen breaks | Current short/long break replaces focus in the same in-app dial, with an explicit Start action | Implemented current-phase screen; no forced overlay |
 | Special breaks | Timezone-aware scheduled breaks with explicit conflict rules | Deferred |
 | Auto-start work | Each focus/break phase starts through a user action | Outside the confirmed mobile scope |
 | Tray, always-on-top, native titlebar | Mobile navigation / future notification controls or widgets | Desktop-only features omitted |
@@ -24,6 +24,8 @@ Reviewed sources:
 | Voice assistance and extra cues | Optional native alerts after accessibility review | Deferred |
 
 History and weekly summaries are new mobile design choices. The familiar 25/5/15, four-round default is the starter's selected Pomodoro policy; the small inspected upstream timer files do not establish those duration values. No claim of full source review or exact desktop feature parity is made.
+
+On 22 October 2026, Poma adopted a current-mode Focus screen: the three phase choices and the large-text picker were removed, while the existing cycle and manual Start behavior were retained. This mobile design decision and its verification are recorded in the [changelog](../CHANGELOG.md) and [UI verification](UI_VERIFICATION.md).
 
 REA is useful for packaged APK/IPA/Electron evidence and can inspect our build artifacts later. Ordinary available source is inspected directly; decompilation is not needed to understand these reference files.
 

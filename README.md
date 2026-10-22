@@ -2,13 +2,14 @@
 
 An offline Pomodoro app for **Android and iOS**, built with Flutter and SQLite.
 
-Focus sessions, tasks, settings, and history work entirely offline after installation. Data stays in local app storage. Android declares automatic-backup and device-transfer exclusions; iOS marks the SQLite directory as excluded before opening it. Real-device validation remains pending on both platforms, and the changed iOS integration still needs macOS compilation/tests. No signup or server is required. After installation, the app needs no computer, development server, REA/MCP connection, or AI model.
+Focus sessions, tasks, settings, and history work entirely offline after installation. Data stays in local app storage. Android declares automatic-backup and device-transfer exclusions; iOS marks the SQLite directory as excluded before opening it. Build-specific validation and remaining phone checks are tracked in [release evidence](docs/RELEASE_EVIDENCE.md). No signup or server is required. After installation, the app needs no computer, development server, REA/MCP connection, or AI model.
 
 There is no automatic data recovery after uninstalling Poma or losing the phone. These exclusions do not remove copies that an older version may already have placed in an OS backup.
 
 ## What works now
 
-- Focus, short-break, and long-break timers with configurable durations and cycle length.
+- A Focus tab showing only the current phase, with a centered countdown and round progress.
+- Configurable focus, short-break, and long-break durations and 1–8 focus rounds per cycle; defaults are 25/5/15 minutes and 4 rounds.
 - Start, pause, resume, reset, skip, and app-level strict mode.
 - Sleep-inclusive native elapsed clocks, exact pause/resume, saved deadlines, and recovery after a process restart.
 - Tasks: add, rename, complete, select for focus, and delete.
@@ -20,7 +21,9 @@ There is no automatic data recovery after uninstalling Poma or losing the phone.
 - Phase-specific start actions and inline completion feedback; current and next task labels, accessible daily totals, and permission-specific alert recovery.
 - English localization resources and offline calendar formatting using the device locale and time preference.
 
-Each phase starts manually. Leaving the app can complete **one existing session**; it never manufactures a chain of unattended focus sessions. A skipped or reset session does not count. A task is attached when a focus session starts, and its original title stays in history after a rename or deletion.
+A fresh cycle starts in Focus. Completing a focus round displays Short break; completing that break returns to Focus. The configured final focus round displays Long break directly. Finishing Long break resets cycle progress and returns to Focus. Each next phase appears ready and starts when you press its Start button. The Focus tab has no mode selector; durations and rounds are configured in Settings. Returning to the tab or reopening Poma restores the saved phase and progress.
+
+Leaving the app can complete **one existing session**; it never manufactures a chain of unattended focus sessions. A skipped or reset session does not count. A task is attached when a focus session starts, and its original title stays in history after a rename or deletion.
 
 History stays on the phone until explicitly deleted. Settings provides clear-history and full-reset controls; full reset abandons even a strict running phase. After a write failure, further edits can remain in memory with an unsaved warning: they may be lost if the app closes. An unreadable database is never silently deleted or replaced. Export/import is deferred and does not block the core offline release. See [local data, retention and recovery](docs/LOCAL_DATA.md).
 
@@ -40,9 +43,9 @@ On Windows, the optional helper also supports SDK discovery and a short temporar
 
 ```powershell
 # From the repository root. Uses installed RTK or the local .tools/rtk copy.
-./scripts/flutter.ps1 test
-./scripts/flutter.ps1 run -d <device-id>
-./scripts/flutter.ps1 build apk --debug
+rtk proxy pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/flutter.ps1 test
+rtk proxy pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/flutter.ps1 run -d <device-id>
+rtk proxy pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/flutter.ps1 build apk --debug
 ```
 
 Set `POMA_FLUTTER_SDK` to your SDK directory if Flutter is not on PATH. Install RTK before using the helper. RTK is a development helper and adds no dependency to the mobile app.
@@ -51,17 +54,13 @@ For iOS, use a **Mac with Xcode** and the Flutter iOS prerequisites. From `mobil
 
 ## Verification
 
-Release validation is now running on a Motorola G54 with Android 15. Fresh
-release APKs/AAB, package inspection, launch samples and the distinct remaining
-gates are recorded in [release evidence](docs/RELEASE_EVIDENCE.md). These are
-development-signed validation packages. Disconnected acceptance, physical iOS
-behavior, backup/transfer behavior, unplugged energy and store sizes remain
-unverified until observed. Current macOS CI has compiled the simulator app and
-passed all ten Swift tests; unsigned device release compilation is being repaired.
+The 22 October 2026 Focus-screen update passed **163 Flutter tests**, including **29 refinement tests**, plus static analysis and formatting. **38 host-rendered captures** include all three current phases in light/dark appearances at normal and 200% text. See the [changelog](CHANGELOG.md) and [UI verification](docs/UI_VERIFICATION.md) for the behavior, checks, reproduction, and evidence locations.
 
-The screen refinement includes a real-SQLite UI close/reopen flow and populated light/dark viewport tests at 100%/200% text. See [screen verification and disconnected phone procedure](docs/UI_VERIFICATION.md) and the [accessibility issue ledger](docs/ACCESSIBILITY.md). Host semantic/layout/contrast checks do not establish TalkBack or VoiceOver behavior. Physical-device checks and iOS compilation remain open.
+Earlier release APKs/AAB, package inspection, Motorola G54/Android 15 launch samples, native CI results, and remaining gates are recorded against their source/build identities in [release evidence](docs/RELEASE_EVIDENCE.md). Those validation packages predate this UI update. Disconnected acceptance, physical iOS behavior, backup/transfer behavior, unplugged energy, production signing, and store sizes require their own observed evidence.
 
-The Flutter suite covers scheduling/cancellation, interrupted database/OS updates, permission-flow UI, fixed v1/v2-to-v3 migrations, real SQLite storage exhaustion, process exits before/after commit, rollback/retry, delayed saves, 100,000-row pagination, deletion, timer recovery, strict controls and large-text layouts. Six Android JVM tests cover elapsed/reboot and receiver-identity policy. Rendering writes and ticker lifecycle are checked explicitly. CI enforces the lockfile, formatting, analysis, Flutter/native tests, an Android build, and iOS simulator compilation/XCTest. Changed Swift integration and all physical-device notification/clock/backup/offline-restart checks remain unverified until run on macOS and phones. See the [local durability checks](docs/LOCAL_DATA.md), [alert protocol and device evidence matrix](docs/NOTIFICATIONS.md), and [architecture](docs/ARCHITECTURE.md).
+The screen refinement includes a real-SQLite UI close/reopen flow and populated light/dark viewport tests at 100%/200% text. See [screen verification and disconnected phone procedure](docs/UI_VERIFICATION.md) and the [accessibility issue ledger](docs/ACCESSIBILITY.md). Host semantic/layout/contrast checks support the separate TalkBack, VoiceOver, and physical-device acceptance procedure.
+
+The Flutter suite covers scheduling/cancellation, interrupted database/OS updates, permission-flow UI, fixed v1/v2-to-v3 migrations, real SQLite storage exhaustion, process exits before/after commit, rollback/retry, delayed saves, 100,000-row pagination, deletion, timer recovery, strict controls and large-text layouts. Six Android JVM tests cover elapsed/reboot and receiver-identity policy. Rendering writes and ticker lifecycle are checked explicitly. CI enforces the lockfile, formatting, analysis, Flutter/native tests, an Android build, and iOS simulator compilation/XCTest. Native build results apply to their identified source snapshots; physical-device notification/clock/backup/offline-restart checks require recorded phone observations. See the [local durability checks](docs/LOCAL_DATA.md), [alert protocol and device evidence matrix](docs/NOTIFICATIONS.md), and [architecture](docs/ARCHITECTURE.md).
 
 Build outputs, signing keys, SDK configuration, and local development notes are excluded from source control.
 
@@ -73,7 +72,7 @@ The app has no backend or network dependency. [docs/ARCHITECTURE.md](docs/ARCHIT
 
 ## Starter boundaries
 
-This is a working foundation. Native local alerts/actions use `flutter_local_notifications` 22.3.2 for permission/settings APIs and app-owned one-shot Android elapsed alarms / iOS interval requests. They require no running Dart countdown, internet, or developer tools after registration. **Actual delivery remains unobserved on both platforms; iOS integration still needs macOS compilation/tests.** Permission, Focus/DND, exact-access revocation, force-stop, reboot and OEM policies can prevent or delay alerts. Android same-boot restoration uses persisted elapsed identity; reboot and iOS process-restoration fallback rely on UTC and can be affected by manual clock changes. Each next phase still starts manually.
+This is a working foundation. Native local alerts/actions use `flutter_local_notifications` 22.3.2 for permission/settings APIs and app-owned one-shot Android elapsed alarms / iOS interval requests. They require no running Dart countdown, internet, or developer tools after registration. Delivery observations and native build results are recorded per build in [release evidence](docs/RELEASE_EVIDENCE.md). Permission, Focus/DND, exact-access revocation, force-stop, reboot and OEM policies can prevent or delay alerts. Android same-boot restoration uses persisted elapsed identity; reboot and iOS process-restoration fallback rely on UTC and can be affected by manual clock changes. Each next phase still starts manually.
 
 Widgets, special-break schedules, and export/import remain unimplemented. Strict mode restricts controls inside Poma; it does not lock the phone or stop other apps. Delivery and force-quit limitations, source references and blocked device cases are recorded in [docs/NOTIFICATIONS.md](docs/NOTIFICATIONS.md).
 

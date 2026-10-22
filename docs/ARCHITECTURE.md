@@ -34,9 +34,9 @@ Every phase control reconciles expiry first. Expiry consumes that control, inclu
 | Long break expires | Prepare focus, ready | No focus history; clear progress |
 | Reset | Non-strict running/paused → same phase ready, using current settings | Abandon ID; retain progress; already-ready reset is unchanged |
 | Skip | Any unlocked state → successor ready | Never record focus; skipping long break clears progress |
-| Select phase | Any unlocked state → selected phase ready | Abandon active ID without completion; retain progress. Selecting the same active phase resets it; the same ready phase is unchanged |
+| Select phase (engine/controller API) | Any unlocked state → selected phase ready | Abandon active ID without completion; retain progress. Selecting the same active phase resets it; the same ready phase is unchanged. The Focus screen exposes no phase selector |
 | Duration settings | Apply immediately to ready phases; running/paused original duration remains fixed | No completion or phase advance |
-| Cycle target | Apply to subsequent phase choices; never replace the current phase | Preserve earned progress; cap visible progress at the target |
+| Cycle target | Apply to subsequent phase transitions; never replace the current phase | Preserve earned progress; cap visible progress at the target |
 | Strict mode | Enabling during a running phase locks immediately. All running strict phases lock pause/reset/skip/selection, timing settings and disabling strict mode | Appearance and task edits remain available; expiry still reconciles |
 
 Start on an already active phase, Resume outside paused, and Pause outside running are unchanged. Settings commands reconcile first and then apply configuration; they cannot cause another phase transition. Default durations remain 25/5/15 minutes with four rounds. The cycle counter saturates at eight, the maximum configurable target, even if manual selections repeatedly bypass a long break; every actual focus completion still has its own history row. Only completing or skipping a long break clears the counter. Lowering and then raising a target does not discard progress. Resetting a long break or manually selecting another phase preserves it.
@@ -112,19 +112,21 @@ See [Apple's backup guidance](https://developer.apple.com/documentation/foundati
 
 Screen refinement retains SQLite v3 and native alert wire identities unchanged. The controller exposes read-only active task snapshot metadata, save-failure kind and a transient completed-run/phase notice. Only actual completion transitions set this notice, including overdue launch recovery; subsequent effective timer controls/full reset clear it. It is not inferred from history or persisted as a new schema field. Ready timers reopened after an already-saved completion do not claim a fresh completion. The shell limits live-region presentation to the first viewing of a completed run; the dial countdown is not a live region.
 
-Each screen's errors and content share one scroll region. Measured navigation labels wrap when required; large-text Focus uses a labeled phase picker. Timer text is measured before being placed in the ring and may flow below it without clamping accessibility scaling. History and settings controls reflow; exact daily text accompanies the supplementary chart. App-only strict-mode limits and actual alert availability are stated plainly, with OS-settings/retry actions. No rendering callback schedules an alert, writes data or requests permission.
+The 22 October 2026 Focus update presents only the current phase in the dial, with no mode chips or large-text dropdown. A fresh cycle starts in focus; each completed focus prepares a short break until the configured final round, which prepares a long break. Short breaks prepare focus; a completed long break resets cycle progress and prepares focus. Every successor remains ready for its phase-specific Start action. Tab navigation and process restoration display the existing saved phase rather than forcing focus. The controller's phase-selection API remains available to internal callers and tests; removing its UI controls changes no public interface, schema, settings, or native alert identity.
+
+Each screen's errors and content share one scroll region. Measured navigation labels wrap when required. The larger countdown uses tabular figures; its full text block is measured against the dial's circular inner bounds, including its corners. If it would crowd the tick marks, the countdown flows below the ring without clamping accessibility scaling. History and settings controls reflow; exact daily text accompanies the supplementary chart. App-only strict-mode limits and actual alert availability are stated plainly, with OS-settings/retry actions. No rendering callback schedules an alert, writes data or requests permission.
 
 English ICU resources include placeholders/plurals and safety messages. Product locales remain English only; device calendar locale and 12/24-hour preference are formatted separately from the supported translation list, with bundled locale data and safe fallback. Native alert content uses Android/iOS English string resources. There is no schema migration, translated task data or change to the persisted UTC instants. See [screen verification](UI_VERIFICATION.md) and the [accessibility ledger](ACCESSIBILITY.md).
 
 Palette: paper silver `#F8F9FD`, slate `#252D43`, muted slate `#5F687E`, iris `#6854C8`, teal `#147D80`; dark surface `#1C2332`. System typography avoids network and font payload. Timer digits use tabular figures. The instrument-like dial is the single visual emphasis. All primary actions are literal and use native controls.
 
-The layout is a vertically scrollable, left-aligned page with a centered timer, primary action, selected task, and daily totals. Four stable destinations expose focus, tasks, insights, and settings. Large text stacks timer controls vertically. No decorative gradients or looping animations are required.
+The layout is a vertically scrollable, left-aligned page with a centered timer, round progress, primary action, selected task, and daily totals. The primary Start/Pause/Resume action sits above the Reset/Skip row. Four stable destinations expose focus, tasks, insights, and settings. The phase name and countdown share one semantic readout, with ready/running/paused state and remaining time. No decorative gradients or looping animations are required.
 
 ```text
 Focus                     Tasks / Insights / Settings
   heading                   heading
-  phase choices             content and real empty states
-      timer dial            native controls
+      current-phase dial    content and real empty states
+      countdown             native controls
       cycle count
   primary start / pause / resume
   reset / skip

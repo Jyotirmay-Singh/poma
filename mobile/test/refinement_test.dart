@@ -14,10 +14,15 @@ import 'package:poma/l10n/poma_localizations.dart';
 import 'package:poma/main.dart';
 import 'package:poma/ui/copy.dart';
 import 'package:poma/ui/theme.dart';
+import 'package:poma/ui/timer_dial.dart';
 import 'alert_support.dart';
 import 'support.dart';
 
 const capture = bool.fromEnvironment('POMA_SCREENSHOTS');
+const captureDirectory = String.fromEnvironment(
+  'POMA_SCREENSHOT_DIR',
+  defaultValue: '../artifacts/session-5',
+);
 const longTitle =
     'Read the next chapter, make careful notes, and review the important ideas before moving on. Read the next chapter, make clear notes, and review important ideas.';
 final evidence = <Map<String, Object?>>[];
@@ -95,7 +100,7 @@ Future<void> screenshot(
   await tester.runAsync(() async {
     final picture = await boundary.toImage(pixelRatio: 2);
     final bytes = await picture.toByteData(format: ui.ImageByteFormat.png);
-    final file = File('../artifacts/session-5/$name.png');
+    final file = File('$captureDirectory/$name.png');
     await file.parent.create(recursive: true);
     await file.writeAsBytes(bytes!.buffer.asUint8List());
     picture.dispose();
@@ -151,7 +156,7 @@ void main() {
     WidgetController.hitTestWarningShouldBeFatal = false;
     if (capture) {
       await File(
-        '../artifacts/session-5/screenshots.json',
+        '$captureDirectory/screenshots.json',
       ).writeAsString(const JsonEncoder.withIndent('  ').convert(evidence));
     }
   });
@@ -261,25 +266,148 @@ void main() {
     }
   }
 
-  testWidgets(
-    'large-text phase picker changes a ready phase without starting it',
-    (tester) async {
-      final app = await AppController.create(
-        MemoryRepository(),
-        clock: FakeClock(),
+  for (final appearance in ['light', 'dark']) {
+    for (final scale in [1.0, 2.0]) {
+      testWidgets(
+        'current modes remain accessible in $appearance at ${scale}x text',
+        (tester) async {
+          final clock = FakeClock();
+          final app = await AppController.create(
+            MemoryRepository(
+              SavedState(
+                settings: TimerSettings(rounds: 2, appearance: appearance),
+              ),
+            ),
+            clock: clock,
+          );
+          addTearDown(app.dispose);
+          final size = scale == 1 ? const Size(390, 844) : const Size(320, 700);
+          final semantics = tester.ensureSemantics();
+          try {
+            await mount(tester, app, size: size, scale: scale);
+
+            Future<void> showStartAction() async {
+              tester
+                  .state<ScrollableState>(find.byType(Scrollable).first)
+                  .position
+                  .jumpTo(0);
+              await tester.pumpAndSettle();
+              await tester.scrollUntilVisible(
+                find.byKey(const Key('timer-toggle')),
+                200,
+              );
+              await tester.pumpAndSettle();
+            }
+
+            Future<void> expectPhase(
+              FocusPhase phase,
+              String time,
+              String action,
+            ) async {
+              final scroll = tester.state<ScrollableState>(
+                find.byType(Scrollable).first,
+              );
+              scroll.position.jumpTo(0);
+              await tester.pumpAndSettle();
+              expect(app.timer.phase, phase);
+              expect(app.timer.status, RunStatus.ready);
+              expect(find.byType(ChoiceChip), findsNothing);
+              expect(find.byType(DropdownButton<FocusPhase>), findsNothing);
+              final dial = find.byType(TimerDial);
+              expect(
+                find.descendant(of: dial, matching: find.text(phase.label)),
+                findsOneWidget,
+              );
+              expect(
+                find.descendant(of: dial, matching: find.text(time)),
+                findsOneWidget,
+              );
+              expect(
+                find.bySemanticsLabel('${phase.label}, Ready'),
+                findsOneWidget,
+              );
+              await expectLater(
+                tester,
+                meetsGuideline(androidTapTargetGuideline),
+              );
+              await expectLater(
+                tester,
+                meetsGuideline(labeledTapTargetGuideline),
+              );
+              await expectLater(
+                tester,
+                meetsGuideline(
+                  CustomMinimumContrastGuideline(
+                    finder: fullyVisibleText(tester),
+                  ),
+                ),
+              );
+              await screenshot(
+                tester,
+                'current-mode-${phase.name}-$appearance-${scale.toInt()}x',
+                {
+                  'logicalWidth': size.width,
+                  'logicalHeight': size.height,
+                  'theme': appearance,
+                  'phase': phase.name,
+                  'dataSetup':
+                      'UI-started focus/break cycle; two rounds; injected elapsed clock',
+                },
+              );
+              await showStartAction();
+              expect(
+                find.descendant(
+                  of: find.byKey(const Key('timer-toggle')),
+                  matching: find.text(action),
+                ),
+                findsOneWidget,
+              );
+              await expectLater(
+                tester,
+                meetsGuideline(androidTapTargetGuideline),
+              );
+              await scanPage(tester);
+            }
+
+            Future<void> finishPhase(int minutes) async {
+              await showStartAction();
+              await tapVisible(tester, find.byKey(const Key('timer-toggle')));
+              expect(app.timer.status, RunStatus.running);
+              clock.advance(Duration(minutes: minutes));
+              await app.reconcile();
+              await tester.pumpAndSettle();
+            }
+
+            await expectPhase(FocusPhase.focus, '25:00', 'Start focus');
+            await finishPhase(25);
+            await expectPhase(
+              FocusPhase.shortBreak,
+              '05:00',
+              'Start short break',
+            );
+            await finishPhase(5);
+            expect(app.timer.phase, FocusPhase.focus);
+            expect(app.timer.status, RunStatus.ready);
+            await finishPhase(25);
+            await expectPhase(
+              FocusPhase.longBreak,
+              '15:00',
+              'Start long break',
+            );
+            await finishPhase(15);
+            expect(app.timer.phase, FocusPhase.focus);
+            expect(app.timer.status, RunStatus.ready);
+            expect(app.timer.displayedRounds, 0);
+            expect(app.sessions, hasLength(2));
+            expect(tester.takeException(), isNull);
+            await tester.pumpWidget(const SizedBox());
+          } finally {
+            semantics.dispose();
+          }
+        },
       );
-      addTearDown(app.dispose);
-      await mount(tester, app, size: const Size(320, 700), scale: 2);
-      await tapVisible(tester, find.byType(DropdownButton<FocusPhase>));
-      await tapVisible(tester, find.text('Long break').last);
-      expect(app.timer.phase, FocusPhase.longBreak);
-      expect(app.timer.status, RunStatus.ready);
-      expect(app.sessions, isEmpty);
-      expect(app.lastPhaseCompletion, isNull);
-      expect(tester.takeException(), isNull);
-      await tester.pumpWidget(const SizedBox());
-    },
-  );
+    }
+  }
 
   testWidgets(
     'task input validates, submits with keyboard, and reopens a completed task',

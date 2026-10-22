@@ -1,6 +1,6 @@
 # Accessibility issue ledger
 
-Updated 21 October 2026. Scope: the standalone offline Flutter app. **Resolved below means implemented and checked on the host, not certified with TalkBack or VoiceOver.** Physical-device acceptance remains open by agreement. No screenshot substitutes for an interaction assertion.
+Updated 22 October 2026. Scope: the standalone offline Flutter app. **Resolved below means implemented and checked on the host, not certified with TalkBack or VoiceOver.** Physical-device acceptance remains open by agreement. No screenshot substitutes for an interaction assertion.
 
 ## Host method
 
@@ -12,9 +12,9 @@ Android's 48-logical-pixel semantic tap-target guideline is stricter than the iO
 
 | ID | Priority | Reproduction | Resolution and evidence |
 | --- | --- | --- | --- |
-| A01 | High | Focus, 120-minute setting, 320×700, 200% text | Measure timer text before placing it inside the dial. Oversized text flows below the ring without clamping the user's scale. Matrix scrolls the full page and rejects overflows. |
+| A01 | High | Focus, 120-minute setting, 320×700, 200% text | Measure the full countdown/phase block against the dial's circular inner bounds, including its corners. Crowded countdowns flow below the ring without clamping the user's scale or touching the tick marks. Matrix scrolls the full page and rejects overflows. |
 | A02 | High | Four destinations, 320×700, 200% text | Navigation text scales and destinations wrap into two rows when needed; selected semantics and minimum target sizes are tested. |
-| A03 | High | Focus phase choices at 200% | A labeled native phase picker replaces three stacked chips, preserving readable names and the timer's emphasis. Normal-size chips remain. |
+| A03 | High | Current timer phase at 100%/200% | The mode selector is removed at every text size. The dial names only the current phase and exposes its ready/running/paused state and remaining time through one semantic readout. Focus, short break, and long break are checked in both themes at 100%/200%; the next phase waits for Start. |
 | A04 | High | Settings, 120 min / 8 rounds, narrow screen, 200% | Duration values sit above their decrease/increase controls; labels and control groups wrap. The matrix includes full-page scrolling. |
 | A05 | High | Populated Insights with a 160-character history title | History title, local completion date/time, duration and deletion action reflow. Pagination/deletion interaction tests remain in place. |
 | A06 | High | Understand the weekly chart without color or sight | Exact dated daily counts and focus minutes accompany the supplementary chart. Today is named in text; each day has one complete semantic description. Narrow/large-text layouts use the text alternative. |
