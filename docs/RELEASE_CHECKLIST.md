@@ -5,11 +5,20 @@ Complete these gates before a production release.
 ## Current Android phone continuation — 22 October 2026
 
 See [the current Android acceptance record](ANDROID_ACCEPTANCE_2026_10_22.md).
-The updated UI was installed in release mode on the Motorola G54, preserving
-local data. Controls passed, but physical testing exposed an intermittent native
-SQLite lock during alert registration. Keep failed builds and revised-source
-checks separate; alert delivery remains a gate until the revised release passes
-the phone retest. Earlier launch and energy evidence does not cover this update.
+Build 2006 is installed on Motorola G54 / Android 15. All 165 Flutter and eight
+Android native tests passed; current Android/macOS CI passed, including ten
+Swift tests and unsigned iOS release compilation. The native UI-thread
+contention repair passed immediate strict reset, confirmation across expiry,
+durable defaults and native process-death delivery / exactly-once recovery.
+Earlier failing builds remain historical evidence. See the current report for
+hashes, fresh ABI/AAB inventories, bundletool estimate and measurement scopes.
+
+Empty-history 30 cold / 30 warm launches are measured: usable cold median 504 ms,
+within the provisional 1.5-second budget. Large-history 30 cold / 30 warm samples are complete
+(usable cold median 481 ms), and eight 40-second state traces are captured.
+Frame p95 and matched unplugged energy remain unmeasured.
+Disconnected acceptance, backup/transfer behavior, licenses, physical iPhone,
+production signing and store distribution remain explicit gates.
 
 ## Current-mode Focus update — 22 October 2026
 

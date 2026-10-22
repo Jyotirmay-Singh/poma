@@ -1,5 +1,199 @@
 # Release evidence — Session 6
 
+## Current Session 8 evidence — 22 October 2026
+
+The current [Android acceptance record](ANDROID_ACCEPTANCE_2026_10_22.md)
+supersedes historical status statements below for the identified worker revision.
+Build 2005 exposed a 10,004 ms input-dispatch ANR during strict full reset.
+Build 2006 moves native SQLite/receiver work to a serial worker, with receiver
+`goAsync` lifetime and main-thread Flutter event delivery. Immediate strict reset,
+confirmation across expiry, durable defaults, native delivery after ordinary
+process termination and exactly-once recovery passed on the G54. This is a
+correctness repair supported by an observed hang and source contention analysis;
+no sampled root-cause stack or matched numeric speed/energy improvement is claimed.
+
+Source revision on the approved draft: `2613cbcb552095c5a37573729d2086def3ed81a8`.
+Local HEAD/index and existing edits are preserved. Before-build fingerprint:
+`6ef5bd65b064aa3b58ff9988af2d34aedbd94f7092a0c48e8e312b63d377a011`.
+Local checks: 165 Flutter tests, eight Android JVM tests, formatting, analysis
+and offline enforced lockfile resolution passed. [CI 39729543402](https://github.com/Jyotirmay-Singh/poma/actions/runs/39729543402)
+passed Android and macOS, including ten Swift tests, simulator compilation and
+unsigned device release compilation. The latter is not an installable IPA or
+physical iPhone validation.
+
+| Current artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| Installed Windows ARM64 validation, versionCode 2006 | 18,295,848 | `6edb098ce0389a6f5c970189e4708a18f703d3678e9dfada78e7d143984baa88` |
+| CI unsigned ARM64, versionCode 1 | 18,282,149 | `ec7296c19c0f5a8297d00acde40f401c51419c429ada677938e1b41da766dcca` |
+| CI unsigned ARMv7, versionCode 1 | 15,842,313 | `945d443bdc9dc1a1cde499853b70691555f369e01b8afebf9420697ceb4c59fd` |
+| CI unsigned x86_64, versionCode 1 | 19,755,671 | `c4341c72f52070aa524cd3e0617c12539770ed4e306952dcb72c1aaf739259b0` |
+| CI unsigned AAB | 51,480,238 | `035adef72ab9cdfd24b3e572d5855f5e2c1ec6badae6fac24eb6f2eaedef3055` |
+| Unsigned iOS .app ZIP | 7,415,982 | `07535cae0e1a601c0911da25c019a127837bd07116c46fd800f974e32954e40f` |
+
+Separate development-certificate CI validation copies passed signature and
+16 KiB alignment checks: ARM64 18,295,848 bytes / SHA-256
+`7dda2b6d7b3589a99f38fb27908a57dbfed8ac82659c6dac94e81fb2b1dfcaf6`;
+ARMv7 15,858,732 /
+`38082015a53ac60b1a7442c36159a06c9fc648e99224217687cf7ff7990a14b4`;
+x86_64 19,770,402 /
+`24e65e0a91e1ee1356852326f44e3e35c162ecb7ae2be8d9ccb22d5cc91cc08e`.
+Development signing is distinct from optimized build mode and production signing.
+The installed ARM64 size is 17.45 MiB, below the provisional 20 MiB budget.
+Bundletool 1.18.3 estimates **8,415,737 bytes** compressed download for the current
+G54 spec and AAB. Tool SHA-256 is
+`a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29`.
+Actual store sizes remain unmeasured.
+
+REA 6.7.0 complete central-directory inventories/member hashes and limitations
+are exported under ignored `artifacts/session-8/final/rea-*.json`. No disassembler
+was installed. Inspection IDs: installed validation
+`ev_590c9845a266fcba103cbc32f265abe5928549decaedd0bef617c0ce9584d086`;
+CI ARM64 `ev_2dc18d0d5ef98e65b0f2355798da318939b39739fecea9c07a9b7881a1fe9218`;
+ARMv7 `ev_6a2117c368bd8ea5fe1e9f8f67e5886eb2196a33945e319ebfbb7835a5856234`;
+x86_64 `ev_adc5a7932bf87cd51914e34dd90d444a1a03213c7cc32e66999b19f06d02ab96`;
+AAB `ev_e25d5f0d1a6bebd2b67f61db6678df2a133802b98cd6e68ef95cc6ad599858ee`;
+iOS `ev_fde40f80ecbee34590adcc8d5eb443ec7a7cbe2877389ecb67c50c3ee429ebb0`.
+Inventories have zero integrity contradictions: unsigned APKs 90 members each,
+installed signed APK 93, AAB 107, iOS ZIP 78 including directories; root
+occurrences are additional. Static evidence does not establish runtime behavior.
+
+The refreshed iOS focused review retains three Mach-O load-command inventories
+and four privacy manifests; root ATS overrides and UIBackgroundModes are absent.
+No XCTest load reference was found in that bounded inventory; plugin metadata
+alone does not establish whether integration-test code is reachable. The source
+privacy review covers 31 production files with zero bounded network/log/secret
+pattern hits. No dependencies changed; existing transitive network-capability,
+unresolved native-license, backup/transfer and traffic limitations still apply.
+
+Current launch/performance raw samples are retained under
+`artifacts/session-8/worker-launches-v3/`. Empty fixture: 30 valid process-cold
+and 30 valid process-retained warm activity launches. Median initial display is
+466/365 ms cold/warm, p95 583/432 ms. Median usable timer is **504/413 ms**,
+p95 613/477 ms, with a unique restored-UI marker in every sample. Measurements
+are USB-attached on Motorola moto g54 5G / Android 15, portrait and requested
+60 Hz; conditions, battery/thermal/radios, commands, hashes and meminfo are in
+the raw evidence. Ordinary background termination is used, not force-stop.
+Warm samples recreate the activity and retain the process. Collector overhead
+is separate from Android display/fully-drawn timestamps. First-install launch,
+frames, state CPU/RSS and matched unplugged energy are pending or unmeasured;
+historical values below are not substituted.
+
+The large fixture has exactly 100,000 synthetic equal-timestamp sessions, a
+23,711,744-byte main database and a zero-byte journal, integrity OK in a
+quiescent host SQLite 3.50.4 read-only check. No WAL/SHM existed in that snapshot;
+nonempty sidecar backup behavior is unverified. A debug lab entry point created
+the rows; the exact release APK was restored before any large-fixture timing.
+The initial bounded host observer timed out while the phone seeder continued;
+the fixture was not restarted, and a subsequent observation verified completion.
+All 30 large-fixture cold and 30 warm samples were valid with unique usable-UI
+markers: initial-display median **422/401 ms**, p95 **536/465 ms**; usable-timer
+median **481/437 ms**, p95 **606/490 ms**. Both fixtures satisfy the provisional
+cold-launch budget. Different runs/thermal conditions and small differences do
+not establish a speed improvement or a statistical history-size penalty.
+
+The fresh production dependency graph has 52 selected Maven coordinates. The
+23 uncached POMs were obtained from official Maven repositories, with URLs and
+hashes; 22 declare Apache 2.0 directly and listenablefuture inherits the parent
+Guava declaration. This resolves missing POM metadata, not complete linked
+code/notice/legal clearance. Records are in final/package-review/.
+
+Eight current-release 40-second Perfetto windows compare the same retained
+process, large fixture and foreground/background states. All before/after PIDs
+match. Completed means a ready successor following a real focus expiry; idle
+means a ready phase after reset. Background has Home in front; it is not locked
+screen. Active Long break was 15 minutes, longer than both active windows.
+
+| State | Foreground CPU, % of one core | Background CPU, % of one core |
+| --- | ---: | ---: |
+| Active | 1.544876 | 0.007108 |
+| Paused | 0.004525 | 0.004095 |
+| Completed / successor ready | 0.004580 | 0.003624 |
+| Idle / reset ready | 0.005092 | 0.006419 |
+
+Process RSS counters span **170.53–176.47 MiB** in these windows. Android meminfo
+accounts for driver graphics separately: active foreground reports total PSS
+432,670 KiB, total RSS 554,533 KiB and Graphics 374,785 KiB. These accounting
+scopes must not be conflated. A fresh ordinary-process restart and 30 explicit
+warm activity recreations retained the synthetic data. Fresh idle at five
+seconds reported PSS 424,228 KiB / RSS 543,036 KiB / Graphics 362,760 KiB;
+after 30 recreations plus quiet time, 418,506 / 540,383 / 363,131 KiB. The
+large graphics-accounted baseline therefore is not explained mainly by that
+recreation sequence. This does not establish a leak, low-RAM suitability,
+energy saving or numeric memory budget. A separate fresh-idle Perfetto window
+has process RSS 184,778,752–186,232,832 bytes and 0.004205% of one core.
+
+Perfetto 58.2 processor SHA-256:
+`adfa6bad3d72be3ba9b83fa2b17b69fa13b3ab1cad0f42e52b86188bd5f0f997`.
+CPU is scheduled Poma time divided by the tracing-service collection interval
+on one core, not device CPU or energy. OS process/battery counters are sampled
+each second by the collector, not by app code. Conditions, UI state, thermal
+status, raw meminfo, trace hashes, SQL, per-thread results and health counters
+are under `worker-traces/` and `worker-memory/`. An APK identity read overlapped
+the completed foreground window; external collection/OS overhead remains a
+limitation. No ftrace data loss was reported by the selected health query;
+systrace parse failures and empty power-rail packets are retained. Poma-attributed
+FrameTimeline samples remain **zero**, so frame p95 and the 16.67 ms budget are
+**unmeasured**, not passed. USB traces and unavailable power rails do not replace
+three matched 20-minute unplugged energy windows per comparison.
+
+Source/host counts establish bounded startup/history, one coalesced optional
+summary read, transition-only SQLite commits and stopped inactive tickers.
+These OS traces establish scheduling/RSS for their windows; absent I/O counters
+do not establish zero SQL writes. The awaited restoration/alert-safety barrier
+remains. No whole-app/theme or native-initialization speed/energy benefit is
+claimed without attributable cost evidence. The native serial worker blocks
+while idle and introduces no app polling timer, wake lock or foreground service.
+
+Current connected UID accounting over **540 seconds** observed no Poma rows and
+zero reported byte/packet delta, with Wi-Fi/data enabled. This is coarse Android
+accounting, not packet/DNS/attempted-socket coverage. A current selective
+non-incremental backup request returned **Backup is not allowed** for Poma;
+overall command Success does not mean the package was backed up. Nonempty
+WAL/SHM backup and actual OS/OEM transfer paths remain unverified. Neither probe
+changed the backup transport/settings or erased older copies.
+
+### Renderer diagnostic, separate from the release
+
+A reversible ARM64 release-mode diagnostic changed only Android manifest
+`io.flutter.embedding.android.EnableImpeller=false`. Original manifest bytes
+were restored immediately after building; no renderer source change was
+promoted. Diagnostic before-build fingerprint:
+`490a376f25e69e962c6ed0585baaf074365fc791d44a64f7f0f63a445c17126d`.
+Development-signed diagnostic APK: 18,295,848 bytes, SHA-256
+`6de42e76275f7e35d8fbd8671a34fb0a84430c2a753fafe2f5ee5057de6ea1e9`.
+It is distinct from canonical release SHA-256 `6edb098c…`; its measurements must
+not be substituted for the installed release results above.
+
+| Fresh idle, Android-reported KiB | Default release | Diagnostic opt-out |
+| --- | ---: | ---: |
+| Total PSS | 424,228 | 129,787 |
+| Total RSS including driver accounting | 543,036 | 250,072 |
+| Graphics | 362,760 | 81,492 |
+
+Each column is one fresh-process observation on the same G54, ready Long break,
+same appearance and large fixture. The diagnostic has separate condition,
+thermal, screenshot, log and trace records in `renderer-diagnostic/`. Visual
+inspection of the two ready screens found the same layout/content. The default
+process explicitly logs Vulkan/Impeller; the diagnostic explicitly logs
+**Impeller opt-out deprecated**. Its active foreground CPU was 1.554473% of
+one core in one 40-second window versus the earlier default 1.544876%; no CPU
+improvement or statistical difference is established. FrameTimeline still has
+zero app-attributed samples. Diagnostic launch, battery, full UI and alert
+acceptance are not measured by this comparison.
+
+This identifies a renderer-dependent graphics-accounting candidate, not a
+framework-removal benefit or release-wide memory promise. The deprecated
+override requires a compatibility decision and matched launch/frame regression
+validation before adoption. Retain the pinned default while those facts are
+unverified. REA complete inventory has 93 members plus root and zero integrity
+contradictions, inspection ID
+`ev_d05c438267253996e141629284c01affb22be36cbf8e27300b09b48d19a14aea`;
+complete export is `renderer-diagnostic/rea-evidence.json`.
+
+Disconnected acceptance, actual backup/transfer behavior, physical iPhone 16,
+production signing and distribution remain release gates. No encryption,
+forensic deletion, universal backup prevention or older-backup erasure is claimed.
+
 This report distinguishes source checks, packaged facts, attached physical-device
 measurements, and disconnected acceptance. Missing measurements are not passes.
 The existing Session 5 implementation and uncommitted work are preserved.

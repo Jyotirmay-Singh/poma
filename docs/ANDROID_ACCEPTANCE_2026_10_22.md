@@ -18,7 +18,60 @@ The current-mode source previously passed 163 Flutter tests, analysis and
 formatting. The older Session 6 launch, CPU, package and CI observations retain
 their original identities; they are not measurements of the updated UI.
 
-## Session 8: reset hang under repair
+## Session 8: worker revision and retest
+
+Build **2006** is installed on the same Motorola, optimized ARM64 with the
+existing development certificate: **18,295,848 bytes (17.45 MiB)**, SHA-256
+`6edb098ce0389a6f5c970189e4708a18f703d3678e9dfada78e7d143984baa88`.
+The pulled installed APK matches byte-for-byte. Before-build source fingerprint:
+`6ef5bd65b064aa3b58ff9988af2d34aedbd94f7092a0c48e8e312b63d377a011`.
+Signature and 16 KiB alignment verification passed. This passes only the
+provisional ARM64 artifact-size budget; fresh download estimates, frame and
+energy measurements remain unmeasured.
+
+All **165 Flutter tests and eight Android native tests** passed, including two
+new worker ordering/nonblocking-caller regressions. Formatting, analysis and
+offline enforced lockfile resolution passed (`artifacts/session-8/checks/`).
+The approved draft source is `2613cbcb552095c5a37573729d2086def3ed81a8`;
+[CI run 39729543402](https://github.com/Jyotirmay-Singh/poma/actions/runs/39729543402)
+passed Android and macOS checks, including ten Swift tests and unsigned iOS
+release compilation. No production signing or publication occurred.
+
+REA 6.7.0 complete central-directory inventory: 93 members plus root, zero
+integrity contradictions, inspection ID
+`ev_590c9845a266fcba103cbc32f265abe5928549decaedd0bef617c0ce9584d086`.
+Complete evidence/member hashes are retained in
+`artifacts/session-8/final/rea-worker-evidence.json` and
+`worker-archive-members.json`. No disassembler was installed. Inventory does
+not establish execution or energy behavior. The refreshed bounded review covers
+31 production source files with zero network/log/secret-pattern hits; packaged
+notices are present. No dependency changes; unresolved license, traffic and
+backup/transfer limitations from the privacy review still apply.
+
+Initial full reset and immediate reset of a running strict focus responded and
+restored defaults. Defaults survived ordinary background process termination
+and reopen. A second strict-reset confirmation remained open across expiry;
+Cancel responded, history contained one completion and remained one after
+process termination/reopen, and Short break stayed ready. A later confirmed
+reset responded and restored defaults. Current-worker native delivery passed after ordinary background process
+termination, with PID absence established before expiry: one focus completion
+after repeated recovery, Short break ready. A manually started short break
+posted while Android Settings was in front, added no focus history and returned
+to ready Focus. Perceived sound and precise alert latency remain unmeasured. These finite observations do not establish absence of all races. All
+Session 8 evidence so far is USB-attached. After renderer diagnostics the
+canonical APK was reinstalled and its pulled hash matched again. A new one-minute
+focus posted its native completion alert while locked; human unlock/recovery
+and sound remain pending. Original rotation settings and original unset
+min/peak refresh preferences are restored; brightness/radios were not changed. The two 30-cold/30-warm launch
+fixtures and eight 40-second state windows are complete; see the current
+[measured results](RELEASE_EVIDENCE.md#current-session-8-evidence--22-october-2026).
+Cold usable medians are 504 ms empty and 481 ms at 100,000 synthetic rows.
+Frame p95 and matched unplugged energy remain unmeasured. Connected UID
+accounting over 540 seconds has no target rows/zero reported delta (coarse
+only); current selective backup refuses Poma. Follow the pending
+[phone-only procedure](OFFLINE_PHONE_RUN.md) for disconnected observations.
+
+### Historical failure motivating the worker revision
 
 Physical acceptance of build 2005 later failed: Android displayed “Poma isn't
 responding” while a full-reset confirmation was open during a strict phase.

@@ -1,5 +1,37 @@
 # Privacy, local data and dependency review
 
+## Session 8 update — 22 October 2026
+
+The current ARM64 validation package is SHA-256
+`6edb098ce0389a6f5c970189e4708a18f703d3678e9dfada78e7d143984baa88`.
+Fresh SDK decoding retains `allowBackup=false`, legacy exclusions and cloud/
+device-transfer exclusions for all nine domains at `.`; database-domain rules
+include SQLite sidecars by scope. The manifest has notification, exact-alarm,
+boot, vibration and protected dynamic-receiver permissions, with no INTERNET,
+network-state, wake-lock or foreground-service permission. These are packaged
+facts, not actual transfer/backup-content observations.
+
+The refreshed bounded pattern review covers 31 production Dart/Kotlin/Swift
+files with zero network-API/URL, logging-call or secret-marker hits. Packaged
+notices are present. The worker repair adds no dependency, profile collection,
+backend, polling timer or wake lock. Dependency declarations are unchanged;
+network-capable transitive packages and final notice compliance remain review
+boundaries below, rather than being called harmless from count alone. The
+current offline release graph has 52 selected Maven coordinates. The 23 missing
+cached POMs were fetched from official Google Maven/Maven Central, with hashes;
+22 declare Apache 2.0 directly and listenablefuture inherits its declaration
+from guava-parent 26.0-android. This closes missing-POM declaration evidence,
+not a complete post-R8/native-engine inventory or legal/notice clearance. Current iOS unsigned-package review retains four privacy manifests and
+no root ATS override or UIBackgroundModes. Ten Swift tests passed in current
+CI, including simulator backup-policy tests; physical iPhone attributes,
+UserDefaults backup metadata and real backup/transfer behavior remain gated.
+
+Current attached observations show generic focus/break alerts and exactly-once
+focus recovery; strict full reset and durable defaults passed after repair.
+No encryption, forensic deletion, erasure of older backups, universal backup
+prevention or comprehensive traffic-capture claim follows. Fresh raw records
+are under ignored `artifacts/session-8/worker-review/` and `final/`.
+
 Review date: 21 October 2026. This continues the Session 5 implementation; it does not replace its UI, durability or notification evidence.
 
 ## Evidence boundary and release status
