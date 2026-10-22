@@ -17,7 +17,8 @@ Empty-history 30 cold / 30 warm launches are measured: usable cold median 504 ms
 within the provisional 1.5-second budget. Large-history 30 cold / 30 warm samples are complete
 (usable cold median 481 ms), and eight 40-second state traces are captured.
 Frame p95 and matched unplugged energy remain unmeasured.
-Disconnected acceptance, backup/transfer behavior, licenses, physical iPhone,
+Locked recovery and large-history full reset also passed; a fresh unopened
+offline install is prepared for the operator. Disconnected acceptance, backup/transfer behavior, licenses, physical iPhone,
 production signing and store distribution remain explicit gates.
 
 ## Current-mode Focus update — 22 October 2026

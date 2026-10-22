@@ -60,8 +60,12 @@ posted while Android Settings was in front, added no focus history and returned
 to ready Focus. Perceived sound and precise alert latency remain unmeasured. These finite observations do not establish absence of all races. All
 Session 8 evidence so far is USB-attached. After renderer diagnostics the
 canonical APK was reinstalled and its pulled hash matched again. A new one-minute
-focus posted its native completion alert while locked; human unlock/recovery
-and sound remain pending. Original rotation settings and original unset
+focus posted its native completion alert in the lock test. After operator
+unlock, Short break was ready, progress 1/2; today focus count rose 1 to 2
+and remained 2 after ordinary process termination/reopen. Perceived sound is
+still unreported. Post-alert keyguard was showing/unoccluded and power was
+Dozing; the immediate sleep sample was Dozing during an asynchronous keyguard
+transition, not a continuous lock-state trace. Original rotation settings and original unset
 min/peak refresh preferences are restored; brightness/radios were not changed. The two 30-cold/30-warm launch
 fixtures and eight 40-second state windows are complete; see the current
 [measured results](RELEASE_EVIDENCE.md#current-session-8-evidence--22-october-2026).
@@ -89,6 +93,35 @@ polling, foreground service, wake lock or automatic successor start. New native
 regressions model a blocked read whose completion needs the caller and verify
 serial ordering. Checks and physical retests are pending under
 `artifacts/session-8/`. Earlier CI results and package hashes do not cover it.
+
+## Large-history deletion and fresh offline preparation
+
+Full local reset of the large synthetic fixture passed on canonical build 2006.
+After ordinary process termination/reopen, Focus was ready at 25 minutes, progress 0/4,
+Tasks explicitly showed its empty-state help, and Insights showed no sessions.
+The total before deletion is inferred as 100,000 synthetic rows plus two test
+focus completions; a release-device SQL COUNT was not directly reread. This
+is visible/durable deletion evidence, not forensic erasure, VACUUM/file-size
+reclamation or removal of older backups. Raw records: session-8/large-reset/.
+
+After verifying empty/default recovery, the validation installation was removed
+and the same canonical APK installed afresh while offline. Poma PID was absent,
+and App info was left open without launching Poma. Airplane mode is enabled,
+Wi-Fi/mobile data disabled, active default network none. A legacy global data
+flag initially remained 1 after svc disabled per-SIM data; the setup assertion
+caught it before installation. Preparation explicitly set that legacy flag to 0;
+no other per-SIM setting was edited directly. Original connectivity preferences
+are saved for restoration. This setup retry is not an offline app failure.
+
+A bounded external shell-UID logcat capture retains package-filtered platform
+startup records on the phone for later inspection; it is separate test overhead,
+not app-managed polling, a server or an installed-app dependency. Its timeout
+and reconnect cleanup are recorded locally. The operator was asked to physically
+unplug USB before first Open. Disconnected first launch and remaining cases
+stay **unverified until observed/reported**; no first-install latency is claimed
+until retained markers are checked. See OFFLINE_PHONE_RUN.md. The fresh install
+has default permission state; previous permission/UID observations retain their
+prior-installation scope.
 
 ## Earlier native-connection revision
 

@@ -152,6 +152,18 @@ overall command Success does not mean the package was backed up. Nonempty
 WAL/SHM backup and actual OS/OEM transfer paths remain unverified. Neither probe
 changed the backup transport/settings or erased older copies.
 
+Locked-screen recovery on the canonical package subsequently passed after
+operator unlock: today count increased from one to two and remained two after
+ordinary process termination/reopen; Short break stayed ready at progress1/2.
+Perceived sound remains unreported. Full reset of the large synthetic fixture
+then passed explicit empty Tasks/Insights and default Focus after restart.
+The package was freshly installed with airplane mode enabled, Wi-Fi/data off
+and no active default network. Poma was left unopened for the operator to
+physically disconnect USB before first Open. These preparation facts do not
+establish disconnected acceptance. A bounded on-phone, package-filtered platform
+startup capture may support a separate first-install measurement after reconnect;
+no such latency result is claimed yet. See the Android record for methods.
+
 ### Renderer diagnostic, separate from the release
 
 A reversible ARM64 release-mode diagnostic changed only Android manifest
