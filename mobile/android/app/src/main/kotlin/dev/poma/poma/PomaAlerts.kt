@@ -29,6 +29,8 @@ object PomaAlerts {
     private const val OPEN = "dev.poma.poma.OPEN_TIMER"
     private const val PREFS = "poma_local_alerts"
     private var channel: MethodChannel? = null
+    private var alertDatabase: SQLiteDatabase? = null
+    private var alertDatabasePath: String? = null
 
     fun bootCount(context: Context): Int? = try {
         Settings.Global.getInt(context.contentResolver, Settings.Global.BOOT_COUNT).takeIf { it >= 0 }
@@ -50,6 +52,10 @@ object PomaAlerts {
                             val path = requireNotNull(call.argument<String>("databasePath"))
                             require(File(path).canonicalPath.startsWith(File(context.applicationInfo.dataDir).canonicalPath + File.separator))
                             persist(context, "database", path)
+                            // Open once before Dart starts optional summary reads.
+                            // Reopening for every state/receipt read runs Android's
+                            // journal configuration against concurrent transactions.
+                            requireNotNull(database(context))
                             createChannel(context)
                             result.success(null)
                         }
@@ -89,13 +95,26 @@ object PomaAlerts {
         }
     }
 
+    @Synchronized
     private fun database(context: Context): SQLiteDatabase? {
         val path = prefs(context).getString("database", null) ?: return null
         if (!File(path).exists()) return null // A receiver must never create/reset app data.
-        return SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READWRITE)
+        alertDatabase?.let { cached ->
+            if (cached.isOpen && alertDatabasePath == path) return cached
+            cached.close()
+        }
+        return SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READWRITE,
+            android.database.DatabaseErrorHandler {
+                // The platform's default corruption handler can delete the file.
+                // Preserve it for Poma's explicit unreadable-data recovery path.
+                throw android.database.sqlite.SQLiteDatabaseCorruptException("Unreadable alert database")
+            }).also {
+                alertDatabase = it
+                alertDatabasePath = path
+            }
     }
 
-    private fun state(context: Context): JSONObject? = database(context)?.use { state(it) }
+    private fun state(context: Context): JSONObject? = database(context)?.let { state(it) }
     private fun state(db: SQLiteDatabase): JSONObject? =
         db.rawQuery("SELECT value FROM notification_state WHERE id=1", null).use { cursor ->
             if (cursor.moveToFirst()) JSONObject(cursor.getString(0)) else null
@@ -138,7 +157,7 @@ object PomaAlerts {
         return Build.VERSION.SDK_INT < 26 || manager(context).getNotificationChannel(CHANNEL)?.importance != NotificationManager.IMPORTANCE_NONE
     }
 
-    private fun receipt(context: Context, key: String, claim: Boolean): Boolean = database(context)?.use { db ->
+    private fun receipt(context: Context, key: String, claim: Boolean): Boolean = database(context)?.let { db ->
         if (!claim) {
             db.rawQuery("SELECT 1 FROM notification_receipts WHERE key=?", arrayOf(key)).use { it.moveToFirst() }
         } else {
@@ -200,7 +219,7 @@ object PomaAlerts {
         if (!saved.getBoolean("enabled") || !matches(request, intent.getStringExtra("runId") ?: "",
                 intent.getLongExtra("generation", -1)) || !permitted(context)) return
         if (remaining(context, request) > 0) { synchronize(context, saved); return }
-        database(context)?.use { db ->
+        database(context)?.let { db ->
         db.beginTransaction()
         try {
         // Serialize validation/posting against SQLite timer transitions. A

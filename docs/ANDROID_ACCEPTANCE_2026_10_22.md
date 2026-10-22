@@ -20,7 +20,7 @@ their original identities; they are not measurements of the updated UI.
 
 ## Acceptance status
 
-Current revised installation: release-mode ARM64 build **2004**, development
+Earlier revised installation: release-mode ARM64 build **2004**, development
 certificate, **18,295,848 bytes (17.45 MiB)**, SHA-256
 `6f1ed66b56bac9c579cfae1447a21bca8d048e6269e8ee079049f894eec8f86d`.
 Source fingerprint before the sequencing build:
@@ -38,15 +38,16 @@ is inferred for this later shared-Dart change.
 | --- | --- | --- |
 | Release update preserves local data | Observed, attached | Build 2002 preserved two-minute focus, selected task, dark theme, three-round setting and empty history |
 | Focus controls | Observed, attached | Start, pause, resume, reset and skip for focus and short break; no history from abandoned phases |
-| Revised release alert registration | Observed, attached | Five start/resume registrations, no failure banner; no SQLite lock entries in target process log at the supporting sample |
-| Strict mode | Pending | Real native clock and SQLite |
-| Two-round focus/short/long cycle | Pending | Every successor must remain ready |
+| Build 2004 alert registration | Failed in later lifecycle case | Five start/resume registrations initially passed; later start/re-entry reproduced native SQLite lock. Five-pass sample is not complete acceptance |
+| Strict mode | Observed, attached | Short break uses locked In progress control; reset/skip, timing edits and disabling strict are unavailable while active; appearance remains editable |
+| Two-round focus/short/long cycle | Observed, attached | Short break → ready Focus, final focus → ready Long break directly, long break → ready Focus with 0 of 2; every start manual; breaks add no focus history |
 | Task edits and original history snapshot | Observed, attached | Rename, complete and reopen synthetic task during focus; original title retained by current focus and resulting history |
 | Ordinary process death before expiry | Observed, attached | `am kill` after another app foreground; original PID present then absent before expiry; no force-stop/recents removal |
 | Native alert after process death | Observed OS posting, attached | “Focus complete” / “Open Poma when you’re ready.”; no synthetic task title; perceived sound and precise latency unmeasured |
 | Exactly-once completion after repeated reopen | Observed, attached | History 2 → 3 after recovery, remains 3 after second process restart; Short break stays ready, progress 1 of 2 |
-| Locked screen / another app | Pending | Attached observations labelled separately |
-| Notification denial and revocation | Pending | Timer/history correctness independent of presentation |
+| Another app foreground across focus expiry | Observed, attached | OS posted generic focus alert, final focus prepared ready Long break directly; history 3 → 4 |
+| Locked screen | Observed OS posting and recovery, attached | Keyguard showing, unoccluded, screen asleep; generic break alert posted; human unlocked; ready Focus, 0 of 2, history remains 4; sound/precise latency unmeasured |
+| Notification revocation and later grant | Observed, attached | Permission revoked during started focus; denial message/settings link shown; no OS notification record after expiry; history 4 → 5 and ready Short break; grant reflected after return. Initial permission-dialog denial remains separate |
 | Exact-alarm revocation and fallback | Pending | OS can cancel alarms/kill process on revocation |
 | Clear history / full reset / restart | Pending | Synthetic data only |
 | Physically disconnected offline matrix | Unverified | Requires operator unplugging and phone-only observations |
@@ -93,6 +94,20 @@ then one coalesced refresh after it completes, alongside unchanged tick/write an
 inactive-ticker checks. This follow-up requires another physical release retest;
 no delivery or battery improvement is inferred from the host tests.
 
+Build 2004 subsequently reproduced `SQLiteDatabaseLockedException` during a
+later lifecycle/permission probe. The read-mode and sequencing changes alone do
+not fully resolve native connection setup contention. The next native revision
+opens one SQLite handle during configuration and reuses it for state/receipt
+operations throughout that process, rather than repeatedly running Android's
+connection journal setup. It retains no Activity context, adds no polling or
+scheduled background work, and closes/replaces the handle if the configured path
+changes. A custom corruption callback preserves the database instead of invoking
+Android's default file-deleting handler. Physical verification is pending.
+
+The interrupted exact-access probe set a package app-op to ignore while an
+allowed UID app-op remained. It does **not** establish effective revocation or
+fallback behavior. The next probe must change/record the effective UID operation.
+
 Before this fix, the current-mode source passed 163 Flutter tests and six Android
 native tests, locked offline resolution, formatting and analysis in
 `artifacts/session-7/checks/`. These checks preceded the concurrency change.
@@ -104,6 +119,12 @@ retained in `final/rea-package-evidence.json`; inspection ID
 Signatures/alignment were checked separately. No disassembler was installed.
 Inventory does not establish runtime scheduling or network behavior.
 
+The approved draft branch was updated to
+`978dba75f1519b7f6c8464cb284805c13efe03b4`, preserving local HEAD/index and
+existing edits. [CI run 39717780053](https://github.com/Jyotirmay-Singh/poma/actions/runs/39717780053)
+was explicitly dispatched; results are pending. [Draft PR #1](https://github.com/Jyotirmay-Singh/poma/pull/1)
+remains open and unmerged. Generated evidence and credentials were excluded.
+
 Build 2004 was also inspected with REA: 93 ZIP members plus root, complete
 central-directory inventory, zero integrity contradictions; complete evidence
 `final/rea-sequenced-evidence.json`, inspection ID
@@ -111,3 +132,16 @@ central-directory inventory, zero integrity contradictions; complete evidence
 Its Android SDK permission inventory declares notifications, scheduled exact
 alarms, boot reception, vibration and the protected dynamic receiver permission;
 no INTERNET, network-state, app wake-lock or foreground-service permission.
+
+The refreshed bounded source review examined 30 production Dart/Kotlin/Swift
+files and found no matches for its network-API/URL, app-log-call or secret-marker
+patterns (`privacy-refresh.json`). This is a pattern review, not whole-program
+proof. Packaged notices remain present. Dependencies/versions were not changed;
+the earlier network-capable transitive dependency and unresolved native-license
+clearance remain documented in PRIVACY_REVIEW.md.
+
+The installed build 2004 selective non-incremental backup probe returned
+“Package dev.poma.poma with result: Backup is not allowed.” The overall command
+also prints “Success”; that does not mean the package was backed up. This is
+current selective eligibility only, not all OEM/cloud/transfer paths, nonempty
+SQLite sidecar behavior or erasure of older backups.
