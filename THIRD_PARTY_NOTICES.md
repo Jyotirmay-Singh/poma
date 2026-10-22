@@ -25,3 +25,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Flutter and package licenses are available through the app's About → View licenses screen. Resolve the locked package graph and retain its generated license inventory for each distributed build.
+
+## Android native components
+
+The bundled `android-native.txt` license entry preserves the 52 selected native
+runtime coordinates, the complete Apache 2.0 terms and license/NOTICE files
+found in their cached JAR/AAR archives. This includes AndroidX, Kotlin,
+desugaring, Gson and Guava components. Flutter's complete generated mixed
+engine notices and Dart/plugin license inventory are preserved separately in
+About → View licenses; they are not replaced by a top-level SDK license.
+
+Poma's original timer-ring launcher/splash mark was created for this release.
+No Pomatez icon or external font is used. Native archive declarations do not
+prove that every declared class survives optimization; full embedded/legal
+clearance remains explicitly scoped in the release evidence.

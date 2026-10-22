@@ -98,6 +98,9 @@ class SqliteRepository implements LocalRepository {
   @override
   Future<SavedState> loadInitial() => _guard(() async {
     final db = await _open();
+    // Android's native alert adapter opens a second SQLite connection. Read
+    // snapshots must not take EXCLUSIVE locks that block its journal/state read.
+    // Keep the transaction for a consistent snapshot; writes stay exclusive.
     return db.transaction((txn) async {
       final state = {
         for (final row in await txn.query('app_state'))
@@ -131,7 +134,7 @@ class SqliteRepository implements LocalRepository {
         lastCommitId: meta['commit_id'] as String?,
         cleanupPending: meta['cleanup_pending'] == 1,
       );
-    });
+    }, exclusive: false);
   }, StorageFailureKind.unreadable);
 
   @override
@@ -328,7 +331,7 @@ class SqliteRepository implements LocalRepository {
         hasOlder: sessions.isNotEmpty && await exists(sessions.last, '<'),
         hasNewer: sessions.isNotEmpty && await exists(sessions.first, '>'),
       );
-    });
+    }, exclusive: false);
   }, StorageFailureKind.unreadable);
 
   @override
@@ -355,7 +358,7 @@ class SqliteRepository implements LocalRepository {
         );
       }
       return result;
-    });
+    }, exclusive: false);
   }, StorageFailureKind.unreadable);
 
   @override

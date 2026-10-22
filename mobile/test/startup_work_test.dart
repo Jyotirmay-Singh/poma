@@ -108,6 +108,7 @@ void main() {
 
       await drainReads();
       expect(created, isFalse);
+      expect(repository.summaryReads, 0);
       expect(repository.historyReads, 0);
       alertGate.complete();
       final app = await loading;
@@ -120,6 +121,31 @@ void main() {
       await drainReads();
       expect(app.todaySummary!.count, 3);
       expect(app.summariesLoading, isFalse);
+    },
+  );
+
+  test(
+    'start refresh waits for native synchronization without blocking paint',
+    () async {
+      final repository = CountingRepository();
+      final alerts = HoldingSyncAlerts();
+      final app = await AppController.create(
+        repository,
+        clock: FakeClock(),
+        alerts: alerts,
+      );
+      addTearDown(app.dispose);
+      await drainReads();
+      final before = repository.summaryReads;
+      alerts.gate = Completer<void>();
+      final start = app.toggleTimer();
+      await drainReads();
+      expect(app.timer.status, RunStatus.running);
+      expect(repository.summaryReads, before);
+      alerts.gate!.complete();
+      await start;
+      await drainReads();
+      expect(repository.summaryReads, before + 1);
     },
   );
 
@@ -199,6 +225,15 @@ void main() {
 }
 
 Future<void> drainReads() => Future<void>.delayed(Duration.zero);
+
+class HoldingSyncAlerts extends FakeAlerts {
+  Completer<void>? gate;
+  @override
+  Future<AlertAvailability> synchronize(AlertState state) async {
+    await gate?.future;
+    return super.synchronize(state);
+  }
+}
 
 class CountingRepository extends MemoryRepository {
   int summaryReads = 0;

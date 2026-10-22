@@ -1,10 +1,18 @@
 # Accessibility issue ledger
 
+Current owner-ID candidate: see RELEASE_CANDIDATE.md. Its bundled policy view
+has focused 200%-text scroll coverage; this does not close TalkBack/VoiceOver or
+physical-display gates. D05's baseline source/CI association is recorded by
+TEST_LEDGER.md and CI 39729543402; new candidate association remains separately
+tracked. Historical open wording below must not trigger old-suite reruns.
+
 Updated 22 October 2026. Scope: the standalone offline Flutter app. **Resolved below means implemented and checked on the host, not certified with TalkBack or VoiceOver.** Physical-device acceptance remains open by agreement. No screenshot substitutes for an interaction assertion.
 
 ## Host method
 
 `mobile/test/refinement_test.dart` checks populated screens in light/dark appearances at 100%/200% text on Compact phone 320×700, Tall phone 390×844, and Landscape phone 700×320 logical pixels. Tests simulate top/bottom safe insets, reduced motion, long task/history content, keyboard insets, and device locale/time preferences. The app's English copy remains English when device calendar formatting changes.
+
+Current-phase checks also drive a complete two-round cycle through Focus, Short break, and Long break in both themes at 100%/200%. They verify the visible phase/countdown, ready-state semantic label, matching Start action, absence of mode selectors, tap targets, contrast, and access through scrolling. [UI verification](UI_VERIFICATION.md) records the latest counts, capture manifest, reproduction, and phase-by-phase phone procedure.
 
 Android's 48-logical-pixel semantic tap-target guideline is stricter than the iOS 44-point minimum; both platforms still need physical navigation checks. Semantic labels, selected/disabled states, chart alternatives, keyboard submission and focus are asserted. Contrast checks calculate palette ratios and sample fully painted text: clipped text behind a scroll viewport is excluded from raster sampling, because its coordinates can coincide with navigation paint. This exclusion is not a text-size or contrast relaxation. Normal text targets 4.5:1; large text and essential non-text controls target 3:1. Native system-font rendering remains a device check.
 
@@ -35,7 +43,7 @@ Android's 48-logical-pixel semantic tap-target guideline is stricter than the iO
 | D02 | High | The same flow with VoiceOver on a named iPhone, including rotor headings and notification/settings return | Open — Mac/Xcode and iPhone unavailable. |
 | D03 | High | Real system font sizes up to 200%, Android font/display-size combinations, iOS accessibility sizes, keyboard/IME and cutout/home-indicator safe areas | Open — simulated host viewports do not establish device behavior. |
 | D04 | High | Completion while locked and while another app is in front, with permitted/denied/revoked alerts and OS sound/Focus/DND settings | Open — follow the disconnected procedure in UI_VERIFICATION.md and NOTIFICATIONS.md. |
-| D05 | High | Compile changed Swift resources/integration and run all ten RunnerTests on macOS | Open — Windows cannot establish iOS compilation or execution. |
+| D05 | High | Associate native platform builds/tests with the source revision being released | Open for the current-mode UI snapshot; earlier native CI/build results are scoped in RELEASE_EVIDENCE.md. |
 | D06 | Medium | Real-device dark-mode changes, reduced motion, keyboard focus visibility and completion speech without interrupted screen-reader navigation | Open — requires device observation. |
 
 Record model, OS/build, app artifact hash/signing, screen reader/version, text/display scaling, orientation, theme, locale, notification settings, steps and observed outcome when closing an item. Retain failures as open items; do not mark them passed from a capture or compilation alone.

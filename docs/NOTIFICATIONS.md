@@ -1,5 +1,18 @@
 # Native local alerts and device evidence
 
+## Current evidence and candidate status — 22 October 2026
+
+The older status statements and reproduction commands below describe the historical
+Session 3 protocol snapshot. They are not current work orders. The TEST_LEDGER.md
+records build-2006 Android delivery/recovery observations, operator-reported
+disconnected focus/break passes, and successful macOS simulator/native tests.
+Do not repeat those completed scopes. The new owner-ID build-2007 candidate has
+no physical delivery observations yet; follow RELEASE_CANDIDATE.md for its exact
+artifact acceptance and leave unavailable iOS cases open. This does not change
+the scheduling protocol or its OS limits described below.
+
+## Historical protocol snapshot
+
 Updated 21 October 2026. Android native integration builds and host tests exercise the protocol; current screen/build verification is in [UI_VERIFICATION.md](UI_VERIFICATION.md). **No physical notification delivery has been observed on Android or iOS. iOS compilation and XCTest execution are blocked by the absence of macOS/Xcode.** This is not a production delivery certification.
 
 ## Phone capability

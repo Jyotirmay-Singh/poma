@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <title>Poma: a manually started interval</title>
+  <path d="M735.435 641 A258 258 0 1 1 735.435 383" fill="none" stroke="#6854C8" stroke-width="72" stroke-linecap="round"/>
+  <path d="M512 354 V512 H646" fill="none" stroke="#6854C8" stroke-width="64" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="770" cy="512" r="44" fill="#147D80"/>
+</svg>

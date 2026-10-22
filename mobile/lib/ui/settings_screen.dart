@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import '../application/app_controller.dart';
 import '../application/local_alerts.dart';
+import '../release_metadata.dart';
 import 'app_shell.dart';
 import 'copy.dart';
 import 'insights_screen.dart';
+import 'legal_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({required this.controller, super.key});
@@ -190,14 +192,29 @@ class SettingsScreen extends StatelessWidget {
           onPressed: () => showAboutDialog(
             context: context,
             applicationName: 'Poma',
-            applicationVersion: '0.1.0',
+            applicationVersion: '$pomaVersion ($pomaBuild)',
             children: [
               Text(copy.aboutHelp),
               const SizedBox(height: 12),
               Text(copy.attribution),
+              const SizedBox(height: 12),
+              const SelectableText('$pomaOwner\n$pomaSupport'),
             ],
           ),
         ),
+        for (final document in const {
+          'Privacy policy': 'assets/legal/privacy.txt',
+          'Third-party notices': 'assets/legal/notices.txt',
+        }.entries)
+          TextButton(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) =>
+                    LegalScreen(title: document.key, asset: document.value),
+              ),
+            ),
+            child: Text(document.key),
+          ),
       ],
     );
   }

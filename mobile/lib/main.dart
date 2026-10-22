@@ -22,6 +22,9 @@ void main() {
     yield LicenseEntryWithLineBreaks([
       'Pomatez',
     ], await rootBundle.loadString('assets/licenses/pomatez.txt'));
+    yield LicenseEntryWithLineBreaks([
+      'Android native runtime dependencies',
+    ], await rootBundle.loadString('assets/licenses/android-native.txt'));
   });
   runApp(const PomaLoader());
 }
