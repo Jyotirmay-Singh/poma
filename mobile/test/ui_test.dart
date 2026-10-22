@@ -8,6 +8,7 @@ import 'package:poma/application/app_controller.dart';
 import 'package:poma/data/local_storage_policy.dart';
 import 'package:poma/domain/models.dart';
 import 'package:poma/main.dart';
+import 'package:poma/ui/timer_dial.dart';
 import 'support.dart';
 
 void main() {
@@ -121,7 +122,7 @@ void main() {
     expect(controller.tasks.single.done, isTrue);
   });
   testWidgets(
-    'callbacks from the previous frame cannot start or select the successor',
+    'callbacks from the previous frame cannot start, reset or skip the successor',
     (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1;
@@ -135,14 +136,18 @@ void main() {
       final oldToggle = tester
           .widget<FilledButton>(find.byKey(const Key('timer-toggle')))
           .onPressed!;
-      final oldSelection = tester
-          .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Long break'))
-          .onSelected!;
+      final oldReset = tester
+          .widget<IconButton>(find.widgetWithIcon(IconButton, Icons.replay))
+          .onPressed!;
+      final oldSkip = tester
+          .widget<IconButton>(find.widgetWithIcon(IconButton, Icons.skip_next))
+          .onPressed!;
       clock.advance(const Duration(minutes: 25));
       await app.reconcile();
       // Do not repaint: these callbacks still represent the old running frame.
       oldToggle();
-      oldSelection(true);
+      oldReset();
+      oldSkip();
       await app.flush();
       expect(app.timer.phase, FocusPhase.shortBreak);
       expect(app.timer.status, RunStatus.ready);
@@ -152,6 +157,89 @@ void main() {
       app.dispose();
     },
   );
+  for (final rounds in [1, 3, 4]) {
+    testWidgets(
+      'current mode follows a $rounds-round cycle and waits for Start',
+      (tester) async {
+        tester.view.physicalSize = const Size(390, 844);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        final clock = FakeClock();
+        final settings = TimerSettings(
+          focusMinutes: 2,
+          shortBreakMinutes: 1,
+          longBreakMinutes: 3,
+          rounds: rounds,
+        );
+        final app = await AppController.create(
+          MemoryRepository(SavedState(settings: settings)),
+          clock: clock,
+        );
+        addTearDown(app.dispose);
+        await tester.pumpWidget(PomaApp(controller: app));
+        await tester.pumpAndSettle();
+
+        void expectReady(FocusPhase phase, String time, String action) {
+          expect(app.timer.phase, phase);
+          expect(app.timer.status, RunStatus.ready);
+          final dial = find.byType(TimerDial);
+          expect(
+            find.descendant(of: dial, matching: find.text(phase.label)),
+            findsOneWidget,
+          );
+          expect(
+            find.descendant(of: dial, matching: find.text(time)),
+            findsOneWidget,
+          );
+          expect(
+            find.descendant(
+              of: find.byKey(const Key('timer-toggle')),
+              matching: find.text(action),
+            ),
+            findsOneWidget,
+          );
+          expect(find.byType(ChoiceChip), findsNothing);
+          expect(find.byType(DropdownButton<FocusPhase>), findsNothing);
+        }
+
+        Future<void> finishPhase(int minutes) async {
+          final toggle = find.byKey(const Key('timer-toggle'));
+          await tester.ensureVisible(toggle);
+          await tester.pumpAndSettle();
+          await tester.tap(toggle);
+          await tester.pumpAndSettle();
+          expect(app.timer.status, RunStatus.running);
+          clock.advance(Duration(minutes: minutes));
+          await app.reconcile();
+          await tester.pumpAndSettle();
+        }
+
+        expectReady(FocusPhase.focus, '02:00', 'Start focus');
+        for (var round = 1; round <= rounds; round++) {
+          await finishPhase(2);
+          final lastRound = round == rounds;
+          expectReady(
+            lastRound ? FocusPhase.longBreak : FocusPhase.shortBreak,
+            lastRound ? '03:00' : '01:00',
+            lastRound ? 'Start long break' : 'Start short break',
+          );
+          expect(app.timer.displayedRounds, round);
+          expect(app.sessions, hasLength(round));
+          await finishPhase(lastRound ? 3 : 1);
+          expectReady(FocusPhase.focus, '02:00', 'Start focus');
+          expect(app.timer.displayedRounds, lastRound ? 0 : round);
+          expect(app.sessions, hasLength(round));
+        }
+        expect(
+          app.sessions.map((session) => session.id).toSet(),
+          hasLength(rounds),
+        );
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+        await app.flush();
+      },
+    );
+  }
   testWidgets('all four screens fit a small phone with 200 percent text', (
     tester,
   ) async {

@@ -108,6 +108,7 @@ void main() {
 
       await drainReads();
       expect(created, isFalse);
+      expect(repository.summaryReads, 0);
       expect(repository.historyReads, 0);
       alertGate.complete();
       final app = await loading;
@@ -123,7 +124,32 @@ void main() {
     },
   );
 
-  testWidgets('native-alert countdown ticks do no storage or alert work', (
+  test(
+    'start refresh waits for native synchronization without blocking paint',
+    () async {
+      final repository = CountingRepository();
+      final alerts = HoldingSyncAlerts();
+      final app = await AppController.create(
+        repository,
+        clock: FakeClock(),
+        alerts: alerts,
+      );
+      addTearDown(app.dispose);
+      await drainReads();
+      final before = repository.summaryReads;
+      alerts.gate = Completer<void>();
+      final start = app.toggleTimer();
+      await drainReads();
+      expect(app.timer.status, RunStatus.running);
+      expect(repository.summaryReads, before);
+      alerts.gate!.complete();
+      await start;
+      await drainReads();
+      expect(repository.summaryReads, before + 1);
+    },
+  );
+
+  testWidgets('countdown ticks do no writes or alerts; background reads stop', (
     tester,
   ) async {
     final repository = CountingRepository();
@@ -136,7 +162,6 @@ void main() {
     );
     await app.setForeground(true);
     await app.toggleTimer();
-    final runningReads = repository.summaryReads;
     final runningWrites = repository.writes;
     final runningSyncs = alerts.syncs;
     final runningReceipts = repository.receiptCalls;
@@ -146,13 +171,11 @@ void main() {
       await app.flush();
     }
     expect(app.timer.remainingSeconds, 1495);
-    expect(repository.summaryReads, runningReads);
     expect(repository.writes, runningWrites);
     expect(alerts.syncs, runningSyncs);
     expect(repository.receiptCalls, runningReceipts);
 
     await app.toggleTimer();
-    final pausedReads = repository.summaryReads;
     final pausedWrites = repository.writes;
     final pausedSyncs = alerts.syncs;
     final pausedReceipts = repository.receiptCalls;
@@ -161,7 +184,6 @@ void main() {
     await app.flush();
     expect(app.timer.status, RunStatus.paused);
     expect(app.tickerActive, isFalse);
-    expect(repository.summaryReads, pausedReads);
     expect(repository.writes, pausedWrites);
     expect(alerts.syncs, pausedSyncs);
     expect(repository.receiptCalls, pausedReceipts);
@@ -185,7 +207,6 @@ void main() {
     expect(app.timer.phase, FocusPhase.shortBreak);
     expect(app.timer.status, RunStatus.ready);
     expect(app.sessions, hasLength(1));
-    final completedReads = repository.summaryReads;
     final completedWrites = repository.writes;
     final completedSyncs = alerts.syncs;
     final completedReceipts = repository.receiptCalls;
@@ -193,7 +214,8 @@ void main() {
     await tester.pump(const Duration(hours: 1));
     await app.flush();
     expect(app.tickerActive, isFalse);
-    expect(repository.summaryReads, completedReads);
+    // Foreground midnight totals refresh is a separate one-shot operation and
+    // may run during a long pump near the host's midnight. It writes no state.
     expect(repository.writes, completedWrites);
     expect(alerts.syncs, completedSyncs);
     expect(repository.receiptCalls, completedReceipts);
@@ -203,6 +225,15 @@ void main() {
 }
 
 Future<void> drainReads() => Future<void>.delayed(Duration.zero);
+
+class HoldingSyncAlerts extends FakeAlerts {
+  Completer<void>? gate;
+  @override
+  Future<AlertAvailability> synchronize(AlertState state) async {
+    await gate?.future;
+    return super.synchronize(state);
+  }
+}
 
 class CountingRepository extends MemoryRepository {
   int summaryReads = 0;

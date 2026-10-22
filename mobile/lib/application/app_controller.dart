@@ -352,7 +352,6 @@ class AppController extends ChangeNotifier {
           previousDay.year != localNow.year;
       // Reconciliation owns startup/resume reads after updating calendar time.
       // Coalesce a forced refresh and a day change into the same bounded read.
-      if (forceAlerts || dayChanged) _refreshReads();
       if (dayChanged) _scheduleMidnight();
       if (alertsEnabled != null) _alerts?.setEnabled(alertsEnabled);
       final completed = transition.completion;
@@ -370,7 +369,10 @@ class AppController extends ChangeNotifier {
               checkpoint ||
               alertChanged ||
               alertsEnabled != null
-          ? _persist(completions: completed == null ? const [] : [completed])
+          ? _persist(
+              completions: completed == null ? const [] : [completed],
+              refreshReads: false,
+            )
           : null;
       final alert = timer.status == RunStatus.running
           ? TimerAlertIntent(
@@ -418,6 +420,14 @@ class AppController extends ChangeNotifier {
           _alerts.availability = AlertAvailability.failed;
         }
         _notify();
+      }
+      // Android opens the native SQLite connection while synchronizing alerts.
+      // Start optional totals/history reads after that safety barrier, so their
+      // transaction cannot race connection setup. Rendering never awaits them.
+      if (forceAlerts ||
+          dayChanged ||
+          persistence == PersistenceOutcome.saved) {
+        _refreshReads();
       }
       return ReconciliationResult(
         snapshot: snapshot,
@@ -563,6 +573,7 @@ class AppController extends ChangeNotifier {
     List<String> deletedSessions = const [],
     bool clearHistory = false,
     bool reset = false,
+    bool refreshReads = true,
   }) {
     final state = SavedState(
       settings: settings,
@@ -616,7 +627,7 @@ class AppController extends ChangeNotifier {
           saveError = null;
           _saveFailureKind = null;
           if (!cleanupPending) deletionError = null;
-          _refreshReads();
+          if (refreshReads) _refreshReads();
           _notify();
           return PersistenceOutcome.saved;
         })

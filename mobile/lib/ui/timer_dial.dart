@@ -16,7 +16,7 @@ class TimerDial extends StatelessWidget {
       final time =
           '${(seconds ~/ 60).toString().padLeft(2, '0')}:${(seconds % 60).toString().padLeft(2, '0')}';
       final timeStyle = DefaultTextStyle.of(context).style.copyWith(
-        fontSize: diameter / 8.5,
+        fontSize: diameter / 6.5,
         fontWeight: FontWeight.w500,
         letterSpacing: -1.5,
         fontFeatures: const [FontFeature.tabularFigures()],
@@ -39,9 +39,13 @@ class TimerDial extends StatelessWidget {
         textScaler: MediaQuery.textScalerOf(context),
         textDirection: Directionality.of(context),
       )..layout(maxWidth: diameter - 40);
+      final contentWidth = max(numberMetrics.width, phaseMetrics.width);
+      final contentHeight = numberMetrics.height + phaseMetrics.height + 43;
+      final innerRadius = max(0.0, diameter / 2 - 40);
+      // Keep the text block inside the tick marks, including its corners.
       final fits =
-          numberMetrics.width <= diameter - 40 &&
-          numberMetrics.height + phaseMetrics.height + 43 <= diameter - 40;
+          pow(contentWidth / 2, 2) + pow(contentHeight / 2, 2) <=
+          pow(innerRadius, 2);
       numberMetrics.dispose();
       phaseMetrics.dispose();
       final icon = Icon(

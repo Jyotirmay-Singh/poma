@@ -150,6 +150,13 @@ SQLite, intl and http package names. A license-name occurrence does not establis
 reachable AOT code or observed network activity. The full text is retained;
 engine notices are not reduced to Flutter's top-level license.
 
+The notification package also contributes a 3,407-byte browser service-worker
+asset to the Android archive. Its inspected script handles browser notification
+clicks locally and contains no external asset URL. Poma's native mobile startup
+does not load that browser script. It is retained library packaging overhead;
+its presence neither creates an Android service worker nor establishes network
+traffic. No dependency replacement is justified solely by that small payload.
+
 Pomatez's MIT text is already bundled and registered with the About → View licenses flow. Flutter's generated `NOTICES.Z` and the explicit Pomatez asset must be present in the fresh package and readable offline. Preserve original copyright/license texts and required notices for included BSD/MIT/Apache material. Do not reduce the mixed engine inventory to the SDK's top-level BSD license. The declared Linux MPL package requires separate inclusion/source-license assessment if a future target actually ships it. A primary-file classification is not a complete legal clearance for every native or embedded subcomponent.
 
 ## Bounded secrets and network review

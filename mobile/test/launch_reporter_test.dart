@@ -73,8 +73,11 @@ void main() {
 
       repository.ready.complete();
       await tester.pumpAndSettle();
-      expect(find.text('Start focus'), findsOneWidget);
+      expect(find.byType(PomaApp), findsOneWidget);
       expect(calls, ['firstUsableFrame']);
+      await tester.scrollUntilVisible(find.text('Start focus'), 200);
+      await tester.pumpAndSettle();
+      expect(find.text('Start focus'), findsOneWidget);
       final app = tester.widget<PomaApp>(find.byType(PomaApp));
       app.controller.addTask('Synthetic launch test');
       await tester.pumpAndSettle();

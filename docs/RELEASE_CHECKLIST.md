@@ -1,13 +1,28 @@
 # Release gates
 
-The current deliverable is a starter. Complete these before a production release.
+Complete these gates before a production release.
 
-## Session 6 evidence status
+## Current Android phone continuation — 22 October 2026
+
+See [the current Android acceptance record](ANDROID_ACCEPTANCE_2026_10_22.md).
+The updated UI was installed in release mode on the Motorola G54, preserving
+local data. Controls passed, but physical testing exposed an intermittent native
+SQLite lock during alert registration. Keep failed builds and revised-source
+checks separate; alert delivery remains a gate until the revised release passes
+the phone retest. Earlier launch and energy evidence does not cover this update.
+
+## Current-mode Focus update — 22 October 2026
+
+The latest UI source passed **163 Flutter tests**, including **29 refinement tests**, static analysis, and formatting. The **38 host-rendered captures** include all three phases in light/dark appearances at normal and 200% text. See the [changelog](../CHANGELOG.md) and [UI verification](UI_VERIFICATION.md) for the current flow and exact reproduction.
+
+Build the current source before phone acceptance and refresh release screenshots from that build. The earlier Session 6 package hashes, CI results, device measurements, and 157-test snapshot below apply to their identified source/builds rather than this later UI change.
+
+## Recorded Session 6 evidence status
 
 See [release evidence](RELEASE_EVIDENCE.md) for exact artifacts, methods, raw local
 evidence locations and limitations. Statuses are deliberately distinct:
 
-| Evidence class | Current state |
+| Evidence class | Recorded state |
 | --- | --- |
 | Source-verified | Manual successors; bounded startup/history; transition-only writes; inactive ticker cancellation; counted summary reads reduced from two to one |
 | Host/CI-verified | 157 Flutter tests, six Android native tests, formatting/analysis/locked offline resolution; Android CI builds; iOS simulator compilation and ten Swift tests |
@@ -27,6 +42,8 @@ CPU or energy use. Production signing and store distribution remain gates.
 - Test on real Android and iOS phones: lock screen, background, process kill, force-stop, reboot, timezone and manual clock changes, low-power modes, and permission denial/revocation.
 - Native local notifications, cancellation/rescheduling, action deduplication and an explicit Android inexact fallback are implemented. Finish physical-device acceptance in [NOTIFICATIONS.md](NOTIFICATIONS.md); no disconnected delivery has passed. iOS simulator compilation/XCTest passed; unsigned device release compilation remains under repair. Retain SCHEDULE_EXACT_ALARM eligibility review; USE_EXACT_ALARM/store approval is not claimed. iOS does not allow arbitrary continuous background countdown execution.
 - Preserve manually started phases. Auto-start chains are outside the confirmed scope; define special-break overlap semantics only if that deferred feature is approved.
+- Verify the current-mode UI without chips or a phase dropdown at every text size. Exercise Focus → Short break → Focus, direct Long break after the configured final focus, and return to zero-round Focus after Long break; every successor waits for its matching Start action.
+- Reopen a saved focus or break and revisit the Focus tab; preserve its phase/progress. Check purple focus/teal break accents in both themes, the single timer semantic readout, large-text spacing, reachable controls, and the existing strict-mode restrictions.
 - Verify first launch, timer and break controls, local tasks/history/settings, restart recovery, and local alerts in airplane mode. No app feature may require signup or a network connection.
 - Test VoiceOver, TalkBack, 200% text, narrow screens, dark mode, landscape, contrast, hit targets, and reduced motion.
 - Screen refinements have host widget/SQLite flow and named viewport coverage; retain the open physical checks in [ACCESSIBILITY.md](ACCESSIBILITY.md) and execute [UI_VERIFICATION.md](UI_VERIFICATION.md) on disconnected standalone installations. The native integration entry point is not proof of those checks and remains unrun without devices.

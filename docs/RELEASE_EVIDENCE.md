@@ -4,6 +4,17 @@ This report distinguishes source checks, packaged facts, attached physical-devic
 measurements, and disconnected acceptance. Missing measurements are not passes.
 The existing Session 5 implementation and uncommitted work are preserved.
 
+The subsequent [22 October Android acceptance record](ANDROID_ACCEPTANCE_2026_10_22.md)
+contains the updated UI's release identities, newly discovered registration race,
+fix verification and current device status. Earlier observations below retain
+their original source/artifact scope.
+
+## Later UI source update — 22 October 2026
+
+The [current-mode Focus update](../CHANGELOG.md) removes the three-mode selector, enlarges the countdown, and improves large-text fit while retaining the existing timer cycle and manual starts. Its local source verification passed **163 Flutter tests**, including **29 refinement tests**, plus static analysis and formatting. The **38 host-rendered captures**, manifest, and test log are retained under ignored `artifacts/current-mode/`; see [UI verification](UI_VERIFICATION.md).
+
+The package hashes, 157-test result, CI runs, and device measurements in this Session 6 report describe their recorded earlier snapshots. The recorded evidence for the later UI update consists of local Flutter tests, analysis, formatting, and host rendering. Build and record a fresh source/package identity before extending native package, CI, or device evidence to the updated UI.
+
 ## Identity and reproduction
 
 - Baseline HEAD: `fbbb0e0870716f2d4c4fca96c95437730fd38eaf`.
@@ -162,6 +173,10 @@ USB-connected measurements cannot establish unplugged battery use.
 | Preserved baseline warm | 30 | 398 / 443 ms | Unmeasured; earlier marker ambiguous |
 | Current APK cold | 30 | 538 / 649 ms | **597 / 729 ms** |
 | Current APK warm | 30 | 464 / 543 ms | **516 / 590 ms** |
+| Baseline, 100,000 sessions, cold | 30 | 552 / 637 ms | Unmeasured; earlier marker ambiguous |
+| Baseline, 100,000 sessions, warm | 30 | 429 / 532 ms | Unmeasured; earlier marker ambiguous |
+| Current APK, 100,000 sessions, cold | 30 | 529 / 646 ms | **597 / 689 ms** |
+| Current APK, 100,000 sessions, warm | 30 | 444 / 547 ms | **493 / 629 ms** |
 
 The first-install baseline initial display was **700 ms**, kept separately from
 the repeated samples. First-install usable latency remains unmeasured. Every
@@ -172,9 +187,24 @@ must not be described as a demonstrated latency improvement. Raw records:
 `baseline/launch-empty-complete.json`, `baseline/first-install-launch.json` and
 `final/launch-empty.json`.
 
+The large fixture is exactly 100,000 equal-timestamp synthetic focus sessions,
+created through the repository by a separate guarded lab target. Its aggregate
+count and bounded 50-row page were verified in the phone UI. A quiescent snapshot
+has schema v3, zero tasks, `quick_check=ok`, a 23,711,744-byte main database
+(SHA-256 `865faa90b90bc9600ef57ec3afb28dc555e3e7646dcdff8d34b1ba87b3507a06`)
+and a zero-byte rollback-journal companion. Host SQLite 3.40.1 inspected that
+snapshot; it is not asserted to be Android's SQLite version. No WAL/SHM existed
+in that snapshot, so actual exclusion of newly created nonempty WAL/SHM remains
+unverified. The debug lab target was replaced by the relevant optimized APK
+before every measured run. No lab timing or debug size is release evidence.
+Baseline and current large-fixture raw samples are retained in their respective
+`launch-100000.json` files, bound to APK hashes. The current 597 ms cold usable
+median passes the provisional target with this fixture as well. A small
+dependency count or near-equal medians alone does not prove future scaling.
+
 | Metric | Current result |
 | --- | --- |
-| Empty-history cold/warm launch | Measured above; 100,000-session fixture pending |
+| Empty and 100,000-session cold/warm launch | Measured above, 30 per condition |
 | First-install launch | Initial display measured above; usable latency unmeasured |
 | Frame p50/p95/p99 and missed deadlines | Unmeasured |
 | RSS / PSS / CPU by state | Unmeasured |

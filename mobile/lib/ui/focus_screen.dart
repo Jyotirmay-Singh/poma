@@ -20,7 +20,6 @@ class FocusScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final timer = controller.timer;
-    final revision = timer.revision;
     final colors = Theme.of(context).colorScheme;
     final copy = context.copy;
     final accent = timer.phase == FocusPhase.focus
@@ -36,54 +35,6 @@ class FocusScreen extends StatelessWidget {
       controller: controller,
       children: [
         ScreenHeading(title: copy.focus),
-        if (MediaQuery.textScalerOf(context).scale(1) > 1.3)
-          InputDecorator(
-            decoration: InputDecoration(labelText: copy.timerPhase),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<FocusPhase>(
-                value: timer.phase,
-                isExpanded: true,
-                items: [
-                  for (final phase in FocusPhase.values)
-                    DropdownMenuItem(
-                      value: phase,
-                      child: Text(phaseName(copy, phase)),
-                    ),
-                ],
-                onChanged: timer.controlsLocked
-                    ? null
-                    : (phase) {
-                        if (phase != null) {
-                          controller.selectPhase(
-                            phase,
-                            expectedRevision: revision,
-                          );
-                        }
-                      },
-              ),
-            ),
-          )
-        else
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final phase in FocusPhase.values)
-                ChoiceChip(
-                  label: Text(phaseName(copy, phase)),
-                  selected: timer.phase == phase,
-                  showCheckmark: false,
-                  onSelected: timer.controlsLocked
-                      ? null
-                      : (_) => controller.selectPhase(
-                          phase,
-                          expectedRevision: revision,
-                        ),
-                ),
-            ],
-          ),
-        const SizedBox(height: 18),
         Center(
           child: TimerDial(timer: timer, color: accent),
         ),
