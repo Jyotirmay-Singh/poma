@@ -69,7 +69,9 @@ or public download was published.
 
 ## Candidate-specific standalone phone run â€” not yet observed
 
-No phone was attached at the initial installation check. No installation,
+The owner confirmed on 22 October 2026: **the Android phone is unavailable**.
+Physical Android acceptance is blocked by device availability. No phone was
+attached at the connection checks. No installation,
 launch, alert, screenshot, startup, energy or transfer result for build 2007
 is inferred from build 2006 or from compilation.
 
