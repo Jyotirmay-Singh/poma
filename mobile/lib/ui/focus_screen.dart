@@ -4,6 +4,8 @@ import '../application/local_alerts.dart';
 import '../domain/models.dart';
 import 'app_shell.dart';
 import 'copy.dart';
+import 'desktop_scope.dart';
+import 'calendar_screen.dart';
 import 'theme.dart';
 import 'timer_dial.dart';
 
@@ -31,134 +33,190 @@ class FocusScreen extends StatelessWidget {
     final activeFocus =
         timer.phase == FocusPhase.focus && timer.status != RunStatus.ready;
     final completion = controller.lastPhaseCompletion;
+    final timerWidgets = <Widget>[
+      Center(
+        child: TimerDial(timer: timer, color: accent),
+      ),
+      const SizedBox(height: 10),
+      Text(
+        copy.roundsComplete(timer.displayedRounds, controller.settings.rounds),
+        textAlign: TextAlign.center,
+        style: TextStyle(color: colors.onSurfaceVariant),
+      ),
+      const SizedBox(height: 24),
+      if (completion != null)
+        Semantics(
+          key: ValueKey('completion-${completion.runId}'),
+          liveRegion: announceCompletion,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Text(
+              completion.phase == FocusPhase.focus
+                  ? copy.focusComplete
+                  : copy.breakComplete,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      _TimerControls(controller: controller, accent: accent),
+      const SizedBox(height: 12),
+      Text(
+        timer.controlsLocked
+            ? copy.strictHint
+            : timer.canFinishEarly
+            ? copy.earlyFinishHint
+            : timer.status == RunStatus.paused
+            ? copy.pausedHint
+            : timer.status == RunStatus.running
+            ? copy.runningHint
+            : copy.readyHint,
+        textAlign: TextAlign.center,
+        style: TextStyle(color: colors.onSurfaceVariant),
+      ),
+      const SizedBox(height: 24),
+    ];
+    final details = <Widget>[
+      if (activeFocus) ...[
+        Text(copy.currentFocus, style: Theme.of(context).textTheme.titleSmall),
+        const SizedBox(height: 6),
+        Text(controller.activeTaskTitle ?? copy.unassignedFocus),
+        const SizedBox(height: 16),
+      ],
+      Semantics(
+        container: true,
+        button: true,
+        child: Material(
+          color: colors.primary.withValues(alpha: .06),
+          borderRadius: BorderRadius.circular(14),
+          child: InkWell(
+            onTap: onTasks,
+            borderRadius: BorderRadius.circular(14),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          controller.selectedTask == null
+                              ? copy.chooseTask
+                              : copy.nextFocus,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(controller.selectedTask?.title ?? copy.noTask),
+                      ],
+                    ),
+                  ),
+                  const ExcludeSemantics(child: Icon(Icons.chevron_right)),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      if (DesktopScope.maybeOf(context) != null &&
+          controller.selectedTask != null)
+        Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: OutlinedButton.icon(
+            icon: const Icon(Icons.event_available),
+            label: const Text('Schedule focus block'),
+            onPressed: () => showFocusBlockDialog(
+              context,
+              DesktopScope.maybeOf(context)!,
+              taskTitle: controller.selectedTask!.title,
+              taskId: controller.selectedTask!.id,
+            ),
+          ),
+        ),
+      const SizedBox(height: 20),
+      if (controller.alertAvailability != null) ...[
+        Text(
+          alertStatus(copy, controller),
+          style: TextStyle(color: colors.onSurfaceVariant),
+        ),
+        if (!controller.needsAlertPermission &&
+            controller.alertAvailability == AlertAvailability.denied)
+          TextButton(
+            onPressed: controller.openNotificationSettings,
+            child: Text(notificationSettingsLabel(context)),
+          ),
+        if (controller.alertAvailability == AlertAvailability.failed ||
+            controller.alertAvailability == AlertAvailability.unavailable)
+          TextButton(
+            onPressed: () => controller.reconcile(forceAlerts: true),
+            child: Text(copy.retryAlerts),
+          ),
+        const SizedBox(height: 12),
+      ],
+      const Divider(),
+      Semantics(
+        header: true,
+        child: Text(copy.today, style: Theme.of(context).textTheme.titleSmall),
+      ),
+      const SizedBox(height: 8),
+      Text(
+        (controller.summaryError != null ? copy.totalsReadError : null) ??
+            (today == null
+                ? copy.loadingTotals
+                : copy.todayTotals(today.count, today.focusSeconds ~/ 60)),
+      ),
+      if (controller.summaryError != null)
+        TextButton(
+          onPressed: controller.loadSummaries,
+          child: Text(copy.retryTotals),
+        ),
+    ];
+    if (DesktopScope.maybeOf(context) == null) {
+      // Keep mobile sliver children separate: grouping this entire screen into
+      // a single Column merges the timer's screen-reader status with its hints.
+      return PomaPage(
+        controller: controller,
+        children: [
+          ScreenHeading(title: copy.focus),
+          ...timerWidgets,
+          ...details,
+        ],
+      );
+    }
     return PomaPage(
       controller: controller,
       children: [
         ScreenHeading(title: copy.focus),
-        Center(
-          child: TimerDial(timer: timer, color: accent),
-        ),
-        const SizedBox(height: 10),
-        Text(
-          copy.roundsComplete(
-            timer.displayedRounds,
-            controller.settings.rounds,
-          ),
-          textAlign: TextAlign.center,
-          style: TextStyle(color: colors.onSurfaceVariant),
-        ),
-        const SizedBox(height: 24),
-        if (completion != null)
-          Semantics(
-            key: ValueKey('completion-${completion.runId}'),
-            liveRegion: announceCompletion,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Text(
-                completion.phase == FocusPhase.focus
-                    ? copy.focusComplete
-                    : copy.breakComplete,
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        _TimerControls(controller: controller, accent: accent),
-        const SizedBox(height: 12),
-        Text(
-          timer.controlsLocked
-              ? copy.strictHint
-              : timer.status == RunStatus.paused
-              ? copy.pausedHint
-              : timer.status == RunStatus.running
-              ? copy.runningHint
-              : copy.readyHint,
-          textAlign: TextAlign.center,
-          style: TextStyle(color: colors.onSurfaceVariant),
-        ),
-        const SizedBox(height: 24),
-        if (activeFocus) ...[
-          Text(
-            copy.currentFocus,
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-          const SizedBox(height: 6),
-          Text(controller.activeTaskTitle ?? copy.unassignedFocus),
-          const SizedBox(height: 16),
-        ],
-        Semantics(
-          button: true,
-          child: Material(
-            color: colors.primary.withValues(alpha: .06),
-            borderRadius: BorderRadius.circular(14),
-            child: InkWell(
-              onTap: onTasks,
-              borderRadius: BorderRadius.circular(14),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            controller.selectedTask == null
-                                ? copy.chooseTask
-                                : copy.nextFocus,
-                            style: Theme.of(context).textTheme.titleSmall,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(controller.selectedTask?.title ?? copy.noTask),
-                        ],
-                      ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            if (DesktopScope.maybeOf(context) != null &&
+                constraints.maxWidth >= 900 &&
+                MediaQuery.textScalerOf(context).scale(1) <= 1.4) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: timerWidgets,
                     ),
-                    const ExcludeSemantics(child: Icon(Icons.chevron_right)),
-                  ],
-                ),
-              ),
-            ),
-          ),
+                  ),
+                  const SizedBox(width: 40),
+                  SizedBox(
+                    width: 300,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: details,
+                    ),
+                  ),
+                ],
+              );
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [...timerWidgets, ...details],
+            );
+          },
         ),
-        const SizedBox(height: 20),
-        if (controller.alertAvailability != null) ...[
-          Text(
-            alertStatus(copy, controller),
-            style: TextStyle(color: colors.onSurfaceVariant),
-          ),
-          if (!controller.needsAlertPermission &&
-              controller.alertAvailability == AlertAvailability.denied)
-            TextButton(
-              onPressed: controller.openNotificationSettings,
-              child: Text(copy.phoneSettings),
-            ),
-          if (controller.alertAvailability == AlertAvailability.failed ||
-              controller.alertAvailability == AlertAvailability.unavailable)
-            TextButton(
-              onPressed: () => controller.reconcile(forceAlerts: true),
-              child: Text(copy.retryAlerts),
-            ),
-          const SizedBox(height: 12),
-        ],
-        const Divider(),
-        Semantics(
-          header: true,
-          child: Text(
-            copy.today,
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          (controller.summaryError != null ? copy.totalsReadError : null) ??
-              (today == null
-                  ? copy.loadingTotals
-                  : copy.todayTotals(today.count, today.focusSeconds ~/ 60)),
-        ),
-        if (controller.summaryError != null)
-          TextButton(
-            onPressed: controller.loadSummaries,
-            child: Text(copy.retryTotals),
-          ),
       ],
     );
   }
@@ -173,6 +231,8 @@ class _TimerControls extends StatelessWidget {
     final timer = controller.timer;
     final revision = timer.revision;
     final displayedStatus = timer.status;
+    final runId = timer.runId;
+    final desktop = DesktopScope.maybeOf(context);
     final copy = context.copy;
     final primary = FilledButton.icon(
       key: const Key('timer-toggle'),
@@ -183,6 +243,18 @@ class _TimerControls extends StatelessWidget {
       onPressed: timer.controlsLocked
           ? null
           : () async {
+              if (desktop != null) {
+                await desktop.requestTimerAction(
+                  action: switch (displayedStatus) {
+                    RunStatus.ready => 'start',
+                    RunStatus.running => 'pause',
+                    RunStatus.paused => 'resume',
+                  },
+                  revision: revision,
+                  runId: runId,
+                );
+                return;
+              }
               if (displayedStatus == RunStatus.ready &&
                   controller.needsAlertPermission) {
                 final enable = await showDialog<bool>(
@@ -190,7 +262,11 @@ class _TimerControls extends StatelessWidget {
                   builder: (context) => AlertDialog(
                     scrollable: true,
                     title: Text(copy.alertPromptTitle),
-                    content: Text(copy.alertPromptHelp),
+                    content: Text(
+                      controller.residentNotifications
+                          ? copy.windowsAlertsHelp
+                          : copy.alertPromptHelp,
+                    ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context, false),
@@ -232,7 +308,13 @@ class _TimerControls extends StatelessWidget {
       tooltip: copy.resetTimer,
       onPressed: timer.controlsLocked
           ? null
-          : () => controller.resetTimer(expectedRevision: revision),
+          : () => desktop != null
+                ? desktop.requestTimerAction(
+                    action: 'reset',
+                    revision: revision,
+                    runId: runId,
+                  )
+                : controller.resetTimer(expectedRevision: revision),
       icon: const Icon(Icons.replay),
       constraints: const BoxConstraints(minWidth: 56, minHeight: 56),
     );
@@ -240,7 +322,13 @@ class _TimerControls extends StatelessWidget {
       tooltip: copy.skipPhase,
       onPressed: timer.controlsLocked
           ? null
-          : () => controller.skipTimer(expectedRevision: revision),
+          : () => desktop != null
+                ? desktop.requestTimerAction(
+                    action: 'skip',
+                    revision: revision,
+                    runId: runId,
+                  )
+                : controller.skipTimer(expectedRevision: revision),
       icon: const Icon(Icons.skip_next),
       constraints: const BoxConstraints(minWidth: 56, minHeight: 56),
     );

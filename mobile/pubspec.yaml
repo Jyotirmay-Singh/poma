@@ -1,5 +1,5 @@
 name: poma
-description: "Poma, an offline Pomodoro companion for Android and iOS."
+description: "Poma, an offline Pomodoro companion with optional Windows Calendar viewing and explicit focus scheduling."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -33,11 +33,17 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: 0.20.2
+  oauth2: 2.0.5
+  http: 1.6.0
+  crypto: 3.0.7
+  timezone: 0.11.2
 
   # SQLite persistence and portable database paths.
   sqflite: ^2.4.4+2
   path: ^1.9.1
   flutter_local_notifications: 22.3.2
+  sqflite_common_ffi: 2.4.4
+  kalender: 0.33.0
 
 dev_dependencies:
   flutter_test:
@@ -51,7 +57,6 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
-  sqflite_common_ffi: ^2.4.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -69,6 +74,8 @@ flutter:
     - assets/licenses/android-native.txt
     - assets/legal/privacy.txt
     - assets/legal/notices.txt
+    - assets/legal/privacy-windows.txt
+    - assets/licenses/windows-native.txt
 
   # To add assets to your application, add an assets section, like this:
   # assets:

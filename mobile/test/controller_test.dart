@@ -7,6 +7,95 @@ import 'support.dart';
 
 void main() {
   test(
+    'queued early Skip actions save one completion and leave the break ready',
+    () async {
+      final clock = FakeClock();
+      final repo = MemoryRepository();
+      final app = await AppController.create(repo, clock: clock);
+      addTearDown(app.dispose);
+      final id = (await app.toggleTimer()).snapshot.runId!;
+      clock.advance(const Duration(minutes: 21));
+      final first = app.skipTimer(expectedRunId: id);
+      final duplicate = app.skipTimer(expectedRunId: id);
+      expect((await first).transition.completedEarly, isTrue);
+      expect((await duplicate).transition.outcome, TimerCommandOutcome.stale);
+      expect(app.sessions.single.id, id);
+      expect(app.sessions.single.focusSeconds, 1260);
+      expect(app.lastPhaseCompletion!.runId, id);
+      expect(app.lastPhaseCompletion!.phase, FocusPhase.focus);
+      expect(repo.state.sessions.single.id, id);
+      expect(repo.state.timer!.phase, FocusPhase.shortBreak);
+      expect(repo.state.timer!.status, RunStatus.ready);
+      expect(repo.state.timer!.completedRounds, 1);
+      expect(repo.state.timer!.runId, isNull);
+      clock.advance(const Duration(hours: 1));
+      await app.reconcile();
+      expect(repo.state.sessions, hasLength(1));
+      expect(app.timer.phase, FocusPhase.shortBreak);
+    },
+  );
+
+  test(
+    'failed early completion retries the same history and progress atomically',
+    () async {
+      final clock = FakeClock();
+      final repo = MemoryRepository();
+      final app = await AppController.create(repo, clock: clock);
+      final id = (await app.toggleTimer()).snapshot.runId!;
+      repo.failWrites = true;
+      clock.advance(const Duration(minutes: 21, milliseconds: 750));
+      final result = await app.skipTimer();
+      expect(result.transition.completedEarly, isTrue);
+      expect(result.persistence, PersistenceOutcome.failed);
+      expect(app.sessions.single.id, id);
+      expect(app.sessions.single.focusSeconds, 1260);
+      expect(repo.state.sessions, isEmpty);
+      expect(repo.state.timer!.runId, id);
+      expect(repo.state.timer!.completedRounds, 0);
+      repo.failWrites = false;
+      await app.retrySave();
+      await app.flush();
+      app.dispose();
+      clock.advance(const Duration(hours: 1));
+      final restored = await AppController.create(repo, clock: clock);
+      addTearDown(restored.dispose);
+      expect(restored.sessions.single.id, id);
+      expect(restored.sessions.single.focusSeconds, 1260);
+      expect(
+        restored.sessions.single.endedAt,
+        result.transition.completion!.endedAt,
+      );
+      expect(restored.timer.completedRounds, 1);
+      expect(restored.timer.phase, FocusPhase.shortBreak);
+      expect(restored.timer.status, RunStatus.ready);
+      expect(restored.lastPhaseCompletion, isNull);
+    },
+  );
+
+  test(
+    'restoring with under five minutes left waits for an explicit Skip',
+    () async {
+      final clock = FakeClock();
+      final repo = MemoryRepository();
+      final first = await AppController.create(repo, clock: clock);
+      final id = (await first.toggleTimer()).snapshot.runId;
+      await first.flush();
+      first.dispose();
+      clock.advance(const Duration(minutes: 21));
+      final restored = await AppController.create(repo, clock: clock);
+      addTearDown(restored.dispose);
+      expect(restored.timer.canFinishEarly, isTrue);
+      expect(restored.timer.status, RunStatus.running);
+      expect(restored.sessions, isEmpty);
+      expect(repo.state.sessions, isEmpty);
+      await restored.skipTimer();
+      expect(repo.state.sessions.single.id, id);
+      expect(repo.state.sessions.single.focusSeconds, 1260);
+      expect(repo.state.timer!.completedRounds, 1);
+    },
+  );
+
+  test(
     'unchanged reconciliation reports an outstanding failed save honestly',
     () async {
       final repo = MemoryRepository()..failWrites = true;

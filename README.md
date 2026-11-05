@@ -1,6 +1,59 @@
 # Poma
 
-An offline Pomodoro app for **Android and iOS**, built with Flutter and SQLite.
+## Windows explicit focus scheduling — private Session 12
+
+The Windows Calendar page separates optional Google viewing from focus scheduling.
+Read connection requests the two existing read scopes. Scheduling additionally
+requests `calendar.app.created`, then requires dedicated-calendar setup and a
+final title/time/Busy-Free preview. It supports only verified Poma-owned one-off
+blocks, including explicit edits and deletion. Drafts and uncertain operations
+never replay automatically; task notes and focus history are never uploaded.
+See [Session 12 implementation and acceptance](docs/WINDOWS_CALENDAR_SESSION12.md).
+The 2020 pilot and its recorded results remain historical. The new candidate is
+private; live/installed results apply only when separately recorded.
+Final Session 12 kit: [1.0.0.2022 private pilot](artifacts/windows/Poma-1.0.0.2022-session12-pilot-private-pilot-kit.zip).
+414 Flutter tests, 233 native checks, one Windows production integration and
+static package verification passed. Live Google acceptance remains owner-assisted.
+
+
+An offline Pomodoro app for **Android, iOS, and Windows**, built with Flutter and SQLite.
+
+**Windows Calendar Session 9:** resilience/privacy verification and the packaging
+handoff are recorded in [calendar acceptance](docs/WINDOWS_CALENDAR_ACCEPTANCE.md).
+Automated synthetic checks and isolated resource/deadline observations are
+separate from pending live Google and installed-owner checks. The new verification
+build is unsigned; Session 10 retains signing/trust, installation, upgrade and
+private-pilot validation.
+
+**Windows Schedule:** the main Calendar page provides a read-only Schedule:
+a rolling seven-day timeline on wide windows, a Day view and a chronological
+agenda for narrower windows or enlarged text. Viewing shares the tray's selected
+calendars and cache; focus scheduling remains a separate reviewed workflow.
+See [Schedule behavior and verification](docs/CALENDAR_SCHEDULE.md).
+The calendar grid is visible before setup, with unloaded dates clearly marked;
+selecting calendars fills it with your Google events.
+
+**Windows Calendar Session 8:** opt-in resident meeting reminders (initially off,
+generic text, explicit per-calendar inclusion and selectable lead time) and
+Continue/Cancel focus-overlap warnings are implemented. Timer and meeting alerts
+have independent cancellation and action identities. Missed meeting reminders are
+skipped after sleep/restart. Notifications require an installed MSIX, a running
+Poma process and Windows policy allowance; no sleeping or exited delivery is
+promised. Optional direct Google authorization, explicit
+calendar selection, fully paginated read-only snapshots and a separate bounded
+local cache are implemented in source. The native tray consumes the real read
+model for Now/Next, seven-date browsing, freshness/recovery and explicit validated
+Open event/Open Calendar/Join actions. Fictional preview is under Calendar settings on Windows.
+Google setup/live consent and real-event comparison remain owner prerequisites;
+see [setup](docs/GOOGLE_CALENDAR_SETUP.md) and [calendar progress](docs/WINDOWS_CALENDAR_PROGRESS.md).
+
+**Windows desktop candidate 1.0.0.2009:** a Windows runner, single-instance tray
+and popup, local SQLite, sleep-inclusive clock, resident expiry and native toasts
+are implemented. The private MSIX includes its offline runtimes. Certificate
+trust, installed-package acceptance, sleep/hibernate and clean-profile checks are
+separate owner gates. See [Windows release instructions](docs/WINDOWS_DESKTOP_RELEASE.md),
+[acceptance](docs/WINDOWS_DESKTOP_ACCEPTANCE.md) and [progress](docs/WINDOWS_DESKTOP_PROGRESS.md).
+The mobile release record below retains its original scope.
 
 **Release candidate 1.0.0+2007:** owner IDs, private Android upload signing,
 original native icon/splash and offline legal/support screens are built. Android
@@ -26,14 +79,14 @@ There is no automatic data recovery after uninstalling Poma or losing the phone.
 - Indexed focus history with 50-session Newer/Older pages, daily totals, and a seven-day view.
 - Incremental transactional SQLite persistence, v1/v2 migrations, duplicate completion protection, visible save failures, and retry.
 - Confirmed session/history deletion and full local data reset, with interrupted alert cleanup recovery.
-- Native OS-scheduled completion alerts, permission/settings controls, cancellation, and Open timer / Dismiss actions. Android offers an inexact fallback when precise alarms are unavailable.
+- Native completion alerts, permission/settings controls, cancellation, and Open timer / Dismiss actions. Mobile uses OS scheduling; Windows requires a resident process and installed MSIX identity for toasts. Android offers an inexact fallback when precise alarms are unavailable.
 - System, light, and dark appearances; screen-reader labels and layouts that accommodate large text.
 - Phase-specific start actions and inline completion feedback; current and next task labels, accessible daily totals, and permission-specific alert recovery.
 - English localization resources and offline calendar formatting using the device locale and time preference.
 
 A fresh cycle starts in Focus. Completing a focus round displays Short break; completing that break returns to Focus. The configured final focus round displays Long break directly. Finishing Long break resets cycle progress and returns to Focus. Each next phase appears ready and starts when you press its Start button. The Focus tab has no mode selector; durations and rounds are configured in Settings. Returning to the tab or reopening Poma restores the saved phase and progress.
 
-Leaving the app can complete **one existing session**; it never manufactures a chain of unattended focus sessions. A skipped or reset session does not count. A task is attached when a focus session starts, and its original title stays in history after a rename or deletion.
+Leaving the app can complete **one existing session**; it never manufactures a chain of unattended focus sessions. Skip counts a started focus session as complete when its original duration exceeds five minutes and fewer than five minutes remain, including while paused. Exactly five minutes remaining is ineligible. Sessions set to five minutes or less must reach zero, and strict mode still locks Skip while running. Pause, Reset, and changing modes do not earn early completion. A qualifying Skip earns one round toward the long break and records only time actually focused, excluding pauses; the next break waits for Start. A task is attached when a focus session starts, and its original title stays in history after a rename or deletion.
 
 History stays on the phone until explicitly deleted. Settings provides clear-history and full-reset controls; full reset abandons even a strict running phase. After a write failure, further edits can remain in memory with an unsaved warning: they may be lost if the app closes. An unreadable database is never silently deleted or replaced. Export/import is deferred and does not block the core offline release. See [local data, retention and recovery](docs/LOCAL_DATA.md).
 
@@ -80,7 +133,11 @@ Build outputs, signing keys, SDK configuration, and local development notes are 
 
 `mobile/lib/domain/` owns the timer and immutable records. `application/` owns the persistence contract and coordinates actions, lifecycle, and serialized saves. `data/` implements SQLite and the local storage policy. `ui/` contains the four screens. The domain has no Flutter imports; the application does not import the data implementation. The entry point wires the layers together.
 
-The app has no backend or network dependency. [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) describes the clock, persistence, resource policy, and data decisions. Accounts, cloud storage, and syncing are outside the product scope.
+Core timers, tasks and history have no backend or network dependency. The optional
+Windows Google connection makes direct HTTPS authorization, token, primary-calendar
+identity and revocation requests. Android/iOS remain offline; phone syncing and
+event writes are outside this session. [Architecture](docs/ARCHITECTURE.md) describes
+the separate state owners and platform boundaries.
 
 ## Starter boundaries
 

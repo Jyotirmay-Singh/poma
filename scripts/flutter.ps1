@@ -21,6 +21,10 @@ $previousTmp = $env:TMP
 $previousJavaOptions = $env:JAVA_TOOL_OPTIONS
 $previousFlutterRoot = $env:FLUTTER_ROOT
 try {
+  if (($FlutterArguments -contains 'windows') -and
+      (Test-Path -LiteralPath (Join-Path $projectRoot 'mobile/.flutter-plugins-dependencies'))) {
+    & (Join-Path $PSScriptRoot 'prepare_windows_links.ps1')
+  }
   # Short socket paths avoid Java NIO failures in Windows sandbox profiles.
   $shortTemp = Join-Path $projectRoot '.tools/tmp'
   New-Item -ItemType Directory -Path $shortTemp -Force | Out-Null

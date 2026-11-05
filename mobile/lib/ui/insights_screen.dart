@@ -3,6 +3,7 @@ import '../application/app_controller.dart';
 import '../application/local_repository.dart';
 import 'app_shell.dart';
 import 'copy.dart';
+import 'desktop_scope.dart';
 
 class InsightsScreen extends StatelessWidget {
   const InsightsScreen({required this.controller, super.key});
@@ -10,6 +11,7 @@ class InsightsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final copy = context.copy;
+    final desktop = DesktopScope.maybeOf(context) != null;
     final now = controller.localNow;
     final days = List.generate(
       7,
@@ -39,7 +41,10 @@ class InsightsScreen extends StatelessWidget {
     return PomaPage(
       controller: controller,
       children: [
-        ScreenHeading(title: copy.insights, subtitle: copy.weekHelp),
+        ScreenHeading(
+          title: desktop ? copy.desktopHistory : copy.insights,
+          subtitle: desktop ? copy.windowsWeekHelp : copy.weekHelp,
+        ),
         Text(
           complete
               ? copy.minutes(
@@ -177,51 +182,123 @@ class InsightsScreen extends StatelessWidget {
               style: TextStyle(color: colors.onSurfaceVariant, height: 1.6),
             ),
           ),
-        for (final session in controller.sessions)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  session.taskTitle ?? copy.focusSession,
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  copy.sessionDate(
-                    DeviceFormats.date(context, session.endedAt.toLocal()),
-                    DeviceFormats.time(context, session.endedAt.toLocal()),
-                  ),
-                ),
-                Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 12,
-                  children: [
-                    Text(copy.minutes(session.focusSeconds ~/ 60)),
-                    IconButton(
-                      key: ValueKey('delete-session-${session.id}'),
-                      tooltip: copy.deleteNamedSession(
-                        session.taskTitle ?? copy.focusSession,
-                        DeviceFormats.date(context, session.endedAt.toLocal()),
+        if (DesktopScope.maybeOf(context) != null &&
+            MediaQuery.sizeOf(context).width >= 1280 &&
+            MediaQuery.textScalerOf(context).scale(1) <= 1.3)
+          DataTable(
+            key: const Key('desktop-history-table'),
+            columnSpacing: 24,
+            horizontalMargin: 8,
+            dataRowMaxHeight: double.infinity,
+            columns: [
+              DataColumn(label: Text(copy.taskName)),
+              DataColumn(label: Text(copy.completed)),
+              DataColumn(label: Text(copy.historyDuration)),
+              DataColumn(label: Text(copy.delete)),
+            ],
+            rows: [
+              for (final session in controller.sessions)
+                DataRow(
+                  cells: [
+                    DataCell(
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 280),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Text(session.taskTitle ?? copy.focusSession),
+                        ),
                       ),
-                      icon: const Icon(Icons.delete_outline),
-                      onPressed: () async {
-                        if (await confirmDeletion(
-                              context,
-                              title: copy.deleteSessionTitle,
-                              message: copy.deleteSessionHelp,
-                            ) &&
-                            context.mounted) {
-                          await controller.deleteHistory(id: session.id);
-                        }
-                      },
+                    ),
+                    DataCell(
+                      Text(
+                        copy.sessionDate(
+                          DeviceFormats.date(
+                            context,
+                            session.endedAt.toLocal(),
+                          ),
+                          DeviceFormats.time(
+                            context,
+                            session.endedAt.toLocal(),
+                          ),
+                        ),
+                      ),
+                    ),
+                    DataCell(Text(copy.minutes(session.focusSeconds ~/ 60))),
+                    DataCell(
+                      IconButton(
+                        tooltip: copy.deleteNamedSession(
+                          session.taskTitle ?? copy.focusSession,
+                          DeviceFormats.date(
+                            context,
+                            session.endedAt.toLocal(),
+                          ),
+                        ),
+                        icon: const Icon(Icons.delete_outline),
+                        onPressed: () async {
+                          if (await confirmDeletion(
+                                context,
+                                title: copy.deleteSessionTitle,
+                                message: copy.deleteSessionHelp,
+                              ) &&
+                              context.mounted) {
+                            await controller.deleteHistory(id: session.id);
+                          }
+                        },
+                      ),
                     ),
                   ],
                 ),
-              ],
+            ],
+          )
+        else
+          for (final session in controller.sessions)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    session.taskTitle ?? copy.focusSession,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    copy.sessionDate(
+                      DeviceFormats.date(context, session.endedAt.toLocal()),
+                      DeviceFormats.time(context, session.endedAt.toLocal()),
+                    ),
+                  ),
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 12,
+                    children: [
+                      Text(copy.minutes(session.focusSeconds ~/ 60)),
+                      IconButton(
+                        key: ValueKey('delete-session-${session.id}'),
+                        tooltip: copy.deleteNamedSession(
+                          session.taskTitle ?? copy.focusSession,
+                          DeviceFormats.date(
+                            context,
+                            session.endedAt.toLocal(),
+                          ),
+                        ),
+                        icon: const Icon(Icons.delete_outline),
+                        onPressed: () async {
+                          if (await confirmDeletion(
+                                context,
+                                title: copy.deleteSessionTitle,
+                                message: copy.deleteSessionHelp,
+                              ) &&
+                              context.mounted) {
+                            await controller.deleteHistory(id: session.id);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
         Wrap(
           spacing: 12,
           children: [
@@ -259,8 +336,11 @@ class InsightsScreen extends StatelessWidget {
             ),
           ],
         ),
-        Text(copy.historyRetention),
-        if (controller.deletionError != null) Text(copy.deletionSaveError),
+        Text(desktop ? copy.windowsHistoryRetention : copy.historyRetention),
+        if (controller.deletionError != null)
+          Text(
+            desktop ? copy.windowsDeletionSaveError : copy.deletionSaveError,
+          ),
       ],
     );
   }

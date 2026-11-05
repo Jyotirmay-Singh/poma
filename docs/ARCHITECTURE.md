@@ -1,10 +1,203 @@
 # Architecture decisions
 
+## Main-window calendar schedule
+
+The Windows Calendar page has explicit Schedule, Focus blocks and Calendar
+settings destinations. Schedule presents the existing reader's retained Google
+snapshots without owning credentials, persistence or timer state. Its event
+adapter preserves source/instance identity, UTC timing and date-only exclusive
+ends. The rolling timeline starts at the reader's first date; Day navigation
+stays inside its seven-date window. Compact layouts use Day; enlarged text
+defaults to an agenda. The calendar frame and view controls remain visible
+before selection, with unloaded dates explicitly marked as availability unknown.
+
+View, header, body and event interaction settings disable direct creation,
+rescheduling and resizing. Reviewed focus-block operations retain the independent
+write workflow. Both calendar presentations share freshness, regional formatting
+and validated browser actions. Lock, account/scope invalidation and deselection
+clear tiles and open details. See [Schedule behavior](CALENDAR_SCHEDULE.md).
+
+## Windows focus scheduling — Session 12
+
+`CalendarWriteCapability` is independent of the read connection. A separate
+Desktop authorization adapter stages the exact three-scope grant, verifies the
+same client/account and refresh lineage, then atomically promotes a DPAPI record.
+Native protected commit revisions reject competing stale credential saves without
+rebinding the agenda cache. Old records grant no inferred scheduling capability.
+`FocusBlockController` owns a separate serialized journal lane, with immutable
+confirmed operations, per-block exclusion and independent native generation/CAS
+leases. It never enters the timer command queue or adds a Pomodoro database owner.
+The checked Google adapter freshly verifies calendar eligibility/provenance and
+event ownership, uses deterministic IDs and ETags, and exposes no general editor.
+Native timezone rules resolve local endpoints and reject gaps/folds. Lock, suspend,
+Quit and connection changes close outgoing work; read-only reconciliation cannot
+cause a mutation. See [the implementation record](WINDOWS_CALENDAR_SESSION12.md).
+
+## Windows desktop extension
+
+Session 9 acceptance is recorded separately in
+[Windows Calendar acceptance](WINDOWS_CALENDAR_ACCEPTANCE.md). Automated fixtures,
+isolated developer runtime observations and installed owner observations have
+different evidence scopes. Core restoration completes before calendar credential
+restoration is started without awaiting it; calendar HTTP and cache work never
+join the timer command queue. Disconnect/reset invalidate application generations
+and native storage leases before asynchronous cleanup; failures remain retryable.
+
+Calendar Session 8 adds `CalendarReminderController` with independent injectable
+calendar reminder store/platform ports and no timer-domain effects. Native WinRT
+toasts share package identity/COM transport but have separate groups, tokens,
+response queues and cancellation. The existing timer delivery receipt and atomic
+completion/successor/outbox protocol remain authoritative. A reminder document
+uses the reader's current cache capability and the native account-store mutex;
+it never rebinds the reader or writes `poma.db`.
+
+The desktop Start coordinator is shared by Flutter, popup and tray controls.
+It carries rendered revision/run/action, reconciles before controls, and places
+permission/conflict dialogs outside serialized command queues. A full-duration
+overlap warning is checked again after confirmation; lock or changed timer state
+cancels Start, and changed conflicts require a fresh confirmation. Calendar
+outages retain offline timer use. No task conversion or history mutation occurs.
+
+The Windows candidate targets Windows 11 25H2 x64 and retains Flutter 3.44.2 /
+Dart 3.12.2. `main.dart` selects `NativeWindowsHost`, `WindowsLocalAlerts` and
+the production FFI database factory only for Windows. Mobile factory, storage
+preparation, native scheduling and lifecycle behavior retain their existing
+platform guards. The sections below describe mobile choices unless stated otherwise.
+
+One Flutter engine and `AppController` own Pomodoro state. `DesktopController` projects
+display snapshots to a native Win32 tray/popup and routes revision/run checked
+commands back. Native code never writes SQLite or calculates authoritative
+remaining time. A per-user mutex, exclusive owner lock and SID-restricted local
+named pipe are acquired before Flutter/SQLite startup. Secondary launches and
+COM activation relays forward to that owner.
+
+`QueryInterruptTimePrecise` supplies sleep-inclusive microseconds. A non-waking
+one-shot native trigger requests reconciliation independently of display ticking
+and alert permission. Resume invalidates/re-arms relative timers using that clock;
+early callbacks are also re-armed. Cold-process recovery uses the existing bounded
+UTC fallback with no invented boot count.
+
+Optional completion presentation follows the successful controller commit.
+A unique delivery-attempt receipt precedes a toast. Failed saves retain the effect
+for in-process retry; reset invalidates it; cold recovery suppresses toast replay.
+Exactly-once history is required, but a crash between receipt and submission can
+lose a notification. Native opaque action files feed the existing receipt protocol.
+Open reveals Focus; neither Open nor Dismiss starts a successor.
+
+MSIX declares the full-trust application, COM activator and disabled StartupTask.
+App-owned C++/WinRT notifications avoid initializing the locked package's Windows
+registry-setting adapter. No service, wake task, scheduled future toast or external
+runtime is installed. Quit stops resident work, clears notifications and drains
+and closes storage. SQLite's native asset and licensed C++ runtimes are packaged.
+
+Popup `secondarySections` carries the read-only agenda display model. Calendar
+state/credentials/cache/reminder identities stay separate from Pomodoro records
+and authority. Historical candidate 2009 has no Google connection.
+Sessions 5–6 add independent authorization and selected-calendar snapshot
+controllers described below. Poma uses direct Google requests without an
+app-operated network service.
+
+See [Windows progress](WINDOWS_DESKTOP_PROGRESS.md),
+[release reproduction](WINDOWS_DESKTOP_RELEASE.md) and
+[observed versus pending acceptance](WINDOWS_DESKTOP_ACCEPTANCE.md).
+
 ## Scope and choice
+
+### Windows Calendar reading and presentation — Sessions 6–7
+
+`CalendarReadController` owns only calendar metadata, confirmed selection and
+normalized event snapshots. Provider, cache, clock and scheduler interfaces are
+injected at Windows composition after the core restoration barrier. Mobile
+factories, the pure timer domain and authoritative SQLite schema/writer remain
+unchanged. `CalendarAgendaController` derives the ordinary tray agenda from the
+reader and connection; `CalendarController` supplies only the explicit fictional
+Settings preview. Neither presentation controller owns timer state or persistence.
+
+Now uses inclusive start/exclusive end, ordered by end, start, ordinal calendar
+ID and stable instance identity. Next uses start, end and those identities.
+All-day exclusive dates remain separate. The native selector retains a date key
+while browsing and resets to Today on opening. Boundary jobs, minute age changes,
+midnight and regional/time-zone changes update presentation independently of timer
+ticks. Windows formats actual local times using its user short-time pattern.
+
+Rows carry multiple named actions with opaque tokens. Activation revalidates the
+current generation, account/scope, selected calendar, unchanged event and URL.
+Native launch independently checks generation, unlocked state and provider URL
+rules. Only a click opens the default browser; failed refreshes never launch it.
+Structured video links precede hangoutLink and literal location/description
+fallbacks. Raw location/description text is transient and never cached or rendered
+as HTML. Both Dart and native consume the same URL safety corpus. WTS redaction
+clears native rows, accessible names, preview contents and tooltip independently.
+
+The HTTP adapter uses fixed Google HTTPS endpoints, read scopes, explicit rolling
+bounds, server-expanded recurring instances and every continuation page. Calendar
+IDs remain provider identities, including across pages and equal display names.
+Only a saved explicit selection permits event requests. Seven device-local dates
+are retained; transport bounds also cover those dates in each calendar's zone so
+all-day entries at the edges are not lost. Timed instants remain UTC, all-day dates
+and exclusive ends remain date values. The already-locked `timezone` 0.11.2 is a
+direct dependency; no SDK/package version upgrade is introduced.
+
+All pages stage before a per-calendar replacement. Successful calendars commit
+independently; failure retains previous successful data/age/coverage. Empty
+coverage differs from a successfully fetched empty snapshot. Startup, midnight,
+resume and time-zone changes trim out-of-window entries even offline. An
+independent five-minute resident schedule and meaningful/manual triggers coalesce
+requests; minute age updates perform no storage/network work. A 401 permits one
+forced coalesced token refresh/replay. Permission 403 pauses affected automatic
+reads, while rate-limit 403/429 and transient errors use at most two retries,
+exponential jitter and Retry-After. No sync token is requested or retained.
+
+One versioned account document is stored under `calendar/accounts/<account-key>/`.
+Native cache workers share the credential store's mutex and revision gate;
+account/scope leases reject writes after account, selection, window or Quit
+invalidation. Atomic flushed temporary-file replacement commits selection and
+deselected-data removal together. Account documents/staging are capped at 16 MiB
+and response pages at 4 MiB; excess is an explicit failure, never a truncated
+successful snapshot. No timer command waits for calendar HTTP or cache workers.
+
+The verified client/primary-calendar identity survives transient token loss.
+Unusable grants are replaced by protected no-token identity metadata, allowing
+stale cache and same-account reconnect selection to survive; fresh Google account
+verification and a complete catalog pass precede reconnect event loading.
+Explicit disconnect/account replacement/reset still clear calendar-derived data.
+Details and picker controls are redacted when Windows lock state is unknown or
+locked. This Sessions 6–7 behavior added no event writes, reminders, imports or
+automatic browser actions; resident reminders are the separate Session 8 layer.
+
+### Windows Calendar authorization — Session 5
+
+`CalendarConnectionController` is independent of `AppController`'s timer command
+queue and database. Windows composition injects compile-time client settings,
+`DesktopGoogleAuthorization`, native browser launching and a protected credential
+port. Missing configuration opens no listener or network connection. Settings
+keeps actual Google status and the real agenda separate from the labelled
+fictional Settings preview.
+
+Pinned `oauth2` 2.0.5 implements code exchange/S256. Poma supplies secure random
+state/verifier values, a temporary IPv4 loopback listener, cancellation/deadlines,
+raw grant validation and sanitized errors. Only the two approved Calendar read
+scopes are requested. One primary-calendar identity request (`id,primary`) avoids
+profile scopes. Session 5 implemented authorization only; Session 6 supplies
+selection and event requests through the separate reader described above.
+Google/token endpoints are fixed; tests inject transports, not production URLs.
+
+Refreshes coalesce outside timer work. Account/client identity and epochs gate
+every asynchronous result. Native revision checks reject obsolete writes after
+disconnect. Access tokens remain in memory; protected refresh metadata uses
+current-user DPAPI with a profile-bound context and atomic ciphertext replacement.
+The native store uses Windows SDK Crypt32, not an ATL-dependent storage plugin.
+Disconnect persists a marker before deletion, clears calendar-only data and
+attempts bounded remote revocation. A failed cleanup stays visible/retryable.
+An optional local-reset participant performs this cleanup without awaiting remote
+revocation on the timer queue. Core offline use, mobile adapters and schema v3
+remain unchanged. Live sign-in is an owner-participation gate, not a fixture pass.
+
+### Mobile core
 
 Poma targets Android and iOS and works entirely offline after installation, with no signup, login, backend, or app-managed cloud sync. Settings, tasks, and history are remembered on the phone. Flutter shares UI and domain logic across both platforms. It carries an engine cost, so it is not assumed to produce the smallest possible binary. Two independently native apps could reduce some runtime overhead but would duplicate implementation and testing; Kotlin Multiplatform with native UI is a valid alternative if later measurements justify that cost.
 
-Flutter + system SQLite + a small state controller is the selected baseline. No backend service, hosting, authentication provider, or embedded Go/Python/Ruby runtime is needed. Direct production packages beyond Flutter are `sqflite`, `path`, exactly pinned `flutter_local_notifications` 22.3.2, and `intl` 0.20.2 (matching the pinned SDK's `flutter_localizations`). SDK localization support provides English product resources and bundled calendar formatting; no translation download is used. `sqflite_common_ffi` is for database tests on the host; SDK `integration_test` is development tooling. The notification package's public permission/settings APIs are wrapped in data; app-owned native adapters supply one-shot elapsed/interval scheduling. See [native alert protocol and device evidence](NOTIFICATIONS.md).
+Flutter + SQLite + a small state controller is the selected baseline. No backend service, hosting, authentication provider, or embedded Go/Python/Ruby runtime is needed. Direct production packages beyond Flutter are `sqflite`, `path`, exactly pinned `flutter_local_notifications` 22.3.2, `intl` 0.20.2 (matching the pinned SDK's `flutter_localizations`), and `sqflite_common_ffi` 2.4.4. FFI is used for production Windows storage and host database tests; Android/iOS retain their existing sqflite factory. SDK `integration_test` remains development tooling. English resources and bundled calendar formatting work offline. Mobile notification permission/settings APIs are wrapped in data; app-owned adapters supply mobile one-shot scheduling and Windows resident completion presentation. See [native alert protocol and device evidence](NOTIFICATIONS.md).
 
 Dependency direction: UI → application → domain; data implements the application's `LocalRepository` port and uses domain records. The entry point chooses SQLite. The application never imports the data layer, and domain code imports neither Flutter nor database packages. Existing row/JSON mapping helpers are pure Dart; storage execution and platform calls remain in data/native code.
 
@@ -33,13 +226,17 @@ Every phase control reconciles expiry first. Expiry consumes that control, inclu
 | Short break expires | Prepare focus, ready | No focus history; retain progress |
 | Long break expires | Prepare focus, ready | No focus history; clear progress |
 | Reset | Non-strict running/paused → same phase ready, using current settings | Abandon ID; retain progress; already-ready reset is unchanged |
-| Skip | Any unlocked state → successor ready | Never record focus; skipping long break clears progress |
+| Skip | Any unlocked state → successor ready | Record focus once and increment progress only for a started running/paused focus whose original duration exceeds five minutes and precise remaining time is strictly between zero and five minutes; otherwise abandon without credit. Skipping long break clears progress |
 | Select phase (engine/controller API) | Any unlocked state → selected phase ready | Abandon active ID without completion; retain progress. Selecting the same active phase resets it; the same ready phase is unchanged. The Focus screen exposes no phase selector |
 | Duration settings | Apply immediately to ready phases; running/paused original duration remains fixed | No completion or phase advance |
 | Cycle target | Apply to subsequent phase transitions; never replace the current phase | Preserve earned progress; cap visible progress at the target |
 | Strict mode | Enabling during a running phase locks immediately. All running strict phases lock pause/reset/skip/selection, timing settings and disabling strict mode | Appearance and task edits remain available; expiry still reconciles |
 
 Start on an already active phase, Resume outside paused, and Pause outside running are unchanged. Settings commands reconcile first and then apply configuration; they cannot cause another phase transition. Default durations remain 25/5/15 minutes with four rounds. The cycle counter saturates at eight, the maximum configurable target, even if manual selections repeatedly bypass a long break; every actual focus completion still has its own history row. Only completing or skipping a long break clears the counter. Lowering and then raising a target does not discard progress. Resetting a long break or manually selecting another phase preserves it.
+
+`canFinishEarly` exposes the shared eligibility rule without sampling a new clock or mutating state. Crossing the threshold alone never completes a phase. Skip checks eligibility after sampling the action's clock and applying expiry, revision/session and strict-mode guards. Both normal expiry and early Skip use the same focus-completion routine. `TimerTransition.completedEarly` is transient and defaults to false; an eligible Skip sets both it and `completedPhase`, preserving the existing inline completion notice while suppressing a user-triggered desktop completion toast. The shared Focus controls show localized guidance only while eligible; desktop Skip uses the same engine rule without a new action or wire format.
+
+An early completion retains the original session ID, start and task snapshot, records the Skip instant as its UTC end, and stores actual active focus time rounded down to whole seconds. Paused time is excluded using original duration minus precise remaining time. The completion, earned progress, ready successor and alert retirement commit atomically through the existing queue. Pending deadline alerts are cancelled; failed saves and cancellations retain their existing retry/recovery behavior. Existing history, timer snapshots and the database schema are unchanged.
 
 ### Clock sources and recovery invariants
 
@@ -50,9 +247,9 @@ This choice follows the pinned Dart 3.12.2 source: [Stopwatch delegates to OS mo
 Invariants:
 
 - Live remaining = segment remaining − continuous elapsed since its anchor. Callback counts and wall time never drive it. Only displayed seconds round upward; storage, pause/resume and dial progress retain microseconds.
-- Each start/resume captures a fixed UTC segment deadline. Delayed completion and live wall-clock changes do not move its history timestamp. Pausing retains the original session start; the start/end span includes pauses while `focusSeconds` excludes paused time.
+- Each start/resume captures a fixed UTC segment deadline. Delayed expiry and live wall-clock changes do not move its expiry history timestamp; an eligible early Skip records its own sampled UTC instant. Pausing retains the original session start; the start/end span includes pauses while `focusSeconds` excludes paused time.
 - Across a dead process on the same known Android boot, running recovery compares persisted elapsed deadlines with the native elapsed clock. After reboot, on iOS process restoration, or for legacy snapshots without identity, recovery uses the saved UTC deadline. Paused recovery uses saved remaining microseconds. Overdue recovery records at the saved deadline and advances one phase only. A future deadline beyond the original duration is capped and checkpointed once.
-- Only an explicitly started phase can complete. Breaks have IDs for future alerts but never create focus history. Reset, skip and selection abandon rather than complete. Every successor is ready.
+- Only an explicitly started phase can complete. Breaks have IDs for future alerts but never create focus history. Reset and selection abandon rather than complete; Skip completes only an eligible focus session. Every successor is ready.
 - Task identity/title and duration are captured at start and survive task rename, completion, deletion, reselection, settings edits and paused recovery.
 - UTC fallback cannot distinguish elapsed time from manual wall-clock changes around reboot or an iOS process restart. Android snapshots now persist boot count, elapsed deadline and a running-segment number; different/unknown boot identities never reuse elapsed values. Android receivers explicitly reconcile boot, package replacement, time/timezone changes and exact-access grants. iOS observes significant-time/timezone changes while running and repairs on launch/resume; it has no boot receiver or claimed reboot-proof identity. These combinations remain physical-device release gates.
 - Timezone changes do not change UTC deadlines or duration. History is grouped from each completion instant in the current local timezone, so a timezone change can legitimately move its day grouping. Tests inject a local-time conversion to avoid depending on the host timezone.
@@ -81,7 +278,7 @@ Startup does not enumerate history. Indexed local-day aggregates return today or
 
 ## Resource policy
 
-No downloaded fonts, videos, raster illustration bundle, analytics, ads, background polling, or one-second database writes. A foreground running timer uses one callback per second and at most one pending rendering refresh. It samples the native clock but saves only if a timer/desired-alert transition occurs. User/settings/task changes and leaving an active foreground session checkpoint state; repeated unchanged lifecycle events do not write. Native alert status/synchronization runs on meaningful transitions and explicit reconciliation events, not each ticker callback. The ticker is cancelled immediately on inactivity, pause, completion, clock error or disposal. A delayed clock response checks current lifecycle/disposal state before restarting anything. The custom dial repaints on progress changes. OS-scheduled local alerts replace continuous background execution; no service or app-held wake lock is added.
+No downloaded fonts, videos, raster illustration bundle, analytics, ads, or one-second database writes are introduced. Mobile performs no background polling. Connected Windows Calendar has a coalesced five-minute resident refresh, minute presentation-age updates, midnight/event-boundary jobs and one-shot reminder deadlines; these are independent of timer ticks. A foreground running timer uses one callback per second and at most one pending rendering refresh. It samples the native clock but saves only if a timer/desired-alert transition occurs. User/settings/task changes and leaving an active foreground session checkpoint state; repeated unchanged lifecycle events do not write. Native alert status/synchronization runs on meaningful transitions and explicit reconciliation events, not each ticker callback. The ticker is cancelled immediately on inactivity, pause, completion, clock error or disposal. A delayed clock response checks current lifecycle/disposal state before restarting anything. The custom dial repaints on progress changes. Mobile uses OS-scheduled local alerts; Windows uses resident deadlines and presentation. No service or app-held wake lock is added. Quit stops Windows refresh, reminder and expiry jobs. Session 9 resource samples describe their exact synthetic host conditions and establish no performance or battery guarantee.
 
 Provisional engineering targets, not established results: compressed arm64 release APK at or below 20 MiB, p95 frames within the 60 Hz frame budget on the chosen baseline phone, and a median cold launch under 1.5 seconds on that phone. Record device, OS, build mode, ABI, sample count, and methods. Debug build size and simulator speed are not release measurements. Battery and memory budgets need real-device baselines before setting a defensible numeric limit.
 
@@ -98,7 +295,11 @@ battery benefit or numeric memory/energy promise follows from source structure.
 
 All Pomodoro functions must remain usable in airplane mode: focus and break cycles, custom durations, start/pause/resume/reset/skip, strict mode, tasks, history, appearance settings, and native local alerts subject to OS permission/delivery policy. Persist state in SQLite so restarting the app does not require a server or an account. Notification permission is a local OS choice and must not depend on signup or remote push registration.
 
-Do not introduce accounts, personal-profile collection, remote storage, cloud synchronization, sync contracts, pending upload queues, analytics, ads, or network-dependent configuration. Installation and optional store updates are separate from offline app use. Developer tooling is separate from the installed app.
+The offline mobile/core boundary excludes accounts, personal-profile collection,
+remote storage, cloud synchronization, pending upload queues, analytics, ads and
+network-dependent configuration. Optional Windows Calendar authorization is a
+separate, explicitly enabled boundary. Installation and optional store updates
+are separate from offline app use. Developer tooling is separate from the app.
 
 Settings, tasks, and history are retained on the phone without requesting identity information. History stays until explicitly deleted; confirmed per-session deletion, clear history and full local reset are available. Export/import is deferred. The selected database backup-exclusion policy is retained; uninstalling the app or losing the phone has no automatic recovery path. The database path is unchanged; schema v3 preserves the v2 native alert contract. Native response journals contain only opaque session/generation/action identifiers and the app-private database locator, never task text; SQLite is authoritative when rejecting restored/stale responses.
 
@@ -134,3 +335,9 @@ Focus                     Tasks / Insights / Settings
   daily totals
 ---------------- bottom navigation -----------------
 ```
+
+## Windows fictional calendar preview — Session 3
+
+The existing native popup now renders typed `secondarySections` from an in-memory `CalendarController`, owned by `DesktopController`. It has no repository, provider, credentials, HTTP or browser port. A Settings selector exposes nine explicitly fictional scenarios and resets to disconnected after process exit. Only the original `AppController` owns the timer and ordered Pomodoro writes; native timer commands keep run/revision checks, while calendar preview actions use their own generation and opaque action IDs.
+
+The Win32 shell keeps one tray GUID, popup and Flutter engine. Popup Escape/outside/Alt+F4 hide its window; Open Poma returns to Focus, and Calendar settings resets the full Settings page to its preview section. Main Close/Quit/startup retain their separate existing contracts. WTS session notifications and initial session inspection independently gate calendar controls/tooltips in the native host; locked and unknown states redact details, separately from timer strict mode. Calendar presentation updates use a minute cadence rather than per-second storage/network work. Real provider/cache/link/reminder work remains outside Session 3. See [the calendar handoff](WINDOWS_CALENDAR_PROGRESS.md) for exact build identity and observed versus unobserved desktop cases.

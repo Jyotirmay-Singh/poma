@@ -5,9 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'local_repository.dart';
 import 'alert_coordinator.dart';
 import 'local_alerts.dart';
+import 'local_reset_participant.dart';
 import '../domain/alert_state.dart';
 import '../domain/models.dart';
 import '../domain/timer_engine.dart';
+import '../domain/desktop_preferences.dart';
 
 enum PersistenceOutcome { notRequired, saved, failed }
 
@@ -60,12 +62,15 @@ class AppController extends ChangeNotifier {
     LocalAlerts? alerts,
     this._toLocal,
     this._dayRange,
+    this._completionPresenter,
+    this._resetParticipant,
   ) : tasks = state.tasks.toList(),
       sessions = state.sessions.toList(),
       _revision = state.revision,
       cleanupPending = state.cleanupPending,
       _calendarUtc = now.utcNow,
       selectedTaskId = state.selectedTaskId,
+      _desktopPreferences = state.desktopPreferences,
       timer = TimerEngine(
         settings: state.settings,
         restored: state.timer,
@@ -80,6 +85,8 @@ class AppController extends ChangeNotifier {
     LocalRepository repository, {
     required TimerClock clock,
     LocalAlerts? alerts,
+    CompletionPresenter? completionPresenter,
+    LocalResetParticipant? resetParticipant,
     DateTime Function(DateTime)? toLocal,
     DayRange Function(DateTime)? dayRange,
   }) async {
@@ -93,22 +100,48 @@ class AppController extends ChangeNotifier {
       alerts,
       toLocal ?? _systemLocal,
       dayRange ?? DayRange.local,
+      completionPresenter,
+      resetParticipant,
     );
     final result = await controller.reconcile(forceAlerts: true);
     if (!result.clockSucceeded) {
       controller.dispose();
       throw const TimerClockException();
     }
+    controller._residentEffectsEnabled = true;
     return controller;
   }
 
   final LocalRepository repository;
+  final LocalResetParticipant? _resetParticipant;
   final TimerEngine timer;
   PhaseCompletionNotice? _lastPhaseCompletion;
   PhaseCompletionNotice? get lastPhaseCompletion => _lastPhaseCompletion;
   String? get activeTaskTitle => timer.snapshot().taskTitle;
   String? get activeTaskId => timer.snapshot().taskId;
   final TimerClock clock;
+  final CompletionPresenter? _completionPresenter;
+  bool get residentNotifications => _completionPresenter != null;
+  bool _residentEffectsEnabled = false;
+  bool _completionDrainQueued = false;
+  final List<AlertRequest> _pendingPresentations = [];
+  DesktopPreferences? _desktopPreferences;
+  DesktopPreferences get desktopPreferences =>
+      _desktopPreferences ?? const DesktopPreferences();
+
+  Future<void> updateDesktopPreferences(DesktopPreferences next) {
+    final operation = _commands.then((_) async {
+      if (_disposed) return;
+      _desktopPreferences = next;
+      await _persist();
+    });
+    _commands = operation.then<void>(
+      (_) {},
+      onError: (Object e, StackTrace s) {},
+    );
+    return operation;
+  }
+
   final AlertCoordinator? _alerts;
   AlertState _savedAlerts;
   AlertAvailability? get alertAvailability => _alerts?.availability;
@@ -226,17 +259,34 @@ class AppController extends ChangeNotifier {
 
   Future<ReconciliationResult> toggleTimer({
     int? expectedRevision,
+    String? expectedRunId,
     RunStatus? displayedStatus,
-  }) => _control(switch (displayedStatus ?? timer.status) {
-    RunStatus.ready => TimerAction.start,
-    RunStatus.paused => TimerAction.resume,
-    RunStatus.running => TimerAction.pause,
-  }, expectedRevision: expectedRevision);
+  }) => _control(
+    switch (displayedStatus ?? timer.status) {
+      RunStatus.ready => TimerAction.start,
+      RunStatus.paused => TimerAction.resume,
+      RunStatus.running => TimerAction.pause,
+    },
+    expectedRevision: expectedRevision,
+    expectedRunId: expectedRunId,
+  );
 
-  Future<ReconciliationResult> resetTimer({int? expectedRevision}) =>
-      _control(TimerAction.reset, expectedRevision: expectedRevision);
-  Future<ReconciliationResult> skipTimer({int? expectedRevision}) =>
-      _control(TimerAction.skip, expectedRevision: expectedRevision);
+  Future<ReconciliationResult> resetTimer({
+    int? expectedRevision,
+    String? expectedRunId,
+  }) => _control(
+    TimerAction.reset,
+    expectedRevision: expectedRevision,
+    expectedRunId: expectedRunId,
+  );
+  Future<ReconciliationResult> skipTimer({
+    int? expectedRevision,
+    String? expectedRunId,
+  }) => _control(
+    TimerAction.skip,
+    expectedRevision: expectedRevision,
+    expectedRunId: expectedRunId,
+  );
   Future<ReconciliationResult> selectPhase(
     FocusPhase phase, {
     int? expectedRevision,
@@ -265,9 +315,11 @@ class AppController extends ChangeNotifier {
     TimerAction action, {
     FocusPhase? phase,
     int? expectedRevision,
+    String? expectedRunId,
   }) => _enqueue(
     action,
     expectedRevision: expectedRevision ?? timer.revision,
+    expectedRunId: expectedRunId,
     phase: phase,
     task: selectedTask,
   );
@@ -317,6 +369,7 @@ class AppController extends ChangeNotifier {
         now = await clock.sample();
         if (_disposed || epoch != _actionEpoch) return _idleResult();
         final previousPhase = timer.phase;
+        final previousAlert = _alerts?.state.current;
         transition = timer.apply(
           action,
           now,
@@ -327,6 +380,12 @@ class AppController extends ChangeNotifier {
           nextSettings: nextSettings,
         );
         if (transition.completedPhase && transition.previousRunId != null) {
+          if (!transition.completedEarly &&
+              _residentEffectsEnabled &&
+              _completionPresenter != null &&
+              previousAlert?.runId == transition.previousRunId) {
+            _pendingPresentations.add(previousAlert!);
+          }
           _lastPhaseCompletion = PhaseCompletionNotice(
             transition.previousRunId!,
             previousPhase,
@@ -429,6 +488,7 @@ class AppController extends ChangeNotifier {
           persistence == PersistenceOutcome.saved) {
         _refreshReads();
       }
+      await _presentCommittedCompletions();
       return ReconciliationResult(
         snapshot: snapshot,
         transition: transition,
@@ -462,6 +522,32 @@ class AppController extends ChangeNotifier {
 
   void _notify() {
     if (!_disposed) notifyListeners();
+  }
+
+  Future<void> _presentCommittedCompletions() async {
+    if (_completionPresenter == null ||
+        _pending.isNotEmpty ||
+        saveError != null ||
+        cleanupPending ||
+        _disposed) {
+      return;
+    }
+    while (_pendingPresentations.isNotEmpty) {
+      final request = _pendingPresentations.first;
+      try {
+        final first = await repository.recordAlertReceipt(
+          'desktop:delivery:${request.runId}:${request.generation}',
+        );
+        _pendingPresentations.removeAt(0);
+        if (first && alertsEnabled) {
+          await _completionPresenter.presentCompletion(request);
+        }
+      } catch (_) {
+        if (_alerts != null) _alerts.availability = AlertAvailability.failed;
+        _notify();
+        return;
+      }
+    }
   }
 
   @visibleForTesting
@@ -581,6 +667,7 @@ class AppController extends ChangeNotifier {
       selectedTaskId: selectedTaskId,
       alerts: _alerts?.state ?? _savedAlerts,
       cleanupPending: cleanupPending,
+      desktopPreferences: _desktopPreferences,
     );
     _pending.add(
       LocalChange(
@@ -629,6 +716,18 @@ class AppController extends ChangeNotifier {
           if (!cleanupPending) deletionError = null;
           if (refreshReads) _refreshReads();
           _notify();
+          if (_pendingPresentations.isNotEmpty && !_completionDrainQueued) {
+            _completionDrainQueued = true;
+            scheduleMicrotask(() async {
+              try {
+                if (!_disposed && _pendingPresentations.isNotEmpty) {
+                  await reconcile(forceAlerts: true);
+                }
+              } finally {
+                _completionDrainQueued = false;
+              }
+            });
+          }
           return PersistenceOutcome.saved;
         })
         .catchError((Object error, StackTrace stack) {
@@ -774,6 +873,7 @@ class AppController extends ChangeNotifier {
 
   Future<bool> deleteAllLocalData() {
     if (_resetOperation != null) return _resetOperation!;
+    _resetParticipant?.invalidateForReset();
     _actionEpoch++;
     final operation = _commands.then((_) async {
       if (_disposed) return false;
@@ -782,6 +882,8 @@ class AppController extends ChangeNotifier {
         ClockReading(utcNow: _calendarUtc, elapsed: Duration.zero),
       );
       _lastPhaseCompletion = null;
+      _pendingPresentations.clear();
+      _desktopPreferences = null;
       tasks.clear();
       sessions.clear();
       selectedTaskId = null;
@@ -808,7 +910,7 @@ class AppController extends ChangeNotifier {
       }
       if (outcome != PersistenceOutcome.failed) await _finishResetCleanup();
       deletionError = outcome == PersistenceOutcome.failed || cleanupPending
-          ? 'Data deletion is not complete. Retry to finish saving and clearing local alerts.'
+          ? 'Data deletion is not complete. Retry to finish saving and removing remaining local data.'
           : null;
       _notify();
       return deletionError == null;
@@ -826,6 +928,7 @@ class AppController extends ChangeNotifier {
 
   Future<void> _finishResetCleanup() async {
     try {
+      await _resetParticipant?.clearForReset();
       await _alerts?.port.clearForReset();
       cleanupPending = false;
       final result = await _persist();
@@ -837,12 +940,13 @@ class AppController extends ChangeNotifier {
     } catch (_) {
       cleanupPending = true;
       deletionError =
-          'Local alerts could not be cleared. Retry to finish data deletion.';
+          'Cleanup could not remove remaining local data. Retry to finish data deletion.';
     }
   }
 
   @override
   void dispose() {
+    if (_disposed) return;
     _disposed = true;
     _ticker?.cancel();
     _midnight?.cancel();

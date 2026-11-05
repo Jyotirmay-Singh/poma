@@ -184,6 +184,12 @@ abstract class PomaLocalizations {
   /// **'Skip to next phase'**
   String get skipPhase;
 
+  /// No description provided for @earlyFinishHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip now to count this session as complete.'**
+  String get earlyFinishHint;
+
   /// No description provided for @focusComplete.
   ///
   /// In en, this message translates to:
@@ -475,7 +481,7 @@ abstract class PomaLocalizations {
   /// No description provided for @emptyHistory.
   ///
   /// In en, this message translates to:
-  /// **'Finish your first focus session to see it here. Skipped sessions are not counted.'**
+  /// **'Finish your first focus session to see it here.'**
   String get emptyHistory;
 
   /// No description provided for @focusSession.
@@ -627,6 +633,150 @@ abstract class PomaLocalizations {
   /// In en, this message translates to:
   /// **'Completion alerts'**
   String get completionAlerts;
+
+  /// No description provided for @desktopHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History / Insights'**
+  String get desktopHistory;
+
+  /// No description provided for @windowsWeekHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Your completed focus sessions, stored on this computer.'**
+  String get windowsWeekHelp;
+
+  /// No description provided for @windowsHistoryRetention.
+  ///
+  /// In en, this message translates to:
+  /// **'History stays on this computer until you delete it or uninstall Poma.'**
+  String get windowsHistoryRetention;
+
+  /// No description provided for @windowsStrictHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Locks pause, reset, skip, phase changes, and timing settings while a phase runs. You can still quit Poma or use other apps.'**
+  String get windowsStrictHelp;
+
+  /// No description provided for @windowsDeleteAllHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop the current timer, disconnect Google Calendar and clear its local credentials/data, clear Poma alerts, disable Poma startup, delete all tasks and history, and restore defaults? This also stops a strict session. Google revocation cannot be confirmed while offline.'**
+  String get windowsDeleteAllHelp;
+
+  /// No description provided for @windowsDeletionSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletion could not be saved. Data may still be on this computer. Retry saving.'**
+  String get windowsDeletionSaveError;
+
+  /// No description provided for @desktopNumberRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a whole number from 1 to {max}.'**
+  String desktopNumberRange(int max);
+
+  /// No description provided for @historyDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus time'**
+  String get historyDuration;
+
+  /// No description provided for @desktopBehavior.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop behavior'**
+  String get desktopBehavior;
+
+  /// No description provided for @closeToTray.
+  ///
+  /// In en, this message translates to:
+  /// **'Close to system tray'**
+  String get closeToTray;
+
+  /// No description provided for @closeToTrayHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing the window keeps Poma running. Choose Quit from the tray menu to stop Poma and its alerts.'**
+  String get closeToTrayHelp;
+
+  /// No description provided for @startWithWindows.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with Windows'**
+  String get startWithWindows;
+
+  /// No description provided for @startupHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. Poma can run in the tray after you sign in to Windows.'**
+  String get startupHelp;
+
+  /// No description provided for @startupBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Windows has disabled this startup task. Change it in Windows Settings → Apps → Startup.'**
+  String get startupBlocked;
+
+  /// No description provided for @startupUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Startup integration is available in the installed Windows package.'**
+  String get startupUnavailable;
+
+  /// No description provided for @windowsAlertsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts work while Poma is running, including in the tray. Sleep may delay them until resume. Quit stops alerts. Every next phase starts manually.'**
+  String get windowsAlertsHelp;
+
+  /// No description provided for @windowsAlertsReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Completion alerts are enabled while Poma runs. Windows settings and Do Not Disturb control presentation and sound.'**
+  String get windowsAlertsReady;
+
+  /// No description provided for @windowsAlertsDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Completion alerts are blocked in Windows notification settings. Your timer still works.'**
+  String get windowsAlertsDenied;
+
+  /// No description provided for @windowsNotificationSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Windows notification settings'**
+  String get windowsNotificationSettings;
+
+  /// No description provided for @windowsPrivacyHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks, settings, and history stay in this Windows user\'s local Poma storage and work offline. Optional Google Calendar authorization makes direct requests to Google; no Poma backend or tracking is used. Refresh credentials use Windows user protection; the Pomodoro database is unencrypted. Disconnect preserves tasks/history. Package updates retain data; uninstall removes package-local data but cannot revoke Google access. Poma provides no automatic recovery.'**
+  String get windowsPrivacyHelp;
+
+  /// No description provided for @windowsAboutHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'An offline Pomodoro companion for Windows. Inspired by the MIT-licensed Pomatez project.'**
+  String get windowsAboutHelp;
+
+  /// No description provided for @quitPoma.
+  ///
+  /// In en, this message translates to:
+  /// **'Quit Poma'**
+  String get quitPoma;
+
+  /// No description provided for @showCompactTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Open compact timer'**
+  String get showCompactTimer;
+
+  /// No description provided for @quitHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Quit stops alerts. A running phase is recovered from its saved deadline next time you open Poma.'**
+  String get quitHelp;
 
   /// No description provided for @alertHelp.
   ///

@@ -54,6 +54,9 @@ class PomaLocalizationsEn extends PomaLocalizations {
   String get skipPhase => 'Skip to next phase';
 
   @override
+  String get earlyFinishHint => 'Skip now to count this session as complete.';
+
+  @override
   String get focusComplete =>
       'Focus complete. Start your break when you’re ready.';
 
@@ -246,8 +249,7 @@ class PomaLocalizationsEn extends PomaLocalizations {
   String get retryHistory => 'Retry history';
 
   @override
-  String get emptyHistory =>
-      'Finish your first focus session to see it here. Skipped sessions are not counted.';
+  String get emptyHistory => 'Finish your first focus session to see it here.';
 
   @override
   String get focusSession => 'Focus session';
@@ -331,6 +333,95 @@ class PomaLocalizationsEn extends PomaLocalizations {
 
   @override
   String get completionAlerts => 'Completion alerts';
+
+  @override
+  String get desktopHistory => 'History / Insights';
+
+  @override
+  String get windowsWeekHelp =>
+      'Your completed focus sessions, stored on this computer.';
+
+  @override
+  String get windowsHistoryRetention =>
+      'History stays on this computer until you delete it or uninstall Poma.';
+
+  @override
+  String get windowsStrictHelp =>
+      'Locks pause, reset, skip, phase changes, and timing settings while a phase runs. You can still quit Poma or use other apps.';
+
+  @override
+  String get windowsDeleteAllHelp =>
+      'Stop the current timer, disconnect Google Calendar and clear its local credentials/data, clear Poma alerts, disable Poma startup, delete all tasks and history, and restore defaults? This also stops a strict session. Google revocation cannot be confirmed while offline.';
+
+  @override
+  String get windowsDeletionSaveError =>
+      'Deletion could not be saved. Data may still be on this computer. Retry saving.';
+
+  @override
+  String desktopNumberRange(int max) {
+    return 'Enter a whole number from 1 to $max.';
+  }
+
+  @override
+  String get historyDuration => 'Focus time';
+
+  @override
+  String get desktopBehavior => 'Desktop behavior';
+
+  @override
+  String get closeToTray => 'Close to system tray';
+
+  @override
+  String get closeToTrayHelp =>
+      'Closing the window keeps Poma running. Choose Quit from the tray menu to stop Poma and its alerts.';
+
+  @override
+  String get startWithWindows => 'Start with Windows';
+
+  @override
+  String get startupHelp =>
+      'Optional. Poma can run in the tray after you sign in to Windows.';
+
+  @override
+  String get startupBlocked =>
+      'Windows has disabled this startup task. Change it in Windows Settings → Apps → Startup.';
+
+  @override
+  String get startupUnavailable =>
+      'Startup integration is available in the installed Windows package.';
+
+  @override
+  String get windowsAlertsHelp =>
+      'Alerts work while Poma is running, including in the tray. Sleep may delay them until resume. Quit stops alerts. Every next phase starts manually.';
+
+  @override
+  String get windowsAlertsReady =>
+      'Completion alerts are enabled while Poma runs. Windows settings and Do Not Disturb control presentation and sound.';
+
+  @override
+  String get windowsAlertsDenied =>
+      'Completion alerts are blocked in Windows notification settings. Your timer still works.';
+
+  @override
+  String get windowsNotificationSettings => 'Windows notification settings';
+
+  @override
+  String get windowsPrivacyHelp =>
+      'Tasks, settings, and history stay in this Windows user\'s local Poma storage and work offline. Optional Google Calendar authorization makes direct requests to Google; no Poma backend or tracking is used. Refresh credentials use Windows user protection; the Pomodoro database is unencrypted. Disconnect preserves tasks/history. Package updates retain data; uninstall removes package-local data but cannot revoke Google access. Poma provides no automatic recovery.';
+
+  @override
+  String get windowsAboutHelp =>
+      'An offline Pomodoro companion for Windows. Inspired by the MIT-licensed Pomatez project.';
+
+  @override
+  String get quitPoma => 'Quit Poma';
+
+  @override
+  String get showCompactTimer => 'Open compact timer';
+
+  @override
+  String get quitHelp =>
+      'Quit stops alerts. A running phase is recovered from its saved deadline next time you open Poma.';
 
   @override
   String get alertHelp =>

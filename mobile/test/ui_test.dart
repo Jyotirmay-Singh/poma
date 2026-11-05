@@ -122,6 +122,115 @@ void main() {
     expect(controller.tasks.single.done, isTrue);
   });
   testWidgets(
+    'early-finish guidance leads to one completed session and a ready break',
+    (tester) async {
+      tester.view.physicalSize = const Size(320, 700);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      final clock = FakeClock();
+      final app = await AppController.create(MemoryRepository(), clock: clock);
+      addTearDown(app.dispose);
+      await tester.pumpWidget(PomaApp(controller: app));
+      await app.setForeground(true);
+      await app.toggleTimer();
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find.text('Your timer continues when you leave Poma.'),
+        150,
+      );
+      await tester.pumpAndSettle();
+      const hint = 'Skip now to count this session as complete.';
+      expect(find.text(hint), findsNothing);
+      clock.advance(const Duration(minutes: 20));
+      await app.reconcile();
+      await tester.pumpAndSettle();
+      expect(find.text(hint), findsNothing);
+      clock.advance(const Duration(microseconds: 1));
+      await app.reconcile();
+      await tester.pumpAndSettle();
+      expect(app.timer.canFinishEarly, isTrue);
+      await tester.scrollUntilVisible(find.text(hint), 150);
+      await tester.pumpAndSettle();
+      expect(find.text(hint), findsOneWidget);
+      expect(app.sessions, isEmpty);
+      await app.toggleTimer();
+      await tester.pumpAndSettle();
+      expect(app.timer.status, RunStatus.paused);
+      expect(find.text(hint), findsOneWidget);
+      final skip = find.widgetWithIcon(IconButton, Icons.skip_next);
+      await tester.scrollUntilVisible(skip, -150);
+      await tester.pumpAndSettle();
+      final previousSkip = tester.widget<IconButton>(skip).onPressed!;
+      await tester.tap(skip);
+      await tester.pumpAndSettle();
+      previousSkip();
+      await app.flush();
+      await tester.pumpAndSettle();
+      expect(app.sessions, hasLength(1));
+      expect(app.sessions.single.focusSeconds, 1200);
+      expect(app.timer.completedRounds, 1);
+      expect(app.timer.phase, FocusPhase.shortBreak);
+      expect(app.timer.status, RunStatus.ready);
+      expect(find.text(hint), findsNothing);
+      await tester.scrollUntilVisible(
+        find.text('Focus complete. Start your break when you’re ready.'),
+        -150,
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Focus complete. Start your break when you’re ready.'),
+        findsOneWidget,
+      );
+      expect(find.text('Start short break'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await app.flush();
+    },
+  );
+
+  for (final settings in [
+    const TimerSettings(focusMinutes: 5),
+    const TimerSettings(strictMode: true),
+  ]) {
+    testWidgets(
+      'ineligible focus has no early-finish guidance: ${settings.focusMinutes} minutes, strict ${settings.strictMode}',
+      (tester) async {
+        final clock = FakeClock();
+        final app = await AppController.create(
+          MemoryRepository(SavedState(settings: settings)),
+          clock: clock,
+        );
+        addTearDown(app.dispose);
+        await tester.pumpWidget(PomaApp(controller: app));
+        await app.setForeground(true);
+        await app.toggleTimer();
+        clock.advance(Duration(minutes: settings.focusMinutes - 4));
+        await app.reconcile();
+        await tester.pumpAndSettle();
+        await tester.scrollUntilVisible(
+          find.text(
+            settings.strictMode
+                ? 'Poma’s timer controls are locked until this phase finishes. Other apps remain available.'
+                : 'Your timer continues when you leave Poma.',
+          ),
+          150,
+        );
+        await tester.pumpAndSettle();
+        expect(app.timer.remainingSeconds, 240);
+        expect(
+          find.text('Skip now to count this session as complete.'),
+          findsNothing,
+        );
+        expect(app.sessions, isEmpty);
+        await tester.pumpWidget(const SizedBox.shrink());
+        await app.flush();
+      },
+    );
+  }
+
+  testWidgets(
     'callbacks from the previous frame cannot start, reset or skip the successor',
     (tester) async {
       tester.view.physicalSize = const Size(390, 844);

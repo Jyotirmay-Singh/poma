@@ -9,6 +9,77 @@ import 'support.dart';
 import 'alert_support.dart';
 
 void main() {
+  test(
+    'early Skip commits history, progress and alert retirement together',
+    () async {
+      final repository = MemoryRepository();
+      final clock = FakeClock();
+      final alerts = FakeAlerts();
+      final app = await AppController.create(
+        repository,
+        clock: clock,
+        alerts: alerts,
+      );
+      addTearDown(app.dispose);
+      await app.toggleTimer();
+      final request = repository.state.alerts.current!;
+      expect(alerts.pending.values.single.runId, request.runId);
+      clock.advance(const Duration(minutes: 21));
+      final result = await app.handleTimerAction(
+        TimerAction.skip,
+        runId: request.runId,
+      );
+      expect(result.transition.completedEarly, isTrue);
+      expect(result.persistence, PersistenceOutcome.saved);
+      expect(result.alert, isNull);
+      expect(repository.state.sessions.single.id, request.runId);
+      expect(repository.state.timer!.phase, FocusPhase.shortBreak);
+      expect(repository.state.timer!.status, RunStatus.ready);
+      expect(repository.state.timer!.completedRounds, 1);
+      expect(repository.state.alerts.current, isNull);
+      expect(alerts.pending, isEmpty);
+      clock.advance(const Duration(minutes: 4));
+      await app.reconcile(forceAlerts: true);
+      expect(repository.state.sessions, hasLength(1));
+      expect(alerts.pending, isEmpty);
+    },
+  );
+
+  test(
+    'interrupted early-finish cancellation repairs on restart without recounting',
+    () async {
+      final repository = MemoryRepository();
+      final clock = FakeClock();
+      final alerts = FakeAlerts();
+      final first = await AppController.create(
+        repository,
+        clock: clock,
+        alerts: alerts,
+      );
+      final id = (await first.toggleTimer()).snapshot.runId;
+      clock.advance(const Duration(minutes: 21));
+      alerts.failBefore = true;
+      await first.skipTimer();
+      expect(repository.state.sessions.single.id, id);
+      expect(repository.state.timer!.completedRounds, 1);
+      expect(repository.state.alerts.current, isNull);
+      expect(alerts.pending.values.single.runId, id);
+      expect(first.alertAvailability, AlertAvailability.failed);
+      first.dispose();
+      alerts.failBefore = false;
+      final restored = await AppController.create(
+        repository,
+        clock: clock,
+        alerts: alerts,
+      );
+      addTearDown(restored.dispose);
+      expect(alerts.pending, isEmpty);
+      expect(repository.state.sessions.single.id, id);
+      expect(restored.timer.completedRounds, 1);
+      expect(restored.timer.phase, FocusPhase.shortBreak);
+    },
+  );
+
   for (final enable in [false, true]) {
     testWidgets(
       'first Start explains alerts; choice $enable still starts one phase',

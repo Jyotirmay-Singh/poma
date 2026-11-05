@@ -4,6 +4,7 @@ import 'package:sqflite/sqflite.dart';
 import '../application/local_repository.dart';
 import '../domain/models.dart';
 import '../domain/alert_state.dart';
+import '../domain/desktop_preferences.dart';
 import 'local_storage_policy.dart';
 import 'schema_migrations.dart';
 
@@ -133,6 +134,11 @@ class SqliteRepository implements LocalRepository {
         revision: meta['revision'] as int,
         lastCommitId: meta['commit_id'] as String?,
         cleanupPending: meta['cleanup_pending'] == 1,
+        desktopPreferences: state['windowsDesktop'] == null
+            ? null
+            : DesktopPreferences.fromJson(
+                storedObject(state['windowsDesktop']!),
+              ),
       );
     }, exclusive: false);
   }, StorageFailureKind.unreadable);
@@ -222,6 +228,9 @@ class SqliteRepository implements LocalRepository {
         }
         final state = change.state;
         TimerSettings.fromJson(state.settings.toJson());
+        if (state.desktopPreferences != null) {
+          DesktopPreferences.fromJson(state.desktopPreferences!.toJson());
+        }
         state.timer?.validate();
         final values = {
           'settings': jsonEncode(state.settings.toJson()),
@@ -229,6 +238,9 @@ class SqliteRepository implements LocalRepository {
               ? null
               : jsonEncode(state.timer!.toJson()),
           'selectedTaskId': state.selectedTaskId,
+          'windowsDesktop': state.desktopPreferences == null
+              ? null
+              : jsonEncode(state.desktopPreferences!.toJson()),
         };
         for (final entry in values.entries) {
           if (entry.value == null) {

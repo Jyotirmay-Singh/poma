@@ -1,5 +1,98 @@
 # Native local alerts and device evidence
 
+## Explicit Windows focus blocks — Session 12
+
+Scheduling creates ordinary private timed events without guests, recurrence or
+event reminders. Requests use `sendUpdates=none`; this is not a guarantee against
+every Google-generated email. Poma never schedules attendees or invitation changes.
+Focus scheduling does not enable resident meeting reminders or change timer alerts.
+Busy/Free affects only the block's transparency, not Google Chat status or automatic
+invitation handling. No completion uploads or notification-triggered mutations exist.
+
+## Windows resident notifications
+
+Session 9 separates automated cancellation/receipt checks, isolated awake native
+deadline observations, and owner-observed installed toast delivery in
+[calendar acceptance](WINDOWS_CALENDAR_ACCEPTANCE.md). Unpackaged notification
+capability is unavailable; a deadline firing or a successful submission cannot
+establish toast presentation, sound, DND behavior or activation. Actual installed
+hidden-window delivery, lock/unlock and sleep remain release gates.
+
+### Calendar Session 8
+
+Meeting reminders are a separate, optional resident feature: off by default,
+no calendars included initially, five-minute default lead, with 1/5/10/15/30-minute
+choices. Calendar inclusion is separate from agenda selection and timer alerts.
+The toast always says **Meeting coming up** / **Open Poma to see your schedule**;
+event titles, source names, URLs, credentials and task text never enter its
+payload. Open agenda and Dismiss carry only a resident opaque token/generation.
+Locked/unknown-state, obsolete and repeated responses cannot open the agenda.
+
+The independent calendar controller uses committed, fresh selected-calendar
+snapshots and the reader's current account lease. Preferences and bounded opaque
+attempt receipts live in `calendar/accounts/<account-key>/reminders.json`, not
+the timer SQLite outbox/receipts. A flushed attempt receipt precedes presentation;
+a crash after that receipt can lose the reminder. Native presentation is also
+deduplicated within the residency. Moving an occurrence invalidates its old
+deadline/action; the new occurrence start may receive one future reminder.
+Changing lead time or toggling a switch does not repeat an attempted occurrence.
+
+One native one-shot deadline covers the next meeting reminder. There is no
+per-second background calendar IO. Event updates/removals, deselection, settings,
+disconnect/reset and account changes revoke old tokens and notifications. Timer
+disabling clears only the `timer` group; calendar cancellation uses `calendar`.
+Normal Quit clears both. Remote changes are known only after successful refresh;
+stale/failed sources suppress reminders. Calendar failures cannot block or become
+clock failures for the offline timer.
+
+**Wake/restart policy: skip missed reminders.** Suspend revokes native calendar
+deadlines; resume, restart, clock changes and setting changes arm only future
+deadlines. No backlog is replayed. Ordinary uninterrupted message-loop delay has
+a 30-second tolerance; later callbacks and already-started meetings are skipped.
+Presentation expires at the meeting start. No wake timer, service, scheduled OS
+future toast, DND bypass or guarantee of audible/exact delivery is introduced.
+Fully exited Poma generates no new reminders; Windows can retain an already
+submitted notification after a crash. An OS submission is not evidence of display.
+
+Installed MSIX identity/COM activation provide the real Windows toast capability.
+Unpackaged/extracted runs explicitly report unavailable. Actual installed display,
+actions, DND, lock and real suspend observations retain their own evidence gates;
+see the Session 8 calendar handoff. The existing timer protocol below is retained.
+
+The Windows implementation uses app-owned C++/WinRT toast APIs with MSIX identity
+and COM activation. The locked mobile notification dependencies remain, but Poma
+does not initialize their Windows permission-setting adapter or rewrite Windows
+notification preferences. No mobile alarm channel is called on Windows.
+
+One resident native deadline trigger asks the authoritative controller to
+reconcile, regardless of notification permission. It does not render each second
+while hidden, write SQLite per second, install a service or request a wake timer.
+Expiry commits one completion and a Ready successor; every next phase needs Start.
+Only a committed, resident completion can present a generic Focus complete/Break
+complete toast, with Open timer and Dismiss. Task names never enter toast text.
+
+| State | Implemented contract; real packaged observations are recorded separately |
+|---|---|
+| Visible/hidden and awake | Reconcile and attempt one toast if enabled and Windows allows it. |
+| S3 sleep/hibernation | Count sleep as elapsed time; do not wake Windows or promise exact sleeping delivery. |
+| Resume with owner alive | Reconcile promptly and re-arm from the sleep-inclusive clock; an elapsed phase may notify once. |
+| Fully Quit/terminated | No new completion toast is generated. Quit clears existing Poma-owned notifications. |
+| Reopen overdue phase | Commit the original completion once at its saved deadline, show Ready successor, suppress catch-up toast. |
+| Blocked/DND | Timer/history keep working; submission permission does not establish presentation or sound. |
+
+A unique delivery-attempt receipt is recorded before presentation. A crash after
+that receipt can lose an alert; exactly-once history is stronger than toast-delivery
+guarantees. Failed saves keep pending effects for successful in-process retry;
+reset invalidates them. Responses are journaled as opaque identifiers, matched to
+the current/previous alert generation, deduplicated and acknowledged. Open shows
+Focus, Dismiss only dismisses; neither starts a phase. A temporary activation relay
+forwards to the owner without another engine or SQLite writer.
+
+Installed notifications/startup and Windows DND/denied-setting behavior require
+owner acceptance. The observed and pending scopes are in
+[Windows acceptance](WINDOWS_DESKTOP_ACCEPTANCE.md). The mobile protocol/evidence
+below retains its own source/build scope.
+
 ## Current evidence and candidate status — 22 October 2026
 
 The older status statements and reproduction commands below describe the historical

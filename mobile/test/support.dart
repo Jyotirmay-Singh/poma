@@ -85,6 +85,7 @@ class MemoryRepository implements LocalRepository {
         selectedTaskId: change.state.selectedTaskId,
         alerts: change.state.alerts,
         cleanupPending: change.state.cleanupPending,
+        desktopPreferences: change.state.desktopPreferences,
         tasks: tasks,
         sessions: sessions,
         revision: request.expectedRevision + 1,
@@ -174,6 +175,7 @@ extension RepositoryFixtures on LocalRepository {
       revision: initial.revision,
       lastCommitId: initial.lastCommitId,
       cleanupPending: initial.cleanupPending,
+      desktopPreferences: initial.desktopPreferences,
     );
   }
 

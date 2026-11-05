@@ -47,11 +47,13 @@ class TimerTransition {
     required this.changed,
     required this.outcome,
     this.completedPhase = false,
+    this.completedEarly = false,
     this.completion,
     this.previousRunId,
   });
   final bool changed;
   final bool completedPhase;
+  final bool completedEarly;
   final FocusSession? completion;
 
   /// Identity to cancel/replace even when a break ends without focus history.
@@ -62,6 +64,8 @@ class TimerTransition {
 /// Synchronous state machine. Callers sample an injectable clock once per
 /// operation. Callback frequency and wall time never drive live elapsed time.
 class TimerEngine {
+  static const _earlyFinishWindow = Duration(minutes: 5);
+
   TimerEngine({
     required TimerSettings settings,
     required ClockReading now,
@@ -136,6 +140,13 @@ class TimerEngine {
   double get progress => 1 - remainingMicros / (_totalSeconds * 1000000);
   bool get controlsLocked =>
       _settings.strictMode && _status == RunStatus.running;
+  bool get canFinishEarly =>
+      _phase == FocusPhase.focus &&
+      _status != RunStatus.ready &&
+      _totalSeconds > _earlyFinishWindow.inSeconds &&
+      !controlsLocked &&
+      _rawRemaining > Duration.zero &&
+      _rawRemaining < _earlyFinishWindow;
 
   TimerSnapshot snapshot() => TimerSnapshot(
     phase: _phase,
@@ -192,17 +203,13 @@ class TimerEngine {
     final expired =
         _status == RunStatus.running && _rawRemaining <= Duration.zero;
     FocusSession? completion;
+    var completedEarly = false;
     if (expired) {
       if (_phase == FocusPhase.focus) {
-        completion = FocusSession(
-          id: _runId!,
-          startedAt: _startedAt!,
+        completion = _completeFocus(
           endedAt: _deadline!,
           focusSeconds: _totalSeconds,
-          taskId: _taskId,
-          taskTitle: _taskTitle,
         );
-        _completedRounds = (_completedRounds + 1).clamp(0, 8);
       }
       _advance();
       _revision++;
@@ -212,7 +219,8 @@ class TimerEngine {
       bool changed = false,
     ]) => TimerTransition(
       changed: expired || recovered || changed,
-      completedPhase: expired,
+      completedPhase: expired || completedEarly,
+      completedEarly: completedEarly,
       completion: completion,
       previousRunId: beforeRunId,
       outcome: outcome,
@@ -276,6 +284,16 @@ class TimerEngine {
           }
           _prepare(_phase);
         case TimerAction.skip:
+          if (canFinishEarly) {
+            completion = _completeFocus(
+              endedAt: now.utcNow,
+              focusSeconds:
+                  (_totalSeconds * Duration.microsecondsPerSecond -
+                      remainingMicros) ~/
+                  Duration.microsecondsPerSecond,
+            );
+            completedEarly = true;
+          }
           _advance();
         case TimerAction.selectPhase:
           if (_status == RunStatus.ready &&
@@ -291,6 +309,22 @@ class TimerEngine {
     }
     _revision++;
     return result(TimerCommandOutcome.applied, true);
+  }
+
+  FocusSession _completeFocus({
+    required DateTime endedAt,
+    required int focusSeconds,
+  }) {
+    final session = FocusSession(
+      id: _runId!,
+      startedAt: _startedAt!,
+      endedAt: endedAt,
+      focusSeconds: focusSeconds,
+      taskId: _taskId,
+      taskTitle: _taskTitle,
+    );
+    _completedRounds = (_completedRounds + 1).clamp(0, 8);
+    return session;
   }
 
   void _run(ClockReading now) {

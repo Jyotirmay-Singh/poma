@@ -1,0 +1,40 @@
+name: Windows desktop checks
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths: ['mobile/**', 'scripts/*windows*', 'release/windows/**', '.github/workflows/windows.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  windows-x64:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: mobile
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.2'
+          channel: stable
+          cache: true
+      - run: flutter config --enable-windows-desktop
+      - run: flutter pub get --enforce-lockfile
+      - run: dart format --output=none --set-exit-if-changed lib test integration_test tool
+      - run: flutter analyze --no-pub
+      - run: flutter test --no-pub
+      - run: flutter build windows --release --no-pub --build-name=1.0.0 --build-number=2009
+      - name: Compile and run native coordination checks
+        run: |
+          cmake -S windows/tests -B build/native-checks -A x64
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          cmake --build build/native-checks --config Release
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          ctest --test-dir build/native-checks -C Release --output-on-failure --verbose
+      # This job validates compilation on a CI host. It does not certify the
+      # Windows 11 package, sign, publish, upload, or perform desktop acceptance.

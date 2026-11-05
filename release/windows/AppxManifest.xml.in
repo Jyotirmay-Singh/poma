@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+         xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+         xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+         xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+         xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+         IgnorableNamespaces="uap desktop com rescap">
+  <!-- Identity/publisher, application/task IDs, and activator must survive upgrades. -->
+  <Identity Name="JyotirmaySingh.Poma.Desktop" Publisher="CN=Jyotirmay Singh"
+            Version="@VERSION@" ProcessorArchitecture="x64" />
+  <Properties>
+    <DisplayName>Poma</DisplayName>
+    <PublisherDisplayName>Jyotirmay Singh</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+  <Resources><Resource Language="en-us" /></Resources>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.26200.0" MaxVersionTested="10.0.26200.0" />
+  </Dependencies>
+  <Applications>
+    <Application Id="Poma" Executable="poma.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements DisplayName="Poma" Description="Offline focus timer, tasks and history"
+          BackgroundColor="#6854C8" Square150x150Logo="Assets\Square150x150Logo.png"
+          Square44x44Logo="Assets\Square44x44Logo.png" />
+      <Extensions>
+        <desktop:Extension Category="windows.startupTask" Executable="poma.exe" EntryPoint="Windows.FullTrustApplication">
+          <desktop:StartupTask TaskId="PomaStartup" Enabled="false" DisplayName="Poma" />
+        </desktop:Extension>
+        <desktop:Extension Category="windows.toastNotificationActivation">
+          <desktop:ToastNotificationActivation ToastActivatorCLSID="970A3EE4-5721-4FC9-8AB1-FA8994C723D7" />
+        </desktop:Extension>
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:ExeServer Executable="poma.exe" Arguments="--toast-activation" DisplayName="Poma notifications">
+              <com:Class Id="970A3EE4-5721-4FC9-8AB1-FA8994C723D7" DisplayName="Poma notification activation" />
+            </com:ExeServer>
+          </com:ComServer>
+        </com:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+  <Capabilities><rescap:Capability Name="runFullTrust" /></Capabilities>
+</Package>

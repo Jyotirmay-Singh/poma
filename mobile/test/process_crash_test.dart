@@ -49,7 +49,6 @@ void main() {
           for (final name in [
             'pubspec.yaml',
             'pubspec.lock',
-            'assets/licenses/pomatez.txt',
             '.dart_tool/package_config.json',
             '.dart_tool/package_graph.json',
             '.flutter-plugins-dependencies',
@@ -65,6 +64,13 @@ void main() {
             }
           }
           for (final entity in Directory(
+            'assets',
+          ).listSync(recursive: true).whereType<File>()) {
+            final target = File('${host.path}/${entity.path}');
+            target.parent.createSync(recursive: true);
+            entity.copySync(target.path);
+          }
+          for (final entity in Directory(
             'lib',
           ).listSync(recursive: true).whereType<File>()) {
             final target = File('${host.path}/${entity.path}');
@@ -73,6 +79,8 @@ void main() {
           }
           final result = await Process.run(executable, [
             '${sdk.path}/bin/cache/flutter_tools.snapshot',
+            '--suppress-analytics',
+            '--no-version-check',
             'test',
             '--no-pub',
             '--reporter',

@@ -3,6 +3,8 @@ import '../application/app_controller.dart';
 import '../domain/models.dart';
 import 'app_shell.dart';
 import 'copy.dart';
+import 'desktop_scope.dart';
+import 'calendar_screen.dart';
 
 class TasksScreen extends StatelessWidget {
   const TasksScreen({required this.controller, super.key});
@@ -104,10 +106,26 @@ class TasksScreen extends StatelessWidget {
             trailing: PopupMenuButton<String>(
               tooltip: context.copy.taskOptions(task.title),
               onSelected: (action) {
+                if (action == 'schedule') {
+                  final desktop = DesktopScope.maybeOf(context);
+                  if (desktop != null) {
+                    showFocusBlockDialog(
+                      context,
+                      desktop,
+                      taskTitle: task.title,
+                      taskId: task.id,
+                    );
+                  }
+                }
                 if (action == 'edit') _taskDialog(context, task: task);
                 if (action == 'delete') controller.deleteTask(task.id);
               },
               itemBuilder: (_) => [
+                if (DesktopScope.maybeOf(context) != null && !task.done)
+                  const PopupMenuItem(
+                    value: 'schedule',
+                    child: Text('Schedule focus block'),
+                  ),
                 PopupMenuItem(value: 'edit', child: Text(context.copy.rename)),
                 PopupMenuItem(
                   value: 'delete',
@@ -134,6 +152,11 @@ class TasksScreen extends StatelessWidget {
     }
   }
 }
+
+Future<void> showNewTaskDialog(
+  BuildContext context,
+  AppController controller,
+) => TasksScreen(controller: controller)._taskDialog(context);
 
 class _TaskDialog extends StatefulWidget {
   const _TaskDialog({this.initial});

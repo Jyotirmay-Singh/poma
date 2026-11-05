@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'alert_state.dart';
+import 'desktop_preferences.dart';
 
 enum FocusPhase {
   focus('Focus'),
@@ -329,6 +330,7 @@ class SavedState {
     this.revision = 0,
     this.lastCommitId,
     this.cleanupPending = false,
+    this.desktopPreferences,
   }) : tasks = List.unmodifiable(tasks),
        sessions = List.unmodifiable(sessions);
 
@@ -341,6 +343,7 @@ class SavedState {
   final int revision;
   final String? lastCommitId;
   final bool cleanupPending;
+  final DesktopPreferences? desktopPreferences;
 }
 
 DateTime storedTimestamp(Object? value) {

@@ -1,5 +1,46 @@
 # Release gates
 
+## Main-window calendar schedule
+
+- Confirm the calendar grid and view controls are visible before calendar
+  selection at normal text sizes. Unloaded cells must remain explicitly unknown.
+
+- Verify the seven retained dates, Day navigation bounds, overlapping events,
+  date-only events, refresh replacement and the read-only interaction flags.
+- Check initial setup, no selected calendars, stale/partial/offline data and
+  storage failures; an unloaded or unverified date must not imply availability.
+- Check details, tooltips and accessible labels disappear on lock, account/scope
+  invalidation and deselection. Verify Settings/tray links and Ctrl+1 through
+  Ctrl+5 reach their intended destinations.
+- Review 640, 1080 and 1440 logical pixels at 100% and 200% text, both themes,
+  high contrast and keyboard operation. Keep live Google acceptance separate
+  from fictional-data checks. See [Schedule behavior](CALENDAR_SCHEDULE.md).
+- Keep upstream repository links, owner names and promotional branding out of
+  ordinary UI, README and release descriptions. Preserve package identifiers and
+  required copyright/license notices in their technical and legal locations.
+
+## Session 12 private Windows candidate
+
+- Preserve pilot 1.0.0.2020 and its hashes; create a higher-version separate kit.
+- Keep initial connection at two read scopes; audit the separate exact three-scope
+  scheduling request with `verify_windows_pilot.py --focus-scheduling`.
+- Verify DPAPI receipt migration, native commit/journal leases, W01-W18 recovery,
+  read-only/offline/mobile regressions, lock redaction and the Calendar page.
+- Record L01-L05 separately with owner-operated disposable personal-account consent.
+- Include current bundled privacy, scope/setup/retention instructions, complete
+  x64 runtime/licenses, signer comparison, source/package/ZIP SHA-256 and evidence.
+- Do not publish, import certificate trust, or mark historical owner gates passed.
+
+## Windows Calendar private pilot
+
+Use [Session 9 acceptance](WINDOWS_CALENDAR_ACCEPTANCE.md) and the latest
+[calendar handoff](WINDOWS_CALENDAR_PROGRESS.md). Source/fixture, isolated runtime,
+package inspection and owner-installed observations remain distinct. Packaging
+Session 10 must bind a fresh higher-version artifact to its exact source inputs,
+preserve identity/certificate, and retain live Google, clean-profile, upgrade,
+physical display/accessibility/startup/sleep and installed-toast gates. No event
+writes or public distribution are part of this pilot.
+
 ## Owner-ID candidate 1.0.0+2007
 
 Use RELEASE_CANDIDATE.md for current build/check receipts and remaining gates.
@@ -72,7 +113,7 @@ CPU or energy use. Production signing and store distribution remain gates.
 - Preserve manually started phases. Auto-start chains are outside the confirmed scope; define special-break overlap semantics only if that deferred feature is approved.
 - Verify the current-mode UI without chips or a phase dropdown at every text size. Exercise Focus → Short break → Focus, direct Long break after the configured final focus, and return to zero-round Focus after Long break; every successor waits for its matching Start action.
 - Reopen a saved focus or break and revisit the Focus tab; preserve its phase/progress. Check purple focus/teal break accents in both themes, the single timer semantic readout, large-text spacing, reachable controls, and the existing strict-mode restrictions.
-- Verify first launch, timer and break controls, local tasks/history/settings, restart recovery, and local alerts in airplane mode. No app feature may require signup or a network connection.
+- Verify first launch, timer and break controls, local tasks/history/settings, restart recovery, and local alerts in airplane mode. Core offline operation requires no signup/network. Optional Windows Calendar requires Google access without blocking the core app.
 - Test VoiceOver, TalkBack, 200% text, narrow screens, dark mode, landscape, contrast, hit targets, and reduced motion.
 - Screen refinements have host widget/SQLite flow and named viewport coverage; retain the open physical checks in [ACCESSIBILITY.md](ACCESSIBILITY.md) and execute [UI_VERIFICATION.md](UI_VERIFICATION.md) on disconnected standalone installations. The native integration entry point is not proof of those checks and remains unrun without devices.
 
@@ -82,7 +123,7 @@ CPU or energy use. Production signing and store distribution remain gates.
 - Export/import is deferred and must not delay the core offline release. If later promised, require a versioned validated format, size limits, duplicate rules and a destructive-conflict preview.
 - Verify the implemented backup exclusions on devices: Android legacy/cloud-backup/device-transfer rules and iOS database-directory exclusion (including SQLite sidecars). Android packaged rules and the iOS simulator attribute tests are verified; actual phone backup/transfer behavior remains unverified. Keep the no-automatic-recovery disclosure accurate; an older OS backup is not retroactively removed.
 - Review sensitive task content, lock-screen notification privacy, and logs. Do not claim database encryption; none is implemented.
-- Keep accounts, backend services, cloud synchronization, remote configuration, and personal-profile collection outside the product scope. Retain settings, tasks, and history locally as requested.
+- Keep accounts, backend services, cloud synchronization, remote configuration, and personal-profile collection outside the mobile core. Windows adds only its explicitly chosen read-only Google connection; tasks and history remain local.
 - Verify no secrets, signing keys, debug endpoints, analytics, or unnecessary permissions ship.
 
 ## Performance evidence

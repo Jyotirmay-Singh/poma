@@ -28,3 +28,9 @@ abstract interface class LocalAlerts {
   Future<void> clearForReset();
   void dispose();
 }
+
+/// Optional resident-only effect. Mobile adapters remain OS-scheduled.
+/// The controller calls this only for a committed completion, never at startup.
+abstract interface class CompletionPresenter {
+  Future<void> presentCompletion(AlertRequest request);
+}

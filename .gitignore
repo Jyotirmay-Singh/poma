@@ -35,6 +35,8 @@ docs/VALIDATION.md
 *.jks
 *.keystore
 *.p12
+*.pfx
+*.pem
 *.p8
 *.mobileprovision
 key.properties

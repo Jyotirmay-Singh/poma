@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 const pomaPurple = Color(0xFF6854C8);
 const pomaTeal = Color(0xFF147D80);
 
-ThemeData pomaTheme(Brightness brightness) {
+ThemeData pomaTheme(Brightness brightness, {bool highContrast = false}) {
   final dark = brightness == Brightness.dark;
-  final colors =
+  final standardColors =
       ColorScheme.fromSeed(
         seedColor: pomaPurple,
         brightness: brightness,
@@ -18,7 +19,31 @@ ThemeData pomaTheme(Brightness brightness) {
             ? const Color(0xFFB7BFD2)
             : const Color(0xFF5F687E),
       );
+  final colors = highContrast
+      ? (dark
+            ? const ColorScheme.dark(
+                primary: Colors.yellow,
+                onPrimary: Colors.black,
+                surface: Colors.black,
+                onSurface: Colors.white,
+                onSurfaceVariant: Colors.white,
+                outline: Colors.white,
+                outlineVariant: Colors.white,
+              )
+            : const ColorScheme.light(
+                primary: Color(0xFF000080),
+                onPrimary: Colors.white,
+                surface: Colors.white,
+                onSurface: Colors.black,
+                onSurfaceVariant: Colors.black,
+                outline: Colors.black,
+                outlineVariant: Colors.black,
+              ))
+      : standardColors;
   final textTheme = ThemeData(brightness: brightness).textTheme.apply(
+    fontFamily: defaultTargetPlatform == TargetPlatform.windows
+        ? 'Segoe UI'
+        : null,
     bodyColor: colors.onSurface,
     displayColor: colors.onSurface,
   );

@@ -62,6 +62,7 @@ class TimerDial extends StatelessWidget {
         style: phaseStyle,
       );
       return Semantics(
+        container: true,
         label:
             '${phaseName(context.copy, timer.phase)}, ${switch (timer.status) {
               RunStatus.ready => context.copy.ready,

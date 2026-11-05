@@ -1,0 +1,135 @@
+Poma for Windows — local data and privacy
+
+Poma's timers, tasks, settings and focus history work offline without an account.
+No Poma backend, telemetry or advertising is used. Core operation needs no network.
+
+Optional Google Calendar connection opens your default browser and temporarily
+listens only on this computer's loopback address. Google handles your password
+and MFA. Ordinary connection requests calendar-list and event read permissions and makes
+direct HTTPS requests to Google for authorization, tokens, calendar metadata,
+selected events and revocation. You must choose and save calendars before Poma
+fetches their event contents. Optional focus scheduling needs separate consent,
+calendar setup and a final reviewed confirmation. Poma does not import tasks or
+synchronize phone data. A resident refresh runs about every five minutes
+and on meaningful lifecycle/manual actions, never on timer ticks.
+The separate calendar demo always uses fictional data.
+Focus scheduling requests exactly the two read permissions plus
+https://www.googleapis.com/auth/calendar.app.created. Google's permission can
+manage events on calendars the app creates and can authorize calendar resource
+operations too. Poma exposes dedicated Poma Focus calendar creation and checked
+management of its own one-off blocks only. It cannot limit Google's grant to a
+calendar name or ownership marker. Declining an upgrade preserves the saved
+read connection; provider policy or revocation can independently affect it.
+Every block needs an explicit preview of its title, account, calendar, timing,
+device timezone and Busy/Free choice. No task notes, task IDs, completion counts
+or session history are uploaded. Task changes never update Google automatically.
+Blocks are private ordinary events without guests, recurrence, conferencing,
+attachments or event reminders. Poma uses sendUpdates=none; it does not promise
+that Google itself will never generate an email. Busy does not set Chat status
+or automatically decline invitations.
+Draft titles/times, provisioning markers, operation IDs, confirmed payloads,
+ETags, ownership snapshots and safe failure categories are stored unencrypted in
+calendar/accounts/<account-key>/focus-blocks.json, separately from the agenda
+cache and Pomodoro database. Unresolved operations and active/future block records
+are retained. Terminal payloads and expired drafts are cleaned up 30 days after
+the later of their end time or terminal transition, when the journal is saved.
+Nothing is sent automatically on restart, resume or restored connectivity.
+Expired scheduling intentions cannot insert late; uncertain sends are checked
+using the original event ID. Disable focus scheduling stops pending changes and
+saves local disablement while retaining calendar viewing and Google permission.
+Disconnect/reset remove local write records and preserve existing remote events.
+A request already transmitted may still appear in Google. No compensating delete
+runs automatically. Recover Poma blocks requires explicit review and restores
+only local management records, without tasks, history or pending commands.
+The regular tray shows selected-calendar Now/Next and the upcoming seven dates.
+Saved or incomplete schedules are labelled unverified. Event and supported meeting
+links open in your default browser only when you choose Open event, Open Calendar
+or Join. Location and description text may be read transiently to find a supported
+meeting URL; the raw text is not stored or rendered as HTML.
+Event titles may appear in the unlocked tray tooltip; disable this in Calendar
+tray settings. Locked or unknown Windows lock state hides calendar details.
+
+Meeting reminders are optional and off initially. Choose calendars separately
+and a 1/5/10/15/30-minute lead (five minutes by default). Reminder text is always
+generic, including on the lock screen; payloads contain no event titles, calendar
+names, meeting URLs or credentials. Opaque occurrence/attempt/action receipts
+and reminder preferences are stored unencrypted in the account's reminders.json,
+separately from event snapshots and timer completion records. Disconnect or full
+reset removes them. Attempt receipts are pruned when the reminder document is
+next saved; old on-disk receipts can remain until then. Receipt counts are bounded
+and a storage/limit failure disables reminders with a retry state. No cleanup
+service runs while Poma has quit. Event updates, deselection and setting changes cancel old
+resident reminders; remote changes are known after refresh. Stale sources do not
+generate reminders. Missed reminders are skipped after sleep or restart.
+Poma must remain running: fully exited Poma generates no reminders. Poma does not
+wake Windows or guarantee exact sleeping delivery. Windows notification settings
+and Do Not Disturb control presentation. Already submitted notifications may
+remain in Windows history after a crash; submission is not proof of delivery.
+Before starting a new focus that overlaps a saved meeting, Continue/Cancel lets
+you retain the full configured duration. Calendar context never becomes a task
+or changes historical task snapshots.
+
+Refresh credentials, client/account identifiers, verified grants and a versioned
+optional scheduling capability receipt are protected
+for the current Windows user with DPAPI under calendar/connection.dpapi in the
+profile below. Access tokens stay in memory. Tokens and authorization return URLs
+are not logged. External Testing authorization may expire after seven days;
+revocation or account policy may also require explicit Reconnect.
+
+Disconnect immediately disables calendar access and removes calendar credentials
+and calendar-derived local data, preserving tasks and focus history. Cleanup
+failures are visible and retryable. Poma attempts Google revocation, but offline
+or failed requests cannot confirm remote removal. Remove Poma in Google Account
+Third-party connections if needed. Google revocation can affect other OAuth
+clients in the same Google project and may take time to propagate. Uninstall
+cannot revoke Google access.
+The local disconnected marker remains without account/event contents so restart
+can finish interrupted removal. Late calendar responses and old storage leases
+cannot restore cleared account data. Local removal does not erase external
+backups, and Google revocation never deletes remote events.
+
+Calendar metadata, your selection, event identities/titles, date/time intervals,
+self-response state, validated conference/event URLs and snapshot age/coverage are
+stored separately under calendar/accounts/<account-key>/state.json. This cache is
+not encrypted by Poma. Descriptions, attachments and full attendee lists are not
+stored. Only events overlapping today through six local dates ahead are retained;
+data is trimmed on startup, midnight, resume and time-zone changes, including
+offline. Quit stops background refresh/expiry work. Failed refreshes retain saved
+data with its age and coverage shown; the schedule may have changed.
+
+An expired/revoked grant is retired to protected no-token account identity, while
+bounded stale cache remains removable. Reconnect preserves selected identities
+only after the same account is verified. Explicit Disconnect/account replacement
+or full reset removes calendar-derived data. Failed cleanup is visible/retryable.
+DPAPI does not encrypt the event cache or other local data or guarantee forensic
+deletion or recovery on another profile/device.
+
+The installed application stores its SQLite database in this Windows user's
+Poma package LocalState directory. Package upgrades retain that directory;
+uninstall removes package-local data. Development builds use a separate local
+development directory. No data is stored beside the installed executable or
+in a cloud-synchronized Documents folder. The database is not encrypted by Poma.
+Windows administrators, device backup software and anyone with access to your
+Windows account may be able to access local files.
+
+Tasks, settings and history remain until you delete them. Task names already
+captured by a focus session remain in history after the task is renamed or
+deleted. Deletion is logical SQLite deletion, not forensic erasure.
+Clear history does not abandon a running phase. Delete all local data abandons
+the active phase, clears calendar credentials/data, preferences/history/tasks and native notification
+responses, and disables Poma's optional startup task. Windows notification
+permission is controlled by Windows.
+
+Notifications contain only generic completion or meeting text and opaque local
+action identities, never task or event titles. Windows controls presentation, sound and Do Not
+Disturb. Closing to the tray keeps Poma resident. Quit stops resident alerts;
+sleep may delay reconciliation until resume. No service or wake task is used.
+Reopening recovers saved timers without replaying old completion alerts. Cold
+restart recovery uses the saved UTC deadline; changing the clock while Poma is
+stopped can affect that fallback.
+
+There is no automatic recovery after uninstall, device loss or storage damage.
+Unsaved changes may be lost if Poma closes. Poma never silently replaces an
+unreadable database. See the included Windows installation/recovery guide.
+
+Support: https://github.com/Jyotirmay-Singh/poma/issues

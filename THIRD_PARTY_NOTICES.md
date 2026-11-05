@@ -1,5 +1,64 @@
 # Third-party notices
 
+## Calendar presentation — MIT License
+
+The calendar presentation uses `kalender` 0.33.0. Its package license is also
+included by Flutter's generated license registry in About → View licenses.
+The existing Flutter 3.44.2 / Dart 3.12.2, intl 0.20.2 and timezone 0.11.2
+constraints are retained. Additional packages are linked_pageview,
+scrollable_positioned_list and universal_platform; their notices remain in the
+generated package license inventory.
+
+MIT License
+
+Copyright (c) 2023 Klarälvdalens Datakonsult AB, a KDAB Group company <info@kdab.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+## Windows desktop components
+
+Session 9 retains the locked versions below. The verification package must include
+the generated package license texts as well as the matching Flutter/SQLite and
+Microsoft runtime notices. Native tray, credential and toast adapters remain
+app-owned; use of Windows system APIs does not add a redistributed dependency.
+
+Windows Calendar Session 5 adds Dart-team `oauth2` 2.0.5 (BSD-3-Clause) and
+directly uses the existing locked `http` 1.6.0 and `crypto` 3.0.7 (BSD-3-Clause).
+Their package licenses are included by Flutter's license registry. The native
+credential adapter links the operating system's Crypt32 library; it adds no
+redistributed storage runtime or ATL requirement. Standard `google_sign_in`
+is not used. No Google sample's plaintext credential storage is adopted.
+
+Windows Calendar Session 6 directly uses the existing locked `timezone` 0.11.2
+(BSD-2-Clause) for calendar-zone date boundaries. No package version upgrade is
+required. Its license is included by Flutter's package license registry.
+
+The private Windows installation kit contains readable Flutter/engine/Dart/package
+notices, SQLite public-domain attribution and the matching Microsoft Visual C++
+runtime license. `windows-native.txt` is also available in About → View licenses.
+SQLite is bundled by locked `sqlite3` 3.5.2 build hooks. The locked Windows
+notification dependency is built from a local compatibility copy replacing three
+ATL UTF-8 conversions with C++/WinRT equivalents; its original license is retained.
+Poma uses its own Windows notification adapter. Runtime file origins/versions and
+SHA-256 hashes are recorded in the package inventory. No external logo or font
+was introduced; Windows icons derive from Poma's existing timer mark.
+
 Poma's mobile feature reference is [Pomatez](https://github.com/zidoro/pomatez) at commit `c2727800c6272573590911e9ee81637b89e55d5f`. The mobile Dart implementation is newly written; the original project's notice is retained for attribution and any subsequent reuse.
 
 ## Pomatez — MIT License

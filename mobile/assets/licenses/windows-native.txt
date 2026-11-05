@@ -1,0 +1,26 @@
+Poma Windows native runtime notices
+
+Poma's Windows host and tray/popup implementation are part of Poma.
+Windows Calendar uses the locked Dart packages oauth2 2.0.5, http 1.6.0 and
+crypto 3.0.7 (BSD-3-Clause), and timezone 0.11.2 (BSD-2-Clause). Their full
+copyright/license texts are included in Flutter's generated package notices
+and the Windows kit's Licenses/Flutter-and-packages.txt. Calendar authorization
+and reads use direct Google endpoints; no additional storage or tray plugin
+is installed. Native protected storage uses Windows-supplied Crypt32/DPAPI.
+Flutter engine and Dart/package license notices are included in Flutter's
+generated license inventory (About → View licenses).
+
+SQLite's native library is bundled through package:sqlite3 3.5.2 build hooks.
+The SQLite library is public domain: https://sqlite.org/copyright.html
+The Dart sqlite3 and sqflite packages' licenses are in the generated inventory.
+
+The locked flutter_local_notifications_windows 3.1.1 native DLL is built as a
+dependency but Poma does not initialize its Windows notification adapter.
+A build-local compatibility copy replaces ATL CW2A conversions with equivalent
+C++/WinRT UTF-8 conversions. Its original package license remains in the
+generated inventory. The original package cache is never modified.
+
+Microsoft Visual C++ runtime files in the Windows release are redistributed
+from the licensed Visual Studio redistributable directory. Their license and
+the exact build-specific native inventory accompany the Windows installation
+kit. Windows system APIs themselves are supplied by Windows.

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,6 +16,23 @@ import 'ui/app_shell.dart';
 import 'ui/theme.dart';
 import 'ui/copy.dart';
 import 'l10n/poma_localizations.dart';
+import 'application/desktop_controller.dart';
+import 'data/windows_platform.dart';
+import 'ui/desktop_scope.dart';
+import 'application/calendar_connection_controller.dart';
+import 'data/google_calendar_authorization.dart';
+import 'data/windows_calendar_credentials.dart';
+import 'domain/calendar_preview.dart';
+import 'application/calendar_read_controller.dart';
+import 'data/calendar_time.dart';
+import 'data/google_calendar_reader.dart';
+import 'data/windows_calendar_cache.dart';
+import 'application/calendar_reminder_controller.dart';
+import 'data/windows_calendar_reminders.dart';
+import 'application/focus_block_controller.dart';
+import 'data/google_focus_writer.dart';
+import 'data/windows_focus_store.dart';
+import 'data/windows_focus_time.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,9 +40,18 @@ void main() {
     yield LicenseEntryWithLineBreaks([
       'Pomatez',
     ], await rootBundle.loadString('assets/licenses/pomatez.txt'));
-    yield LicenseEntryWithLineBreaks([
-      'Android native runtime dependencies',
-    ], await rootBundle.loadString('assets/licenses/android-native.txt'));
+    yield LicenseEntryWithLineBreaks(
+      [
+        Platform.isWindows
+            ? 'Windows native runtime dependencies'
+            : 'Android native runtime dependencies',
+      ],
+      await rootBundle.loadString(
+        Platform.isWindows
+            ? 'assets/licenses/windows-native.txt'
+            : 'assets/licenses/android-native.txt',
+      ),
+    );
   });
   runApp(const PomaLoader());
 }
@@ -48,6 +75,9 @@ class _PomaLoaderState extends State<PomaLoader> {
   late Future<AppController> _loading;
   LocalRepository? _repository;
   AppController? _controller;
+  NativeWindowsHost? _windowsHost;
+  DesktopController? _desktop;
+  CalendarConnectionController? _connection;
   @override
   void initState() {
     super.initState();
@@ -57,22 +87,96 @@ class _PomaLoaderState extends State<PomaLoader> {
 
   Future<AppController> _load() async {
     await _repository?.close();
-    final repository = widget.repositoryFactory?.call() ?? SqliteRepository();
+    DesktopEnvironment? environment;
+    if (widget.repositoryFactory == null && Platform.isWindows) {
+      _windowsHost ??= NativeWindowsHost();
+      environment = await _windowsHost!.initialize();
+    }
+    final repository =
+        widget.repositoryFactory?.call() ??
+        (environment == null
+            ? SqliteRepository()
+            : await _windowsHost!.repository(environment));
     _repository = repository;
-    return _controller = await AppController.create(
+    final alerts =
+        widget.alertsFactory?.call() ??
+        (widget.repositoryFactory != null
+            ? null
+            : environment == null
+            ? NativeLocalAlerts()
+            : WindowsLocalAlerts(_windowsHost!));
+    if (environment != null) {
+      final credentials = WindowsCalendarCredentials(_windowsHost!.channel);
+      _connection ??= CalendarConnectionController(
+        configuration: const GoogleCalendarConfiguration.environment(),
+        authorization: DesktopGoogleAuthorization(browser: credentials),
+        writeAuthorization: DesktopGoogleAuthorization(browser: credentials),
+        store: credentials,
+        onDisconnected: () =>
+            _desktop?.calendar.select(CalendarFixture.disconnected),
+      );
+    }
+    final controller = _controller = await AppController.create(
       repository,
       clock: widget.clockFactory?.call() ?? NativeTimerClock(),
-      alerts:
-          widget.alertsFactory?.call() ??
-          (widget.repositoryFactory == null ? NativeLocalAlerts() : null),
+      alerts: alerts,
+      resetParticipant: _connection,
+      completionPresenter: alerts is CompletionPresenter
+          ? alerts as CompletionPresenter
+          : null,
     );
+    if (environment != null) {
+      const calendarClock = DeviceCalendarClock();
+      const calendarScheduler = TimerCalendarScheduler();
+      final calendarData = CalendarReadController(
+        connection: _connection!,
+        provider: GoogleCalendarReader(
+          access: _connection!,
+          clock: calendarClock,
+          scheduler: calendarScheduler,
+        ),
+        cache: WindowsCalendarCache(_windowsHost!.channel),
+        clock: calendarClock,
+        scheduler: calendarScheduler,
+      );
+      _desktop = DesktopController(
+        controller,
+        _windowsHost!,
+        environment,
+        connection: _connection,
+        calendarData: calendarData,
+        calendarPlatform: _windowsHost,
+      );
+      await _desktop!.initialize();
+      final focusWriter = GoogleFocusWriter(_connection!);
+      final focusBlocks = FocusBlockController(
+        session: _connection!,
+        store: WindowsFocusStore(_windowsHost!.channel, _connection!),
+        writer: focusWriter,
+        time: WindowsFocusTime(_windowsHost!.channel),
+      );
+      focusWriter.verifyTime = focusBlocks.verifyTime;
+      _desktop!.attachFocusBlocks(focusBlocks);
+      final reminderAdapter = WindowsCalendarReminders(_windowsHost!.channel);
+      _desktop!.attachReminders(
+        CalendarReminderController(
+          reader: calendarData,
+          store: reminderAdapter,
+          platform: reminderAdapter,
+          openAgenda: () => _desktop!.showPopup(),
+        ),
+      );
+    }
+    return controller;
   }
 
   @override
   Widget build(BuildContext context) => FutureBuilder<AppController>(
     future: _loading,
     builder: (context, snapshot) {
-      if (snapshot.hasData) return PomaApp(controller: snapshot.data!);
+      if (snapshot.hasData) {
+        return PomaApp(controller: snapshot.data!, desktop: _desktop);
+      }
       return MaterialApp(
         title: 'Poma',
         localizationsDelegates: PomaLocalizations.localizationsDelegates,
@@ -134,6 +238,8 @@ class _PomaLoaderState extends State<PomaLoader> {
   );
   @override
   void dispose() {
+    _desktop?.dispose();
+    if (_desktop == null) _connection?.dispose();
     _controller?.dispose();
     unawaited(
       (_controller?.flush() ?? Future.value()).then(
@@ -145,33 +251,123 @@ class _PomaLoaderState extends State<PomaLoader> {
 }
 
 class PomaApp extends StatefulWidget {
-  const PomaApp({required this.controller, super.key});
+  const PomaApp({required this.controller, this.desktop, super.key});
   final AppController controller;
+  final DesktopController? desktop;
   @override
   State<PomaApp> createState() => _PomaAppState();
 }
 
 class _PomaAppState extends State<PomaApp> with WidgetsBindingObserver {
+  final _navigator = GlobalKey<NavigatorState>();
   @override
   void initState() {
     super.initState();
     unawaited(DeviceFormats.initialize());
     WidgetsBinding.instance.addObserver(this);
-    widget.controller.setForeground(
-      WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed,
+    if (widget.desktop == null) {
+      widget.controller.setForeground(
+        WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed,
+      );
+    }
+    widget.desktop?.confirmDiscard = () async =>
+        await showDialog<bool>(
+          context: _navigator.currentContext!,
+          builder: (context) => AlertDialog(
+            title: const Text('Quit with unsaved changes?'),
+            content: const Text(
+              'Changes could not be saved. Retry in Poma, or quit and lose unsaved changes.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Keep Poma open'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Quit anyway'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+    widget.desktop?.chooseAlerts = () => showDialog<bool>(
+      context: _navigator.currentContext!,
+      builder: (context) => AlertDialog(
+        title: const Text('Completion alerts'),
+        content: const Text(
+          'Poma can notify you when a phase finishes while it is running, including in the tray. Windows notification settings still apply. Quit stops alerts.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Not now'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Enable alerts'),
+          ),
+        ],
+      ),
     );
+    widget.desktop?.confirmFocusConflict = (conflict) async {
+      final desktop = widget.desktop!;
+      final navigator = _navigator.currentState!;
+      final route = DialogRoute<bool>(
+        context: _navigator.currentContext!,
+        builder: (context) => AlertDialog(
+          scrollable: true,
+          title: const Text('Focus overlaps a meeting'),
+          content: Text(
+            '${conflict.event.title}\n'
+            '${DeviceFormats.time(context, conflict.event.startUtc!.toLocal())}'
+            '${conflict.additional == 0 ? '' : '\n${conflict.additional} additional overlapping meeting(s).'}'
+            '${conflict.stale ? '\nSaved schedule; calendar data may have changed.' : ''}'
+            '\nContinue with your full focus duration?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Continue'),
+            ),
+          ],
+        ),
+      );
+      void changed() {
+        if ((desktop.sessionState != 'unlocked' || desktop.isQuitting) &&
+            route.isActive) {
+          navigator.removeRoute(route, false);
+        }
+      }
+
+      desktop.addListener(changed);
+      try {
+        return await navigator.push(route) ?? false;
+      } finally {
+        desktop.removeListener(changed);
+      }
+    };
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) unawaited(reportFirstUsableFrame());
     });
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) =>
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (widget.desktop == null) {
       widget.controller.setForeground(state == AppLifecycleState.resumed);
+    }
+  }
+
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: widget.controller,
     builder: (context, _) => MaterialApp(
+      navigatorKey: _navigator,
       title: 'Poma',
       localizationsDelegates: PomaLocalizations.localizationsDelegates,
       supportedLocales: PomaLocalizations.supportedLocales,
@@ -186,12 +382,40 @@ class _PomaAppState extends State<PomaApp> with WidgetsBindingObserver {
       debugShowCheckedModeBanner: false,
       theme: pomaTheme(Brightness.light),
       darkTheme: pomaTheme(Brightness.dark),
+      highContrastTheme: pomaTheme(Brightness.light, highContrast: true),
+      highContrastDarkTheme: pomaTheme(Brightness.dark, highContrast: true),
       themeMode: switch (widget.controller.settings.appearance) {
         'light' => ThemeMode.light,
         'dark' => ThemeMode.dark,
         _ => ThemeMode.system,
       },
-      home: AppShell(controller: widget.controller),
+      home: widget.desktop == null
+          ? AppShell(controller: widget.controller)
+          : DesktopScope(
+              controller: widget.desktop!,
+              child: CallbackShortcuts(
+                bindings: {
+                  for (var i = 0; i < desktopDestinationOrder.length; i++)
+                    SingleActivator(
+                      [
+                        LogicalKeyboardKey.digit1,
+                        LogicalKeyboardKey.digit2,
+                        LogicalKeyboardKey.digit3,
+                        LogicalKeyboardKey.digit4,
+                        LogicalKeyboardKey.digit5,
+                      ][i],
+                      control: true,
+                    ): () =>
+                        widget.desktop!.navigate(desktopDestinationOrder[i]),
+                  const SingleActivator(LogicalKeyboardKey.keyN, control: true):
+                      widget.desktop!.requestNewTask,
+                },
+                child: Focus(
+                  autofocus: true,
+                  child: AppShell(controller: widget.controller),
+                ),
+              ),
+            ),
     ),
   );
   @override

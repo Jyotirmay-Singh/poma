@@ -1,5 +1,182 @@
 # Privacy, local data and dependency review
 
+## Session 12 implementation review
+
+Optional scheduling adds only `calendar.app.created` to the two read scopes in a
+separate explicit grant. Google permits resource-level access beyond Poma's marked
+blocks; provenance and supported-shape guards enforce Poma's narrower behavior.
+The new unencrypted journal includes titles/times and ETags. Tokens remain DPAPI
+protected/in memory and are excluded from logs, screenshots and kits. Permission
+decline preserves the canonical reader. Stable operation/event identities, guarded
+atomic persistence, GET reconciliation and ETags protect retries and remote changes.
+No attendees, recurring writes, automatic history uploads, general editor or public
+distribution is included. Actual checks and pending live gates are recorded in
+[Session 12](WINDOWS_CALENDAR_SESSION12.md); specification rows alone are not passes.
+
+## Windows Calendar Session 9 — 26 October 2026 (Asia/Calcutta)
+
+The owner selected synthetic Google checks and isolated runtimes, with live
+Google and installed desktop checks retained as gates. No owner configuration,
+profile, credentials or personal event contents were loaded. The new acceptance
+ledger separates automated cases, isolated observations and owner procedures:
+[Windows Calendar acceptance](WINDOWS_CALENDAR_ACCEPTANCE.md).
+
+Ten new regressions combine event/formatting/reminder-receipt and snapshot-write
+races across disconnect, reset and account replacement, real paginated reads,
+HTTP-date Retry-After and stalled/failed credential restoration alongside offline
+tasks/history/timer operation. The complete suite passed 302 tests; actual native
+DPAPI/lease/atomic-file checks passed 211 checks. Simulated `invalid_grant` covers
+expiry handling without claiming a real seven-day Testing expiry.
+
+A demonstrated full-reset defect described credential deletion failure only as
+an alert-cleanup problem. Error text now reports remaining local data; the new
+regression verifies pending cleanup, repeated failure, disabled reconnect and
+successful Retry. No timer semantics, scopes, schema or remote event operations
+changed. Retention wording now states that reminder attempts prune on saves;
+old disk receipts can remain until that next save. Quit runs no expiry service.
+
+The isolated awake runtime used fictional data, real native clock/cache and a
+memory-only Pomodoro database. It recorded 24 resource samples against its own
+disconnected baseline, one original hidden completion with a Ready successor,
+no foreground ticker, one calendar deadline and local calendar removal leaving
+only the disconnected marker. Its notification capability was unavailable.
+The process exited after normal Quit; its exit code was not retained, and no zero
+code is claimed. Instrumentation/background build activity limits performance
+comparisons. This predates final wording/style changes and has its own identity.
+
+Production 1.0.0.2017 uses the normal entry point and remains unsigned/uninstalled.
+The [Session 9 review](../artifacts/windows/calendar-session9/REVIEW.md) binds the
+bounded log/payload/notice inspection, source hashes and actual platform outcomes.
+No signing, trust, startup/policy change, provider consent, event write,
+installation or publication is part of this verification. Owner-installed
+toast/DND/lock/sleep, physical display/accessibility/startup, live Google and
+clean-profile/upgrade acceptance remain open. Mobile policy scope is preserved.
+
+## Windows Calendar Session 8 — 26 October 2026 (Asia/Calcutta)
+
+Reminders default off and require separate explicit source inclusion. Windows
+notification content is always generic; only an opaque token, resident generation
+and expiration cross the presentation adapter. Native activation has a separate
+calendar parser/group/response queue; timer Open/Dismiss identities are unchanged.
+Locked or unknown session state blocks calendar actions, and the Flutter conflict
+dialog is removed on lock. Desktop timer controls retain run/revision validation.
+
+The separate unencrypted `reminders.json` stores preferences, selected source IDs,
+hashed occurrence/start attempt receipts and bounded resident action receipts.
+Native atomic writes reuse the existing account capability and mutex. Disconnect,
+replacement and full reset remove the same cleanup-owned account subtree; old
+worker capabilities cannot recreate it. No additional scopes, provider event
+writes, task conversion, backend, analytics or notification-policy writes were
+introduced. Calendar processing never enters the timer command queue.
+
+Synthetic tests cover duplicate delivery/actions, late receipt writes after
+disconnect, source failure, changed lead/source/occurrence, lock redaction and
+focus conflict revalidation. Native host tests exercise real DPAPI, reminder
+atomic replacement and lease invalidation. An isolated unpackaged Windows runtime
+observed hidden timer expiry and a native calendar deadline without loading owner
+data. It reported notification capability **unavailable**, as intended without
+installed MSIX identity; this is not a real toast/DND/lock/suspend observation.
+Exact results and identities are in the [Session 8 review](../artifacts/windows/calendar-session8/REVIEW.md).
+
+Installed toast display/sound/actions, real DND/denial, physical lock/unlock,
+sleep/hibernate and live Google remain unrun. No OS setting, certificate trust,
+installation, sign-in or publication was performed. Earlier release/privacy
+evidence below retains its original scope.
+
+## Windows Calendar Session 7 — 25 October 2026
+
+The ordinary tray now derives its agenda from the selected-calendar read model.
+Now/Next, day browsing and per-calendar age/coverage distinguish saved/unverified
+data from freshly verified coverage. The existing title preference applies to
+the unlocked tooltip; lock/unknown state removes real and preview content and
+native accessible event names. The single Pomodoro persistence owner is unchanged.
+
+Open event/Open Calendar/Join require explicit actions. Opaque tokens bind to
+current generation, account/scope, selection and the unchanged source instance;
+native launch independently validates generation, unlocked state, HTTPS hosts
+and provider routes. Structured conference data precedes hangoutLink and literal
+location/description fallbacks. Raw fallback text is retrieved transiently,
+discarded after normalization, never stored or rendered as HTML. The unencrypted
+version-1 cache retains only the validated link, not descriptions/location text.
+Refresh, startup, formatting and timer actions do not open meeting URLs.
+
+Observed: **276 Flutter tests**, including **13 new agenda tests**, **199 native
+checks**, clean analysis and formatting, and Windows developer build **2014**.
+The shared URL corpus has **41 cases**. A separate memory-only fictional target
+provided actual native popup, keyboard, accessible-name, partial-failure and
+injected-200%-text observations; it uses an isolated profile and blocks browser
+launching. No owner configuration, credentials or event data was used. Production
+review markers and app-owned logging checks were clear in the bounded inspection.
+See [Session 7 review and limits](../artifacts/windows/calendar-session7/REVIEW.md).
+Live Google consent/comparison, positive browser opening, Narrator speech and
+installed/physical desktop gates remain unrun. Earlier evidence below is historical.
+
+## Windows Calendar Session 6 — 25 October 2026
+
+Optional Windows Google access now includes paginated calendar metadata and
+explicitly selected event-instance snapshots. A new account selects none.
+Requests remain direct to Google's fixed HTTPS API endpoints under the existing
+two read scopes, with no backend, event writes, task import or phone networking.
+The tray agenda remains a labelled fictional demo; actual selection and cache
+age/coverage are in Settings.
+
+The separate unencrypted account document retains only calendar identity/name,
+role/color/zone, selection, coverage/success times, event/recurrence identity,
+plain titles, UTC or exclusive date intervals, self response and validated
+structured meeting/event URLs. Descriptions, attachments, attendee rosters and
+raw API bodies are excluded. Attendee retrieval is limited and only the self
+response is normalized. No remote HTML is rendered and refresh launches no URL.
+
+Seven local dates are retained, trimmed during startup/midnight/resume/time-zone
+changes even offline. No expiry service runs after Quit. Partial failure retains
+prior valid data and age, with missing coverage explicit. Native atomic account
+documents share the protected store's revision/mutex and reject obsolete leases.
+Saved deselection removes the source; disconnect/account replacement/reset purge
+the account subtree. Expired grants retain only protected no-token identity and
+removable stale cache; reconnect selection requires the verified same account.
+DPAPI does not encrypt the event cache or promise forensic deletion/backups.
+
+Observed independent checks: **263 Flutter tests**, including **24 new reader,
+cache, lifecycle, normalization, transport and widget tests**; **113 native checks**;
+clean analysis; **70 files / zero formatting changes**; Windows developer build
+**1.0.0.2013**. Fixtures include account/selection/window/reset races, failed pages
+and writes, UTC/DST/differing zones, throttling and URL safety. These are synthetic
+and local-native checks, not live Google or installed-package evidence. Detailed
+source/build hashes, bounded source/runtime review and remaining gates are in
+[the Session 6 review](../artifacts/windows/calendar-session6/REVIEW.md) and
+[calendar handoff](WINDOWS_CALENDAR_PROGRESS.md).
+
+Owner Google setup, sign-in, actual grants/refresh/revocation and event comparison
+remain **unrun**. No owner configuration or real calendar contents were read.
+Existing mobile/installed-desktop acceptance limits remain open.
+
+## Windows Calendar Session 5 — 25 October 2026
+
+The current Windows source adds optional direct Google authorization, separate
+from offline Pomodoro and the fictional calendar preview. The source requests
+only calendar-list/event read scopes. Its only Calendar API request is a minimal
+primary-calendar identifier (`id,primary`); it has no event-fetching, write,
+selection or agenda synchronization engine. Authorization/token/revocation
+requests use fixed Google HTTPS endpoints; only the temporary callback uses
+loopback HTTP. No account from Codex/MCP is reused.
+
+App-owned credential/error paths avoid token/callback logging and provider body
+display. Refresh records use native current-user DPAPI, profile-bound context,
+atomic ciphertext replacement and durable disconnection markers. Access tokens
+stay in memory. Local disconnect and full reset invalidate old generations and
+purge calendar-only data, without changing Disconnect's preservation of local
+tasks/history. Remote revocation remains bounded and may be unconfirmed offline;
+uninstall cannot revoke a Google grant. These are implementation findings, not
+a comprehensive security audit or forensic-deletion guarantee.
+
+Independent tests use synthetic credentials, mocked Google replies, real local
+loopback requests and isolated native DPAPI profiles. Results/source/build
+identity are in [the latest calendar handoff](WINDOWS_CALENDAR_PROGRESS.md).
+No owner Google configuration, live consent, actual grants, real token refresh,
+remote revocation, installed authorization or attributable live network capture
+has been verified. Earlier installed/tray/lock/suspend/mobile gates remain open.
+The historical mobile release findings below retain their original build scope.
+
 ## Owner-ID candidate — 22 October 2026
 
 Build 2007 adds offline privacy/support pages, native dependency notices and

@@ -52,17 +52,17 @@ void main() {
   );
 
   test(
-    'pause, reset and skip one microsecond before expiry never count a completion',
+    'pause, reset and selection one microsecond before expiry never count a completion',
     () {
       for (final action in [
         TimerAction.pause,
         TimerAction.reset,
-        TimerAction.skip,
+        TimerAction.selectPhase,
       ]) {
         act(TimerAction.selectPhase, phase: FocusPhase.focus);
         act(TimerAction.start);
         clock.advance(const Duration(microseconds: 1499999999));
-        expect(act(action).completion, isNull);
+        expect(act(action, phase: FocusPhase.focus).completion, isNull);
         clock.advance(const Duration(days: 1));
         expect(act(TimerAction.reconcile).completion, isNull);
         expect(timer.completedRounds, 0);
@@ -80,6 +80,261 @@ void main() {
       expect(timer.remainingMicros, 1);
       clock.advance(const Duration(microseconds: 1));
       expect(act(TimerAction.reconcile).completion, isNotNull);
+    },
+  );
+
+  for (final remaining in [300000001, 300000000, 299999999, 299000000, 1, 0]) {
+    test(
+      'Skip with $remaining microseconds left counts only below five minutes',
+      () {
+        act(TimerAction.start);
+        final started = timer.snapshot();
+        clock.advance(Duration(microseconds: 1500000000 - remaining));
+        // No refresh first: eligibility must use the clock sampled for Skip.
+        final result = act(TimerAction.skip);
+        final earnsCompletion = remaining < 300000000;
+        expect(result.completedPhase, earnsCompletion);
+        expect(result.completedEarly, earnsCompletion && remaining > 0);
+        expect(result.completion != null, earnsCompletion);
+        expect(timer.completedRounds, earnsCompletion ? 1 : 0);
+        expect(timer.phase, FocusPhase.shortBreak);
+        expect(timer.status, RunStatus.ready);
+        expect(timer.canFinishEarly, isFalse);
+        if (earnsCompletion) {
+          expect(result.completion!.id, started.runId);
+          expect(
+            result.completion!.focusSeconds,
+            (1500000000 - remaining) ~/ 1000000,
+          );
+          expect(result.completion!.endedAt, clock.utcNow);
+        }
+        expect(
+          result.outcome,
+          remaining == 0
+              ? TimerCommandOutcome.completionConsumed
+              : TimerCommandOutcome.applied,
+        );
+        clock.advance(const Duration(days: 1));
+        expect(act(TimerAction.reconcile).completion, isNull);
+      },
+    );
+  }
+
+  test('crossing five minutes only makes a session eligible until Skip', () {
+    expect(timer.canFinishEarly, isFalse);
+    act(TimerAction.start);
+    clock.advance(const Duration(minutes: 20));
+    act(TimerAction.reconcile);
+    expect(timer.canFinishEarly, isFalse);
+    clock.advance(const Duration(microseconds: 1));
+    final result = act(TimerAction.reconcile);
+    expect(timer.canFinishEarly, isTrue);
+    expect(result.changed, isFalse);
+    expect(result.completedEarly, isFalse);
+    expect(result.completion, isNull);
+    expect(timer.completedRounds, 0);
+    expect(timer.status, RunStatus.running);
+  });
+
+  for (final minutes in [1, 5, 6, 25]) {
+    test(
+      '$minutes-minute sessions use their original duration for early completion',
+      () {
+        act(
+          TimerAction.updateSettings,
+          settings: TimerSettings(focusMinutes: minutes),
+        );
+        act(TimerAction.start);
+        clock.advance(
+          Duration(seconds: minutes > 5 ? (minutes - 5) * 60 + 1 : 1),
+        );
+        // Changing settings must neither qualify a short run nor disqualify a long one.
+        act(
+          TimerAction.updateSettings,
+          settings: TimerSettings(focusMinutes: minutes > 5 ? 1 : 25),
+        );
+        expect(timer.totalSeconds, minutes * 60);
+        expect(timer.canFinishEarly, minutes > 5);
+        final result = act(TimerAction.skip);
+        expect(result.completedEarly, minutes > 5);
+        expect(result.completion != null, minutes > 5);
+        expect(timer.completedRounds, minutes > 5 ? 1 : 0);
+      },
+    );
+  }
+
+  test(
+    'early completion preserves task and identity and excludes fractional pauses',
+    () {
+      act(
+        TimerAction.start,
+        task: const FocusTask(id: 'task', title: 'Original'),
+      );
+      final started = timer.snapshot();
+      clock.advance(const Duration(minutes: 20));
+      expect(act(TimerAction.pause).completion, isNull);
+      expect(timer.canFinishEarly, isFalse);
+      clock.advance(const Duration(days: 1));
+      act(
+        TimerAction.resume,
+        task: const FocusTask(id: 'other', title: 'Changed'),
+      );
+      clock.advance(const Duration(seconds: 1, milliseconds: 250));
+      expect(act(TimerAction.pause).completion, isNull);
+      expect(timer.canFinishEarly, isTrue);
+      clock.advance(const Duration(hours: 2));
+      final result = act(TimerAction.skip);
+      final session = result.completion!;
+      expect(result.completedPhase, isTrue);
+      expect(result.completedEarly, isTrue);
+      expect(session.id, started.runId);
+      expect(session.startedAt, started.startedAt);
+      expect(session.endedAt, clock.utcNow);
+      expect(session.focusSeconds, 1201);
+      expect(session.taskId, 'task');
+      expect(session.taskTitle, 'Original');
+      expect(timer.completedRounds, 1);
+    },
+  );
+
+  for (final action in [
+    TimerAction.pause,
+    TimerAction.reset,
+    TimerAction.selectPhase,
+  ]) {
+    test(
+      '$action with under five minutes left never earns early completion',
+      () {
+        act(TimerAction.start);
+        clock.advance(const Duration(minutes: 21));
+        final result = act(action, phase: FocusPhase.longBreak);
+        expect(result.completedPhase, isFalse);
+        expect(result.completedEarly, isFalse);
+        expect(result.completion, isNull);
+        expect(timer.completedRounds, 0);
+      },
+    );
+  }
+
+  for (final phase in [FocusPhase.shortBreak, FocusPhase.longBreak]) {
+    test('skipping an almost-finished $phase never records focus', () {
+      act(TimerAction.selectPhase, phase: phase);
+      act(TimerAction.start);
+      clock.advance(Duration(seconds: timer.totalSeconds - 1));
+      act(TimerAction.reconcile);
+      expect(timer.canFinishEarly, isFalse);
+      final result = act(TimerAction.skip);
+      expect(result.completedPhase, isFalse);
+      expect(result.completedEarly, isFalse);
+      expect(result.completion, isNull);
+      expect(timer.phase, FocusPhase.focus);
+      expect(timer.completedRounds, 0);
+    });
+  }
+
+  test(
+    'stale and repeated Skip actions cannot earn credit or skip a successor',
+    () {
+      act(TimerAction.start);
+      final revision = timer.revision;
+      final runId = timer.runId;
+      clock.advance(const Duration(minutes: 21));
+      for (final staleById in [false, true]) {
+        final result = timer.apply(
+          TimerAction.skip,
+          clock.reading,
+          expectedRevision: staleById ? revision : revision - 1,
+          expectedRunId: staleById ? 'obsolete' : runId,
+        );
+        expect(result.outcome, TimerCommandOutcome.stale);
+        expect(result.completedEarly, isFalse);
+        expect(result.completion, isNull);
+        expect(timer.completedRounds, 0);
+      }
+      expect(act(TimerAction.skip).completedEarly, isTrue);
+      final duplicate = timer.apply(
+        TimerAction.skip,
+        clock.reading,
+        expectedRevision: revision,
+        expectedRunId: runId,
+      );
+      expect(duplicate.outcome, TimerCommandOutcome.stale);
+      expect(duplicate.completion, isNull);
+      expect(timer.completedRounds, 1);
+      expect(timer.phase, FocusPhase.shortBreak);
+      expect(timer.status, RunStatus.ready);
+    },
+  );
+
+  test('strict mode blocks early completion until the full deadline', () {
+    act(
+      TimerAction.updateSettings,
+      settings: const TimerSettings(strictMode: true),
+    );
+    act(TimerAction.start);
+    clock.advance(const Duration(minutes: 21));
+    act(TimerAction.reconcile);
+    expect(timer.canFinishEarly, isFalse);
+    final result = act(TimerAction.skip);
+    expect(result.outcome, TimerCommandOutcome.blocked);
+    expect(result.completion, isNull);
+    expect(result.completedEarly, isFalse);
+    expect(timer.status, RunStatus.running);
+    clock.advance(const Duration(minutes: 4));
+    final expired = act(TimerAction.skip);
+    expect(expired.completedPhase, isTrue);
+    expect(expired.completedEarly, isFalse);
+    expect(expired.completion!.focusSeconds, 1500);
+    expect(timer.phase, FocusPhase.shortBreak);
+  });
+
+  for (final paused in [false, true]) {
+    test(
+      'restoring an eligible ${paused ? 'paused' : 'running'} session waits for Skip',
+      () {
+        act(TimerAction.start);
+        clock.advance(const Duration(minutes: 21));
+        act(paused ? TimerAction.pause : TimerAction.reconcile);
+        final saved = timer.snapshot();
+        final nextClock = FakeClock(
+          clock.utcNow.add(Duration(seconds: paused ? 86400 : 30)),
+        );
+        final restored = restore(saved, nextClock);
+        expect(restored.canFinishEarly, isTrue);
+        expect(restored.reconcile(nextClock.reading).completion, isNull);
+        expect(restored.completedRounds, 0);
+        final result = restored.apply(TimerAction.skip, nextClock.reading);
+        expect(result.completedEarly, isTrue);
+        expect(result.completion!.id, saved.runId);
+        expect(result.completion!.focusSeconds, paused ? 1260 : 1290);
+        expect(result.completion!.endedAt, nextClock.utcNow);
+        final again = restore(restored.snapshot(), nextClock);
+        expect(again.reconcile(nextClock.reading).completion, isNull);
+        expect(again.completedRounds, 1);
+      },
+    );
+  }
+
+  test(
+    'mixed full and early completions earn the long break and wait for Start',
+    () {
+      for (var round = 1; round <= 4; round++) {
+        act(TimerAction.start);
+        final early = round.isEven;
+        clock.advance(Duration(minutes: early ? 21 : 25));
+        final result = act(early ? TimerAction.skip : TimerAction.reconcile);
+        expect(result.completedEarly, early);
+        expect(result.completion!.focusSeconds, early ? 1260 : 1500);
+        expect(timer.completedRounds, round);
+        expect(
+          timer.phase,
+          round == 4 ? FocusPhase.longBreak : FocusPhase.shortBreak,
+        );
+        expect(timer.status, RunStatus.ready);
+        expect(act(TimerAction.skip).completion, isNull);
+      }
+      expect(timer.phase, FocusPhase.focus);
+      expect(timer.completedRounds, 0);
     },
   );
 

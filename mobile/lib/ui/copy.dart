@@ -6,6 +6,7 @@ import '../application/local_alerts.dart';
 import '../application/local_repository.dart';
 import '../domain/models.dart';
 import '../l10n/poma_localizations.dart';
+import 'desktop_scope.dart';
 
 extension PomaCopy on BuildContext {
   PomaLocalizations get copy => PomaLocalizations.of(this)!;
@@ -19,6 +20,14 @@ String phaseName(PomaLocalizations copy, FocusPhase phase) => switch (phase) {
 
 String alertStatus(PomaLocalizations copy, AppController controller) {
   if (controller.needsAlertPermission) return copy.alertNotAsked;
+  if (controller.residentNotifications) {
+    if (controller.alertAvailability == AlertAvailability.ready) {
+      return copy.windowsAlertsReady;
+    }
+    if (controller.alertAvailability == AlertAvailability.denied) {
+      return copy.windowsAlertsDenied;
+    }
+  }
   return switch (controller.alertAvailability) {
     AlertAvailability.ready => copy.alertReady,
     AlertAvailability.delayed => copy.alertDelayed,
@@ -28,6 +37,11 @@ String alertStatus(PomaLocalizations copy, AppController controller) {
     AlertAvailability.unavailable || null => copy.alertUnavailable,
   };
 }
+
+String notificationSettingsLabel(BuildContext context) =>
+    DesktopScope.maybeOf(context) == null
+    ? context.copy.phoneSettings
+    : context.copy.windowsNotificationSettings;
 
 /// Product copy remains English; calendar formatting uses the device locale,
 /// independently of the application's supported translation locales.
