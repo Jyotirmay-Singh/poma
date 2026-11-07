@@ -95,8 +95,9 @@ class RenderedTextContrastGuideline extends AccessibilityGuideline {
               pixels[i + 1],
               pixels[i + 2],
             ).toARGB32();
-            if (color != foreground.toARGB32())
+            if (color != foreground.toARGB32()) {
               histogram.update(color, (n) => n + 1, ifAbsent: () => 1);
+            }
           }
         }
         if (histogram.isEmpty) {
@@ -113,10 +114,11 @@ class RenderedTextContrastGuideline extends AccessibilityGuideline {
         final surface = background.computeLuminance();
         final ratio =
             (math.max(ink, surface) + .05) / (math.min(ink, surface) + .05);
-        if (ratio < 4.5)
+        if (ratio < 4.5) {
           result += Evaluation.fail(
             '${text.data}: configured contrast ${ratio.toStringAsFixed(3)}:1 is below 4.5:1.',
           );
+        }
       }
       return result;
     } finally {
