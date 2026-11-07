@@ -1,5 +1,10 @@
 # Poma
 
+**Latest local Windows update: 1.0.0.2027.** Poma now pairs a still celestial
+background with offline Sora headings/countdowns and Source Sans 3 body text.
+The installed upgrade preserves existing data and Calendar configuration.
+See the [space appearance release and verification](docs/SPACE_APPEARANCE_RELEASE.md).
+
 ## Windows explicit focus scheduling — private Session 12
 
 The Windows Calendar page separates optional Google viewing from focus scheduling.
