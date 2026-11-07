@@ -56,8 +56,8 @@ SQLite is bundled by locked `sqlite3` 3.5.2 build hooks. The locked Windows
 notification dependency is built from a local compatibility copy replacing three
 ATL UTF-8 conversions with C++/WinRT equivalents; its original license is retained.
 Poma uses its own Windows notification adapter. Runtime file origins/versions and
-SHA-256 hashes are recorded in the package inventory. No external logo or font
-was introduced; Windows icons derive from Poma's existing timer mark.
+SHA-256 hashes are recorded in the package inventory. Windows icons derive from
+Poma's existing timer mark; bundled fonts are attributed below.
 
 Poma's mobile feature reference is [Pomatez](https://github.com/zidoro/pomatez) at commit `c2727800c6272573590911e9ee81637b89e55d5f`. The mobile Dart implementation is newly written; the original project's notice is retained for attribution and any subsequent reuse.
 
@@ -95,7 +95,7 @@ engine notices and Dart/plugin license inventory are preserved separately in
 About → View licenses; they are not replaced by a top-level SDK license.
 
 Poma's original timer-ring launcher/splash mark was created for this release.
-No Pomatez icon or external font is used. Native archive declarations do not
+No Pomatez icon is used. Native archive declarations do not
 prove that every declared class survives optimization; full embedded/legal
 clearance remains explicitly scoped in the release evidence.
 
@@ -111,3 +111,15 @@ The complete upstream notice and license are bundled in
 The font files are also embedded as process-private Windows resources;
 Poma does not install a system font or download fonts at runtime.
 Upstream: https://github.com/adobe-fonts/source-sans
+
+## Sora — SIL Open Font License 1.1
+
+Copyright 2019 The Sora Project Authors (https://github.com/sora-xor/sora-font).
+Poma bundles static Medium (500) and SemiBold (600) instances of the official
+Sora variable font at revision `7f9a9c5d0ccd1c099cfac420aa27133df1c5fdc4`.
+fontTools 4.60.1 instanced the weight axis and assigned static family/style names
+for Windows GDI; glyph outlines were not edited. Source and output identities
+are recorded in `mobile/assets/fonts/SORA_SOURCE.json`.
+The complete license is bundled in `assets/licenses/sora.txt` and registered in
+About → View licenses. Both families are packaged offline; Windows loads its
+font resources privately in the Poma process.

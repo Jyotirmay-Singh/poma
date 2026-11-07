@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:poma/application/focus_block_controller.dart';
 import 'package:poma/domain/focus_blocks.dart';
 import 'focus_blocks_test.dart' as f;
+import 'native_probe_support.dart';
 
 void main() {
   for (final stage in [
@@ -52,6 +53,7 @@ void main() {
               source.copySync(target.path);
             }
           }
+          seedProbeNativeCache(host);
           final process = await Process.run(
             '${sdk.path}/bin/cache/dart-sdk/bin/${Platform.isWindows ? 'dart.exe' : 'dart'}',
             [

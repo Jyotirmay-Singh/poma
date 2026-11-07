@@ -6,6 +6,7 @@ import 'package:poma/domain/models.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'support.dart';
 import 'alert_support.dart';
+import 'native_probe_support.dart';
 
 void main() {
   setUpAll(sqfliteFfiInit);
@@ -77,6 +78,7 @@ void main() {
             target.parent.createSync(recursive: true);
             entity.copySync(target.path);
           }
+          seedProbeNativeCache(host);
           final result = await Process.run(executable, [
             '${sdk.path}/bin/cache/flutter_tools.snapshot',
             '--suppress-analytics',

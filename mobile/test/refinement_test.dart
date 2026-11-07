@@ -109,7 +109,7 @@ Future<void> screenshot(
     'file': '$name.png',
     'renderScale': 2,
     'source':
-        'Flutter widget renderer; seeded local app records; bundled Source Sans 3 production fonts',
+        'Flutter widget renderer; seeded local app records; bundled Sora and Source Sans 3 production fonts',
     'devicePixelRatio': tester.view.devicePixelRatio,
     'locale': tester.platformDispatcher.locale.toString(),
     'safeInsets': {

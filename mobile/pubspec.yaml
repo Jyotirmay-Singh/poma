@@ -77,8 +77,15 @@ flutter:
     - assets/legal/privacy-windows.txt
     - assets/licenses/windows-native.txt
     - assets/licenses/source-sans-3.txt
+    - assets/licenses/sora.txt
 
   fonts:
+    - family: Sora
+      fonts:
+        - asset: assets/fonts/Sora-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Sora-SemiBold.ttf
+          weight: 600
     - family: Source Sans 3
       fonts:
         - asset: assets/fonts/SourceSans3-Regular.ttf

@@ -9,6 +9,8 @@
 #define IDR_POMA_FONT_REGULAR           201
 #define IDR_POMA_FONT_MEDIUM            202
 #define IDR_POMA_FONT_SEMIBOLD          203
+#define IDR_POMA_SORA_MEDIUM            204
+#define IDR_POMA_SORA_SEMIBOLD          205
 
 // Next default values for new objects
 //

@@ -18,7 +18,7 @@ class TimerDial extends StatelessWidget {
           '${(seconds ~/ 60).toString().padLeft(2, '0')}:${(seconds % 60).toString().padLeft(2, '0')}';
       final timeStyle = Theme.of(
         context,
-      ).textTheme.displaySmall!.copyWith(fontSize: diameter / 6.5);
+      ).textTheme.displaySmall!.copyWith(fontSize: min(64.0, diameter / 5));
       final phaseStyle = Theme.of(context).textTheme.labelLarge!.copyWith(
         color: Theme.of(context).colorScheme.onSurface,
       );
@@ -75,6 +75,7 @@ class TimerDial extends StatelessWidget {
                 child: CustomPaint(
                   painter: _DialPainter(
                     color: color,
+                    field: Theme.of(context).colorScheme.surface,
                     track: Theme.of(context).colorScheme.outlineVariant,
                     progress: timer.progress,
                   ),
@@ -107,16 +108,20 @@ class TimerDial extends StatelessWidget {
 class _DialPainter extends CustomPainter {
   const _DialPainter({
     required this.color,
+    required this.field,
     required this.track,
     required this.progress,
   });
   final Color color;
+  final Color field;
   final Color track;
   final double progress;
   @override
   void paint(Canvas canvas, Size size) {
     final center = size.center(Offset.zero);
     final radius = size.width / 2 - 16;
+    // The digits sit on a quiet field even where the distant sky is brighter.
+    canvas.drawCircle(center, radius - 6, Paint()..color = field);
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
@@ -156,5 +161,6 @@ class _DialPainter extends CustomPainter {
   bool shouldRepaint(_DialPainter oldDelegate) =>
       oldDelegate.progress != progress ||
       oldDelegate.color != color ||
+      oldDelegate.field != field ||
       oldDelegate.track != track;
 }

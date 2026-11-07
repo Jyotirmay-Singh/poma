@@ -96,48 +96,57 @@ class _AppShellState extends State<AppShell> {
         child: Scaffold(
           body: Row(
             children: [
-              SafeArea(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: PomaSpace.lg,
+              Material(
+                color: Theme.of(context).colorScheme.surface,
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: PomaSpace.lg,
+                        ),
+                        child: Text(
+                          extended ? 'Poma' : 'P',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
                       ),
-                      child: Text(
-                        extended ? 'Poma' : 'P',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                    ),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: IntrinsicHeight(
-                          child: NavigationRail(
-                            extended: extended,
-                            minExtendedWidth: 216,
-                            selectedIndex: const [0, 1, 4, 2, 3].indexOf(_tab),
-                            onDestinationSelected: (i) =>
-                                _goTo(const [0, 1, 4, 2, 3][i]),
-                            destinations: [
-                              for (final entry in [
-                                (Icons.timelapse, copy.focus),
-                                (Icons.checklist, copy.tasks),
-                                (Icons.calendar_month_outlined, 'Calendar'),
-                                (Icons.bar_chart, copy.desktopHistory),
-                                (Icons.tune, copy.settings),
-                              ])
-                                NavigationRailDestination(
-                                  icon: Tooltip(
-                                    message: entry.$2,
-                                    child: Icon(entry.$1),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: IntrinsicHeight(
+                            child: NavigationRail(
+                              extended: extended,
+                              minExtendedWidth: 216,
+                              selectedIndex: const [
+                                0,
+                                1,
+                                4,
+                                2,
+                                3,
+                              ].indexOf(_tab),
+                              onDestinationSelected: (i) =>
+                                  _goTo(const [0, 1, 4, 2, 3][i]),
+                              destinations: [
+                                for (final entry in [
+                                  (Icons.timelapse, copy.focus),
+                                  (Icons.checklist, copy.tasks),
+                                  (Icons.calendar_month_outlined, 'Calendar'),
+                                  (Icons.bar_chart, copy.desktopHistory),
+                                  (Icons.tune, copy.settings),
+                                ])
+                                  NavigationRailDestination(
+                                    icon: Tooltip(
+                                      message: entry.$2,
+                                      child: Icon(entry.$1),
+                                    ),
+                                    label: Text(entry.$2),
                                   ),
-                                  label: Text(entry.$2),
-                                ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               const VerticalDivider(width: 1),
@@ -149,87 +158,90 @@ class _AppShellState extends State<AppShell> {
     }
     return Scaffold(
       body: SafeArea(bottom: false, child: page),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final labels = [
-              copy.focus,
-              copy.tasks,
-              if (desktop != null) 'Calendar',
-              copy.insights,
-              copy.settings,
-            ];
-            final ids = desktop == null
-                ? const [0, 1, 2, 3]
-                : const [0, 1, 4, 2, 3];
-            final icons = [
-              Icons.timelapse,
-              Icons.checklist,
-              if (desktop != null) Icons.calendar_month_outlined,
-              Icons.bar_chart,
-              Icons.tune,
-            ];
-            final style = Theme.of(context).textTheme.labelLarge!;
-            var requiredWidth = 0.0;
-            for (final label in labels) {
-              final text = TextPainter(
-                text: TextSpan(text: label, style: style),
-                textScaler: MediaQuery.textScalerOf(context),
-                textDirection: Directionality.of(context),
-              )..layout();
-              if (text.width + 32 > requiredWidth) {
-                requiredWidth = text.width + 32;
+      bottomNavigationBar: Material(
+        color: Theme.of(context).colorScheme.surface,
+        child: SafeArea(
+          top: false,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final labels = [
+                copy.focus,
+                copy.tasks,
+                if (desktop != null) 'Calendar',
+                copy.insights,
+                copy.settings,
+              ];
+              final ids = desktop == null
+                  ? const [0, 1, 2, 3]
+                  : const [0, 1, 4, 2, 3];
+              final icons = [
+                Icons.timelapse,
+                Icons.checklist,
+                if (desktop != null) Icons.calendar_month_outlined,
+                Icons.bar_chart,
+                Icons.tune,
+              ];
+              final style = Theme.of(context).textTheme.labelLarge!;
+              var requiredWidth = 0.0;
+              for (final label in labels) {
+                final text = TextPainter(
+                  text: TextSpan(text: label, style: style),
+                  textScaler: MediaQuery.textScalerOf(context),
+                  textDirection: Directionality.of(context),
+                )..layout();
+                if (text.width + 32 > requiredWidth) {
+                  requiredWidth = text.width + 32;
+                }
+                text.dispose();
               }
-              text.dispose();
-            }
-            final columns =
-                requiredWidth * labels.length > constraints.maxWidth - 16
-                ? 2
-                : labels.length;
-            return Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: PomaSpace.xs,
-                vertical: PomaSpace.xxs,
-              ),
-              child: Wrap(
-                children: [
-                  for (var i = 0; i < labels.length; i++)
-                    SizedBox(
-                      width: (constraints.maxWidth - 16) / columns,
-                      child: Semantics(
-                        selected: _tab == ids[i],
-                        child: TextButton(
-                          key: Key('destination-${ids[i]}'),
-                          style: TextButton.styleFrom(
-                            minimumSize: const Size(48, 56),
-                            foregroundColor: _tab == ids[i]
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
-                            backgroundColor: _tab == ids[i]
-                                ? Theme.of(
-                                    context,
-                                  ).colorScheme.primary.withValues(alpha: .10)
-                                : null,
-                          ),
-                          onPressed: () => _goTo(ids[i]),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ExcludeSemantics(child: Icon(icons[i])),
-                              const SizedBox(height: PomaSpace.xxs),
-                              Text(labels[i], textAlign: TextAlign.center),
-                            ],
+              final columns =
+                  requiredWidth * labels.length > constraints.maxWidth - 16
+                  ? 2
+                  : labels.length;
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: PomaSpace.xs,
+                  vertical: PomaSpace.xxs,
+                ),
+                child: Wrap(
+                  children: [
+                    for (var i = 0; i < labels.length; i++)
+                      SizedBox(
+                        width: (constraints.maxWidth - 16) / columns,
+                        child: Semantics(
+                          selected: _tab == ids[i],
+                          child: TextButton(
+                            key: Key('destination-${ids[i]}'),
+                            style: TextButton.styleFrom(
+                              minimumSize: const Size(48, 56),
+                              foregroundColor: _tab == ids[i]
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                              backgroundColor: _tab == ids[i]
+                                  ? Theme.of(
+                                      context,
+                                    ).colorScheme.primary.withValues(alpha: .10)
+                                  : null,
+                            ),
+                            onPressed: () => _goTo(ids[i]),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ExcludeSemantics(child: Icon(icons[i])),
+                                const SizedBox(height: PomaSpace.xxs),
+                                Text(labels[i], textAlign: TextAlign.center),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                ],
-              ),
-            );
-          },
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -243,11 +255,13 @@ class PomaPage extends StatelessWidget {
     required this.controller,
     required this.children,
     this.maxContentWidth = PomaLayout.readingWidth,
+    this.readingSurface = true,
     super.key,
   });
   final AppController controller;
   final List<Widget> children;
   final double maxContentWidth;
+  final bool readingSurface;
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) => ListView(
@@ -280,7 +294,31 @@ class PomaPage extends StatelessWidget {
             action: context.copy.finishDeletion,
             onPressed: controller.retrySave,
           ),
-        ...children,
+        for (var i = 0; i < children.length; i++)
+          if (!readingSurface || i == 0)
+            children[i]
+          else
+            // Keep individual sliver children and their semantics separate.
+            Material(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.vertical(
+                top: i == 1
+                    ? const Radius.circular(PomaLayout.panelRadius)
+                    : Radius.zero,
+                bottom: i == children.length - 1
+                    ? const Radius.circular(PomaLayout.panelRadius)
+                    : Radius.zero,
+              ),
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                  PomaSpace.md,
+                  i == 1 ? PomaSpace.md : 0,
+                  PomaSpace.md,
+                  i == children.length - 1 ? PomaSpace.md : 0,
+                ),
+                child: children[i],
+              ),
+            ),
       ],
     ),
   );
@@ -330,7 +368,19 @@ class ScreenHeading extends StatelessWidget {
       children: [
         Semantics(
           header: true,
-          child: Text(title, style: theme.textTheme.headlineSmall),
+          child: Text(
+            title,
+            style: theme.textTheme.headlineSmall!.copyWith(
+              fontSize:
+                  MediaQuery.sizeOf(context).width >= PomaLayout.navigationRail
+                  ? 28
+                  : 24,
+              height:
+                  MediaQuery.sizeOf(context).width >= PomaLayout.navigationRail
+                  ? 36 / 28
+                  : 32 / 24,
+            ),
+          ),
         ),
         if (subtitle != null) ...[
           const SizedBox(height: PomaSpace.xs),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'design_tokens.dart';
+import 'space_backdrop.dart';
 
 const pomaPurple = Color(0xFF6854C8);
 const pomaTeal = Color(0xFF147D80);
@@ -13,11 +14,19 @@ ThemeData pomaTheme(Brightness brightness, {bool highContrast = false}) {
       ).copyWith(
         primary: dark ? const Color(0xFFC9BFFF) : pomaPurple,
         onPrimary: dark ? const Color(0xFF281B5C) : Colors.white,
-        surface: dark ? const Color(0xFF1C2332) : const Color(0xFFF8F9FD),
-        onSurface: dark ? const Color(0xFFF1F3FC) : const Color(0xFF252D43),
+        surface: dark ? const Color(0xFF18233B) : Colors.white,
+        surfaceContainerLowest: dark ? const Color(0xFF18233B) : Colors.white,
+        surfaceContainerLow: dark ? const Color(0xFF18233B) : Colors.white,
+        surfaceContainer: dark ? const Color(0xFF18233B) : Colors.white,
+        surfaceContainerHigh: dark ? const Color(0xFF18233B) : Colors.white,
+        surfaceContainerHighest: dark
+            ? const Color(0xFF22304C)
+            : const Color(0xFFE9EDF8),
+        surfaceTint: Colors.transparent,
+        onSurface: dark ? const Color(0xFFEDF2FF) : const Color(0xFF202A43),
         onSurfaceVariant: dark
-            ? const Color(0xFFB7BFD2)
-            : const Color(0xFF4B556B),
+            ? const Color(0xFFB8C5DC)
+            : const Color(0xFF52627A),
       );
   final colors = highContrast
       ? (dark
@@ -50,7 +59,11 @@ ThemeData pomaTheme(Brightness brightness, {bool highContrast = false}) {
     colorScheme: colors,
     fontFamily: PomaType.family,
     fontFamilyFallback: PomaType.fallback,
-    scaffoldBackgroundColor: colors.surface,
+    scaffoldBackgroundColor: highContrast ? colors.surface : Colors.transparent,
+    canvasColor: colors.surface,
+    extensions: [
+      PomaBackdropTheme.fromColors(colors, highContrast: highContrast),
+    ],
     visualDensity: VisualDensity.standard,
     materialTapTargetSize: MaterialTapTargetSize.padded,
     iconButtonTheme: IconButtonThemeData(
@@ -131,6 +144,8 @@ ThemeData pomaTheme(Brightness brightness, {bool highContrast = false}) {
       contentPadding: const EdgeInsets.symmetric(horizontal: PomaSpace.sm),
     ),
     dialogTheme: DialogThemeData(
+      backgroundColor: colors.surface,
+      surfaceTintColor: Colors.transparent,
       titleTextStyle: textTheme.titleLarge,
       contentTextStyle: textTheme.bodyMedium,
       shape: RoundedRectangleBorder(
@@ -138,6 +153,8 @@ ThemeData pomaTheme(Brightness brightness, {bool highContrast = false}) {
       ),
     ),
     popupMenuTheme: PopupMenuThemeData(
+      color: colors.surface,
+      surfaceTintColor: Colors.transparent,
       textStyle: textTheme.labelLarge,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(PomaLayout.controlRadius),
@@ -145,7 +162,7 @@ ThemeData pomaTheme(Brightness brightness, {bool highContrast = false}) {
     ),
     appBarTheme: AppBarTheme(
       titleTextStyle: textTheme.headlineSmall,
-      backgroundColor: colors.surface,
+      backgroundColor: highContrast ? colors.surface : Colors.transparent,
       foregroundColor: colors.onSurface,
       scrolledUnderElevation: 0,
     ),

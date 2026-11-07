@@ -14,6 +14,7 @@ import 'application/local_alerts.dart';
 import 'domain/timer_engine.dart';
 import 'ui/app_shell.dart';
 import 'ui/theme.dart';
+import 'ui/space_backdrop.dart';
 import 'ui/copy.dart';
 import 'l10n/poma_localizations.dart';
 import 'application/desktop_controller.dart';
@@ -37,6 +38,9 @@ import 'data/windows_focus_time.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   LicenseRegistry.addLicense(() async* {
+    yield LicenseEntryWithLineBreaks([
+      'Sora',
+    ], await rootBundle.loadString('assets/licenses/sora.txt'));
     yield LicenseEntryWithLineBreaks([
       'Source Sans 3',
     ], await rootBundle.loadString('assets/licenses/source-sans-3.txt'));
@@ -186,6 +190,10 @@ class _PomaLoaderState extends State<PomaLoader> {
         supportedLocales: PomaLocalizations.supportedLocales,
         debugShowCheckedModeBanner: false,
         theme: pomaTheme(Brightness.light),
+        darkTheme: pomaTheme(Brightness.dark),
+        highContrastTheme: pomaTheme(Brightness.light, highContrast: true),
+        highContrastDarkTheme: pomaTheme(Brightness.dark, highContrast: true),
+        builder: (context, child) => PomaBackdrop(child: child!),
         home: Builder(
           builder: (context) => Scaffold(
             body: SafeArea(
@@ -385,6 +393,7 @@ class _PomaAppState extends State<PomaApp> with WidgetsBindingObserver {
       debugShowCheckedModeBanner: false,
       theme: pomaTheme(Brightness.light),
       darkTheme: pomaTheme(Brightness.dark),
+      builder: (context, child) => PomaBackdrop(child: child!),
       highContrastTheme: pomaTheme(Brightness.light, highContrast: true),
       highContrastDarkTheme: pomaTheme(Brightness.dark, highContrast: true),
       themeMode: switch (widget.controller.settings.appearance) {

@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased — 7 November 2026
+
+### Calm space appearance
+
+- Added a still, shared celestial background: deep navy in dark mode and pale
+  blue in light mode, with sparse stars and restrained purple/teal washes.
+- Paired bundled Sora headings/countdowns with Source Sans 3 body text, enlarged
+  the countdown, and retained accessible scaling and its circular-fit fallback.
+- Added opaque reading surfaces, matching navigation and a coordinated native
+  popup with a stable Sora countdown. High contrast retains a plain background.
+- Kept timer, task, Calendar and stored appearance behavior intact. Fonts and
+  backgrounds work offline; the sky is isolated from timer repainting.
+
+See [the design system](docs/UI_DESIGN_SYSTEM.md) for the palette, type roles,
+font provenance, verification and review evidence.
+
 ## Unreleased — 22 October 2026
 
 ### Current-mode Focus screen

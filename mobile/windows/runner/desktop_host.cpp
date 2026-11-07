@@ -126,7 +126,9 @@ DesktopHost::DesktopHost(HWND window, flutter::BinaryMessenger* messenger, bool 
   // Memory fonts are private to this process; no machine-wide registration or
   // runtime download is required. GDI retains its system Unicode fallback.
   const auto module = GetModuleHandleW(nullptr);
-  for (const int id : {IDR_POMA_FONT_REGULAR, IDR_POMA_FONT_MEDIUM, IDR_POMA_FONT_SEMIBOLD}) {
+  int body_font_count = 0;
+  for (const int id : {IDR_POMA_FONT_REGULAR, IDR_POMA_FONT_MEDIUM, IDR_POMA_FONT_SEMIBOLD,
+                       IDR_POMA_SORA_MEDIUM, IDR_POMA_SORA_SEMIBOLD}) {
     const auto resource = FindResourceW(module, MAKEINTRESOURCEW(id), RT_RCDATA);
     if (!resource) continue;
     const auto data = LockResource(LoadResource(module, resource));
@@ -134,9 +136,14 @@ DesktopHost::DesktopHost(HWND window, flutter::BinaryMessenger* messenger, bool 
     DWORD count = 0;
     if (data && size) {
       const auto handle = AddFontMemResourceEx(data, size, nullptr, &count);
-      if (handle) font_resources_.push_back(handle);
+      if (handle) {
+        font_resources_.push_back(handle);
+        if (id <= IDR_POMA_FONT_SEMIBOLD) ++body_font_count;
+        if (id == IDR_POMA_SORA_MEDIUM) timer_font_loaded_ = true;
+      }
     }
   }
+  body_fonts_loaded_ = body_font_count == 3;
   channel_ = std::make_unique<flutter::MethodChannel<V>>(messenger,
       "dev.poma.poma/windows_desktop", &flutter::StandardMethodCodec::GetInstance());
   channel_->SetMethodCallHandler([this](const auto& call, auto result) {
@@ -162,7 +169,7 @@ DesktopHost::DesktopHost(HWND window, flutter::BinaryMessenger* messenger, bool 
       WS_POPUP | WS_BORDER | WS_VSCROLL, 0, 0, 380, 430, window_, nullptr, cls.hInstance, this);
   if (popup_) {
     for (int i = 0; i < 4; ++i) labels_.push_back(CreateWindowW(L"STATIC", L"",
-        WS_CHILD | WS_VISIBLE | SS_NOPREFIX | (i == 1 ? SS_CENTER : SS_LEFT),
+        WS_CHILD | WS_VISIBLE | SS_NOPREFIX | (i == 1 ? SS_OWNERDRAW : SS_LEFT),
         0, 0, 10, 10, popup_, nullptr, cls.hInstance, nullptr));
     for (int id = kPrimary; id <= kSettings; ++id) buttons_.push_back(CreateWindowW(L"BUTTON", L"",
         WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_OWNERDRAW | BS_NOTIFY, 0, 0, 10, 10, popup_,
@@ -345,18 +352,19 @@ void DesktopHost::PaintPopup() {
   } catch (...) {}
   dark_ = !high_contrast_ && (appearance == "dark" || (appearance != "light" && system_dark));
   if (background_) DeleteObject(background_);
-  background_ = CreateSolidBrush(high_contrast_ ? GetSysColor(COLOR_WINDOW) : dark_ ? RGB(28,35,50) : RGB(248,249,253));
+  background_ = CreateSolidBrush(high_contrast_ ? GetSysColor(COLOR_WINDOW) : dark_ ? RGB(24,35,59) : RGB(255,255,255));
   const double scale = static_cast<double>(GetDpiForWindow(popup_)) / 96.0 * TextScale();
   if (scale != popup_scale_) {
     popup_scale_ = scale;
     if (body_font_) DeleteObject(body_font_);
     if (timer_font_) DeleteObject(timer_font_);
     if (control_font_) DeleteObject(control_font_);
-    const auto face = font_resources_.size() == 3 ? L"Source Sans 3" : L"Segoe UI";
+    const auto face = body_fonts_loaded_ ? L"Source Sans 3" : L"Segoe UI";
+    const auto timer_face = timer_font_loaded_ ? L"Sora Medium" : face;
     body_font_ = CreateFontW(-static_cast<int>(16 * scale), 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
       DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, DEFAULT_PITCH, face);
-    timer_font_ = CreateFontW(-static_cast<int>(24 * scale), 0, 0, 0, FW_SEMIBOLD, FALSE, FALSE, FALSE,
-      DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, DEFAULT_PITCH, face);
+    timer_font_ = CreateFontW(-static_cast<int>(24 * scale), 0, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE,
+      DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, DEFAULT_PITCH, timer_face);
     control_font_ = CreateFontW(-static_cast<int>(14 * scale), 0, 0, 0, FW_SEMIBOLD, FALSE, FALSE, FALSE,
       DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, DEFAULT_PITCH, face);
   }
@@ -401,12 +409,14 @@ void DesktopHost::LayoutPopup() {
   const int width = std::max(1L, area.right - 2 * pad);
   int y = pad - scroll_offset_;
   HDC dc = GetDC(popup_);
+  const auto previous_timer_font = SelectObject(dc, timer_font_);
+  const int time_width = std::max(static_cast<int>(100 * dpi), MeasureCountdown(dc).Width(L"120:00") + gap);
+  SelectObject(dc, previous_timer_font);
   const int header_height = static_cast<int>(40 * dpi * text);
-  if (text > 1.4) {
+  if (text > 1.4 || time_width + gap + static_cast<int>(160 * dpi) > width) {
     MoveWindow(labels_[0], pad, y, width, header_height, TRUE); y += header_height + gap;
     MoveWindow(labels_[1], pad, y, width, header_height, TRUE); y += header_height + gap;
   } else {
-    const int time_width = static_cast<int>(100 * dpi);
     MoveWindow(labels_[0], pad, y, std::max(1, width - time_width - gap), header_height, TRUE);
     MoveWindow(labels_[1], pad + width - time_width, y, time_width, header_height, TRUE);
     y += header_height + gap;
@@ -1254,7 +1264,7 @@ LRESULT CALLBACK DesktopHost::PopupProc(HWND hwnd, UINT message, WPARAM wparam, 
   }
   if (message == WM_CTLCOLORSTATIC) {
     HDC dc = reinterpret_cast<HDC>(wparam); SetBkMode(dc, TRANSPARENT);
-    SetTextColor(dc, host->high_contrast_ ? GetSysColor(COLOR_WINDOWTEXT) : host->dark_ ? RGB(241,243,252) : RGB(37,45,67));
+    SetTextColor(dc, host->high_contrast_ ? GetSysColor(COLOR_WINDOWTEXT) : host->dark_ ? RGB(237,242,255) : RGB(32,42,67));
     return reinterpret_cast<LRESULT>(host->background_);
   }
   if (message == WM_ERASEBKGND && host->background_) {
@@ -1262,11 +1272,22 @@ LRESULT CALLBACK DesktopHost::PopupProc(HWND hwnd, UINT message, WPARAM wparam, 
   }
   if (message == WM_DRAWITEM) {
     const auto draw = reinterpret_cast<DRAWITEMSTRUCT*>(lparam);
+    if (host->labels_.size() > 1 && draw->hwndItem == host->labels_[1]) {
+      FillRect(draw->hDC, &draw->rcItem, host->background_);
+      SetBkMode(draw->hDC, TRANSPARENT);
+      SetTextColor(draw->hDC, host->high_contrast_ ? GetSysColor(COLOR_WINDOWTEXT)
+          : host->dark_ ? RGB(237,242,255) : RGB(32,42,67));
+      const auto previous = SelectObject(draw->hDC, host->timer_font_);
+      wchar_t value[40]{}; GetWindowTextW(draw->hwndItem, value, 40);
+      DrawCountdown(draw->hDC, value, draw->rcItem);
+      SelectObject(draw->hDC, previous);
+      return TRUE;
+    }
     const bool primary = draw->CtlID == kPrimary && !(draw->itemState & ODS_DISABLED);
     COLORREF background = host->high_contrast_ ? GetSysColor(primary ? COLOR_HIGHLIGHT : COLOR_BTNFACE)
-        : primary ? (host->dark_ ? RGB(201,191,255) : RGB(104,84,200)) : host->dark_ ? RGB(40,49,68) : RGB(235,237,245);
+        : primary ? (host->dark_ ? RGB(201,191,255) : RGB(104,84,200)) : host->dark_ ? RGB(34,48,76) : RGB(233,237,248);
     COLORREF foreground = host->high_contrast_ ? GetSysColor(primary ? COLOR_HIGHLIGHTTEXT : COLOR_BTNTEXT)
-        : primary ? host->dark_ ? RGB(40,27,92) : RGB(255,255,255) : host->dark_ ? RGB(241,243,252) : RGB(37,45,67);
+        : primary ? host->dark_ ? RGB(40,27,92) : RGB(255,255,255) : host->dark_ ? RGB(237,242,255) : RGB(32,42,67);
     if (draw->itemState & ODS_DISABLED) foreground = GetSysColor(COLOR_GRAYTEXT);
     FillRect(draw->hDC, &draw->rcItem, host->background_);
     const auto dpi = static_cast<int>(GetDpiForWindow(hwnd));

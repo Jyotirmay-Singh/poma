@@ -153,11 +153,31 @@ void main() {
     writer.cancel();
     connection.dispose();
   });
-  test('W15 cancellation during final preflight cannot start a new HTTP mutation',() async {
-    writer=GoogleFocusWriter(connection,now:()=>f.instant,verifyTime:(_)async{writer.cancel();},clientFactory:()=>MockClient(route));
-    await expectLater(writer.create(binding,op()),throwsA(isA<FocusFailure>().having((e)=>e.kind,'kind',FocusFailureKind.cancelled)));
-    expect(events,isEmpty);expect(requests.where((r)=>r.method!='GET'),isEmpty);
-  });
+  test(
+    'W15 cancellation during final preflight cannot start a new HTTP mutation',
+    () async {
+      writer = GoogleFocusWriter(
+        connection,
+        now: () => f.instant,
+        verifyTime: (_) async {
+          writer.cancel();
+        },
+        clientFactory: () => MockClient(route),
+      );
+      await expectLater(
+        writer.create(binding, op()),
+        throwsA(
+          isA<FocusFailure>().having(
+            (e) => e.kind,
+            'kind',
+            FocusFailureKind.cancelled,
+          ),
+        ),
+      );
+      expect(events, isEmpty);
+      expect(requests.where((r) => r.method != 'GET'), isEmpty);
+    },
+  );
   test('W10 expiration during preflight prevents transmission', () async {
     var now = f.instant;
     var mutations = 0;

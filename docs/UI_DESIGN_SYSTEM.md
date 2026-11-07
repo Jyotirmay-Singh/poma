@@ -1,5 +1,80 @@
 # Poma UI refinement
 
+## Calm space appearance — 7 November 2026
+
+Windows and mobile share one still sky behind the route tree, including startup
+and legal views. Sparse deterministic stars and soft purple/teal radial washes
+give the empty space depth. There is no animation controller, runtime image/font
+download, blur filter or extra runtime dependency. A separate repaint boundary
+retains the painted sky across timer ticks and navigation.
+
+| Role | Dark | Light |
+| --- | --- | --- |
+| Background | `#0D1528` | `#F2F5FD` |
+| Reading surface | `#18233B` | `#FFFFFF` |
+| Main text | `#EDF2FF` | `#202A43` |
+| Secondary text | `#B8C5DC` | `#52627A` |
+| Focus | `#C9BFFF` | `#6854C8` |
+| Break | `#81D4CF` | `#147D80` |
+
+System/Light/Dark retain their existing stored values. High contrast has a plain
+solid background and the existing accessible system-oriented palette. The sky
+cannot intercept pointer input or introduce accessibility announcements.
+
+Dense page content uses contiguous opaque Material reading surfaces while
+retaining separate scroll children and semantics. Navigation, dialogs, menus,
+legal text and the calendar grid have opaque fills. The timer's center is also
+opaque. Existing spacing, reading widths, control sizes and corner radii remain.
+
+| Role | Family | Size / line height | Weight |
+| --- | --- | --- | --- |
+| Page title | Sora | 24/32 below 700 units; 28/36 above | 600 |
+| Section heading | Sora | 20/28 | 600 |
+| Countdown | Sora | Dial diameter / 5, capped at 64; height 1.15 | 500 |
+| Body and tasks | Source Sans 3 | 16/24 | 400 |
+| Emphasized body and chart days | Source Sans 3 | 16/24 | 600 |
+| Secondary text | Source Sans 3 | 14/20 | 500 |
+| Controls/navigation | Source Sans 3 | 14/20 | 600 |
+| Nonessential captions | Source Sans 3 | 12/16 | 500 |
+
+All roles have zero tracking. The countdown uses OpenType tabular figures and
+keeps the existing move-below-the-ring fallback at enlarged text sizes. Shared
+theme application preserves the distinct font families instead of overwriting
+the display roles with the body font.
+
+Sora Medium/SemiBold are static instances of the official variable font at
+`7f9a9c5d0ccd1c099cfac420aa27133df1c5fdc4`, created with fontTools 4.60.1. Only
+weight instancing and static Windows family/style naming were performed; glyph
+outlines were not edited. Source and output hashes, weights and font names are
+in `mobile/assets/fonts/SORA_SOURCE.json`. Both files together add 117,648 bytes
+before compression. The OFL is registered in About and shipped offline.
+
+The native popup privately embeds both families and uses Sora Medium at 24 units
+for its countdown, Source Sans 3 at 16 for body text and 14 for controls. GDI does
+not apply OpenType tabular substitutions, so its timer draws fixed digit cells
+while retaining the complete accessible static-control text. Header allocation
+measures the longest supported duration and stacks before it can crowd the title.
+Font availability is tracked independently for the body and countdown families.
+
+Verification and visual review artifacts are under ignored
+`artifacts/space-appearance/`. Tests measure contrast over the actual painted sky,
+check both production font families, verify stable countdown widths, exercise
+controls through the decoration and assert that updates retain the sky's picture
+layer. Existing populated mobile, desktop and calendar matrices cover light/dark,
+100%/150%/200% text, long content, touch targets and keyboard behavior. Host captures
+remain distinct from physical-device acceptance.
+
+The final full Flutter run passed **466 tests**. Native checks passed **233**
+coordination/privacy assertions and **43** production-font assertions. Review
+output contains **46 mobile, 72 desktop and 17 Calendar images**. The first full
+run exposed fresh crash-probe SQLite downloads timing out; probe fixtures now
+copy the local immutable native cache into independent output directories, and
+the package build hook rechecks each binary's content hash. All six real-process
+crash checks pass, including a clean complete-suite rerun. No dependency or
+production persistence behavior changed.
+
+## Earlier typography and spacing refinement — 5 November 2026
+
 Implemented 5 November 2026 on top of checkpoint `4ca8607`.
 
 Poma keeps its purple focus accent, teal break accent and circular countdown.

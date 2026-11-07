@@ -1,0 +1,44 @@
+{
+  "family": "Sora",
+  "repository": "https://github.com/sora-xor/sora-font",
+  "revision": "7f9a9c5d0ccd1c099cfac420aa27133df1c5fdc4",
+  "license": "SIL Open Font License 1.1",
+  "derivation": "fontTools 4.60.1 static wght=500/600 instances; static family/style names set for GDI; no glyph edits",
+  "files": [
+    {
+      "file": "mobile/assets/fonts/Sora-Medium.ttf",
+      "weight": 500,
+      "source": {
+        "upstream_path": "fonts/variable/Sora[wght].ttf",
+        "bytes": 111400,
+        "git_blob_sha1": "3b93d661fa07f5948799ba29979009b409cd4740",
+        "sha256": "84ff7096ae3ec6c8be47d906d1a0ba4de7f2ce78c615275c77301964a316e16c"
+      },
+      "bytes": 58776,
+      "sha256": "60a13b0582d265280194513a0fde17bba04441570f83df77f4b39caeb4b69716",
+      "windows_family": "Sora Medium",
+      "tabular_digit_advance": 676
+    },
+    {
+      "file": "mobile/assets/fonts/Sora-SemiBold.ttf",
+      "weight": 600,
+      "source": {
+        "upstream_path": "fonts/variable/Sora[wght].ttf",
+        "bytes": 111400,
+        "git_blob_sha1": "3b93d661fa07f5948799ba29979009b409cd4740",
+        "sha256": "84ff7096ae3ec6c8be47d906d1a0ba4de7f2ce78c615275c77301964a316e16c"
+      },
+      "bytes": 58872,
+      "sha256": "cd64a05a06e69e753e787a52bd5b387f6e5506d085f93c4afc2aefd8927dfac1",
+      "windows_family": "Sora SemiBold",
+      "tabular_digit_advance": 676
+    },
+    {
+      "file": "mobile/assets/licenses/sora.txt",
+      "upstream_path": "OFL.txt",
+      "bytes": 4385,
+      "git_blob_sha1": "f1d9d6af7ba46af6c2da765fa123d93239c913f5",
+      "sha256": "ba0b9729c9428ba79a0459ab8ec575791b51509dbec213e383d0316d37fec299"
+    }
+  ]
+}

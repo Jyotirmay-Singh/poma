@@ -32,6 +32,7 @@ abstract final class PomaLayout {
 
 abstract final class PomaType {
   static const family = 'Source Sans 3';
+  static const displayFamily = 'Sora';
   // Fallback is only used for characters absent from the bundled family.
   // Flutter retains the platform's final fallback for other writing systems.
   static const fallback = [
@@ -42,52 +43,60 @@ abstract final class PomaType {
     'Noto Sans CJK JP',
   ];
   static const pageTitle = TextStyle(
+    fontFamily: displayFamily,
     letterSpacing: 0,
     fontSize: 24,
     height: 32 / 24,
     fontWeight: FontWeight.w600,
   );
   static const sectionTitle = TextStyle(
+    fontFamily: displayFamily,
     letterSpacing: 0,
     fontSize: 20,
     height: 28 / 20,
     fontWeight: FontWeight.w600,
   );
   static const body = TextStyle(
+    fontFamily: family,
     letterSpacing: 0,
     fontSize: 16,
     height: 24 / 16,
     fontWeight: FontWeight.w400,
   );
   static const bodyStrong = TextStyle(
+    fontFamily: family,
     letterSpacing: 0,
     fontSize: 16,
     height: 24 / 16,
     fontWeight: FontWeight.w600,
   );
   static const secondary = TextStyle(
+    fontFamily: family,
     letterSpacing: 0,
     fontSize: 14,
     height: 20 / 14,
     fontWeight: FontWeight.w500,
   );
   static const control = TextStyle(
+    fontFamily: family,
     letterSpacing: 0,
     fontSize: 14,
     height: 20 / 14,
     fontWeight: FontWeight.w600,
   );
   static const caption = TextStyle(
+    fontFamily: family,
     letterSpacing: 0,
     fontSize: 12,
     height: 16 / 12,
     fontWeight: FontWeight.w500,
   );
   static const countdown = TextStyle(
+    fontFamily: displayFamily,
     fontSize: 48,
     height: 1.15,
     fontWeight: FontWeight.w500,
-    letterSpacing: -1,
+    letterSpacing: 0,
     fontFeatures: [FontFeature.tabularFigures()],
   );
 
@@ -107,5 +116,5 @@ abstract final class PomaType {
     labelLarge: control,
     labelMedium: control,
     labelSmall: caption,
-  ).apply(fontFamily: family, fontFamilyFallback: fallback);
+  ).apply(fontFamilyFallback: fallback);
 }

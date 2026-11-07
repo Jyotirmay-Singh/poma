@@ -9,6 +9,11 @@ Future<void> loadPomaTestFonts() async {
     body.addFont(rootBundle.load('assets/fonts/SourceSans3-$weight.ttf'));
   }
   await body.load();
+  final display = FontLoader(PomaType.displayFamily);
+  for (final weight in ['Medium', 'SemiBold']) {
+    display.addFont(rootBundle.load('assets/fonts/Sora-$weight.ttf'));
+  }
+  await display.load();
   // The production engine finds installed script fallbacks itself. The host
   // test renderer needs explicit registration to render multilingual fixtures.
   final japanese = File('C:/Windows/Fonts/YuGothR.ttc');

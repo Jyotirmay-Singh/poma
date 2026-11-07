@@ -87,7 +87,10 @@ class FocusScreen extends StatelessWidget {
         container: true,
         button: true,
         child: Material(
-          color: colors.primary.withValues(alpha: .06),
+          color: Color.alphaBlend(
+            colors.primary.withValues(alpha: .06),
+            colors.surface,
+          ),
           borderRadius: BorderRadius.circular(PomaLayout.panelRadius),
           child: InkWell(
             onTap: onTasks,
@@ -176,6 +179,7 @@ class FocusScreen extends StatelessWidget {
       // a single Column merges the timer's screen-reader status with its hints.
       return PomaPage(
         controller: controller,
+        readingSurface: false,
         children: [
           ScreenHeading(title: copy.focus),
           ...timerWidgets,
@@ -185,6 +189,7 @@ class FocusScreen extends StatelessWidget {
     }
     return PomaPage(
       controller: controller,
+      readingSurface: false,
       maxContentWidth: PomaLayout.workspaceWidth,
       children: [
         ScreenHeading(title: copy.focus),

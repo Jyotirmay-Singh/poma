@@ -87,5 +87,38 @@ bool IsPackaged();
 std::wstring ToWide(const std::string& value);
 std::string ToUtf8(const std::wstring& value);
 std::wstring UserSid();
+// GDI static text does not apply OpenType tnum. Give the Sora countdown fixed
+// digit cells while retaining the full accessible text on the static control.
+struct CountdownMetrics {
+  int digit = 0;
+  int colon = 0;
+  int height = 0;
+  int Width(const std::wstring& value) const {
+    int width = 0;
+    for (const auto character : value) width += character == L':' ? colon : digit;
+    return width;
+  }
+};
+inline CountdownMetrics MeasureCountdown(HDC dc) {
+  CountdownMetrics result;
+  for (wchar_t digit = L'0'; digit <= L'9'; ++digit) {
+    SIZE size{}; GetTextExtentPoint32W(dc, &digit, 1, &size);
+    result.digit = std::max(result.digit, static_cast<int>(size.cx));
+    result.height = std::max(result.height, static_cast<int>(size.cy));
+  }
+  SIZE colon{}; GetTextExtentPoint32W(dc, L":", 1, &colon);
+  result.colon = static_cast<int>(colon.cx);
+  return result;
+}
+inline void DrawCountdown(HDC dc, const std::wstring& value, const RECT& bounds) {
+  const auto metrics = MeasureCountdown(dc);
+  int x = bounds.left + (bounds.right - bounds.left - metrics.Width(value)) / 2;
+  for (const auto character : value) {
+    const int width = character == L':' ? metrics.colon : metrics.digit;
+    RECT cell{x, bounds.top, x + width, bounds.bottom};
+    DrawTextW(dc, &character, 1, &cell, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
+    x += width;
+  }
+}
 }  // namespace poma
 #endif

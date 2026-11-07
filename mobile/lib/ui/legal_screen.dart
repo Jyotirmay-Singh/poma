@@ -26,9 +26,16 @@ class LegalScreen extends StatelessWidget {
               horizontal: PomaLayout.pageInset(constraints.maxWidth),
               vertical: PomaSpace.lg,
             ),
-            child: SelectableText(
-              snapshot.data!,
-              style: Theme.of(context).textTheme.bodyMedium,
+            child: Container(
+              padding: const EdgeInsets.all(PomaSpace.md),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(PomaLayout.panelRadius),
+              ),
+              child: SelectableText(
+                snapshot.data!,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
             ),
           ),
         );

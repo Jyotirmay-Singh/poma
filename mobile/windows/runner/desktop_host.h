@@ -78,6 +78,8 @@ class DesktopHost {
   HFONT timer_font_ = nullptr;
   HFONT control_font_ = nullptr;
   std::vector<HANDLE> font_resources_;
+  bool body_fonts_loaded_ = false;
+  bool timer_font_loaded_ = false;
   HBRUSH background_ = nullptr;
   bool dark_ = false;
   bool high_contrast_ = false;

@@ -63,7 +63,7 @@ engine notices and Dart/plugin license inventory are preserved separately in
 About → View licenses; they are not replaced by a top-level SDK license.
 
 Poma's original timer-ring launcher/splash mark was created for this release.
-No Pomatez icon or external font is used. Native archive declarations do not
+No Pomatez icon is used. Native archive declarations do not
 prove that every declared class survives optimization; full embedded/legal
 clearance remains explicitly scoped in the release evidence.
 
@@ -79,3 +79,13 @@ The complete upstream notice and license are bundled in
 The font files are also embedded as process-private Windows resources;
 Poma does not install a system font or download fonts at runtime.
 Upstream: https://github.com/adobe-fonts/source-sans
+
+## Sora — SIL Open Font License 1.1
+
+Copyright 2019 The Sora Project Authors (https://github.com/sora-xor/sora-font).
+Poma bundles static Medium (500) and SemiBold (600) instances of the official
+Sora variable font at revision 7f9a9c5d0ccd1c099cfac420aa27133df1c5fdc4.
+fontTools 4.60.1 instanced the weight axis and assigned static family/style names
+for Windows GDI; glyph outlines were not edited.
+The complete license is bundled in assets/licenses/sora.txt and available in
+About → View licenses. Fonts work offline and are loaded privately by Windows.

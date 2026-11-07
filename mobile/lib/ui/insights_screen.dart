@@ -101,7 +101,7 @@ class InsightsScreen extends StatelessWidget {
                                 const SizedBox(height: PomaSpace.xs),
                                 Text(
                                   DeviceFormats.weekday(context, days[i]),
-                                  style: Theme.of(context).textTheme.labelLarge,
+                                  style: Theme.of(context).textTheme.titleSmall,
                                 ),
                               ],
                             ),
