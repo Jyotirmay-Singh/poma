@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poma/application/app_controller.dart';
@@ -539,41 +541,52 @@ void main() {
   testWidgets(
     'desktop number entry validates ranges and preserves a running duration',
     (tester) async {
-      tester.view.physicalSize = const Size(1080, 1000);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      final controller = await AppController.create(
-        MemoryRepository(),
-        clock: FakeClock(),
-      );
-      final desktop = DesktopController(controller, FakeShell(), environment);
-      await desktop.initialize();
-      await tester.pumpWidget(
-        PomaApp(controller: controller, desktop: desktop),
-      );
-      desktop.navigate(3);
-      await tester.pumpAndSettle();
-      final field = find.byKey(const ValueKey('desktop-number-Focus duration'));
-      await tester.enterText(field, '0');
-      await tester.testTextInput.receiveAction(TextInputAction.done);
-      await tester.pumpAndSettle();
-      expect(find.text('Enter a whole number from 1 to 120.'), findsOneWidget);
-      expect(controller.settings.focusMinutes, 25);
-      await tester.enterText(field, '1');
-      await tester.testTextInput.receiveAction(TextInputAction.done);
-      await tester.pumpAndSettle();
-      expect(controller.settings.focusMinutes, 1);
-      await controller.toggleTimer();
-      await tester.pumpAndSettle();
-      await tester.enterText(field, '2');
-      await tester.testTextInput.receiveAction(TextInputAction.done);
-      await tester.pumpAndSettle();
-      expect(controller.settings.focusMinutes, 2);
-      expect(controller.timer.snapshot().totalSeconds, 60);
-      await tester.pumpWidget(const SizedBox());
-      desktop.dispose();
-      controller.dispose();
+      final semantics = tester.ensureSemantics();
+      try {
+        tester.view.physicalSize = const Size(1080, 1000);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        final controller = await AppController.create(
+          MemoryRepository(),
+          clock: FakeClock(),
+        );
+        final desktop = DesktopController(controller, FakeShell(), environment);
+        await desktop.initialize();
+        await tester.pumpWidget(
+          PomaApp(controller: controller, desktop: desktop),
+        );
+        desktop.navigate(3);
+        await tester.pumpAndSettle();
+        final field = find.byKey(
+          const ValueKey('desktop-number-Focus duration'),
+        );
+        expect(tester.getSemantics(field).label, contains('Focus duration'));
+        await tester.enterText(field, '0');
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+        expect(
+          find.text('Enter a whole number from 1 to 120.'),
+          findsOneWidget,
+        );
+        expect(controller.settings.focusMinutes, 25);
+        await tester.enterText(field, '1');
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+        expect(controller.settings.focusMinutes, 1);
+        await controller.toggleTimer();
+        await tester.pumpAndSettle();
+        await tester.enterText(field, '2');
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+        expect(controller.settings.focusMinutes, 2);
+        expect(controller.timer.snapshot().totalSeconds, 60);
+        await tester.pumpWidget(const SizedBox());
+        desktop.dispose();
+        controller.dispose();
+      } finally {
+        semantics.dispose();
+      }
     },
   );
 
@@ -648,7 +661,7 @@ void main() {
   });
 
   for (final width in [640.0, 1080.0, 1440.0]) {
-    for (final scale in [1.0, 2.0]) {
+    for (final scale in [1.0, 1.5, 2.0]) {
       for (final appearance in ['light', 'dark']) {
         testWidgets(
           'desktop screens width=$width text=$scale appearance=$appearance',
@@ -684,13 +697,34 @@ void main() {
             );
             await desktop.initialize();
             await tester.pumpWidget(
-              PomaApp(controller: controller, desktop: desktop),
+              RepaintBoundary(
+                key: const Key('desktop-ui-capture'),
+                child: PomaApp(controller: controller, desktop: desktop),
+              ),
             );
             await tester.pumpAndSettle();
             for (var i = 0; i < 4; i++) {
               desktop.navigate(i);
               await tester.pumpAndSettle();
               expect(tester.takeException(), isNull);
+              const captures = String.fromEnvironment('POMA_UI_SCREENSHOTS');
+              if (captures.isNotEmpty) {
+                final boundary = tester.renderObject<RenderRepaintBoundary>(
+                  find.byKey(const Key('desktop-ui-capture')),
+                );
+                await tester.runAsync(() async {
+                  final image = await boundary.toImage();
+                  final bytes = await image.toByteData(
+                    format: ui.ImageByteFormat.png,
+                  );
+                  final file = File(
+                    '$captures/desktop-${width.toInt()}-${(scale * 100).round()}-$appearance-$i.png',
+                  );
+                  await file.parent.create(recursive: true);
+                  await file.writeAsBytes(bytes!.buffer.asUint8List());
+                  image.dispose();
+                });
+              }
             }
             await tester.pumpWidget(const SizedBox());
             desktop.dispose();

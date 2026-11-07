@@ -76,6 +76,8 @@ class DesktopHost {
   bool session_registered_ = false;
   HFONT body_font_ = nullptr;
   HFONT timer_font_ = nullptr;
+  HFONT control_font_ = nullptr;
+  std::vector<HANDLE> font_resources_;
   HBRUSH background_ = nullptr;
   bool dark_ = false;
   bool high_contrast_ = false;

@@ -1,5 +1,10 @@
 # Screen refinement verification
 
+The 5 November 2026 application-wide typography and spacing refinement is
+documented in [UI_DESIGN_SYSTEM.md](UI_DESIGN_SYSTEM.md). It bundles Source Sans 3
+and uses that font in host captures. The system-font observations below describe
+their historical builds.
+
 For owner-ID build 2007, use RELEASE_CANDIDATE.md and BUILD_AND_INSTALL.md. The
 captures/reproduction commands below are historical supporting evidence, not
 instructions to regenerate 38 captures or replay passed timer tests. The new

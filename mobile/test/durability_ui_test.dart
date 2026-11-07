@@ -83,6 +83,7 @@ void main() {
           )
           .first;
       await tester.ensureVisible(deleteSession);
+      await tester.pumpAndSettle();
       await tester.tap(deleteSession);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Cancel'));

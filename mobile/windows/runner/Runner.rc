@@ -57,6 +57,11 @@ IDI_TRAY_ICON           ICON                    "resources\\tray_icon.ico"
 IDI_TRAY_WHITE          ICON                    "resources\\tray_white.ico"
 IDI_TRAY_BLACK          ICON                    "resources\\tray_black.ico"
 
+// Share the Flutter font assets with the native popup, without installing fonts.
+IDR_POMA_FONT_REGULAR   RCDATA                  "..\\..\\assets\\fonts\\SourceSans3-Regular.ttf"
+IDR_POMA_FONT_MEDIUM    RCDATA                  "..\\..\\assets\\fonts\\SourceSans3-Medium.ttf"
+IDR_POMA_FONT_SEMIBOLD  RCDATA                  "..\\..\\assets\\fonts\\SourceSans3-Semibold.ttf"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

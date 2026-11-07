@@ -109,7 +109,7 @@ Future<void> screenshot(
     'file': '$name.png',
     'renderScale': 2,
     'source':
-        'Flutter widget renderer; seeded local app records; SDK Roboto preview substitute',
+        'Flutter widget renderer; seeded local app records; bundled Source Sans 3 production fonts',
     'devicePixelRatio': tester.view.devicePixelRatio,
     'locale': tester.platformDispatcher.locale.toString(),
     'safeInsets': {
@@ -127,30 +127,6 @@ void main() {
   setUpAll(() async {
     WidgetController.hitTestWarningShouldBeFatal = true;
     await DeviceFormats.initialize();
-    if (!capture) return;
-    final root = Platform.environment['FLUTTER_ROOT']!;
-    final fonts = '$root/bin/cache/artifacts/material_fonts';
-    final body = FontLoader('Roboto');
-    for (final file in [
-      'roboto-regular.ttf',
-      'roboto-medium.ttf',
-      'roboto-bold.ttf',
-    ]) {
-      body.addFont(
-        Future.value(
-          ByteData.sublistView(await File('$fonts/$file').readAsBytes()),
-        ),
-      );
-    }
-    await body.load();
-    await (FontLoader('MaterialIcons')..addFont(
-          Future.value(
-            ByteData.sublistView(
-              await File('$fonts/materialicons-regular.otf').readAsBytes(),
-            ),
-          ),
-        ))
-        .load();
   });
   tearDownAll(() async {
     WidgetController.hitTestWarningShouldBeFatal = false;
@@ -191,7 +167,7 @@ void main() {
     'landscape': const Size(700, 320),
   }.entries) {
     for (final appearance in ['light', 'dark']) {
-      for (final scale in [1.0, 2.0]) {
+      for (final scale in [1.0, 1.5, 2.0]) {
         testWidgets(
           '${viewport.key} $appearance ${scale}x populated screens remain usable',
           (tester) async {
@@ -237,12 +213,12 @@ void main() {
                   'dataSetup':
                       'Three tasks (one complete, one 160-character title); seven 25-minute sessions; maximum focus duration 120 minutes.',
                 };
-                if (viewport.key == 'tall' && scale == 1 ||
+                if (viewport.key == 'tall' && scale <= 1.5 ||
                     viewport.key == 'compact' && scale == 2 ||
                     viewport.key == 'landscape' && scale == 2) {
                   await screenshot(
                     tester,
-                    '${viewport.key}-$appearance-${scale.toInt()}x-$tab',
+                    '${viewport.key}-$appearance-${scale.toString().replaceAll('.0', '')}x-$tab',
                     settings,
                   );
                 }

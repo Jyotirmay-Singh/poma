@@ -6,6 +6,9 @@
 #define IDI_TRAY_ICON                   102
 #define IDI_TRAY_WHITE                  103
 #define IDI_TRAY_BLACK                  104
+#define IDR_POMA_FONT_REGULAR           201
+#define IDR_POMA_FONT_MEDIUM            202
+#define IDR_POMA_FONT_SEMIBOLD          203
 
 // Next default values for new objects
 //

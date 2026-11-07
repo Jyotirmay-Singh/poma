@@ -11,3 +11,15 @@ target_link_libraries(poma_native_test PRIVATE crypt32)
 target_link_libraries(poma_native_test PRIVATE winhttp)
 add_test(NAME desktop_native COMMAND poma_native_test "${CMAKE_CURRENT_SOURCE_DIR}/../../test/fixtures/calendar_links.tsv")
 set_tests_properties(desktop_native PROPERTIES TIMEOUT 30)
+
+# Use the real runner resources, so font paths and GDI compatibility are checked
+# with the same assets embedded in the production executable.
+enable_language(RC)
+add_executable(poma_font_test font_native_test.cpp ../runner/Runner.rc)
+target_compile_features(poma_font_test PRIVATE cxx_std_17)
+target_compile_definitions(poma_font_test PRIVATE UNICODE _UNICODE NOMINMAX)
+target_compile_options(poma_font_test PRIVATE $<$<COMPILE_LANGUAGE:CXX>:/W4;/WX;/EHsc;/utf-8>)
+target_include_directories(poma_font_test PRIVATE ../runner)
+target_link_libraries(poma_font_test PRIVATE gdi32 user32)
+add_test(NAME font_native COMMAND poma_font_test)
+set_tests_properties(font_native PROPERTIES TIMEOUT 30)

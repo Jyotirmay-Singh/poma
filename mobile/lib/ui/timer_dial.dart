@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../domain/timer_engine.dart';
 import '../domain/models.dart';
 import 'copy.dart';
+import 'design_tokens.dart';
 
 class TimerDial extends StatelessWidget {
   const TimerDial({required this.timer, required this.color, super.key});
@@ -15,16 +16,11 @@ class TimerDial extends StatelessWidget {
       final seconds = timer.remainingSeconds;
       final time =
           '${(seconds ~/ 60).toString().padLeft(2, '0')}:${(seconds % 60).toString().padLeft(2, '0')}';
-      final timeStyle = DefaultTextStyle.of(context).style.copyWith(
-        fontSize: diameter / 6.5,
-        fontWeight: FontWeight.w500,
-        letterSpacing: -1.5,
-        fontFeatures: const [FontFeature.tabularFigures()],
-      );
-      final phaseStyle = DefaultTextStyle.of(context).style.copyWith(
+      final timeStyle = Theme.of(
+        context,
+      ).textTheme.displaySmall!.copyWith(fontSize: diameter / 6.5);
+      final phaseStyle = Theme.of(context).textTheme.labelLarge!.copyWith(
         color: Theme.of(context).colorScheme.onSurface,
-        fontSize: 15,
-        fontWeight: FontWeight.w600,
       );
       final numberMetrics = TextPainter(
         text: TextSpan(text: time, style: timeStyle),
@@ -53,7 +49,7 @@ class TimerDial extends StatelessWidget {
             ? Icons.spa_outlined
             : Icons.coffee_outlined,
         color: color,
-        size: 27,
+        size: PomaSpace.lg,
       );
       final number = Text(time, textAlign: TextAlign.center, style: timeStyle);
       final phase = Text(
@@ -84,14 +80,14 @@ class TimerDial extends StatelessWidget {
                   ),
                   child: Center(
                     child: Padding(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(PomaSpace.lg),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           icon,
-                          const SizedBox(height: 12),
+                          const SizedBox(height: PomaSpace.sm),
                           if (fits) number,
-                          const SizedBox(height: 4),
+                          const SizedBox(height: PomaSpace.xxs),
                           phase,
                         ],
                       ),
@@ -99,7 +95,7 @@ class TimerDial extends StatelessWidget {
                   ),
                 ),
               ),
-              if (!fits) ...[const SizedBox(height: 12), number],
+              if (!fits) ...[const SizedBox(height: PomaSpace.sm), number],
             ],
           ),
         ),

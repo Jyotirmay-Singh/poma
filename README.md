@@ -92,6 +92,10 @@ History stays on the phone until explicitly deleted. Settings provides clear-his
 
 ## Run
 
+The UI uses a shared offline Source Sans 3 typography and spacing system across
+mobile, Windows and the native tray popup. See the [UI design system and
+verification](docs/UI_DESIGN_SYSTEM.md) for the screen refinements and review evidence.
+
 Install Flutter **3.44.2** (Dart 3.12.2), an Android SDK with Java 17, and an Android emulator or connected phone. Run from `mobile/` (the examples use RTK to keep development output concise):
 
 ```powershell

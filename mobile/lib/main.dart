@@ -38,6 +38,9 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   LicenseRegistry.addLicense(() async* {
     yield LicenseEntryWithLineBreaks([
+      'Source Sans 3',
+    ], await rootBundle.loadString('assets/licenses/source-sans-3.txt'));
+    yield LicenseEntryWithLineBreaks([
       'Pomatez',
     ], await rootBundle.loadString('assets/licenses/pomatez.txt'));
     yield LicenseEntryWithLineBreaks(

@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poma/application/app_controller.dart';
 import 'package:poma/data/local_storage_policy.dart';
@@ -46,35 +45,6 @@ void main() {
     expect(find.text('Saved task'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
-  });
-  setUpAll(() async {
-    if (!const bool.fromEnvironment('POMA_SCREENSHOTS')) return;
-    final sdk = Platform.environment['FLUTTER_ROOT'];
-    if (sdk == null) {
-      throw StateError('Set FLUTTER_ROOT to render preview fonts.');
-    }
-    final fonts = '$sdk/bin/cache/artifacts/material_fonts';
-    final body = FontLoader('Roboto');
-    for (final name in [
-      'roboto-regular.ttf',
-      'roboto-medium.ttf',
-      'roboto-bold.ttf',
-    ]) {
-      body.addFont(
-        Future.value(
-          ByteData.sublistView(await File('$fonts/$name').readAsBytes()),
-        ),
-      );
-    }
-    await body.load();
-    await (FontLoader('MaterialIcons')..addFont(
-          Future.value(
-            ByteData.sublistView(
-              await File('$fonts/materialicons-regular.otf').readAsBytes(),
-            ),
-          ),
-        ))
-        .load();
   });
   Future<AppController> mount(
     WidgetTester tester, {

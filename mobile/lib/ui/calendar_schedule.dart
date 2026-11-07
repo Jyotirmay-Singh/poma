@@ -12,6 +12,7 @@ import '../application/desktop_controller.dart';
 import '../domain/calendar_data.dart';
 import 'calendar_schedule_adapter.dart';
 import 'copy.dart';
+import 'design_tokens.dart';
 
 enum ScheduleView { sevenDays, day, agenda }
 
@@ -194,16 +195,50 @@ class _CalendarScheduleState extends State<CalendarSchedule> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Semantics(
-                liveRegion: true,
-                child: Text(
-                  status.title,
-                  key: const ValueKey('schedule-status'),
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+              Flex(
+                direction: constraints.maxWidth >= 900 && !largeText
+                    ? Axis.horizontal
+                    : Axis.vertical,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (constraints.maxWidth >= 900 && !largeText)
+                    Expanded(child: _statusSummary(status.title, status.body))
+                  else
+                    _statusSummary(status.title, status.body),
+                  const SizedBox(width: PomaSpace.lg, height: PomaSpace.sm),
+                  Wrap(
+                    spacing: PomaSpace.xs,
+                    runSpacing: PomaSpace.xs,
+                    children: [
+                      TextButton.icon(
+                        onPressed: () => widget.desktop.openCalendarSection(
+                          CalendarPageSection.settings,
+                        ),
+                        icon: const Icon(Icons.tune),
+                        label: Text(
+                          data.selected.isEmpty
+                              ? 'Choose calendars'
+                              : 'Calendar settings',
+                        ),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed:
+                            data.connection.mayRead &&
+                                !data.loading &&
+                                !data.saving &&
+                                !data.refreshing
+                            ? () async {
+                                projection.retryFormatting();
+                                await data.retry();
+                              }
+                            : null,
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Refresh schedule'),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              const SizedBox(height: 6),
-              Text(status.body),
               if (projection.formattingUnavailable)
                 const Text(
                   'Local time formatting is unavailable. Check Windows regional settings, then refresh.',
@@ -211,48 +246,17 @@ class _CalendarScheduleState extends State<CalendarSchedule> {
               if (projection.actionMessage != null)
                 Text(projection.actionMessage!),
               if (data.failure != null) Text(_problem(data.failure!)),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  TextButton.icon(
-                    onPressed: () => widget.desktop.openCalendarSection(
-                      CalendarPageSection.settings,
-                    ),
-                    icon: const Icon(Icons.tune),
-                    label: Text(
-                      data.selected.isEmpty
-                          ? 'Choose calendars'
-                          : 'Calendar settings',
-                    ),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed:
-                        data.connection.mayRead &&
-                            !data.loading &&
-                            !data.saving &&
-                            !data.refreshing
-                        ? () async {
-                            projection.retryFormatting();
-                            await data.retry();
-                          }
-                        : null,
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Refresh schedule'),
-                  ),
-                ],
-              ),
               if (data.loading || data.refreshing || data.saving)
                 const LinearProgressIndicator(
                   semanticsLabel: 'Updating calendar schedule',
                 ),
               // Keep the calendar visible before setup; unloaded cells never
               // establish an empty or free schedule.
-              const SizedBox(height: 16),
+              const SizedBox(height: PomaSpace.md),
               Wrap(
                 crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 8,
-                runSpacing: 8,
+                spacing: PomaSpace.xs,
+                runSpacing: PomaSpace.xs,
                 children: [
                   for (final option in ScheduleView.values)
                     ChoiceChip(
@@ -269,11 +273,11 @@ class _CalendarScheduleState extends State<CalendarSchedule> {
                   _dateControls(view),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: PomaSpace.sm),
               if (view == ScheduleView.sevenDays)
                 Text(
                   '${_date(data.window.first)} – ${_date(data.window.until.plusDays(-1))}',
-                  style: Theme.of(context).textTheme.titleMedium,
+                  style: Theme.of(context).textTheme.titleSmall,
                 ),
               if (!_hasSelection)
                 const Text('Calendar not loaded. Your availability is unknown.')
@@ -283,12 +287,12 @@ class _CalendarScheduleState extends State<CalendarSchedule> {
                 const Text(
                   'Missing or stale calendar data does not mean that time is free.',
                 ),
-              const SizedBox(height: 12),
+              const SizedBox(height: PomaSpace.sm),
               if (view == ScheduleView.agenda)
                 _agendaList()
               else
                 _timeline(view),
-              const SizedBox(height: 16),
+              const SizedBox(height: PomaSpace.md),
               Text(
                 'Device timezone: ${DateTime.now().timeZoneName}. '
                 'Supported dates: ${_date(data.window.first)} – ${_date(data.window.until.plusDays(-1))}.',
@@ -310,10 +314,26 @@ class _CalendarScheduleState extends State<CalendarSchedule> {
     );
   }
 
+  Widget _statusSummary(String title, String body) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Semantics(
+        liveRegion: true,
+        child: Text(
+          title,
+          key: const ValueKey('schedule-status'),
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+      ),
+      const SizedBox(height: PomaSpace.xxs),
+      Text(body, style: Theme.of(context).textTheme.bodySmall),
+    ],
+  );
+
   Widget _dateControls(ScheduleView view) => Wrap(
     crossAxisAlignment: WrapCrossAlignment.center,
-    spacing: 8,
-    runSpacing: 8,
+    spacing: PomaSpace.xs,
+    runSpacing: PomaSpace.xs,
     children: [
       OutlinedButton(
         onPressed: () {
@@ -376,7 +396,7 @@ class _CalendarScheduleState extends State<CalendarSchedule> {
         ),
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(PomaLayout.panelRadius),
           border: Border.all(color: Theme.of(context).colorScheme.outline),
         ),
         child: k.KalenderTheme(
@@ -435,7 +455,9 @@ class _CalendarScheduleState extends State<CalendarSchedule> {
                   dayHeaderBuilder: (context, date) {
                     final day = CalendarDate(date.year, date.month, date.day);
                     return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: PomaSpace.xs,
+                      ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -480,7 +502,10 @@ class _CalendarScheduleState extends State<CalendarSchedule> {
     children: [
       for (final day in agenda!.days) ...[
         Padding(
-          padding: const EdgeInsets.only(top: 18, bottom: 8),
+          padding: const EdgeInsets.only(
+            top: PomaSpace.md,
+            bottom: PomaSpace.xs,
+          ),
           child: Semantics(
             header: true,
             child: Text(
@@ -518,7 +543,7 @@ class _CalendarScheduleState extends State<CalendarSchedule> {
     return [
       for (final tile in items)
         Padding(
-          padding: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.only(bottom: PomaSpace.xs),
           child: Semantics(
             label: _label(tile),
             button: true,
@@ -528,7 +553,7 @@ class _CalendarScheduleState extends State<CalendarSchedule> {
                 key: ValueKey('agenda-${tile.id}-$day'),
                 style: OutlinedButton.styleFrom(
                   alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(PomaSpace.md),
                 ),
                 onPressed: () => _open(tile),
                 child: Column(
@@ -595,10 +620,9 @@ class _CalendarScheduleState extends State<CalendarSchedule> {
                             title,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: foreground,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.labelLarge?.copyWith(color: foreground),
                           ),
                         ),
                         if (box.maxHeight > 84)
@@ -606,7 +630,9 @@ class _CalendarScheduleState extends State<CalendarSchedule> {
                             tile.sourceLabel,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(color: foreground),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.copyWith(color: foreground),
                           ),
                         if (box.maxHeight > 110 &&
                             (tile.event.status == 'tentative' ||
@@ -618,7 +644,9 @@ class _CalendarScheduleState extends State<CalendarSchedule> {
                                 : 'Tentative',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(color: foreground),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.copyWith(color: foreground),
                           ),
                       ],
                     ),
@@ -640,7 +668,7 @@ class _CalendarScheduleState extends State<CalendarSchedule> {
         (s) => reader!.selected.contains(s.id),
       ))
         Padding(
-          padding: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.only(bottom: PomaSpace.sm),
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
@@ -781,7 +809,7 @@ class _ScheduleDetails extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(tile.sourceLabel),
-          const SizedBox(height: 12),
+          const SizedBox(height: PomaSpace.sm),
           if (e.allDay)
             Text(
               'All day: ${date(e.startDate!)} – ${date(e.endDate!.plusDays(-1))}',
@@ -790,7 +818,7 @@ class _ScheduleDetails extends StatelessWidget {
             Text('Starts: ${instant(e.startUtc!)}'),
             Text('Ends: ${instant(e.endUtc!)}'),
           ],
-          const SizedBox(height: 12),
+          const SizedBox(height: PomaSpace.sm),
           Text(
             e.status == 'tentative' || e.selfResponse == 'tentative'
                 ? 'Tentative'

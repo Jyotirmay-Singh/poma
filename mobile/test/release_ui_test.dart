@@ -36,6 +36,7 @@ void main() {
     await tester.tap(find.byKey(const Key('destination-3')));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.text('About Poma'), 300);
+    await tester.pumpAndSettle();
     await tester.tap(find.text('About Poma'));
     await tester.pumpAndSettle();
     expect(find.text('$pomaVersion ($pomaBuild)'), findsOneWidget);
@@ -43,6 +44,7 @@ void main() {
     await tester.tap(find.text('Close'));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Privacy policy'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Privacy policy'));
     // Build the pushed route before allowing real asset I/O to complete.
     await tester.pump();

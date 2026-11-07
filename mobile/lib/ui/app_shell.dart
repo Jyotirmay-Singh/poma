@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:math' as math;
 import '../application/app_controller.dart';
 import '../application/local_repository.dart';
 import '../application/desktop_controller.dart';
@@ -11,6 +10,7 @@ import 'settings_screen.dart';
 import 'tasks_screen.dart';
 import 'desktop_scope.dart';
 import 'calendar_screen.dart';
+import 'design_tokens.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({required this.controller, super.key});
@@ -71,9 +71,10 @@ class _AppShellState extends State<AppShell> {
       ),
       _ => SettingsScreen(controller: controller),
     };
-    if (desktop != null && MediaQuery.sizeOf(context).width >= 700) {
+    if (desktop != null &&
+        MediaQuery.sizeOf(context).width >= PomaLayout.navigationRail) {
       final extended =
-          MediaQuery.sizeOf(context).width >= 1000 &&
+          MediaQuery.sizeOf(context).width >= PomaLayout.extendedRail &&
           MediaQuery.textScalerOf(context).scale(1) < 1.5;
       return CallbackShortcuts(
         bindings: {
@@ -99,10 +100,12 @@ class _AppShellState extends State<AppShell> {
                 child: Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 28),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: PomaSpace.lg,
+                      ),
                       child: Text(
                         extended ? 'Poma' : 'P',
-                        style: Theme.of(context).textTheme.headlineMedium,
+                        style: Theme.of(context).textTheme.headlineSmall,
                       ),
                     ),
                     Expanded(
@@ -185,7 +188,10 @@ class _AppShellState extends State<AppShell> {
                 ? 2
                 : labels.length;
             return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(
+                horizontal: PomaSpace.xs,
+                vertical: PomaSpace.xxs,
+              ),
               child: Wrap(
                 children: [
                   for (var i = 0; i < labels.length; i++)
@@ -196,7 +202,7 @@ class _AppShellState extends State<AppShell> {
                         child: TextButton(
                           key: Key('destination-${ids[i]}'),
                           style: TextButton.styleFrom(
-                            minimumSize: const Size(48, 64),
+                            minimumSize: const Size(48, 56),
                             foregroundColor: _tab == ids[i]
                                 ? Theme.of(context).colorScheme.primary
                                 : Theme.of(
@@ -213,7 +219,7 @@ class _AppShellState extends State<AppShell> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               ExcludeSemantics(child: Icon(icons[i])),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: PomaSpace.xxs),
                               Text(labels[i], textAlign: TextAlign.center),
                             ],
                           ),
@@ -233,21 +239,23 @@ class _AppShellState extends State<AppShell> {
 /// Notices share the page scroll region, keeping controls reachable even when
 /// multiple failures are visible with large text.
 class PomaPage extends StatelessWidget {
-  const PomaPage({required this.controller, required this.children, super.key});
+  const PomaPage({
+    required this.controller,
+    required this.children,
+    this.maxContentWidth = PomaLayout.readingWidth,
+    super.key,
+  });
   final AppController controller;
   final List<Widget> children;
+  final double maxContentWidth;
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) => ListView(
       padding: EdgeInsets.fromLTRB(
-        DesktopScope.maybeOf(context) == null
-            ? 24
-            : math.max(24, (constraints.maxWidth - 1120) / 2),
-        20,
-        DesktopScope.maybeOf(context) == null
-            ? 24
-            : math.max(24, (constraints.maxWidth - 1120) / 2),
-        28,
+        PomaLayout.pageInset(constraints.maxWidth, maxWidth: maxContentWidth),
+        PomaSpace.lg,
+        PomaLayout.pageInset(constraints.maxWidth, maxWidth: maxContentWidth),
+        PomaSpace.xl,
       ),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       children: [
@@ -291,7 +299,7 @@ class _Notice extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
     liveRegion: true,
     child: Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: PomaSpace.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -315,39 +323,52 @@ class ScreenHeading extends StatelessWidget {
   final String? subtitle;
   final Widget? action;
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 20),
-    child: Row(
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final heading = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Column(
+        Semantics(
+          header: true,
+          child: Text(title, style: theme.textTheme.headlineSmall),
+        ),
+        if (subtitle != null) ...[
+          const SizedBox(height: PomaSpace.xs),
+          Text(
+            subtitle!,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ],
+    );
+    return Padding(
+      padding: const EdgeInsets.only(bottom: PomaSpace.lg),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (action == null) return heading;
+          if (constraints.maxWidth < 600 ||
+              MediaQuery.textScalerOf(context).scale(1) > 1.4) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                heading,
+                const SizedBox(height: PomaSpace.md),
+                action!,
+              ],
+            );
+          }
+          return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Semantics(
-                header: true,
-                child: Text(
-                  title,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              if (subtitle != null) ...[
-                const SizedBox(height: 6),
-                Text(
-                  subtitle!,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    height: 1.45,
-                  ),
-                ),
-              ],
+              Expanded(child: heading),
+              const SizedBox(width: PomaSpace.lg),
+              action!,
             ],
-          ),
-        ),
-        ?action,
-      ],
-    ),
-  );
+          );
+        },
+      ),
+    );
+  }
 }

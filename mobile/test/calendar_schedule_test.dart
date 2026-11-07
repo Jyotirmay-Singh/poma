@@ -163,22 +163,6 @@ void main() {
   setUpAll(() async {
     tz_data.initializeTimeZones();
     await DeviceFormats.initialize();
-    if (const String.fromEnvironment('POMA_SCHEDULE_SCREENSHOTS').isEmpty) {
-      return;
-    }
-    for (final entry in [
-      ('Segoe UI', 'C:/Windows/Fonts/segoeui.ttf'),
-      (
-        'MaterialIcons',
-        'build/unit_test_assets/fonts/MaterialIcons-Regular.otf',
-      ),
-    ]) {
-      final loader = FontLoader(entry.$1)
-        ..addFont(
-          Future.value(ByteData.sublistView(File(entry.$2).readAsBytesSync())),
-        );
-      await loader.load();
-    }
   });
 
   test(
@@ -304,7 +288,7 @@ void main() {
   );
 
   for (final width in [640.0, 1080.0, 1440.0]) {
-    for (final scale in [1.0, 2.0]) {
+    for (final scale in [1.0, 1.5, 2.0]) {
       testWidgets(
         'Schedule fits $width pixels at ${scale * 100}% text',
         (tester) async {

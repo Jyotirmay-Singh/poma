@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'design_tokens.dart';
 
 /// Bundled text; opening this screen performs no network request.
 class LegalScreen extends StatelessWidget {
@@ -19,11 +20,16 @@ class LegalScreen extends StatelessWidget {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: SelectableText(
-            snapshot.data!,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.5),
+        return LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            padding: EdgeInsets.symmetric(
+              horizontal: PomaLayout.pageInset(constraints.maxWidth),
+              vertical: PomaSpace.lg,
+            ),
+            child: SelectableText(
+              snapshot.data!,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
           ),
         );
       },

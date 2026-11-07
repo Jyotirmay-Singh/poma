@@ -8,6 +8,7 @@ import 'desktop_scope.dart';
 import 'calendar_screen.dart';
 import 'theme.dart';
 import 'timer_dial.dart';
+import 'design_tokens.dart';
 
 class FocusScreen extends StatelessWidget {
   const FocusScreen({
@@ -37,19 +38,19 @@ class FocusScreen extends StatelessWidget {
       Center(
         child: TimerDial(timer: timer, color: accent),
       ),
-      const SizedBox(height: 10),
+      const SizedBox(height: PomaSpace.xs),
       Text(
         copy.roundsComplete(timer.displayedRounds, controller.settings.rounds),
         textAlign: TextAlign.center,
         style: TextStyle(color: colors.onSurfaceVariant),
       ),
-      const SizedBox(height: 24),
+      const SizedBox(height: PomaSpace.lg),
       if (completion != null)
         Semantics(
           key: ValueKey('completion-${completion.runId}'),
           liveRegion: announceCompletion,
           child: Padding(
-            padding: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.only(bottom: PomaSpace.md),
             child: Text(
               completion.phase == FocusPhase.focus
                   ? copy.focusComplete
@@ -59,7 +60,7 @@ class FocusScreen extends StatelessWidget {
           ),
         ),
       _TimerControls(controller: controller, accent: accent),
-      const SizedBox(height: 12),
+      const SizedBox(height: PomaSpace.sm),
       Text(
         timer.controlsLocked
             ? copy.strictHint
@@ -73,26 +74,26 @@ class FocusScreen extends StatelessWidget {
         textAlign: TextAlign.center,
         style: TextStyle(color: colors.onSurfaceVariant),
       ),
-      const SizedBox(height: 24),
+      const SizedBox(height: PomaSpace.lg),
     ];
     final details = <Widget>[
       if (activeFocus) ...[
         Text(copy.currentFocus, style: Theme.of(context).textTheme.titleSmall),
-        const SizedBox(height: 6),
+        const SizedBox(height: PomaSpace.xs),
         Text(controller.activeTaskTitle ?? copy.unassignedFocus),
-        const SizedBox(height: 16),
+        const SizedBox(height: PomaSpace.md),
       ],
       Semantics(
         container: true,
         button: true,
         child: Material(
           color: colors.primary.withValues(alpha: .06),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(PomaLayout.panelRadius),
           child: InkWell(
             onTap: onTasks,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(PomaLayout.panelRadius),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(PomaSpace.md),
               child: Row(
                 children: [
                   Expanded(
@@ -105,7 +106,7 @@ class FocusScreen extends StatelessWidget {
                               : copy.nextFocus,
                           style: Theme.of(context).textTheme.titleSmall,
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: PomaSpace.xxs),
                         Text(controller.selectedTask?.title ?? copy.noTask),
                       ],
                     ),
@@ -120,7 +121,7 @@ class FocusScreen extends StatelessWidget {
       if (DesktopScope.maybeOf(context) != null &&
           controller.selectedTask != null)
         Padding(
-          padding: const EdgeInsets.only(top: 12),
+          padding: const EdgeInsets.only(top: PomaSpace.sm),
           child: OutlinedButton.icon(
             icon: const Icon(Icons.event_available),
             label: const Text('Schedule focus block'),
@@ -132,7 +133,7 @@ class FocusScreen extends StatelessWidget {
             ),
           ),
         ),
-      const SizedBox(height: 20),
+      const SizedBox(height: PomaSpace.lg),
       if (controller.alertAvailability != null) ...[
         Text(
           alertStatus(copy, controller),
@@ -150,14 +151,14 @@ class FocusScreen extends StatelessWidget {
             onPressed: () => controller.reconcile(forceAlerts: true),
             child: Text(copy.retryAlerts),
           ),
-        const SizedBox(height: 12),
+        const SizedBox(height: PomaSpace.sm),
       ],
       const Divider(),
       Semantics(
         header: true,
         child: Text(copy.today, style: Theme.of(context).textTheme.titleSmall),
       ),
-      const SizedBox(height: 8),
+      const SizedBox(height: PomaSpace.xs),
       Text(
         (controller.summaryError != null ? copy.totalsReadError : null) ??
             (today == null
@@ -184,12 +185,13 @@ class FocusScreen extends StatelessWidget {
     }
     return PomaPage(
       controller: controller,
+      maxContentWidth: PomaLayout.workspaceWidth,
       children: [
         ScreenHeading(title: copy.focus),
         LayoutBuilder(
           builder: (context, constraints) {
             if (DesktopScope.maybeOf(context) != null &&
-                constraints.maxWidth >= 900 &&
+                constraints.maxWidth >= PomaLayout.splitFocus &&
                 MediaQuery.textScalerOf(context).scale(1) <= 1.4) {
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,7 +202,7 @@ class FocusScreen extends StatelessWidget {
                       children: timerWidgets,
                     ),
                   ),
-                  const SizedBox(width: 40),
+                  const SizedBox(width: PomaSpace.xl),
                   SizedBox(
                     width: 300,
                     child: Column(
@@ -336,11 +338,20 @@ class _TimerControls extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          primary,
-          const SizedBox(height: 8),
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 360),
+              child: SizedBox(width: double.infinity, child: primary),
+            ),
+          ),
+          const SizedBox(height: PomaSpace.xs),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [reset, const SizedBox(width: 24), skip],
+            children: [
+              reset,
+              const SizedBox(width: PomaSpace.lg),
+              skip,
+            ],
           ),
         ],
       ),

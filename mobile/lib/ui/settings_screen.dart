@@ -14,6 +14,7 @@ import 'copy.dart';
 import 'insights_screen.dart';
 import 'legal_screen.dart';
 import 'desktop_scope.dart';
+import 'design_tokens.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({required this.controller, super.key});
@@ -79,7 +80,7 @@ class SettingsScreen extends StatelessWidget {
               controller.updateSettings(settings.copyWith(rounds: v)),
         ),
         Text(copy.durationHelp),
-        const SizedBox(height: 16),
+        const SizedBox(height: PomaSpace.md),
         SwitchListTile.adaptive(
           contentPadding: EdgeInsets.zero,
           title: Text(copy.strictMode),
@@ -94,8 +95,8 @@ class SettingsScreen extends StatelessWidget {
         ),
         _Section(copy.appearance),
         Wrap(
-          spacing: 8,
-          runSpacing: 8,
+          spacing: PomaSpace.xs,
+          runSpacing: PomaSpace.xs,
           children: [
             for (final entry in {
               'system': copy.system,
@@ -168,7 +169,7 @@ class SettingsScreen extends StatelessWidget {
         ),
         Text(alertStatus(copy, controller)),
         Wrap(
-          spacing: 8,
+          spacing: PomaSpace.xs,
           children: [
             if (controller.needsAlertPermission)
               TextButton(
@@ -196,9 +197,9 @@ class SettingsScreen extends StatelessWidget {
         _Section(copy.localData),
         Text(
           desktop == null ? copy.privacyHelp : copy.windowsPrivacyHelp,
-          style: const TextStyle(height: 1.5),
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: PomaSpace.md),
         Text(copy.deletionHelp),
         TextButton.icon(
           icon: const Icon(Icons.delete_outline),
@@ -261,7 +262,7 @@ class SettingsScreen extends StatelessWidget {
             child: Text(copy.retryDeletion),
           ),
         ],
-        const SizedBox(height: 24),
+        const SizedBox(height: PomaSpace.lg),
         TextButton.icon(
           icon: const Icon(Icons.info_outline),
           label: Text(copy.about),
@@ -272,9 +273,9 @@ class SettingsScreen extends StatelessWidget {
                 desktop?.environment.version ?? '$pomaVersion ($pomaBuild)',
             children: [
               Text(desktop == null ? copy.aboutHelp : copy.windowsAboutHelp),
-              const SizedBox(height: 12),
+              const SizedBox(height: PomaSpace.sm),
               Text(copy.attribution),
-              const SizedBox(height: 12),
+              const SizedBox(height: PomaSpace.sm),
               const SelectableText('$pomaOwner\n$pomaSupport'),
             ],
           ),
@@ -421,7 +422,7 @@ class _CalendarReminderSettings extends StatelessWidget {
             }),
             if (reminders.error != null) Text(reminders.error!),
             Wrap(
-              spacing: 8,
+              spacing: PomaSpace.xs,
               children: [
                 TextButton(
                   onPressed: reminders.retry,
@@ -474,7 +475,7 @@ class _GoogleCalendarSettings extends StatelessWidget {
             'Setup requires a Google Cloud project with Calendar API enabled, the two read permissions, a Desktop OAuth client and your tester account. Use the Windows Calendar setup guide to prepare a configured private build; connecting Google in another app does not configure Poma.',
           ),
         if (connection.message != null) Text(connection.message!),
-        const SizedBox(height: 8),
+        const SizedBox(height: PomaSpace.xs),
         const Text(
           'Calendar viewing uses read access. Choose and save calendars before event contents are loaded. Focus scheduling requires separate optional setup. Refresh credentials are protected for this Windows user; saved calendar data is unencrypted. Disconnect preserves tasks, focus history and existing Google events.',
         ),
@@ -483,7 +484,7 @@ class _GoogleCalendarSettings extends StatelessWidget {
             'Private Testing: Google Calendar authorization may expire seven days after consent. Reconnect is explicit; Poma will not repeatedly open your browser.',
           ),
         Wrap(
-          spacing: 8,
+          spacing: PomaSpace.xs,
           children: [
             FilledButton(
               key: const ValueKey('google-calendar-connect'),
@@ -565,7 +566,7 @@ class _CalendarSelectionSettingsState
       }
       if (!widget.unlocked) {
         return const Padding(
-          padding: EdgeInsets.symmetric(vertical: 12),
+          padding: EdgeInsets.symmetric(vertical: PomaSpace.sm),
           child: Text(
             'Calendar details are hidden while Windows is locked or its lock state is unknown.',
             key: ValueKey('calendar-selection-hidden'),
@@ -575,7 +576,7 @@ class _CalendarSelectionSettingsState
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 16),
+          const SizedBox(height: PomaSpace.md),
           const _Section('Selected calendars'),
           if (calendar.loading) const Text('Loading saved calendar selection…'),
           if (calendar.refreshing) const Text('Refreshing calendar data…'),
@@ -613,7 +614,7 @@ class _CalendarSelectionSettingsState
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: PomaSpace.xs),
                   ],
                   Expanded(child: Text(source.name)),
                 ],
@@ -634,7 +635,7 @@ class _CalendarSelectionSettingsState
             ),
             if (calendar.selected.contains(source.id))
               Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.only(bottom: PomaSpace.xs),
                 child: Builder(
                   builder: (_) {
                     final snapshot = calendar.snapshots[source.id];
@@ -670,8 +671,8 @@ class _CalendarSelectionSettingsState
           ],
           if (calendar.accountKey != null)
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: PomaSpace.xs,
+              runSpacing: PomaSpace.xs,
               children: [
                 FilledButton(
                   key: const ValueKey('calendar-save-selection'),
@@ -694,7 +695,7 @@ class _CalendarSelectionSettingsState
                 ),
               ],
             ),
-          const SizedBox(height: 16),
+          const SizedBox(height: PomaSpace.md),
         ],
       );
     },
@@ -713,7 +714,7 @@ class _CalendarPreviewSettings extends StatelessWidget {
         const Text(
           'Fictional demo data only. This separate preview never uses your Google connection or opens a browser. It resets to disconnected after Quit.',
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: PomaSpace.sm),
         InputDecorator(
           decoration: const InputDecoration(labelText: 'Fictional scenario'),
           child: DropdownButtonHideUnderline(
@@ -745,7 +746,7 @@ class _Section extends StatelessWidget {
   final String title;
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 24, bottom: 12),
+    padding: const EdgeInsets.only(top: PomaSpace.lg, bottom: PomaSpace.sm),
     child: Semantics(
       header: true,
       child: Text(title, style: Theme.of(context).textTheme.titleMedium),
@@ -769,17 +770,22 @@ class _DurationControl extends StatelessWidget {
   final ValueChanged<int> onChanged;
   final bool rounds;
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8),
-    child: Wrap(
-      alignment: WrapAlignment.spaceBetween,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: 16,
-      runSpacing: 4,
-      children: [
-        SizedBox(width: 180, child: Text(label)),
-        if (DesktopScope.maybeOf(context) != null)
-          _DesktopNumber(
+  Widget build(BuildContext context) {
+    final valueText = rounds
+        ? context.copy.rounds(value)
+        : context.copy.minutes(value);
+    final valueStyle = Theme.of(context).textTheme.titleSmall!;
+    final metrics = TextPainter(
+      text: TextSpan(text: valueText, style: valueStyle),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+    )..layout();
+    final valueWidth = metrics.width < 64 ? 64.0 : metrics.width + PomaSpace.xs;
+    metrics.dispose();
+    final desktop = DesktopScope.maybeOf(context) != null;
+    final controlsWidth = desktop ? 220.0 : valueWidth + 96;
+    final controls = desktop
+        ? _DesktopNumber(
             label: label,
             value: value,
             max: max,
@@ -787,49 +793,67 @@ class _DurationControl extends StatelessWidget {
             rounds: rounds,
             onChanged: onChanged,
           )
-        else
-          Column(
+        : Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Semantics(
-                label: label,
-                value: rounds
-                    ? context.copy.rounds(value)
-                    : context.copy.minutes(value),
-                child: ExcludeSemantics(
-                  child: Text(
-                    rounds
-                        ? context.copy.rounds(value)
-                        : context.copy.minutes(value),
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+              IconButton(
+                tooltip: context.copy.decrease(label),
+                onPressed: enabled && value > 1
+                    ? () => onChanged(value - 1)
+                    : null,
+                icon: const Icon(Icons.remove_circle_outline),
+              ),
+              SizedBox(
+                width: valueWidth,
+                child: Semantics(
+                  label: label,
+                  value: valueText,
+                  child: ExcludeSemantics(
+                    child: Text(
+                      valueText,
+                      textAlign: TextAlign.center,
+                      style: valueStyle,
+                    ),
                   ),
                 ),
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    tooltip: context.copy.decrease(label),
-                    onPressed: enabled && value > 1
-                        ? () => onChanged(value - 1)
-                        : null,
-                    icon: const Icon(Icons.remove_circle_outline),
-                  ),
-                  const SizedBox(width: 16),
-                  IconButton(
-                    tooltip: context.copy.increase(label),
-                    onPressed: enabled && value < max
-                        ? () => onChanged(value + 1)
-                        : null,
-                    icon: const Icon(Icons.add_circle_outline),
-                  ),
-                ],
+              IconButton(
+                tooltip: context.copy.increase(label),
+                onPressed: enabled && value < max
+                    ? () => onChanged(value + 1)
+                    : null,
+                icon: const Icon(Icons.add_circle_outline),
               ),
             ],
-          ),
-      ],
-    ),
-  );
+          );
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: PomaSpace.xs),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final inline =
+              constraints.maxWidth >= controlsWidth + 160 &&
+              MediaQuery.textScalerOf(context).scale(1) <= 1.4;
+          if (inline) {
+            return Row(
+              children: [
+                Expanded(child: Text(label)),
+                const SizedBox(width: PomaSpace.md),
+                controls,
+              ],
+            );
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(label),
+              const SizedBox(height: PomaSpace.xs),
+              Align(alignment: Alignment.centerRight, child: controls),
+            ],
+          );
+        },
+      ),
+    );
+  }
 }
 
 class _DesktopNumber extends StatefulWidget {
@@ -883,27 +907,29 @@ class _DesktopNumberState extends State<_DesktopNumber> {
   @override
   Widget build(BuildContext context) => SizedBox(
     width: 220,
-    child: TextField(
-      key: ValueKey('desktop-number-${widget.label}'),
-      controller: _text,
-      focusNode: _focus,
-      enabled: widget.enabled,
-      keyboardType: TextInputType.number,
-      inputFormatters: [
-        FilteringTextInputFormatter.digitsOnly,
-        LengthLimitingTextInputFormatter(3),
-      ],
-      decoration: InputDecoration(
-        labelText: widget.label,
-        helperText: widget.rounds
-            ? context.copy.rounds(widget.value)
-            : context.copy.minutes(widget.value),
-        errorText: _invalid
-            ? context.copy.desktopNumberRange(widget.max)
-            : null,
-        errorMaxLines: 3,
+    child: Semantics(
+      label: widget.label,
+      child: TextField(
+        key: ValueKey('desktop-number-${widget.label}'),
+        controller: _text,
+        focusNode: _focus,
+        enabled: widget.enabled,
+        keyboardType: TextInputType.number,
+        inputFormatters: [
+          FilteringTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(3),
+        ],
+        decoration: InputDecoration(
+          helperText: widget.rounds
+              ? context.copy.rounds(widget.value)
+              : context.copy.minutes(widget.value),
+          errorText: _invalid
+              ? context.copy.desktopNumberRange(widget.max)
+              : null,
+          errorMaxLines: 3,
+        ),
+        onSubmitted: (_) => _apply(),
       ),
-      onSubmitted: (_) => _apply(),
     ),
   );
   @override

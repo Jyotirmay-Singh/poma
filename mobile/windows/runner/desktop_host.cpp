@@ -123,6 +123,20 @@ void DestroyCalendarButton(HWND control) {
 
 DesktopHost::DesktopHost(HWND window, flutter::BinaryMessenger* messenger, bool initially_hidden)
     : window_(window), initially_hidden_(initially_hidden), directory_(DataDirectory()) {
+  // Memory fonts are private to this process; no machine-wide registration or
+  // runtime download is required. GDI retains its system Unicode fallback.
+  const auto module = GetModuleHandleW(nullptr);
+  for (const int id : {IDR_POMA_FONT_REGULAR, IDR_POMA_FONT_MEDIUM, IDR_POMA_FONT_SEMIBOLD}) {
+    const auto resource = FindResourceW(module, MAKEINTRESOURCEW(id), RT_RCDATA);
+    if (!resource) continue;
+    const auto data = LockResource(LoadResource(module, resource));
+    const auto size = SizeofResource(module, resource);
+    DWORD count = 0;
+    if (data && size) {
+      const auto handle = AddFontMemResourceEx(data, size, nullptr, &count);
+      if (handle) font_resources_.push_back(handle);
+    }
+  }
   channel_ = std::make_unique<flutter::MethodChannel<V>>(messenger,
       "dev.poma.poma/windows_desktop", &flutter::StandardMethodCodec::GetInstance());
   channel_->SetMethodCallHandler([this](const auto& call, auto result) {
@@ -187,6 +201,8 @@ DesktopHost::~DesktopHost() {
   if (popup_) DestroyWindow(popup_);
   if (body_font_) DeleteObject(body_font_);
   if (timer_font_) DeleteObject(timer_font_);
+  if (control_font_) DeleteObject(control_font_);
+  for (const auto font : font_resources_) RemoveFontMemResourceEx(font);
   if (background_) DeleteObject(background_);
 }
 void DesktopHost::Event(const std::string& name, M values) {
@@ -335,10 +351,14 @@ void DesktopHost::PaintPopup() {
     popup_scale_ = scale;
     if (body_font_) DeleteObject(body_font_);
     if (timer_font_) DeleteObject(timer_font_);
+    if (control_font_) DeleteObject(control_font_);
+    const auto face = font_resources_.size() == 3 ? L"Source Sans 3" : L"Segoe UI";
     body_font_ = CreateFontW(-static_cast<int>(16 * scale), 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
-      DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, DEFAULT_PITCH, L"Segoe UI");
-  timer_font_ = CreateFontW(-static_cast<int>(24 * scale), 0, 0, 0, FW_SEMIBOLD, FALSE, FALSE, FALSE,
-      DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, DEFAULT_PITCH, L"Segoe UI");
+      DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, DEFAULT_PITCH, face);
+    timer_font_ = CreateFontW(-static_cast<int>(24 * scale), 0, 0, 0, FW_SEMIBOLD, FALSE, FALSE, FALSE,
+      DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, DEFAULT_PITCH, face);
+    control_font_ = CreateFontW(-static_cast<int>(14 * scale), 0, 0, 0, FW_SEMIBOLD, FALSE, FALSE, FALSE,
+      DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, DEFAULT_PITCH, face);
   }
   const int64_t seconds = Number(snapshot_, "seconds", 1500);
   wchar_t time[40]{};
@@ -354,7 +374,7 @@ void DesktopHost::PaintPopup() {
       ? "Strict mode - timer controls locked" : Text(snapshot_, "error")).c_str());
   for (size_t i = 0; i < labels_.size(); ++i) SendMessageW(labels_[i], WM_SETFONT,
       reinterpret_cast<WPARAM>(i == 1 ? timer_font_ : body_font_), TRUE);
-  for (auto button : buttons_) SendMessageW(button, WM_SETFONT, reinterpret_cast<WPARAM>(body_font_), TRUE);
+  for (auto button : buttons_) SendMessageW(button, WM_SETFONT, reinterpret_cast<WPARAM>(control_font_), TRUE);
   const auto primary = status == "running" ? "Pause" : status == "paused" ? "Resume" : "Start " + (phase.empty() ? "Focus" : phase);
   SetWindowTextW(buttons_[0], ToWide(primary).c_str());
   SetWindowTextW(buttons_[1], L"Reset"); SetWindowTextW(buttons_[2], L"Skip");
@@ -362,13 +382,13 @@ void DesktopHost::PaintPopup() {
   const bool available = configured_ && Text(snapshot_, "error").empty();
   for (size_t i = 0; i < 3; ++i) EnableWindow(buttons_[i], available && !Flag(snapshot_, "locked"));
   SendMessageW(preview_label_, WM_SETFONT, reinterpret_cast<WPARAM>(body_font_), TRUE);
-  SendMessageW(day_combo_, WM_SETFONT, reinterpret_cast<WPARAM>(body_font_), TRUE);
+  SendMessageW(day_combo_, WM_SETFONT, reinterpret_cast<WPARAM>(control_font_), TRUE);
   SetWindowTextW(preview_label_, session_state_ == "unlocked" ? (preview_mode_ ? L"Calendar preview - fictional data" : L"Google Calendar") : L"Calendar details hidden - Windows lock state unavailable or locked");
   EnableWindow(day_combo_, session_state_ == "unlocked");
   SyncCalendar();
   for (auto& row : calendar_rows_) {
     for (auto control : {row.title, row.body}) if (control) SendMessageW(control, WM_SETFONT, reinterpret_cast<WPARAM>(body_font_), TRUE);
-    for (const auto& action : row.actions) SendMessageW(action.button, WM_SETFONT, reinterpret_cast<WPARAM>(body_font_), TRUE);
+    for (const auto& action : row.actions) SendMessageW(action.button, WM_SETFONT, reinterpret_cast<WPARAM>(control_font_), TRUE);
   }
   LayoutPopup(); InvalidateRect(popup_, nullptr, TRUE);
 }
@@ -377,7 +397,7 @@ void DesktopHost::LayoutPopup() {
   const double dpi = static_cast<double>(GetDpiForWindow(popup_)) / 96.0;
   const double text = TextScale();
   RECT area{}; GetClientRect(popup_, &area);
-  const int pad = static_cast<int>(16 * dpi), gap = static_cast<int>(6 * dpi);
+  const int pad = static_cast<int>(16 * dpi), gap = static_cast<int>(8 * dpi);
   const int width = std::max(1L, area.right - 2 * pad);
   int y = pad - scroll_offset_;
   HDC dc = GetDC(popup_);
@@ -402,7 +422,7 @@ void DesktopHost::LayoutPopup() {
     if (i == 3 && Text(snapshot_, "error").empty() && !Flag(snapshot_, "locked")) height = 0;
     MoveWindow(labels_[i], pad, y, width, height, TRUE); y += height + (height ? gap : 0);
   }
-  const int height = static_cast<int>(44 * dpi * text);
+  const int height = static_cast<int>(48 * dpi * text);
   if (text > 1.4) {
     for (auto index : {0, 3}) { MoveWindow(buttons_[index], pad, y, width, height, TRUE); y += height + gap; }
   } else {
@@ -437,9 +457,27 @@ void DesktopHost::LayoutPopup() {
     for (const auto& action : row.actions) ShowWindow(action.button, visible ? SW_SHOW : SW_HIDE);
     if (!visible) continue;
     layout_text(row.title); layout_text(row.body);
+    // Use adjacent actions only when both labels fit at the user's text size.
+    // Enlarged text retains the full-width, wrapping layout and focus order.
+    const int half = (width - gap) / 2;
+    bool paired = row.actions.size() == 2 && text <= 1.4;
+    const auto action_font = SelectObject(dc, control_font_);
+    if (paired) for (const auto& action : row.actions) {
+      RECT measure{};
+      const auto label = ToWide(action.label);
+      DrawTextW(dc, label.c_str(), -1, &measure, DT_CALCRECT | DT_SINGLELINE | DT_NOPREFIX);
+      if (measure.right + 24 * dpi > half) paired = false;
+    }
+    SelectObject(dc, action_font);
+    if (paired) {
+      for (size_t i = 0; i < row.actions.size(); ++i)
+        MoveWindow(row.actions[i].button, pad + static_cast<int>(i) * (half + gap), y, half, height, TRUE);
+      y += height + 2 * gap;
+      continue;
+    }
     for (const auto& action : row.actions) {
       // Stack full-width actions: 200% text must not shrink to fit two buttons.
-      const auto previous = SelectObject(dc, body_font_);
+      const auto previous = SelectObject(dc, control_font_);
       RECT measure{0, 0, std::max(1, width - 12), 0};
       const auto label = ToWide(action.label);
       DrawTextW(dc, label.c_str(), -1, &measure, DT_CALCRECT | DT_WORDBREAK | DT_NOPREFIX);
@@ -1230,19 +1268,33 @@ LRESULT CALLBACK DesktopHost::PopupProc(HWND hwnd, UINT message, WPARAM wparam, 
     COLORREF foreground = host->high_contrast_ ? GetSysColor(primary ? COLOR_HIGHLIGHTTEXT : COLOR_BTNTEXT)
         : primary ? host->dark_ ? RGB(40,27,92) : RGB(255,255,255) : host->dark_ ? RGB(241,243,252) : RGB(37,45,67);
     if (draw->itemState & ODS_DISABLED) foreground = GetSysColor(COLOR_GRAYTEXT);
-    HBRUSH brush = CreateSolidBrush(background); FillRect(draw->hDC, &draw->rcItem, brush); DeleteObject(brush);
+    FillRect(draw->hDC, &draw->rcItem, host->background_);
+    const auto dpi = static_cast<int>(GetDpiForWindow(hwnd));
+    const auto brush = CreateSolidBrush(background);
+    const auto pen = CreatePen(PS_SOLID, 1, host->high_contrast_ ? foreground : background);
+    const auto previous_brush = SelectObject(draw->hDC, brush);
+    const auto previous_pen = SelectObject(draw->hDC, pen);
+    const int corners = MulDiv(16, dpi, 96); // 8 logical-unit corner radius.
+    RoundRect(draw->hDC, draw->rcItem.left, draw->rcItem.top,
+        draw->rcItem.right, draw->rcItem.bottom, corners, corners);
+    SelectObject(draw->hDC, previous_pen); SelectObject(draw->hDC, previous_brush);
+    DeleteObject(pen); DeleteObject(brush);
     if (draw->itemState & ODS_SELECTED) FrameRect(draw->hDC, &draw->rcItem, GetSysColorBrush(COLOR_HIGHLIGHT));
     SetBkMode(draw->hDC, TRANSPARENT); SetTextColor(draw->hDC, foreground);
-    const auto previous = SelectObject(draw->hDC, host->body_font_);
+    const auto previous = SelectObject(draw->hDC, host->control_font_);
     const int length = GetWindowTextLengthW(draw->hwndItem);
     std::wstring label(static_cast<size_t>(length) + 1, L'\0'); GetWindowTextW(draw->hwndItem, label.data(), length + 1);
-    RECT text = draw->rcItem; InflateRect(&text, -6, -2);
+    RECT text = draw->rcItem; InflateRect(&text, -MulDiv(12, dpi, 96), -MulDiv(4, dpi, 96));
     RECT measure{0, 0, text.right - text.left, 0};
     DrawTextW(draw->hDC, label.c_str(), -1, &measure, DT_CALCRECT | DT_CENTER | DT_WORDBREAK | DT_NOPREFIX);
     text.top += std::max(0L, (text.bottom - text.top - measure.bottom) / 2);
     DrawTextW(draw->hDC, label.c_str(), -1, &text, DT_CENTER | DT_WORDBREAK | DT_NOPREFIX);
     SelectObject(draw->hDC, previous);
-    if (draw->itemState & ODS_FOCUS) { InflateRect(&text, -4, -4); DrawFocusRect(draw->hDC, &text); }
+    if (draw->itemState & ODS_FOCUS) {
+      RECT focus = draw->rcItem;
+      InflateRect(&focus, -MulDiv(4, dpi, 96), -MulDiv(4, dpi, 96));
+      DrawFocusRect(draw->hDC, &focus);
+    }
     return TRUE;
   }
   return DefWindowProcW(hwnd, message, wparam, lparam);

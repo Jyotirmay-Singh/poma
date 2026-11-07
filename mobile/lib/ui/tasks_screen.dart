@@ -5,6 +5,7 @@ import 'app_shell.dart';
 import 'copy.dart';
 import 'desktop_scope.dart';
 import 'calendar_screen.dart';
+import 'design_tokens.dart';
 
 class TasksScreen extends StatelessWidget {
   const TasksScreen({required this.controller, super.key});
@@ -13,16 +14,18 @@ class TasksScreen extends StatelessWidget {
   Widget build(BuildContext context) => PomaPage(
     controller: controller,
     children: [
-      ScreenHeading(title: context.copy.tasks, subtitle: context.copy.taskHelp),
-      FilledButton.icon(
-        onPressed: () => _taskDialog(context),
-        icon: const Icon(Icons.add_rounded),
-        label: Text(context.copy.addTask),
+      ScreenHeading(
+        title: context.copy.tasks,
+        subtitle: context.copy.taskHelp,
+        action: FilledButton.icon(
+          onPressed: () => _taskDialog(context),
+          icon: const Icon(Icons.add_rounded),
+          label: Text(context.copy.addTask),
+        ),
       ),
-      const SizedBox(height: 24),
       if (controller.tasks.isEmpty)
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 48),
+          padding: const EdgeInsets.symmetric(vertical: PomaSpace.xxl),
           child: Column(
             children: [
               Icon(
@@ -30,16 +33,13 @@ class TasksScreen extends StatelessWidget {
                 size: 48,
                 color: Theme.of(context).colorScheme.primary,
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: PomaSpace.md),
               Text(
                 context.copy.emptyTasks,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 19,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: Theme.of(context).textTheme.titleLarge,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: PomaSpace.xs),
               Text(context.copy.emptyTasksHelp, textAlign: TextAlign.center),
             ],
           ),
@@ -47,21 +47,21 @@ class TasksScreen extends StatelessWidget {
       if (controller.tasks.isNotEmpty &&
           controller.tasks.every((task) => task.done)) ...[
         Semantics(header: true, child: Text(context.copy.allDone)),
-        const SizedBox(height: 8),
+        const SizedBox(height: PomaSpace.xs),
         Text(context.copy.allDoneHelp),
       ],
       for (final task in controller.tasks.where((task) => !task.done))
         _taskRow(context, task),
       if (controller.tasks.any((task) => task.done)) ...[
-        const SizedBox(height: 24),
+        const SizedBox(height: PomaSpace.lg),
         Semantics(
           header: true,
           child: Text(
             context.copy.completed,
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: Theme.of(context).textTheme.titleMedium,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: PomaSpace.xs),
         for (final task in controller.tasks.where((task) => task.done))
           _taskRow(context, task),
       ],
@@ -71,9 +71,9 @@ class TasksScreen extends StatelessWidget {
   Widget _taskRow(BuildContext context, FocusTask task) {
     final selected = task.id == controller.selectedTaskId && !task.done;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: PomaSpace.xs),
       child: Material(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(PomaLayout.panelRadius),
         color: selected
             ? Theme.of(context).colorScheme.primary.withValues(alpha: .08)
             : Colors.transparent,
@@ -81,7 +81,10 @@ class TasksScreen extends StatelessWidget {
           selected: selected,
           child: ListTile(
             key: ValueKey('task-${task.id}'),
-            contentPadding: const EdgeInsets.only(left: 0, right: 0),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: PomaSpace.xs,
+            ),
+            titleAlignment: ListTileTitleAlignment.top,
             leading: Checkbox(
               value: task.done,
               semanticLabel: task.done
@@ -91,7 +94,7 @@ class TasksScreen extends StatelessWidget {
             ),
             title: Text(
               task.title,
-              style: TextStyle(
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 decoration: task.done ? TextDecoration.lineThrough : null,
               ),
             ),

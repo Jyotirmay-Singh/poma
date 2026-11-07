@@ -9,6 +9,7 @@ import '../domain/focus_blocks.dart';
 import 'app_shell.dart';
 import 'settings_screen.dart';
 import 'calendar_schedule.dart';
+import 'design_tokens.dart';
 
 String _status(FocusOperationStatus status) => switch (status) {
   FocusOperationStatus.needsReview => 'Needs review',
@@ -104,7 +105,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         title: const Text('Recover Poma calendar'),
         children: [
           const Padding(
-            padding: EdgeInsets.all(16),
+            padding: EdgeInsets.all(PomaSpace.md),
             child: Text(
               'Choose the verified calendar to use. This does not create or delete a Google calendar.',
             ),
@@ -113,7 +114,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             SimpleDialogOption(
               onPressed: () => Navigator.pop(context, b),
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.symmetric(vertical: PomaSpace.sm),
                 child: Text('${b.name}\n${b.id}'),
               ),
             ),
@@ -168,20 +169,23 @@ class _CalendarScreenState extends State<CalendarScreen> {
       animation: Listenable.merge([desktop, ?c, ?connection]),
       builder: (context, _) => PomaPage(
         controller: widget.controller,
+        maxContentWidth: desktop.calendarSection == CalendarPageSection.schedule
+            ? PomaLayout.workspaceWidth
+            : PomaLayout.readingWidth,
         children: [
           ScreenHeading(
             title: 'Calendar',
             subtitle:
                 'See your schedule, plan focused time and choose your calendars.',
-            action: IconButton(
+            action: OutlinedButton.icon(
               onPressed: desktop.showPopup,
               icon: const Icon(Icons.open_in_new),
-              tooltip: 'Open calendar agenda',
+              label: const Text('Open calendar agenda'),
             ),
           ),
           if (desktop.sessionState != 'unlocked')
             const Padding(
-              padding: EdgeInsets.all(24),
+              padding: EdgeInsets.all(PomaSpace.lg),
               child: Text(
                 'Calendar details are hidden while Windows is locked or its lock state is unknown.',
               ),
@@ -189,12 +193,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
           else ...[
             if (desktop.calendarSection != CalendarPageSection.schedule)
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(PomaSpace.lg),
                 decoration: BoxDecoration(
                   color: Theme.of(
                     context,
                   ).colorScheme.primary.withValues(alpha: .06),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(PomaLayout.panelRadius),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,10 +207,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       connection?.verifiedAccountLabel ?? 'Google Calendar',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: PomaSpace.xs),
                     Wrap(
-                      spacing: 20,
-                      runSpacing: 8,
+                      spacing: PomaSpace.lg,
+                      runSpacing: PomaSpace.xs,
                       children: [
                         Text(
                           'Viewing: ${connection?.operationsEnabled == true
@@ -223,10 +227,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   ],
                 ),
               ),
-            const SizedBox(height: 20),
+            const SizedBox(height: PomaSpace.lg),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: PomaSpace.xs,
+              runSpacing: PomaSpace.xs,
               children: [
                 ChoiceChip(
                   label: const Text('Schedule'),
@@ -253,12 +257,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: PomaSpace.lg),
             if (error != null) Text(error!, semanticsLabel: error),
             if (working) const LinearProgressIndicator(),
             if (c?.message != null)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.symmetric(vertical: PomaSpace.sm),
                 child: Semantics(liveRegion: true, child: Text(c!.message!)),
               ),
             if (c != null &&
@@ -281,12 +285,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ),
                 if (connection.writeMessage != null)
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    padding: const EdgeInsets.symmetric(vertical: PomaSpace.xs),
                     child: Text(connection.writeMessage!),
                   ),
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: PomaSpace.xs,
+                  runSpacing: PomaSpace.xs,
                   children: [
                     if (!connection.focusWriteEnabled || c.disabled)
                       FilledButton(
@@ -329,7 +333,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   ],
                 ),
                 if (connection.focusWriteEnabled && !c.disabled) ...[
-                  const SizedBox(height: 16),
+                  const SizedBox(height: PomaSpace.md),
                   Text(
                     c.journal?.binding?.name ??
                         'Poma Focus calendar not set up',
@@ -337,8 +341,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   ),
                   if (c.journal?.binding == null)
                     Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: PomaSpace.xs,
+                      runSpacing: PomaSpace.xs,
                       children: [
                         FilledButton(
                           onPressed: working
@@ -380,15 +384,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       child: const Text('Recover Poma blocks'),
                     ),
                 ],
-                const SizedBox(height: 16),
+                const SizedBox(height: PomaSpace.md),
                 const Divider(),
               ],
               CalendarPreferences(desktop: desktop),
             ] else if (desktop.calendarSection ==
                 CalendarPageSection.focusBlocks) ...[
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: PomaSpace.xs,
+                runSpacing: PomaSpace.xs,
                 children: [
                   FilledButton.icon(
                     icon: const Icon(Icons.add),
@@ -420,7 +424,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               ),
               if (c == null || c.journal == null || c.journal!.binding == null)
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  padding: const EdgeInsets.symmetric(vertical: PomaSpace.lg),
                   child: Text(
                     c?.journal == null
                         ? 'Connect Google to save account-bound drafts.'
@@ -482,7 +486,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   for (final op
                       in c.journal!.operations.values.toList().reversed)
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.only(bottom: PomaSpace.sm),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -507,7 +511,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           if (op.unresolved ||
                               op.status == FocusOperationStatus.failed)
                             Wrap(
-                              spacing: 8,
+                              spacing: PomaSpace.xs,
                               children: [
                                 TextButton(
                                   onPressed: working
@@ -567,7 +571,7 @@ class _Heading extends StatelessWidget {
   final String text;
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 24, bottom: 12),
+    padding: const EdgeInsets.only(top: PomaSpace.lg, bottom: PomaSpace.sm),
     child: Semantics(
       header: true,
       child: Text(text, style: Theme.of(context).textTheme.titleLarge),
@@ -842,7 +846,7 @@ class _FocusDialogState extends State<_FocusDialog> {
                     const Divider(),
                   ],
                   Text(p.title, style: Theme.of(context).textTheme.titleLarge),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: PomaSpace.md),
                   _Detail(
                     'Account',
                     widget.desktop.connection?.verifiedAccountLabel ??
@@ -864,7 +868,7 @@ class _FocusDialogState extends State<_FocusDialog> {
                   ),
                   _Detail('Show as', p.busy ? 'Busy' : 'Free'),
                   if (widget.kind != FocusOperationKind.delete) ...[
-                    const SizedBox(height: 12),
+                    const SizedBox(height: PomaSpace.sm),
                     Text(availability),
                     if (!ack)
                       CheckboxListTile(
@@ -874,7 +878,7 @@ class _FocusDialogState extends State<_FocusDialog> {
                         title: const Text('I have reviewed the known overlaps'),
                       ),
                   ],
-                  const SizedBox(height: 12),
+                  const SizedBox(height: PomaSpace.sm),
                   Text(
                     widget.kind == FocusOperationKind.delete
                         ? 'This explicitly deletes only this verified Poma-owned block.'
@@ -897,7 +901,7 @@ class _FocusDialogState extends State<_FocusDialog> {
                       labelText: 'Title sent to Google',
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: PomaSpace.md),
                   TextField(
                     controller: start,
                     decoration: const InputDecoration(
@@ -905,7 +909,7 @@ class _FocusDialogState extends State<_FocusDialog> {
                       hintText: 'YYYY-MM-DD HH:mm',
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: PomaSpace.md),
                   TextField(
                     controller: end,
                     decoration: const InputDecoration(
@@ -913,7 +917,7 @@ class _FocusDialogState extends State<_FocusDialog> {
                       hintText: 'YYYY-MM-DD HH:mm',
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: PomaSpace.sm),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
                     title: const Text('Show as Busy'),
@@ -928,7 +932,7 @@ class _FocusDialogState extends State<_FocusDialog> {
                 ],
                 if (error != null)
                   Padding(
-                    padding: const EdgeInsets.only(top: 12),
+                    padding: const EdgeInsets.only(top: PomaSpace.sm),
                     child: Text(
                       error!,
                       style: TextStyle(
@@ -997,7 +1001,7 @@ class _Detail extends StatelessWidget {
   final String label, value;
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 10),
+    padding: const EdgeInsets.only(bottom: PomaSpace.xs),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1074,7 +1078,7 @@ class _RecoverBlocksState extends State<_RecoverBlocks> {
                   'Review and select current Google blocks to manage here. This saves local records only; it restores no tasks or pending commands.',
                 ),
                 Wrap(
-                  spacing: 8,
+                  spacing: PomaSpace.xs,
                   children: [
                     TextButton(
                       onPressed: loading

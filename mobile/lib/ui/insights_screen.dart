@@ -4,6 +4,7 @@ import '../application/local_repository.dart';
 import 'app_shell.dart';
 import 'copy.dart';
 import 'desktop_scope.dart';
+import 'design_tokens.dart';
 
 class InsightsScreen extends StatelessWidget {
   const InsightsScreen({required this.controller, super.key});
@@ -40,6 +41,7 @@ class InsightsScreen extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return PomaPage(
       controller: controller,
+      maxContentWidth: PomaLayout.workspaceWidth,
       children: [
         ScreenHeading(
           title: desktop ? copy.desktopHistory : copy.insights,
@@ -51,9 +53,7 @@ class InsightsScreen extends StatelessWidget {
                   daily.fold(0, (sum, day) => sum + day.focusSeconds) ~/ 60,
                 )
               : copy.loadingTotals,
-          style: Theme.of(
-            context,
-          ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w600),
+          style: Theme.of(context).textTheme.headlineMedium,
         ),
         Text(
           copy.lastSevenDays,
@@ -67,7 +67,7 @@ class InsightsScreen extends StatelessWidget {
           ),
         ],
         if (complete) ...[
-          const SizedBox(height: 24),
+          const SizedBox(height: PomaSpace.lg),
           // The chart is supplementary. Exact dates, session counts and amounts
           // are always available as text and one semantic node per day below.
           LayoutBuilder(
@@ -85,7 +85,9 @@ class InsightsScreen extends StatelessWidget {
                       for (var i = 0; i < daily.length; i++)
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: PomaSpace.xxs,
+                            ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
@@ -96,13 +98,10 @@ class InsightsScreen extends StatelessWidget {
                                   width: double.infinity,
                                   color: colors.primary,
                                 ),
-                                const SizedBox(height: 8),
+                                const SizedBox(height: PomaSpace.xs),
                                 Text(
                                   DeviceFormats.weekday(context, days[i]),
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  style: Theme.of(context).textTheme.labelLarge,
                                 ),
                               ],
                             ),
@@ -114,7 +113,7 @@ class InsightsScreen extends StatelessWidget {
               );
             },
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: PomaSpace.md),
           Semantics(
             header: true,
             child: Text(
@@ -131,11 +130,11 @@ class InsightsScreen extends StatelessWidget {
               ),
               child: ExcludeSemantics(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.symmetric(vertical: PomaSpace.xs),
                   child: Wrap(
                     alignment: WrapAlignment.spaceBetween,
-                    spacing: 16,
-                    runSpacing: 4,
+                    spacing: PomaSpace.md,
+                    runSpacing: PomaSpace.xxs,
                     children: [
                       Text(
                         '${DeviceFormats.date(context, days[i])}${i == 6 ? ' (${copy.today})' : ''}',
@@ -152,9 +151,9 @@ class InsightsScreen extends StatelessWidget {
               ),
             ),
         ],
-        const SizedBox(height: 24),
+        const SizedBox(height: PomaSpace.lg),
         const Divider(),
-        const SizedBox(height: 12),
+        const SizedBox(height: PomaSpace.sm),
         Semantics(
           header: true,
           child: Text(
@@ -162,7 +161,7 @@ class InsightsScreen extends StatelessWidget {
             style: Theme.of(context).textTheme.titleLarge,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: PomaSpace.sm),
         if (controller.historyLoading)
           LinearProgressIndicator(semanticsLabel: copy.loadingHistory),
         if (controller.historyError != null) ...[
@@ -176,10 +175,12 @@ class InsightsScreen extends StatelessWidget {
             controller.sessions.isEmpty &&
             controller.historyError == null)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24),
+            padding: const EdgeInsets.symmetric(vertical: PomaSpace.lg),
             child: Text(
               copy.emptyHistory,
-              style: TextStyle(color: colors.onSurfaceVariant, height: 1.6),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
             ),
           ),
         if (DesktopScope.maybeOf(context) != null &&
@@ -204,7 +205,9 @@ class InsightsScreen extends StatelessWidget {
                       ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 280),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: PomaSpace.sm,
+                          ),
                           child: Text(session.taskTitle ?? copy.focusSession),
                         ),
                       ),
@@ -253,7 +256,7 @@ class InsightsScreen extends StatelessWidget {
         else
           for (final session in controller.sessions)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              padding: const EdgeInsets.symmetric(vertical: PomaSpace.sm),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -261,7 +264,7 @@ class InsightsScreen extends StatelessWidget {
                     session.taskTitle ?? copy.focusSession,
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: PomaSpace.xxs),
                   Text(
                     copy.sessionDate(
                       DeviceFormats.date(context, session.endedAt.toLocal()),
@@ -270,7 +273,7 @@ class InsightsScreen extends StatelessWidget {
                   ),
                   Wrap(
                     crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 12,
+                    spacing: PomaSpace.sm,
                     children: [
                       Text(copy.minutes(session.focusSeconds ~/ 60)),
                       IconButton(
@@ -300,7 +303,7 @@ class InsightsScreen extends StatelessWidget {
               ),
             ),
         Wrap(
-          spacing: 12,
+          spacing: PomaSpace.sm,
           children: [
             TextButton(
               onPressed:

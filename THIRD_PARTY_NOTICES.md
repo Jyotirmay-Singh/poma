@@ -98,3 +98,16 @@ Poma's original timer-ring launcher/splash mark was created for this release.
 No Pomatez icon or external font is used. Native archive declarations do not
 prove that every declared class survives optimization; full embedded/legal
 clearance remains explicitly scoped in the release evidence.
+
+
+## Source Sans 3 — SIL Open Font License 1.1
+
+Poma bundles the unmodified Regular, Medium and Semibold TrueType fonts
+from Adobe Source Sans 3 (adobe-fonts/source-sans, commit
+`87b37a2daaed80fcb8e8ccb0085c4d72ddade12e`).
+Copyright 2010-2024 Adobe, with Reserved Font Name Source.
+The complete upstream notice and license are bundled in
+`assets/licenses/source-sans-3.txt` and available in About → View licenses.
+The font files are also embedded as process-private Windows resources;
+Poma does not install a system font or download fonts at runtime.
+Upstream: https://github.com/adobe-fonts/source-sans

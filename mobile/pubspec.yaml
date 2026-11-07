@@ -76,6 +76,17 @@ flutter:
     - assets/legal/notices.txt
     - assets/legal/privacy-windows.txt
     - assets/licenses/windows-native.txt
+    - assets/licenses/source-sans-3.txt
+
+  fonts:
+    - family: Source Sans 3
+      fonts:
+        - asset: assets/fonts/SourceSans3-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/SourceSans3-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/SourceSans3-Semibold.ttf
+          weight: 600
 
   # To add assets to your application, add an assets section, like this:
   # assets:
