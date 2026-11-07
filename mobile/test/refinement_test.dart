@@ -191,14 +191,28 @@ void main() {
                   tester,
                   meetsGuideline(labeledTapTargetGuideline),
                 );
-                await expectLater(
-                  tester,
-                  meetsGuideline(
-                    CustomMinimumContrastGuideline(
-                      finder: fullyVisibleText(tester),
+                try {
+                  await expectLater(
+                    tester,
+                    meetsGuideline(
+                      CustomMinimumContrastGuideline(
+                        finder: fullyVisibleText(tester),
+                      ),
                     ),
-                  ),
-                );
+                  );
+                } catch (_) {
+                  await screenshot(
+                    tester,
+                    'failure-${viewport.key}-$appearance-${scale}x-$tab',
+                    {
+                      'viewport': viewport.key,
+                      'theme': appearance,
+                      'textScale': scale,
+                      'tab': tab,
+                    },
+                  );
+                  rethrow;
+                }
                 final settings = <String, Object?>{
                   'viewport': viewport.key,
                   'logicalWidth': viewport.value.width,

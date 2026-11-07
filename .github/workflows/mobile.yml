@@ -49,7 +49,15 @@ jobs:
       - run: flutter pub get --enforce-lockfile
       - run: dart format --output=none --set-exit-if-changed lib test integration_test tool
       - run: flutter analyze
-      - run: flutter test
+      - run: flutter test --dart-define=POMA_SCREENSHOTS=true --dart-define=POMA_SCREENSHOT_DIR=../artifacts/ci-ui/mobile
+      - name: Retain UI verification captures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: poma-ui-verification
+          path: artifacts/ci-ui
+          if-no-files-found: warn
+          retention-days: 14
       - run: flutter build apk --debug --target-platform android-arm64
       - name: Test native Android alarm policy
         run: ./gradlew :app:testDebugUnitTest --console=plain
