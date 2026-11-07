@@ -17,6 +17,7 @@ import 'package:poma/ui/theme.dart';
 import 'package:poma/ui/timer_dial.dart';
 import 'alert_support.dart';
 import 'support.dart';
+import 'contrast_support.dart';
 
 const capture = bool.fromEnvironment('POMA_SCREENSHOTS');
 const captureDirectory = String.fromEnvironment(
@@ -195,7 +196,7 @@ void main() {
                   await expectLater(
                     tester,
                     meetsGuideline(
-                      CustomMinimumContrastGuideline(
+                      RenderedTextContrastGuideline(
                         finder: fullyVisibleText(tester),
                       ),
                     ),
@@ -327,7 +328,7 @@ void main() {
               await expectLater(
                 tester,
                 meetsGuideline(
-                  CustomMinimumContrastGuideline(
+                  RenderedTextContrastGuideline(
                     finder: fullyVisibleText(tester),
                   ),
                 ),

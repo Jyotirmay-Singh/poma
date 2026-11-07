@@ -73,6 +73,14 @@ the package build hook rechecks each binary's content hash. All six real-process
 crash checks pass, including a clean complete-suite rerun. No dependency or
 production persistence behavior changed.
 
+Cross-platform text contrast checks resolve the effective foreground style and
+opacity over the painted background, retaining a strict 4.5:1 threshold. This
+avoids Flutter's pixel-histogram mode mistaking a frequent antialiased edge shade
+for the ink color on Linux. It follows the [WCAG contrast evaluation guidance](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html).
+Regression cases reject low-contrast colors, translucent ink, faded parents and
+dark-on-dark labels; short and struck-through readable labels remain covered.
+CI retains synthetic screen captures, including captures produced on a failure.
+
 ## Earlier typography and spacing refinement — 5 November 2026
 
 Implemented 5 November 2026 on top of checkpoint `4ca8607`.
