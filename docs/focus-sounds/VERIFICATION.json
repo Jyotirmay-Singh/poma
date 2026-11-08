@@ -4,7 +4,7 @@
   "scope": "Session 1; production integration not implemented",
   "base_HEAD": "0a001d2b37e80c316449898de7419e50e18d1547",
   "branch": "codex/focus-soundscapes",
-  "committed": false,
+  "committed": true,
   "sdk": {
     "flutter": "3.44.2",
     "dart": "3.12.2",
@@ -586,5 +586,12 @@
     "One analyzer style finding corrected; final analysis clean.",
     "A packaging preflight correctly rejected the old APK while the new build was still running; current fresh Windows/Android payload verification passed."
   ],
-  "full_evidence_root": "artifacts/focus-sounds/session-1/"
+  "full_evidence_root": "artifacts/focus-sounds/session-1/",
+  "publication": {
+    "implementation_commit": "c20ccb7bd5f93e00b0b7d4e7c5e6acfae02c2104",
+    "remote": "origin",
+    "branch": "codex/focus-soundscapes",
+    "implementation_push_verified": true,
+    "note": "Publication metadata added in a subsequent documentation commit; test results describe the Session 1 implementation checkpoint."
+  }
 }

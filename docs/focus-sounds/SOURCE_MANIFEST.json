@@ -1,6 +1,5 @@
 {
   "base_HEAD": "0a001d2b37e80c316449898de7419e50e18d1547",
-  "uncommitted": true,
   "files": [
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -9,13 +8,13 @@
     },
     {
       "path": "docs/FOCUS_SOUNDS_PROGRESS.md",
-      "bytes": 37834,
-      "sha256": "57a9e799207e78d6c0b6542d21458998e9fe8cc8fa63cb8f4fa67637f221a505"
+      "bytes": 38475,
+      "sha256": "73fae97af6538b5667d04f5faa849cbfbeb328bd8aeaded3b2758d00d0e497d9"
     },
     {
       "path": "docs/FOCUS_SOUNDS_SESSION_1.md",
-      "bytes": 23549,
-      "sha256": "03966eca4dbdc444e51c50fb3e3f98f0024b14032a9513bdc2b88dc064a672cb"
+      "bytes": 23793,
+      "sha256": "b90b1593bf3cf5e1d0e2ca99314b1f4aa4919f11612ee29d675e5732dbcbaa66"
     },
     {
       "path": "docs/FOCUS_SOUNDS_SESSION_1_PLAN_PROMPT.md",
@@ -49,8 +48,8 @@
     },
     {
       "path": "docs/focus-sounds/VERIFICATION.json",
-      "bytes": 16425,
-      "sha256": "6697f4c2ece69a1c57b5c50b353f45fff91d9066e8346d74b68326bea053013d"
+      "bytes": 16777,
+      "sha256": "7d07440e6c31d54be251387979a9571026e7d1d87c3e2d0ec5671866f025d641"
     },
     {
       "path": "docs/focus-sounds/license-evidence/CC0-1.0-legalcode.txt",
@@ -377,5 +376,7 @@
       "bytes": 5037,
       "sha256": "1060c6786e6022b93eb07e68bc390bd5ddefe648e809eceda227b106d53fe005"
     }
-  ]
+  ],
+  "snapshot_note": "Source hashes refreshed for the publication documentation follow-up; base_HEAD is the pre-feature baseline. Git history identifies the containing commit.",
+  "published_implementation_commit": "c20ccb7bd5f93e00b0b7d4e7c5e6acfae02c2104"
 }

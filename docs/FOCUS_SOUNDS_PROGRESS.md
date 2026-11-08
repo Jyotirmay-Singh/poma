@@ -355,3 +355,10 @@ Next concrete action:
 - Verified: 88 real playback checks, 3 lease tests, 472 app tests, analysis, Windows native checks/release build, Android debug build/JVM checks and packaged hashes. Final source-manifest and whitespace checks passed.
 - Still pending: listening/final recording selection (S1.3), production playback/preferences (Session 2), production UI (Session 3), mobile background/device acceptance (Session 4). Earlier log entries describe their historical commit state.
 - Publication: preparing the source checkpoint; the follow-up entry records the actual pushed commit. No new app tests required for this documentation-only checkpoint.
+
+### 8 November 2026 - GitHub source checkpoint published
+
+- Session 1 implementation checkpoint: c20ccb7bd5f93e00b0b7d4e7c5e6acfae02c2104. Successfully pushed to origin/codex/focus-soundscapes; upstream tracking configured.
+- Repository: https://github.com/Jyotirmay-Singh/poma/tree/codex/focus-soundscapes
+- This follow-up documentation commit records that successful push and retains the same completed/pending checklist states. Its final commit identity is available from Git history.
+- No merge, release publication, installation or additional implementation performed. Listening/final selection and Sessions 2-4 remain pending.
