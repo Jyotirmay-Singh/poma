@@ -1,0 +1,381 @@
+{
+  "base_HEAD": "0a001d2b37e80c316449898de7419e50e18d1547",
+  "uncommitted": true,
+  "files": [
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 8438,
+      "sha256": "7f69aae3a4bc08f9b81cc304ab7f77e39b00ead98556f7fe2eb25cd48eba2e0b"
+    },
+    {
+      "path": "docs/FOCUS_SOUNDS_PROGRESS.md",
+      "bytes": 37834,
+      "sha256": "57a9e799207e78d6c0b6542d21458998e9fe8cc8fa63cb8f4fa67637f221a505"
+    },
+    {
+      "path": "docs/FOCUS_SOUNDS_SESSION_1.md",
+      "bytes": 23549,
+      "sha256": "03966eca4dbdc444e51c50fb3e3f98f0024b14032a9513bdc2b88dc064a672cb"
+    },
+    {
+      "path": "docs/FOCUS_SOUNDS_SESSION_1_PLAN_PROMPT.md",
+      "bytes": 9631,
+      "sha256": "bbd1689a06c5eb92092e17ce49ae0bba545e62edd656966ac96f68f1d6db7a7c"
+    },
+    {
+      "path": "docs/FOCUS_SOUNDS_SESSION_2_PLAN_PROMPT.md",
+      "bytes": 9622,
+      "sha256": "d163bd5fd585cc09dda17799c898142bda096d5d7048e49c09a602372dac501a"
+    },
+    {
+      "path": "docs/FOCUS_SOUNDS_SESSION_3_PLAN_PROMPT.md",
+      "bytes": 9107,
+      "sha256": "dd09946f91f432290f6c726506113e484b980c056d2ba50b122a6636f156a73b"
+    },
+    {
+      "path": "docs/FOCUS_SOUNDS_SESSION_4_PLAN_PROMPT.md",
+      "bytes": 10265,
+      "sha256": "6499868291328df49dea96bae33b22557a0ad9d7b8b4f097adf72811132bb56a"
+    },
+    {
+      "path": "docs/focus-sounds/ASSET_PROVENANCE.json",
+      "bytes": 34341,
+      "sha256": "7f8fc0179970ddd46b00ce587986e52b80461512e09a2b25cf8ced39cce81d41"
+    },
+    {
+      "path": "docs/focus-sounds/NATIVE_LICENSE_SOURCES.json",
+      "bytes": 3939,
+      "sha256": "f425063d91d5d9ad72237b2fd2ae1d9f70a69f525cba6a0beb55ae551fa81af2"
+    },
+    {
+      "path": "docs/focus-sounds/VERIFICATION.json",
+      "bytes": 16425,
+      "sha256": "6697f4c2ece69a1c57b5c50b353f45fff91d9066e8346d74b68326bea053013d"
+    },
+    {
+      "path": "docs/focus-sounds/license-evidence/CC0-1.0-legalcode.txt",
+      "bytes": 7048,
+      "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+    },
+    {
+      "path": "docs/focus-sounds/license-evidence/bells-1110.txt",
+      "bytes": 5078,
+      "sha256": "ab8344caf931c3cebfef4fd8b33fb79c2b95147df135f55d1ab22a615f9cd1c3"
+    },
+    {
+      "path": "docs/focus-sounds/license-evidence/bells-2553.txt",
+      "bytes": 4989,
+      "sha256": "c150185e51b160af2f1b4ef2410b8382e7c85cee4bb2d326b143307fc3a43422"
+    },
+    {
+      "path": "docs/focus-sounds/license-evidence/bigsoundbank-license.txt",
+      "bytes": 5840,
+      "sha256": "0e7942e7aa9fbad0721263d1503adf3cd2e28ac86ea268d6ec6e29aa3cc3eb15"
+    },
+    {
+      "path": "docs/focus-sounds/license-evidence/forest-2715.txt",
+      "bytes": 4829,
+      "sha256": "15d0c6775867145406ea7185a9b7309ef5013c11f98ce1e375f7ff433790f8b9"
+    },
+    {
+      "path": "docs/focus-sounds/license-evidence/forest-2749.txt",
+      "bytes": 4930,
+      "sha256": "b277d3f19f1de607bbfb3bd4804bee752fd0384f1d3c25a53fc1c9f07e994e9b"
+    },
+    {
+      "path": "docs/focus-sounds/license-evidence/libFLAC-COPYING.txt",
+      "bytes": 1509,
+      "sha256": "7866ee98760fc1f0156b4fe6bf530257e02be487ab3fd94e2b63799dd32d6b2c"
+    },
+    {
+      "path": "docs/focus-sounds/license-evidence/libogg-COPYING.txt",
+      "bytes": 1466,
+      "sha256": "d2ab5758336489da61c12cc5bb757da5339c4ae9001f9bb0562b4370249af814"
+    },
+    {
+      "path": "docs/focus-sounds/license-evidence/libopus-COPYING.txt",
+      "bytes": 1945,
+      "sha256": "01e1167d54a096d123cf6dfbbeb19587278845c6481d2d66d545669846079551"
+    },
+    {
+      "path": "docs/focus-sounds/license-evidence/libvorbis-COPYING.txt",
+      "bytes": 1470,
+      "sha256": "ec1815db59fcd302846df949d7424876cb2e2dc5ed1606c5fb0b36787b1cf43a"
+    },
+    {
+      "path": "docs/focus-sounds/license-evidence/ocean-0265.txt",
+      "bytes": 5256,
+      "sha256": "b10151d7a53b983c67192fd90c8d3db97cf8b63fab517694d2f7983b43b1a395"
+    },
+    {
+      "path": "docs/focus-sounds/license-evidence/ocean-1447.txt",
+      "bytes": 5396,
+      "sha256": "0a7eb385c3978efe69de5491e58fda346f11794ad68ec416ac595b76c55d8d82"
+    },
+    {
+      "path": "docs/focus-sounds/license-evidence/waterfall-0213.txt",
+      "bytes": 4785,
+      "sha256": "099f701d3906de554ab73414325ff411a474692f9754eef76b0d2970dea4fe7b"
+    },
+    {
+      "path": "docs/focus-sounds/license-evidence/waterfall-0219.txt",
+      "bytes": 4784,
+      "sha256": "819281d19d73df741760972957dd47edd9d2225e13dac951c3bea8b979d3b4e6"
+    },
+    {
+      "path": "experiments/focus_sound_spike/.gitignore",
+      "bytes": 840,
+      "sha256": "3e87cca7d6d70482b2911277a9f6a6a351cafa4c6043965d73fa677a94d54da6"
+    },
+    {
+      "path": "experiments/focus_sound_spike/.metadata",
+      "bytes": 968,
+      "sha256": "f5510949963d1a08fee0aee4d32b9509b8c281ad0aeca574dae6a83a6694632a"
+    },
+    {
+      "path": "experiments/focus_sound_spike/README.md",
+      "bytes": 2448,
+      "sha256": "526f9449d4389014059ccd4850464894e93bafc9d28f0e676615c6989c4a11fd"
+    },
+    {
+      "path": "experiments/focus_sound_spike/analysis_options.yaml",
+      "bytes": 1448,
+      "sha256": "b63207cf529949ec4727b68c23dbb38ce255b6f6f4ae1effcb5c1dcf2852d238"
+    },
+    {
+      "path": "experiments/focus_sound_spike/fixtures/baseline/main.dart.txt",
+      "bytes": 548,
+      "sha256": "d8b028dc3616fb8f3f5acb307a2a7cc02cf4efe3f0d760691b220b0b94e265bb"
+    },
+    {
+      "path": "experiments/focus_sound_spike/fixtures/baseline/pubspec.lock.txt",
+      "bytes": 6060,
+      "sha256": "fcdee05a3e0c34f735ba5c5ae5d8453a48813783a0aaf1b955c891e307bad33e"
+    },
+    {
+      "path": "experiments/focus_sound_spike/fixtures/baseline/pubspec.yaml.txt",
+      "bytes": 358,
+      "sha256": "213d569fdc2333164d77df59d9fc3724a0a4a90ee9a295231d7a93dedf7473b9"
+    },
+    {
+      "path": "experiments/focus_sound_spike/lib/lease_gate.dart",
+      "bytes": 658,
+      "sha256": "78a439975bd7e0c637f2642f5bfb82bf939a42c7651ce672c5b965544fb45b98"
+    },
+    {
+      "path": "experiments/focus_sound_spike/lib/main.dart",
+      "bytes": 9410,
+      "sha256": "9c6ecc8680ddce804bc66cbb1acdd60a70c6fb30c379f3c3b18def007416439d"
+    },
+    {
+      "path": "experiments/focus_sound_spike/measure_footprint.py",
+      "bytes": 1108,
+      "sha256": "d85cb8327820bdac7b47267a6b1686c27b923a62ed7bc8586a1b312763d6f6e2"
+    },
+    {
+      "path": "experiments/focus_sound_spike/measure_run.py",
+      "bytes": 3265,
+      "sha256": "a494876a26c29772a1c69a5d2d4723e089d5d931ec068acb11a400fcb2ce4859"
+    },
+    {
+      "path": "experiments/focus_sound_spike/pubspec.lock",
+      "bytes": 12376,
+      "sha256": "8554f1abdd2fca4410c235f7a9f207b694c30c99e1f8c1db51d7bc472595c36c"
+    },
+    {
+      "path": "experiments/focus_sound_spike/pubspec.yaml",
+      "bytes": 515,
+      "sha256": "c9b2dcfa4c995a4aa313adcb79a9f6049fc55a7ec9f52da3eb21bae733e69e78"
+    },
+    {
+      "path": "experiments/focus_sound_spike/record_bundle.py",
+      "bytes": 1361,
+      "sha256": "71c971f02dd47ca4e6b73dde6de03cd25d17ae975f3ac34157586d960772f208"
+    },
+    {
+      "path": "experiments/focus_sound_spike/run_flutter.ps1",
+      "bytes": 1343,
+      "sha256": "8e98539b21b875c0a2f966c47c66db449850d558679fc4462f6a0eb42ce0ecf5"
+    },
+    {
+      "path": "experiments/focus_sound_spike/test/lease_gate_test.dart",
+      "bytes": 1158,
+      "sha256": "93f168e79cd7c440cdb7a59e4adc8835b7b62bcbe63afcd552eab4e45dcd2e50"
+    },
+    {
+      "path": "experiments/focus_sound_spike/windows/.gitignore",
+      "bytes": 308,
+      "sha256": "955e3110cb16494ee76e1cd5df47e2c212309eb94a49a123fe87f718de413cb8"
+    },
+    {
+      "path": "experiments/focus_sound_spike/windows/CMakeLists.txt",
+      "bytes": 4278,
+      "sha256": "951d3dcd1a516ffc6fe32a5a59a7c02c04f6bd1ee397b29e18434c576900c4ff"
+    },
+    {
+      "path": "experiments/focus_sound_spike/windows/flutter/CMakeLists.txt",
+      "bytes": 3851,
+      "sha256": "bd05e3268b2f246bcbafdb778165fe67a7bafdba04eb73599502563a67b8ae7e"
+    },
+    {
+      "path": "experiments/focus_sound_spike/windows/flutter/generated_plugin_registrant.cc",
+      "bytes": 164,
+      "sha256": "82e02567f2faf5e732dc92a2fb0d01104f7ba8c48973f8cfd41a860b4fac3f3b"
+    },
+    {
+      "path": "experiments/focus_sound_spike/windows/flutter/generated_plugin_registrant.h",
+      "bytes": 302,
+      "sha256": "dbc11635d7b1ba1887adf40df5b83d634e9c3ab0bee34510c71528bb4d73602a"
+    },
+    {
+      "path": "experiments/focus_sound_spike/windows/flutter/generated_plugins.cmake",
+      "bytes": 766,
+      "sha256": "a21dc925ee0170922c58a208d1922a8269b1a9be2bbb40dd4373330ea7078c98"
+    },
+    {
+      "path": "experiments/focus_sound_spike/windows/runner/CMakeLists.txt",
+      "bytes": 1836,
+      "sha256": "d765fdd05f63ad099e585a2cced0cbff13ec3229b7de68c8681b2107db850089"
+    },
+    {
+      "path": "experiments/focus_sound_spike/windows/runner/Runner.rc",
+      "bytes": 3204,
+      "sha256": "3bdd477f26da1d7a2aae5962d574583707ff4d0d36a44679b78b4fb58d956a67"
+    },
+    {
+      "path": "experiments/focus_sound_spike/windows/runner/flutter_window.cpp",
+      "bytes": 2193,
+      "sha256": "d615eedc06ae37321e59c2c00c7687d1887dcd97904eb7225fafd8dcb5b83da6"
+    },
+    {
+      "path": "experiments/focus_sound_spike/windows/runner/flutter_window.h",
+      "bytes": 961,
+      "sha256": "0252b804f5da380c7709cbe1daff2b8d18daf6c49d7e6dd43e5af3c99c19f56c"
+    },
+    {
+      "path": "experiments/focus_sound_spike/windows/runner/main.cpp",
+      "bytes": 1313,
+      "sha256": "9b5d5c1ffda79a64c4cf205eca6a247d6919449f9fb6fbf5c708c0cefefe69c2"
+    },
+    {
+      "path": "experiments/focus_sound_spike/windows/runner/resource.h",
+      "bytes": 448,
+      "sha256": "d0e8bf7835468b4b6b1f8f0747f2e8f25c19841f2df2ac60aaa584ddae3aa7c6"
+    },
+    {
+      "path": "experiments/focus_sound_spike/windows/runner/resources/app_icon.ico",
+      "bytes": 33772,
+      "sha256": "c098d3fc85cacff98b8e69811b48e9f0d852fcee278132d794411d978869cbf8"
+    },
+    {
+      "path": "experiments/focus_sound_spike/windows/runner/runner.exe.manifest",
+      "bytes": 616,
+      "sha256": "639a56233fcd8cbcb8bbefcd93e4680ec2664f32d9acfb3d2ec1d8726a96e090"
+    },
+    {
+      "path": "experiments/focus_sound_spike/windows/runner/utils.cpp",
+      "bytes": 2237,
+      "sha256": "a128b67b9f3c2579e2ecef5b0dde2c33f222a097cdfe5da2a3067c73d1485b39"
+    },
+    {
+      "path": "experiments/focus_sound_spike/windows/runner/utils.h",
+      "bytes": 691,
+      "sha256": "832e246b6758253f89016fb0374b30791242e97ad950d27fc678b3d9feacfdc4"
+    },
+    {
+      "path": "experiments/focus_sound_spike/windows/runner/win32_window.cpp",
+      "bytes": 8822,
+      "sha256": "4e4f4dcf8e86ea6e097562cb3476039e693449bd8045367538afee579c017511"
+    },
+    {
+      "path": "experiments/focus_sound_spike/windows/runner/win32_window.h",
+      "bytes": 3624,
+      "sha256": "d154cf89ba85f820631a9b5bedacbe64fc5815e428fe6bc5da579ce649f69841"
+    },
+    {
+      "path": "mobile/assets/audio/forest_birds.ogg",
+      "bytes": 1366270,
+      "sha256": "be593efb276c646b2329ca8fb63c5a5cd9bc18562ad6ae95945c660a4ebbee5d"
+    },
+    {
+      "path": "mobile/assets/audio/ocean_waves.ogg",
+      "bytes": 745622,
+      "sha256": "9eaf1dd84894a4787f55207e99f6caab1c43298292cbb4f6ec2e4c00e60c5e8e"
+    },
+    {
+      "path": "mobile/assets/audio/tibetan_bells.ogg",
+      "bytes": 749987,
+      "sha256": "ea8ee25b56d57d7dac554c1e9ba70c28a7154db1fcc1e9c1dfd70f08267a6cd4"
+    },
+    {
+      "path": "mobile/assets/audio/waterfall.ogg",
+      "bytes": 332351,
+      "sha256": "26faa280848078a0984fcd4d021806e9fa3c2b3fd3f7795d7331cc55524b2429"
+    },
+    {
+      "path": "mobile/assets/legal/notices.txt",
+      "bytes": 5438,
+      "sha256": "8890d3baa36cbdca0ebe416ee8a34ae397e5cdc4613b67017588c3a3b313ac91"
+    },
+    {
+      "path": "mobile/assets/licenses/focus-audio-native.txt",
+      "bytes": 25048,
+      "sha256": "5e0c455f9ce8a255ac9453b2170b077efb5cef58282a452bb9e74994cb6581b8"
+    },
+    {
+      "path": "mobile/assets/licenses/focus-sounds.txt",
+      "bytes": 7744,
+      "sha256": "6398fa9d01e068ae8d897e3028cc8c5d7b95da21c466b64ccefcbbd05a32463a"
+    },
+    {
+      "path": "mobile/lib/main.dart",
+      "bytes": 16238,
+      "sha256": "b828b12d630b5d2e0b60c2349169b360211cf9de73e166b71dad22fa8869e75d"
+    },
+    {
+      "path": "mobile/pubspec.lock",
+      "bytes": 19854,
+      "sha256": "b6878b917f7c80cebbd1ee025d27dfaff959f98f288dddaaff655a353cd32054"
+    },
+    {
+      "path": "mobile/pubspec.yaml",
+      "bytes": 5186,
+      "sha256": "a829284aad19a08eb647a5f986f3f6a2d540fd7e255093bc55bdad1330397a0c"
+    },
+    {
+      "path": "mobile/windows/flutter/generated_plugins.cmake",
+      "bytes": 804,
+      "sha256": "c9ee32253d06a18ffd9320db7e4d1efe8db26ddf956b1edb99c0406ce9bda298"
+    },
+    {
+      "path": "scripts/acquire_focus_sounds.py",
+      "bytes": 6649,
+      "sha256": "e32c94778ede57aec6f0560b51bfcf7421977da520a52f20d52d9904e64029aa"
+    },
+    {
+      "path": "scripts/check_focus_sounds.py",
+      "bytes": 2623,
+      "sha256": "d635d15901289dde37c36cf2bb5b93e8211493adc70665d91968ce42d597d6ff"
+    },
+    {
+      "path": "scripts/collect_focus_sound_notices.py",
+      "bytes": 4641,
+      "sha256": "9b2bec0123e5fbac3a62efdffef2802237a634f67e4a1faa73df8deabfb07f2b"
+    },
+    {
+      "path": "scripts/export_focus_sound_evidence.py",
+      "bytes": 6528,
+      "sha256": "6cd22e0e5a970848b59047c46d4b7f1fad54b8a5c4be29ce2a02560ae6e0fe0f"
+    },
+    {
+      "path": "scripts/prepare_focus_sounds.py",
+      "bytes": 8071,
+      "sha256": "a087a28f82d901b2021a34c42ffe6fab835de7fa567c2b4afeb3dca8937772aa"
+    },
+    {
+      "path": "scripts/verify_focus_sound_assets.py",
+      "bytes": 5037,
+      "sha256": "1060c6786e6022b93eb07e68bc390bd5ddefe648e809eceda227b106d53fe005"
+    }
+  ]
+}

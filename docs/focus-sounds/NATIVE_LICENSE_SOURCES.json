@@ -1,0 +1,72 @@
+{
+  "package": "flutter_soloud 4.1.7",
+  "notice_sources": [
+    {
+      "source": "flutter_soloud 4.1.7/LICENSE",
+      "source_sha256": "b9dc28c049f389da9771414b0c30f5369c110b81765b12affed857a68efa04e4",
+      "notice_sha256": "b9dc28c049f389da9771414b0c30f5369c110b81765b12affed857a68efa04e4"
+    },
+    {
+      "source": "flutter_soloud 4.1.7/src/soloud/LICENSE",
+      "source_sha256": "27e5dfcca945edeff8ed2ac9808baf53ab6c34cfae5d87b48410181b5af57968",
+      "notice_sha256": "27e5dfcca945edeff8ed2ac9808baf53ab6c34cfae5d87b48410181b5af57968"
+    },
+    {
+      "source": "flutter_soloud 4.1.7/src/filters/signalsmith-stretch/LICENSE.txt",
+      "source_sha256": "ee2ef82481ffb445ecdd4b3a4c1f82c0cddb2da8fe39d8e8dc384fffb3e7f06f",
+      "notice_sha256": "ee2ef82481ffb445ecdd4b3a4c1f82c0cddb2da8fe39d8e8dc384fffb3e7f06f"
+    },
+    {
+      "source": "flutter_soloud 4.1.7/src/filters/signalsmith-linear/LICENSE.txt",
+      "source_sha256": "072b5e9eb5b22880bdf6256324654cf3ce53dba828edb911921121e1be09d9c3",
+      "notice_sha256": "072b5e9eb5b22880bdf6256324654cf3ce53dba828edb911921121e1be09d9c3"
+    },
+    {
+      "source": "flutter_soloud 4.1.7/src/pffft/pffft.h",
+      "source_sha256": "de1b92d04611833b6892a7007877304849c1f5bceb96d2c8f5ec1c46b923478f",
+      "notice_sha256": "4cf208bbbb2008e9576d6a7607f3a1c5f9d349d3266176c60d3ab71de331e720"
+    },
+    {
+      "source": "flutter_soloud 4.1.7/src/soloud/src/backend/miniaudio/miniaudio.h",
+      "source_sha256": "ac7af4de748b7e26b777f37e01cee313a308a7296a3eb080e2906b320cc55c89",
+      "notice_sha256": "2ca19125fe0d68a91a1fe137c3125e954c541709da15506aad859e23f2b2f43f"
+    },
+    {
+      "source": "flutter_soloud 4.1.7/src/soloud/src/audiosource/wav/dr_wav.h",
+      "source_sha256": "c625122420ee8e769c5d16c9d4634b2d4a68dad304481371e9ac9e2ea025af8e",
+      "notice_sha256": "6622f826e1e526110debad04b9fec7f6b542bb930690352e89536f28d31940e1"
+    },
+    {
+      "source": "flutter_soloud 4.1.7/src/soloud/src/audiosource/wav/dr_mp3.h",
+      "source_sha256": "1ffb808f4f98b6b6b7d001c790b08e9cd7528ca1c1a10e7a4306c896e54dac21",
+      "notice_sha256": "6622f826e1e526110debad04b9fec7f6b542bb930690352e89536f28d31940e1"
+    },
+    {
+      "source": "flutter_soloud 4.1.7/src/soloud/src/audiosource/wav/dr_flac.h",
+      "source_sha256": "1407f580163bb31f357cc6e8cbeb377e66386538e0df4901254c29fbeeab4158",
+      "notice_sha256": "6622f826e1e526110debad04b9fec7f6b542bb930690352e89536f28d31940e1"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/xiph/ogg/master/COPYING",
+      "sha256": "d2ab5758336489da61c12cc5bb757da5339c4ae9001f9bb0562b4370249af814",
+      "scope": "Notice for corresponding runtime codec DLL supplied with the pinned package; binary inventory retained separately"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/xiph/vorbis/master/COPYING",
+      "sha256": "ec1815db59fcd302846df949d7424876cb2e2dc5ed1606c5fb0b36787b1cf43a",
+      "scope": "Notice for corresponding runtime codec DLL supplied with the pinned package; binary inventory retained separately"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/xiph/opus/main/COPYING",
+      "sha256": "01e1167d54a096d123cf6dfbbeb19587278845c6481d2d66d545669846079551",
+      "scope": "Notice for corresponding runtime codec DLL supplied with the pinned package; binary inventory retained separately"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/xiph/flac/master/COPYING.Xiph",
+      "sha256": "7866ee98760fc1f0156b4fe6bf530257e02be487ab3fd94e2b63799dd32d6b2c",
+      "scope": "Notice for corresponding runtime codec DLL supplied with the pinned package; binary inventory retained separately"
+    }
+  ],
+  "bundled_notice_path": "mobile/assets/licenses/focus-audio-native.txt",
+  "bundled_notice_sha256": "5e0c455f9ce8a255ac9453b2170b077efb5cef58282a452bb9e74994cb6581b8"
+}

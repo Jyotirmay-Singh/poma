@@ -1,0 +1,14 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+
+void main(List<String> args) {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MaterialApp(home: Scaffold(body: Center(child: Text('Poma isolated audio spike baseline')))));
+  if (args.contains('--baseline')) {
+    Future<void>.delayed(const Duration(seconds: 2), () async {
+      final report = args.firstWhere((a) => a.startsWith('--report=')).substring(9);
+      await File(report).writeAsString('{"variant":"baseline","profileOpened":false}');
+      exit(0);
+    });
+  }
+}

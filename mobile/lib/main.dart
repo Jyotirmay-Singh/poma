@@ -39,6 +39,12 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   LicenseRegistry.addLicense(() async* {
     yield LicenseEntryWithLineBreaks([
+      'Poma focus sound recordings',
+    ], await rootBundle.loadString('assets/licenses/focus-sounds.txt'));
+    yield LicenseEntryWithLineBreaks([
+      'Focus audio native runtime',
+    ], await rootBundle.loadString('assets/licenses/focus-audio-native.txt'));
+    yield LicenseEntryWithLineBreaks([
       'Sora',
     ], await rootBundle.loadString('assets/licenses/sora.txt'));
     yield LicenseEntryWithLineBreaks([

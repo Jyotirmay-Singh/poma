@@ -1,0 +1,678 @@
+{
+  "schema_version": 1,
+  "status": "Eight prepared comparisons; four bundled draft candidates; listening pending",
+  "candidates": [
+    {
+      "candidate_id": "bells-1110",
+      "category": "tibetanBells",
+      "creator": "Joseph SARDIN",
+      "source_url": "https://bigsoundbank.com/tibetan-bowl-struck-s1110.html",
+      "provider_recording_id": 1110,
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "acquired_utc": "2026-11-08T05:20:40.117756+00:00",
+      "acquisition_method": "Public provider download.php form POST, format=wav",
+      "download_response_url": "Previously acquired via provider WAV download form; see acquisition record",
+      "original_path": "artifacts/focus-sounds/session-1/raw/bells-1110.wav",
+      "original_bytes": 2881520,
+      "original_sha256": "77bd1f1d355a1108e34df6b3ae00428f3d9f5871ea43f7a1c3a1d9606160d242",
+      "license_evidence": {
+        "source_url": "https://bigsoundbank.com/tibetan-bowl-struck-s1110.html",
+        "response_url": "https://bigsoundbank.com/tibetan-bowl-struck-s1110.html",
+        "content_type": "text/html; charset=UTF-8",
+        "original_response_sha256": "cdad8de8f38f94c06f28cd00064ed44d926e97cccb16c1ee63d4d3f19aabd7e2",
+        "retained_text": "docs/focus-sounds/license-evidence/bells-1110.txt",
+        "retained_text_sha256": "ab8344caf931c3cebfef4fd8b33fb79c2b95147df135f55d1ab22a615f9cd1c3"
+      },
+      "provider_terms": {
+        "source_url": "https://bigsoundbank.com/licenses.html",
+        "response_url": "https://bigsoundbank.com/licenses.html",
+        "content_type": "text/html; charset=UTF-8",
+        "original_response_sha256": "7493eb60d1716c754d2a2d1e7f7ccbbe0203e86b73dfc206c32c1a4e011313c5",
+        "retained_text": "docs/focus-sounds/license-evidence/bigsoundbank-license.txt",
+        "retained_text_sha256": "0e7942e7aa9fbad0721263d1503adf3cd2e28ac86ea268d6ec6e29aa3cc3eb15"
+      },
+      "listening_status": "Not auditioned",
+      "selected_as_final": false,
+      "original_media": {
+        "duration_seconds": 30.003333,
+        "channels": 1,
+        "sample_rate_hz": 48000,
+        "codec": "pcm_s16le",
+        "format": "wav",
+        "bytes": 2881520,
+        "sha256": "77bd1f1d355a1108e34df6b3ae00428f3d9f5871ea43f7a1c3a1d9606160d242"
+      }
+    },
+    {
+      "candidate_id": "bells-2553",
+      "category": "tibetanBells",
+      "creator": "Joseph SARDIN",
+      "source_url": "https://bigsoundbank.com/tibetan-bowl-struck-2-s2553.html",
+      "provider_recording_id": 2553,
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "acquired_utc": "2026-11-08T05:20:47.384500+00:00",
+      "acquisition_method": "Public provider download.php form POST, format=wav",
+      "download_response_url": "Previously acquired via provider WAV download form; see acquisition record",
+      "original_path": "artifacts/focus-sounds/session-1/raw/bells-2553.wav",
+      "original_bytes": 1909548,
+      "original_sha256": "73b2aa78457b36194431325b4fe07476c93415b4b8d67f96f94a778fbcfd8cd5",
+      "license_evidence": {
+        "source_url": "https://bigsoundbank.com/tibetan-bowl-struck-2-s2553.html",
+        "response_url": "https://bigsoundbank.com/tibetan-bowl-struck-2-s2553.html",
+        "content_type": "text/html; charset=UTF-8",
+        "original_response_sha256": "ed79cb2f2fe611fd6dbcf05f33d9cff9753a5d30f3d16ddc46a520e5bd8f3e80",
+        "retained_text": "docs/focus-sounds/license-evidence/bells-2553.txt",
+        "retained_text_sha256": "c150185e51b160af2f1b4ef2410b8382e7c85cee4bb2d326b143307fc3a43422"
+      },
+      "provider_terms": {
+        "source_url": "https://bigsoundbank.com/licenses.html",
+        "response_url": "https://bigsoundbank.com/licenses.html",
+        "content_type": "text/html; charset=UTF-8",
+        "original_response_sha256": "7493eb60d1716c754d2a2d1e7f7ccbbe0203e86b73dfc206c32c1a4e011313c5",
+        "retained_text": "docs/focus-sounds/license-evidence/bigsoundbank-license.txt",
+        "retained_text_sha256": "0e7942e7aa9fbad0721263d1503adf3cd2e28ac86ea268d6ec6e29aa3cc3eb15"
+      },
+      "listening_status": "Not auditioned",
+      "selected_as_final": false,
+      "original_media": {
+        "duration_seconds": 13.240875,
+        "channels": 1,
+        "sample_rate_hz": 48000,
+        "codec": "pcm_s24le",
+        "format": "wav",
+        "bytes": 1909548,
+        "sha256": "73b2aa78457b36194431325b4fe07476c93415b4b8d67f96f94a778fbcfd8cd5"
+      }
+    },
+    {
+      "candidate_id": "waterfall-0219",
+      "category": "waterfall",
+      "creator": "gamin",
+      "source_url": "https://bigsoundbank.com/small-waterfall-2-s0219.html",
+      "provider_recording_id": 219,
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "acquired_utc": "2026-11-08T05:23:19.633162+00:00",
+      "acquisition_method": "Public provider download.php form POST, format=wav",
+      "download_response_url": "https://bigsoundbank.com/modules/telecharger.php",
+      "original_path": "artifacts/focus-sounds/session-1/raw/waterfall-0219.wav",
+      "original_bytes": 3971130,
+      "original_sha256": "fa3ed43df941d3a3253f0362f4b9ffb81d2fc515856c8745cb7f58fb11a27a51",
+      "license_evidence": {
+        "source_url": "https://bigsoundbank.com/small-waterfall-2-s0219.html",
+        "response_url": "https://bigsoundbank.com/small-waterfall-2-s0219.html",
+        "content_type": "text/html; charset=UTF-8",
+        "original_response_sha256": "e933af22de07fde46278563872811bb11dfb858d75349d27cd62037bc65f5490",
+        "retained_text": "docs/focus-sounds/license-evidence/waterfall-0219.txt",
+        "retained_text_sha256": "819281d19d73df741760972957dd47edd9d2225e13dac951c3bea8b979d3b4e6"
+      },
+      "provider_terms": {
+        "source_url": "https://bigsoundbank.com/licenses.html",
+        "response_url": "https://bigsoundbank.com/licenses.html",
+        "content_type": "text/html; charset=UTF-8",
+        "original_response_sha256": "7493eb60d1716c754d2a2d1e7f7ccbbe0203e86b73dfc206c32c1a4e011313c5",
+        "retained_text": "docs/focus-sounds/license-evidence/bigsoundbank-license.txt",
+        "retained_text_sha256": "0e7942e7aa9fbad0721263d1503adf3cd2e28ac86ea268d6ec6e29aa3cc3eb15"
+      },
+      "listening_status": "Not auditioned",
+      "selected_as_final": false,
+      "original_media": {
+        "duration_seconds": 45.011882,
+        "channels": 1,
+        "sample_rate_hz": 44100,
+        "codec": "pcm_s16le",
+        "format": "wav",
+        "bytes": 3971130,
+        "sha256": "fa3ed43df941d3a3253f0362f4b9ffb81d2fc515856c8745cb7f58fb11a27a51"
+      }
+    },
+    {
+      "candidate_id": "waterfall-0213",
+      "category": "waterfall",
+      "creator": "gamin",
+      "source_url": "https://bigsoundbank.com/small-stream-1-s0213.html",
+      "provider_recording_id": 213,
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "acquired_utc": "2026-11-08T05:23:27.193911+00:00",
+      "acquisition_method": "Public provider download.php form POST, format=wav",
+      "download_response_url": "https://bigsoundbank.com/modules/telecharger.php",
+      "original_path": "artifacts/focus-sounds/session-1/raw/waterfall-0213.wav",
+      "original_bytes": 5005134,
+      "original_sha256": "c67c326a391958824b358bcc28390f886205ac9a0a696a5dfc6c80194b5aba2d",
+      "license_evidence": {
+        "source_url": "https://bigsoundbank.com/small-stream-1-s0213.html",
+        "response_url": "https://bigsoundbank.com/small-stream-1-s0213.html",
+        "content_type": "text/html; charset=UTF-8",
+        "original_response_sha256": "7f7baf9037b61b764f0e198767d534c09474f5a5b43e7b24954e65f46bead34f",
+        "retained_text": "docs/focus-sounds/license-evidence/waterfall-0213.txt",
+        "retained_text_sha256": "099f701d3906de554ab73414325ff411a474692f9754eef76b0d2970dea4fe7b"
+      },
+      "provider_terms": {
+        "source_url": "https://bigsoundbank.com/licenses.html",
+        "response_url": "https://bigsoundbank.com/licenses.html",
+        "content_type": "text/html; charset=UTF-8",
+        "original_response_sha256": "7493eb60d1716c754d2a2d1e7f7ccbbe0203e86b73dfc206c32c1a4e011313c5",
+        "retained_text": "docs/focus-sounds/license-evidence/bigsoundbank-license.txt",
+        "retained_text_sha256": "0e7942e7aa9fbad0721263d1503adf3cd2e28ac86ea268d6ec6e29aa3cc3eb15"
+      },
+      "listening_status": "Not auditioned",
+      "selected_as_final": false,
+      "original_media": {
+        "duration_seconds": 56.735261,
+        "channels": 1,
+        "sample_rate_hz": 44100,
+        "codec": "pcm_s16le",
+        "format": "wav",
+        "bytes": 5005134,
+        "sha256": "c67c326a391958824b358bcc28390f886205ac9a0a696a5dfc6c80194b5aba2d"
+      }
+    },
+    {
+      "candidate_id": "ocean-0265",
+      "category": "oceanWaves",
+      "creator": "DenisChardonnet",
+      "source_url": "https://bigsoundbank.com/beach-small-waves-s0265.html",
+      "provider_recording_id": 265,
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "acquired_utc": "2026-11-08T05:23:35.085821+00:00",
+      "acquisition_method": "Public provider download.php form POST, format=wav",
+      "download_response_url": "https://bigsoundbank.com/modules/telecharger.php",
+      "original_path": "artifacts/focus-sounds/session-1/raw/ocean-0265.wav",
+      "original_bytes": 10094302,
+      "original_sha256": "3e3ac0640689b18cc0bdc7d068ea9403dc6a15d2f2129ac9d31e26ef364e0828",
+      "license_evidence": {
+        "source_url": "https://bigsoundbank.com/beach-small-waves-s0265.html",
+        "response_url": "https://bigsoundbank.com/beach-small-waves-s0265.html",
+        "content_type": "text/html; charset=UTF-8",
+        "original_response_sha256": "eecb6407b4f222389aabdc74dff598c919438277ddcf4ae199321d66cc4e5b05",
+        "retained_text": "docs/focus-sounds/license-evidence/ocean-0265.txt",
+        "retained_text_sha256": "b10151d7a53b983c67192fd90c8d3db97cf8b63fab517694d2f7983b43b1a395"
+      },
+      "provider_terms": {
+        "source_url": "https://bigsoundbank.com/licenses.html",
+        "response_url": "https://bigsoundbank.com/licenses.html",
+        "content_type": "text/html; charset=UTF-8",
+        "original_response_sha256": "7493eb60d1716c754d2a2d1e7f7ccbbe0203e86b73dfc206c32c1a4e011313c5",
+        "retained_text": "docs/focus-sounds/license-evidence/bigsoundbank-license.txt",
+        "retained_text_sha256": "0e7942e7aa9fbad0721263d1503adf3cd2e28ac86ea268d6ec6e29aa3cc3eb15"
+      },
+      "listening_status": "Not auditioned",
+      "selected_as_final": false,
+      "original_media": {
+        "duration_seconds": 57.217937,
+        "channels": 2,
+        "sample_rate_hz": 44100,
+        "codec": "pcm_s16le",
+        "format": "wav",
+        "bytes": 10094302,
+        "sha256": "3e3ac0640689b18cc0bdc7d068ea9403dc6a15d2f2129ac9d31e26ef364e0828"
+      }
+    },
+    {
+      "candidate_id": "ocean-1447",
+      "category": "oceanWaves",
+      "creator": "Joseph SARDIN",
+      "source_url": "https://bigsoundbank.com/small-waves-froth-and-beach-s1447.html",
+      "provider_recording_id": 1447,
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "acquired_utc": "2026-11-08T05:23:46.707570+00:00",
+      "acquisition_method": "Public provider download.php form POST, format=wav",
+      "download_response_url": "https://bigsoundbank.com/modules/telecharger.php",
+      "original_path": "artifacts/focus-sounds/session-1/raw/ocean-1447.wav",
+      "original_bytes": 28109934,
+      "original_sha256": "301a34ea42d193498fcb5ce5346d27447fcd6618e43417a7c7cc3bef3020f7f3",
+      "license_evidence": {
+        "source_url": "https://bigsoundbank.com/small-waves-froth-and-beach-s1447.html",
+        "response_url": "https://bigsoundbank.com/small-waves-froth-and-beach-s1447.html",
+        "content_type": "text/html; charset=UTF-8",
+        "original_response_sha256": "673c1a84371fb9c9f48a300e4cd8430f3de2072766fa6cd70057b52b8997ade2",
+        "retained_text": "docs/focus-sounds/license-evidence/ocean-1447.txt",
+        "retained_text_sha256": "0a7eb385c3978efe69de5491e58fda346f11794ad68ec416ac595b76c55d8d82"
+      },
+      "provider_terms": {
+        "source_url": "https://bigsoundbank.com/licenses.html",
+        "response_url": "https://bigsoundbank.com/licenses.html",
+        "content_type": "text/html; charset=UTF-8",
+        "original_response_sha256": "7493eb60d1716c754d2a2d1e7f7ccbbe0203e86b73dfc206c32c1a4e011313c5",
+        "retained_text": "docs/focus-sounds/license-evidence/bigsoundbank-license.txt",
+        "retained_text_sha256": "0e7942e7aa9fbad0721263d1503adf3cd2e28ac86ea268d6ec6e29aa3cc3eb15"
+      },
+      "listening_status": "Not auditioned",
+      "selected_as_final": false,
+      "original_media": {
+        "duration_seconds": 97.6,
+        "channels": 2,
+        "sample_rate_hz": 48000,
+        "codec": "pcm_s24le",
+        "format": "wav",
+        "bytes": 28109934,
+        "sha256": "301a34ea42d193498fcb5ce5346d27447fcd6618e43417a7c7cc3bef3020f7f3"
+      }
+    },
+    {
+      "candidate_id": "forest-2715",
+      "category": "forestBirds",
+      "creator": "Pierre SIBANARCO",
+      "source_url": "https://bigsoundbank.com/forest-3-s2715.html",
+      "provider_recording_id": 2715,
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "acquired_utc": "2026-11-08T05:24:00.429385+00:00",
+      "acquisition_method": "Public provider download.php form POST, format=wav",
+      "download_response_url": "https://bigsoundbank.com/modules/telecharger.php",
+      "original_path": "artifacts/focus-sounds/session-1/raw/forest-2715.wav",
+      "original_bytes": 46256014,
+      "original_sha256": "79ca81aa11e27173ab83df44a53a0969a99f3c6a4d54a461f5a82e81cfd6317c",
+      "license_evidence": {
+        "source_url": "https://bigsoundbank.com/forest-3-s2715.html",
+        "response_url": "https://bigsoundbank.com/forest-3-s2715.html",
+        "content_type": "text/html; charset=UTF-8",
+        "original_response_sha256": "3dd90cc78a0067206f1ae8d6c00ded3a0020437dc8496af4ef3828c61fb3e96e",
+        "retained_text": "docs/focus-sounds/license-evidence/forest-2715.txt",
+        "retained_text_sha256": "15d0c6775867145406ea7185a9b7309ef5013c11f98ce1e375f7ff433790f8b9"
+      },
+      "provider_terms": {
+        "source_url": "https://bigsoundbank.com/licenses.html",
+        "response_url": "https://bigsoundbank.com/licenses.html",
+        "content_type": "text/html; charset=UTF-8",
+        "original_response_sha256": "7493eb60d1716c754d2a2d1e7f7ccbbe0203e86b73dfc206c32c1a4e011313c5",
+        "retained_text": "docs/focus-sounds/license-evidence/bigsoundbank-license.txt",
+        "retained_text_sha256": "0e7942e7aa9fbad0721263d1503adf3cd2e28ac86ea268d6ec6e29aa3cc3eb15"
+      },
+      "listening_status": "Not auditioned",
+      "selected_as_final": false,
+      "original_media": {
+        "duration_seconds": 160.600188,
+        "channels": 2,
+        "sample_rate_hz": 48000,
+        "codec": "pcm_s24le",
+        "format": "wav",
+        "bytes": 46256014,
+        "sha256": "79ca81aa11e27173ab83df44a53a0969a99f3c6a4d54a461f5a82e81cfd6317c"
+      }
+    },
+    {
+      "candidate_id": "forest-2749",
+      "category": "forestBirds",
+      "creator": "Joseph SARDIN",
+      "source_url": "https://bigsoundbank.com/forest-4-s2749.html",
+      "provider_recording_id": 2749,
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "acquired_utc": "2026-11-08T05:24:15.978869+00:00",
+      "acquisition_method": "Public provider download.php form POST, format=wav",
+      "download_response_url": "https://bigsoundbank.com/modules/telecharger.php",
+      "original_path": "artifacts/focus-sounds/session-1/raw/forest-2749.wav",
+      "original_bytes": 65054320,
+      "original_sha256": "bd9b507bdc08ab2abbed65eec3efc596f104ce6bae7575ba6e42bcd21a48e721",
+      "license_evidence": {
+        "source_url": "https://bigsoundbank.com/forest-4-s2749.html",
+        "response_url": "https://bigsoundbank.com/forest-4-s2749.html",
+        "content_type": "text/html; charset=UTF-8",
+        "original_response_sha256": "c0294faa6d577e162200b3e492018ee0ec9649be2499ae2610b16fef28da223e",
+        "retained_text": "docs/focus-sounds/license-evidence/forest-2749.txt",
+        "retained_text_sha256": "b277d3f19f1de607bbfb3bd4804bee752fd0384f1d3c25a53fc1c9f07e994e9b"
+      },
+      "provider_terms": {
+        "source_url": "https://bigsoundbank.com/licenses.html",
+        "response_url": "https://bigsoundbank.com/licenses.html",
+        "content_type": "text/html; charset=UTF-8",
+        "original_response_sha256": "7493eb60d1716c754d2a2d1e7f7ccbbe0203e86b73dfc206c32c1a4e011313c5",
+        "retained_text": "docs/focus-sounds/license-evidence/bigsoundbank-license.txt",
+        "retained_text_sha256": "0e7942e7aa9fbad0721263d1503adf3cd2e28ac86ea268d6ec6e29aa3cc3eb15"
+      },
+      "listening_status": "Not auditioned",
+      "selected_as_final": false,
+      "original_media": {
+        "duration_seconds": 225.871688,
+        "channels": 2,
+        "sample_rate_hz": 48000,
+        "codec": "pcm_s24le",
+        "format": "wav",
+        "bytes": 65054320,
+        "sha256": "bd9b507bdc08ab2abbed65eec3efc596f104ce6bae7575ba6e42bcd21a48e721"
+      }
+    }
+  ],
+  "prepared_assets": [
+    {
+      "candidate_id": "bells-1110",
+      "status": "Prepared draft; not auditioned or final",
+      "editing_steps": [
+        "Keep the complete source decay; mono 48 kHz",
+        "Place full strikes at 3, 43, 83 seconds in a 120-second cycle; no overlapping decays",
+        "Constant gain based on gated active-passage loudness with -3 dBTP headroom; preserve complete bell dynamics",
+        "Encode Ogg Vorbis quality 4; remove inherited metadata"
+      ],
+      "ffmpeg_filter_graph": "[0:a]aresample=48000,aformat=channel_layouts=mono,asplit=3[a][b][c];[a]adelay=3000[a1];[b]adelay=43000[b1];[c]adelay=83000[c1];[a1][b1][c1]amix=inputs=3:normalize=0,apad=whole_len=5760000,atrim=end_sample=5760000,asetpts=N/SR/TB[out]",
+      "normalization_filter": "volume=1.270000dB",
+      "prepared_path": "artifacts/focus-sounds/session-1/comparison/bells-1110.ogg",
+      "duration_seconds": 120.0,
+      "channels": 1,
+      "sample_rate_hz": 48000,
+      "codec": "vorbis",
+      "format": "ogg",
+      "bytes": 749987,
+      "sha256": "ea8ee25b56d57d7dac554c1e9ba70c28a7154db1fcc1e9c1dfd70f08267a6cd4",
+      "measured_loudness": {
+        "input_i": "-26.80",
+        "input_tp": "-3.89",
+        "input_lra": "25.50",
+        "input_thresh": "-41.32",
+        "output_i": "-26.43",
+        "output_tp": "-3.00",
+        "output_lra": "24.00",
+        "output_thresh": "-39.54",
+        "normalization_type": "dynamic",
+        "target_offset": "3.43"
+      },
+      "seam_diagnostic": {
+        "max_boundary_sample_step": 0.0,
+        "sample_step_p99": 0.024082615971565247,
+        "boundary_below_p99": true,
+        "interpretation": "Numeric click diagnostic only; listening is pending"
+      },
+      "listening_acceptance": "Pending",
+      "backend_acceptance": "Pending",
+      "final_asset_path": "mobile/assets/audio/tibetan_bells.ogg",
+      "selection_reason": "Provisional plan-first candidate; not a listening preference"
+    },
+    {
+      "candidate_id": "bells-2553",
+      "status": "Prepared draft; not auditioned or final",
+      "editing_steps": [
+        "Keep the complete source decay; mono 48 kHz",
+        "Place full strikes at 3, 43, 83 seconds in a 120-second cycle; no overlapping decays",
+        "Constant gain based on gated active-passage loudness with -3 dBTP headroom; preserve complete bell dynamics",
+        "Encode Ogg Vorbis quality 4; remove inherited metadata"
+      ],
+      "ffmpeg_filter_graph": "[0:a]aresample=48000,aformat=channel_layouts=mono,asplit=3[a][b][c];[a]adelay=3000[a1];[b]adelay=43000[b1];[c]adelay=83000[c1];[a1][b1][c1]amix=inputs=3:normalize=0,apad=whole_len=5760000,atrim=end_sample=5760000,asetpts=N/SR/TB[out]",
+      "normalization_filter": "volume=10.090000dB",
+      "prepared_path": "artifacts/focus-sounds/session-1/comparison/bells-2553.ogg",
+      "duration_seconds": 120.0,
+      "channels": 1,
+      "sample_rate_hz": 48000,
+      "codec": "vorbis",
+      "format": "ogg",
+      "bytes": 302723,
+      "sha256": "6a1fd9442bd1eecc41afd6b3010b469b11a4e2aede811eab83e5da32ca1dac63",
+      "measured_loudness": {
+        "input_i": "-23.44",
+        "input_tp": "-3.50",
+        "input_lra": "21.60",
+        "input_thresh": "-35.88",
+        "output_i": "-24.40",
+        "output_tp": "-3.05",
+        "output_lra": "18.40",
+        "output_thresh": "-35.83",
+        "normalization_type": "dynamic",
+        "target_offset": "1.40"
+      },
+      "seam_diagnostic": {
+        "max_boundary_sample_step": 0.0,
+        "sample_step_p99": 0.024062986485660076,
+        "boundary_below_p99": true,
+        "interpretation": "Numeric click diagnostic only; listening is pending"
+      },
+      "listening_acceptance": "Pending",
+      "backend_acceptance": "Pending"
+    },
+    {
+      "candidate_id": "waterfall-0219",
+      "status": "Prepared draft; not auditioned or final",
+      "editing_steps": [
+        "Take 39.011882 seconds from t=3 seconds; 48 kHz; retain source channel count",
+        "Rotate head by 2 seconds, equal-power wrap crossfade tail into head (2 seconds)",
+        "Two-pass loudness normalization: -23 LUFS-I, -3 dBTP ceiling, LRA 11",
+        "Encode Ogg Vorbis quality 4; remove inherited metadata"
+      ],
+      "ffmpeg_filter_graph": "[0:a]atrim=start=3:duration=39.011882,asetpts=PTS-STARTPTS,aresample=48000,asplit=2[a][b];[a]atrim=start=2,asetpts=PTS-STARTPTS[tail];[b]atrim=end=2,asetpts=PTS-STARTPTS[head];[tail][head]acrossfade=d=2:c1=qsin:c2=qsin[out]",
+      "normalization_filter": "loudnorm=I=-23:TP=-3:LRA=11:linear=true:measured_I=-16.80:measured_TP=0.03:measured_LRA=0.30:measured_thresh=-26.80:offset=-0.08",
+      "prepared_path": "artifacts/focus-sounds/session-1/comparison/waterfall-0219.ogg",
+      "duration_seconds": 37.011896,
+      "channels": 1,
+      "sample_rate_hz": 48000,
+      "codec": "vorbis",
+      "format": "ogg",
+      "bytes": 332351,
+      "sha256": "26faa280848078a0984fcd4d021806e9fa3c2b3fd3f7795d7331cc55524b2429",
+      "measured_loudness": {
+        "input_i": "-23.40",
+        "input_tp": "-6.59",
+        "input_lra": "0.30",
+        "input_thresh": "-33.40",
+        "output_i": "-22.92",
+        "output_tp": "-6.11",
+        "output_lra": "0.20",
+        "output_thresh": "-32.92",
+        "normalization_type": "dynamic",
+        "target_offset": "-0.08"
+      },
+      "seam_diagnostic": {
+        "max_boundary_sample_step": 0.0059751663357019424,
+        "sample_step_p99": 0.08126910217106342,
+        "boundary_below_p99": true,
+        "interpretation": "Numeric click diagnostic only; listening is pending"
+      },
+      "listening_acceptance": "Pending",
+      "backend_acceptance": "Pending",
+      "final_asset_path": "mobile/assets/audio/waterfall.ogg",
+      "selection_reason": "Provisional plan-first candidate; not a listening preference"
+    },
+    {
+      "candidate_id": "waterfall-0213",
+      "status": "Prepared draft; not auditioned or final",
+      "editing_steps": [
+        "Take 50.735261 seconds from t=3 seconds; 48 kHz; retain source channel count",
+        "Rotate head by 2 seconds, equal-power wrap crossfade tail into head (2 seconds)",
+        "Two-pass loudness normalization: -23 LUFS-I, -3 dBTP ceiling, LRA 11",
+        "Encode Ogg Vorbis quality 4; remove inherited metadata"
+      ],
+      "ffmpeg_filter_graph": "[0:a]atrim=start=3:duration=50.735261,asetpts=PTS-STARTPTS,aresample=48000,asplit=2[a][b];[a]atrim=start=2,asetpts=PTS-STARTPTS[tail];[b]atrim=end=2,asetpts=PTS-STARTPTS[head];[tail][head]acrossfade=d=2:c1=qsin:c2=qsin[out]",
+      "normalization_filter": "loudnorm=I=-23:TP=-3:LRA=11:linear=true:measured_I=-19.67:measured_TP=-4.81:measured_LRA=0.20:measured_thresh=-29.67:offset=0.00",
+      "prepared_path": "artifacts/focus-sounds/session-1/comparison/waterfall-0213.ogg",
+      "duration_seconds": 48.735271,
+      "channels": 1,
+      "sample_rate_hz": 48000,
+      "codec": "vorbis",
+      "format": "ogg",
+      "bytes": 429854,
+      "sha256": "5d72b3fc4983835e2d30a22e83ffae8c53724996b4562a620d38a05df4d80d15",
+      "measured_loudness": {
+        "input_i": "-23.36",
+        "input_tp": "-8.86",
+        "input_lra": "0.20",
+        "input_thresh": "-33.36",
+        "output_i": "-23.00",
+        "output_tp": "-8.52",
+        "output_lra": "0.20",
+        "output_thresh": "-33.00",
+        "normalization_type": "dynamic",
+        "target_offset": "-0.00"
+      },
+      "seam_diagnostic": {
+        "max_boundary_sample_step": 0.03148765512742102,
+        "sample_step_p99": 0.07901875954121351,
+        "boundary_below_p99": true,
+        "interpretation": "Numeric click diagnostic only; listening is pending"
+      },
+      "listening_acceptance": "Pending",
+      "backend_acceptance": "Pending"
+    },
+    {
+      "candidate_id": "ocean-0265",
+      "status": "Prepared draft; not auditioned or final",
+      "editing_steps": [
+        "Take 51.217937 seconds from t=3 seconds; 48 kHz; retain source channel count",
+        "Rotate head by 3 seconds, equal-power wrap crossfade tail into head (3 seconds)",
+        "Two-pass loudness normalization: -23 LUFS-I, -3 dBTP ceiling, LRA 11",
+        "Encode Ogg Vorbis quality 4; remove inherited metadata"
+      ],
+      "ffmpeg_filter_graph": "[0:a]atrim=start=3:duration=51.217937,asetpts=PTS-STARTPTS,aresample=48000,asplit=2[a][b];[a]atrim=start=3,asetpts=PTS-STARTPTS[tail];[b]atrim=end=3,asetpts=PTS-STARTPTS[head];[tail][head]acrossfade=d=3:c1=qsin:c2=qsin[out]",
+      "normalization_filter": "loudnorm=I=-23:TP=-3:LRA=11:linear=true:measured_I=-20.63:measured_TP=-3.91:measured_LRA=2.60:measured_thresh=-30.63:offset=0.25",
+      "prepared_path": "artifacts/focus-sounds/session-1/comparison/ocean-0265.ogg",
+      "duration_seconds": 48.217938,
+      "channels": 2,
+      "sample_rate_hz": 48000,
+      "codec": "vorbis",
+      "format": "ogg",
+      "bytes": 745622,
+      "sha256": "9eaf1dd84894a4787f55207e99f6caab1c43298292cbb4f6ec2e4c00e60c5e8e",
+      "measured_loudness": {
+        "input_i": "-23.31",
+        "input_tp": "-6.00",
+        "input_lra": "2.70",
+        "input_thresh": "-33.31",
+        "output_i": "-23.25",
+        "output_tp": "-5.82",
+        "output_lra": "2.50",
+        "output_thresh": "-33.25",
+        "normalization_type": "dynamic",
+        "target_offset": "0.25"
+      },
+      "seam_diagnostic": {
+        "max_boundary_sample_step": 0.025825894437730312,
+        "sample_step_p99": 0.05572434887290001,
+        "boundary_below_p99": true,
+        "interpretation": "Numeric click diagnostic only; listening is pending"
+      },
+      "listening_acceptance": "Pending",
+      "backend_acceptance": "Pending",
+      "final_asset_path": "mobile/assets/audio/ocean_waves.ogg",
+      "selection_reason": "Provisional plan-first candidate; not a listening preference"
+    },
+    {
+      "candidate_id": "ocean-1447",
+      "status": "Prepared draft; not auditioned or final",
+      "editing_steps": [
+        "Take 90.000000 seconds from t=3 seconds; 48 kHz; retain source channel count",
+        "Rotate head by 3 seconds, equal-power wrap crossfade tail into head (3 seconds)",
+        "Two-pass loudness normalization: -23 LUFS-I, -3 dBTP ceiling, LRA 11",
+        "Encode Ogg Vorbis quality 4; remove inherited metadata"
+      ],
+      "ffmpeg_filter_graph": "[0:a]atrim=start=3:duration=90.0,asetpts=PTS-STARTPTS,aresample=48000,asplit=2[a][b];[a]atrim=start=3,asetpts=PTS-STARTPTS[tail];[b]atrim=end=3,asetpts=PTS-STARTPTS[head];[tail][head]acrossfade=d=3:c1=qsin:c2=qsin[out]",
+      "normalization_filter": "loudnorm=I=-23:TP=-3:LRA=11:linear=true:measured_I=-16.26:measured_TP=0.22:measured_LRA=5.80:measured_thresh=-26.40:offset=0.25",
+      "prepared_path": "artifacts/focus-sounds/session-1/comparison/ocean-1447.ogg",
+      "duration_seconds": 87.0,
+      "channels": 2,
+      "sample_rate_hz": 48000,
+      "codec": "vorbis",
+      "format": "ogg",
+      "bytes": 1342875,
+      "sha256": "e99ae1d4105feac1506d6f07b6e0b29e32642e1f115618dad0acc30e3aa71f43",
+      "measured_loudness": {
+        "input_i": "-23.31",
+        "input_tp": "-5.97",
+        "input_lra": "5.80",
+        "input_thresh": "-33.45",
+        "output_i": "-23.23",
+        "output_tp": "-6.10",
+        "output_lra": "6.10",
+        "output_thresh": "-33.34",
+        "normalization_type": "dynamic",
+        "target_offset": "0.23"
+      },
+      "seam_diagnostic": {
+        "max_boundary_sample_step": 0.008755546063184738,
+        "sample_step_p99": 0.04559953510761261,
+        "boundary_below_p99": true,
+        "interpretation": "Numeric click diagnostic only; listening is pending"
+      },
+      "listening_acceptance": "Pending",
+      "backend_acceptance": "Pending"
+    },
+    {
+      "candidate_id": "forest-2715",
+      "status": "Prepared draft; not auditioned or final",
+      "editing_steps": [
+        "Take 90.000000 seconds from t=3 seconds; 48 kHz; retain source channel count",
+        "Rotate head by 2 seconds, equal-power wrap crossfade tail into head (2 seconds)",
+        "Two-pass loudness normalization: -23 LUFS-I, -3 dBTP ceiling, LRA 11",
+        "Encode Ogg Vorbis quality 4; remove inherited metadata"
+      ],
+      "ffmpeg_filter_graph": "[0:a]atrim=start=3:duration=90.0,asetpts=PTS-STARTPTS,aresample=48000,asplit=2[a][b];[a]atrim=start=2,asetpts=PTS-STARTPTS[tail];[b]atrim=end=2,asetpts=PTS-STARTPTS[head];[tail][head]acrossfade=d=2:c1=qsin:c2=qsin[out]",
+      "normalization_filter": "loudnorm=I=-23:TP=-3:LRA=11:linear=true:measured_I=-27.49:measured_TP=-6.19:measured_LRA=9.90:measured_thresh=-37.69:offset=-2.02",
+      "prepared_path": "artifacts/focus-sounds/session-1/comparison/forest-2715.ogg",
+      "duration_seconds": 88.0,
+      "channels": 2,
+      "sample_rate_hz": 48000,
+      "codec": "vorbis",
+      "format": "ogg",
+      "bytes": 1366270,
+      "sha256": "be593efb276c646b2329ca8fb63c5a5cd9bc18562ad6ae95945c660a4ebbee5d",
+      "measured_loudness": {
+        "input_i": "-23.23",
+        "input_tp": "-3.21",
+        "input_lra": "5.90",
+        "input_thresh": "-33.34",
+        "output_i": "-21.86",
+        "output_tp": "-3.00",
+        "output_lra": "4.80",
+        "output_thresh": "-31.96",
+        "normalization_type": "dynamic",
+        "target_offset": "-1.14"
+      },
+      "seam_diagnostic": {
+        "max_boundary_sample_step": 0.03938278928399086,
+        "sample_step_p99": 0.09708946198225021,
+        "boundary_below_p99": true,
+        "interpretation": "Numeric click diagnostic only; listening is pending"
+      },
+      "listening_acceptance": "Pending",
+      "backend_acceptance": "Pending",
+      "final_asset_path": "mobile/assets/audio/forest_birds.ogg",
+      "selection_reason": "Accessible original CC0 forest alternative; Freesound original requires login. Not a listening preference"
+    },
+    {
+      "candidate_id": "forest-2749",
+      "status": "Prepared draft; not auditioned or final",
+      "editing_steps": [
+        "Take 90.000000 seconds from t=3 seconds; 48 kHz; retain source channel count",
+        "Rotate head by 2 seconds, equal-power wrap crossfade tail into head (2 seconds)",
+        "Two-pass loudness normalization: -23 LUFS-I, -3 dBTP ceiling, LRA 11",
+        "Encode Ogg Vorbis quality 4; remove inherited metadata"
+      ],
+      "ffmpeg_filter_graph": "[0:a]atrim=start=3:duration=90.0,asetpts=PTS-STARTPTS,aresample=48000,asplit=2[a][b];[a]atrim=start=2,asetpts=PTS-STARTPTS[tail];[b]atrim=end=2,asetpts=PTS-STARTPTS[head];[tail][head]acrossfade=d=2:c1=qsin:c2=qsin[out]",
+      "normalization_filter": "loudnorm=I=-23:TP=-3:LRA=11:linear=true:measured_I=-17.83:measured_TP=-1.01:measured_LRA=8.00:measured_thresh=-27.98:offset=0.73",
+      "prepared_path": "artifacts/focus-sounds/session-1/comparison/forest-2749.ogg",
+      "duration_seconds": 88.0,
+      "channels": 2,
+      "sample_rate_hz": 48000,
+      "codec": "vorbis",
+      "format": "ogg",
+      "bytes": 1385876,
+      "sha256": "3606ab53b875eef171a2be942006005f055806d3815fc98d10e4725a6d562257",
+      "measured_loudness": {
+        "input_i": "-23.34",
+        "input_tp": "-6.86",
+        "input_lra": "8.00",
+        "input_thresh": "-33.49",
+        "output_i": "-23.73",
+        "output_tp": "-8.09",
+        "output_lra": "7.30",
+        "output_thresh": "-33.83",
+        "normalization_type": "dynamic",
+        "target_offset": "0.73"
+      },
+      "seam_diagnostic": {
+        "max_boundary_sample_step": 0.05075742211192846,
+        "sample_step_p99": 0.06523231789469719,
+        "boundary_below_p99": true,
+        "interpretation": "Numeric click diagnostic only; listening is pending"
+      },
+      "listening_acceptance": "Pending",
+      "backend_acceptance": "Pending"
+    }
+  ],
+  "preparation_tool": "ffmpeg version 9.0.2-essentials_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers",
+  "tool_archive": {
+    "url": "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip",
+    "sha256": "60f467265b1e312373dbcd92200c2618a74850f98d3d078e94296bb3fa2047ba",
+    "method": "Portable extraction only; no system installation"
+  }
+}

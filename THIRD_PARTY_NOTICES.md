@@ -123,3 +123,23 @@ are recorded in `mobile/assets/fonts/SORA_SOURCE.json`.
 The complete license is bundled in `assets/licenses/sora.txt` and registered in
 About → View licenses. Both families are packaged offline; Windows loads its
 font resources privately in the Poma process.
+## Focus sound recordings and native audio runtime
+
+The feature branch bundles four prepared CC0 1.0 recording drafts: Tibetan Bowl
+Struck #1 by Joseph SARDIN, Small Waterfall #2 by gamin, Beach: Small Waves by
+DenisChardonnet, and Forest #3 by Pierre SIBANARCO, acquired from BigSoundBank.
+Source URLs, exact license evidence, edits and file hashes are retained in
+`docs/focus-sounds/ASSET_PROVENANCE.json`. Listening approval remains pending.
+CC0 permits editing and redistribution in apps; creator credits are voluntary.
+
+The selected playback dependency is flutter_soloud **4.1.7** (MIT wrapper), with
+the SoLoud engine (zlib/libpng), miniaudio/dr_libs, Signalsmith, PFFFT/FFTPACK and
+the package's Ogg/Vorbis/Opus/FLAC native components. Full retained notices are in
+`mobile/assets/licenses/focus-audio-native.txt`; recording credits and CC0 legal
+code are in `mobile/assets/licenses/focus-sounds.txt`. Both are registered in the
+offline About license view. Notice-source identities/hashes are recorded in
+`docs/focus-sounds/NATIVE_LICENSE_SOURCES.json`. Resolved Dart package licenses
+remain included in Flutter's generated license inventory.
+
+FFmpeg is an external preparation tool, not an application dependency or payload.
+No recording, streaming service, microphone access, or provider API is added.

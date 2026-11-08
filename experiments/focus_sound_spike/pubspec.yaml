@@ -1,0 +1,22 @@
+name: focus_sound_spike
+description: Isolated Session 1 playback and deadline experiment; never opens Poma data.
+publish_to: none
+version: 0.1.0+1
+environment:
+  sdk: ^3.12.2
+dependencies:
+  flutter:
+    sdk: flutter
+  ffi: 2.2.0
+  flutter_soloud: 4.1.7
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: 6.0.0
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/tibetan_bells.ogg
+    - assets/waterfall.ogg
+    - assets/ocean_waves.ogg
+    - assets/forest_birds.ogg

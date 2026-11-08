@@ -1,5 +1,17 @@
 # Third-party notices
 
+## Focus sound recordings
+
+Bundled CC0 1.0 recordings are credited to Joseph SARDIN (Tibetan Bowl Struck #1),
+gamin (Small Waterfall #2), DenisChardonnet (Beach: Small Waves), and Pierre
+SIBANARCO (Forest #3), via BigSoundBank.com. Loop preparation and level adjustment
+were performed for Poma. No creator endorsement is implied.
+
+Full source URLs and CC0 legal terms are available in About → View licenses →
+Poma focus sound recordings. Audio engine and codec notices are available under
+Focus audio native runtime. The playback wrapper uses the MIT license; native
+component notices are retained in full.
+
 ## Calendar presentation — MIT License
 
 The calendar presentation uses kalender 0.33.0. Its license is also available

@@ -44,6 +44,8 @@ dependencies:
   flutter_local_notifications: 22.3.2
   sqflite_common_ffi: 2.4.4
   kalender: 0.33.0
+  # Session 1: qualified on the pinned SDK; production playback is Session 2.
+  flutter_soloud: 4.1.7
 
 dev_dependencies:
   flutter_test:
@@ -78,6 +80,12 @@ flutter:
     - assets/licenses/windows-native.txt
     - assets/licenses/source-sans-3.txt
     - assets/licenses/sora.txt
+    - assets/licenses/focus-sounds.txt
+    - assets/licenses/focus-audio-native.txt
+    - assets/audio/tibetan_bells.ogg
+    - assets/audio/waterfall.ogg
+    - assets/audio/ocean_waves.ogg
+    - assets/audio/forest_birds.ogg
 
   fonts:
     - family: Sora

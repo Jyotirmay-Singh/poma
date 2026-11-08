@@ -1,0 +1,590 @@
+{
+  "date": "2026-11-08",
+  "timezone": "Asia/Kolkata",
+  "scope": "Session 1; production integration not implemented",
+  "base_HEAD": "0a001d2b37e80c316449898de7419e50e18d1547",
+  "branch": "codex/focus-soundscapes",
+  "committed": false,
+  "sdk": {
+    "flutter": "3.44.2",
+    "dart": "3.12.2",
+    "java": "17.0.19+10"
+  },
+  "selected_backend": "flutter_soloud 4.1.7; Windows runtime qualified, mobile runtime pending",
+  "rejected_version": {
+    "version": "5.2.3",
+    "reason": "native_toolchain_c >=0.19.3 requires meta ^1.19.0; Flutter 3.44.2 pins meta 1.18.0. No override/SDK upgrade used."
+  },
+  "playback": {
+    "kind": "Windows x64 isolated real-backend experiment; not production acceptance",
+    "library": "flutter_soloud 4.1.7",
+    "startedUtc": "2026-11-08T05:48:50.563Z",
+    "clock": "QueryInterruptTimePrecise (100ns / 10)",
+    "profileOpened": false,
+    "foregroundCountdown": false,
+    "listening": "Not performed; transport/clock measurements only",
+    "checks": [
+      {
+        "name": "native engine initialized",
+        "passed": true,
+        "availableDeviceCount": 1
+      },
+      {
+        "name": "tibetan_bells starts",
+        "passed": true
+      },
+      {
+        "name": "tibetan_bells volume",
+        "passed": true
+      },
+      {
+        "name": "tibetan_bells fade",
+        "passed": true
+      },
+      {
+        "name": "tibetan_bells pause",
+        "passed": true
+      },
+      {
+        "name": "tibetan_bells loop wrap 1",
+        "passed": true,
+        "positionMicros": 224000
+      },
+      {
+        "name": "tibetan_bells loop wrap 2",
+        "passed": true,
+        "positionMicros": 213333
+      },
+      {
+        "name": "tibetan_bells loop wrap 3",
+        "passed": true,
+        "positionMicros": 224000
+      },
+      {
+        "name": "tibetan_bells loop wrap 4",
+        "passed": true,
+        "positionMicros": 213333
+      },
+      {
+        "name": "tibetan_bells loop wrap 5",
+        "passed": true,
+        "positionMicros": 224000
+      },
+      {
+        "name": "tibetan_bells stop",
+        "passed": true
+      },
+      {
+        "name": "waterfall starts",
+        "passed": true
+      },
+      {
+        "name": "waterfall volume",
+        "passed": true
+      },
+      {
+        "name": "waterfall fade",
+        "passed": true
+      },
+      {
+        "name": "waterfall pause",
+        "passed": true
+      },
+      {
+        "name": "waterfall loop wrap 1",
+        "passed": true,
+        "positionMicros": 224000
+      },
+      {
+        "name": "waterfall loop wrap 2",
+        "passed": true,
+        "positionMicros": 213333
+      },
+      {
+        "name": "waterfall loop wrap 3",
+        "passed": true,
+        "positionMicros": 224000
+      },
+      {
+        "name": "waterfall loop wrap 4",
+        "passed": true,
+        "positionMicros": 224000
+      },
+      {
+        "name": "waterfall loop wrap 5",
+        "passed": true,
+        "positionMicros": 213333
+      },
+      {
+        "name": "waterfall stop",
+        "passed": true
+      },
+      {
+        "name": "ocean_waves starts",
+        "passed": true
+      },
+      {
+        "name": "ocean_waves volume",
+        "passed": true
+      },
+      {
+        "name": "ocean_waves fade",
+        "passed": true
+      },
+      {
+        "name": "ocean_waves pause",
+        "passed": true
+      },
+      {
+        "name": "ocean_waves loop wrap 1",
+        "passed": true,
+        "positionMicros": 224000
+      },
+      {
+        "name": "ocean_waves loop wrap 2",
+        "passed": true,
+        "positionMicros": 224000
+      },
+      {
+        "name": "ocean_waves loop wrap 3",
+        "passed": true,
+        "positionMicros": 213333
+      },
+      {
+        "name": "ocean_waves loop wrap 4",
+        "passed": true,
+        "positionMicros": 224000
+      },
+      {
+        "name": "ocean_waves loop wrap 5",
+        "passed": true,
+        "positionMicros": 224000
+      },
+      {
+        "name": "ocean_waves stop",
+        "passed": true
+      },
+      {
+        "name": "forest_birds starts",
+        "passed": true
+      },
+      {
+        "name": "forest_birds volume",
+        "passed": true
+      },
+      {
+        "name": "forest_birds fade",
+        "passed": true
+      },
+      {
+        "name": "forest_birds pause",
+        "passed": true
+      },
+      {
+        "name": "forest_birds loop wrap 1",
+        "passed": true,
+        "positionMicros": 213333
+      },
+      {
+        "name": "forest_birds loop wrap 2",
+        "passed": true,
+        "positionMicros": 224000
+      },
+      {
+        "name": "forest_birds loop wrap 3",
+        "passed": true,
+        "positionMicros": 224000
+      },
+      {
+        "name": "forest_birds loop wrap 4",
+        "passed": true,
+        "positionMicros": 213333
+      },
+      {
+        "name": "forest_birds loop wrap 5",
+        "passed": true,
+        "positionMicros": 224000
+      },
+      {
+        "name": "forest_birds stop",
+        "passed": true
+      },
+      {
+        "name": "own window hidden",
+        "passed": true
+      },
+      {
+        "name": "hidden native deadline <=250ms",
+        "passed": true,
+        "stopObservedOffsetMicros": 9165
+      },
+      {
+        "name": "expired interruption token rejected",
+        "passed": true
+      },
+      {
+        "name": "native stop survives blocked Dart isolate",
+        "passed": true
+      },
+      {
+        "name": "paused native transport cannot resume an expired lease",
+        "passed": true
+      },
+      {
+        "name": "single voice cycle 0",
+        "passed": true
+      },
+      {
+        "name": "retired voice cycle 0",
+        "passed": true
+      },
+      {
+        "name": "single voice cycle 1",
+        "passed": true
+      },
+      {
+        "name": "retired voice cycle 1",
+        "passed": true
+      },
+      {
+        "name": "single voice cycle 2",
+        "passed": true
+      },
+      {
+        "name": "retired voice cycle 2",
+        "passed": true
+      },
+      {
+        "name": "single voice cycle 3",
+        "passed": true
+      },
+      {
+        "name": "retired voice cycle 3",
+        "passed": true
+      },
+      {
+        "name": "single voice cycle 4",
+        "passed": true
+      },
+      {
+        "name": "retired voice cycle 4",
+        "passed": true
+      },
+      {
+        "name": "single voice cycle 5",
+        "passed": true
+      },
+      {
+        "name": "retired voice cycle 5",
+        "passed": true
+      },
+      {
+        "name": "single voice cycle 6",
+        "passed": true
+      },
+      {
+        "name": "retired voice cycle 6",
+        "passed": true
+      },
+      {
+        "name": "single voice cycle 7",
+        "passed": true
+      },
+      {
+        "name": "retired voice cycle 7",
+        "passed": true
+      },
+      {
+        "name": "single voice cycle 8",
+        "passed": true
+      },
+      {
+        "name": "retired voice cycle 8",
+        "passed": true
+      },
+      {
+        "name": "single voice cycle 9",
+        "passed": true
+      },
+      {
+        "name": "retired voice cycle 9",
+        "passed": true
+      },
+      {
+        "name": "single voice cycle 10",
+        "passed": true
+      },
+      {
+        "name": "retired voice cycle 10",
+        "passed": true
+      },
+      {
+        "name": "single voice cycle 11",
+        "passed": true
+      },
+      {
+        "name": "retired voice cycle 11",
+        "passed": true
+      },
+      {
+        "name": "single voice cycle 12",
+        "passed": true
+      },
+      {
+        "name": "retired voice cycle 12",
+        "passed": true
+      },
+      {
+        "name": "single voice cycle 13",
+        "passed": true
+      },
+      {
+        "name": "retired voice cycle 13",
+        "passed": true
+      },
+      {
+        "name": "single voice cycle 14",
+        "passed": true
+      },
+      {
+        "name": "retired voice cycle 14",
+        "passed": true
+      },
+      {
+        "name": "single voice cycle 15",
+        "passed": true
+      },
+      {
+        "name": "retired voice cycle 15",
+        "passed": true
+      },
+      {
+        "name": "single voice cycle 16",
+        "passed": true
+      },
+      {
+        "name": "retired voice cycle 16",
+        "passed": true
+      },
+      {
+        "name": "single voice cycle 17",
+        "passed": true
+      },
+      {
+        "name": "retired voice cycle 17",
+        "passed": true
+      },
+      {
+        "name": "single voice cycle 18",
+        "passed": true
+      },
+      {
+        "name": "retired voice cycle 18",
+        "passed": true
+      },
+      {
+        "name": "single voice cycle 19",
+        "passed": true
+      },
+      {
+        "name": "retired voice cycle 19",
+        "passed": true
+      },
+      {
+        "name": "no active voices after cleanup",
+        "passed": true
+      },
+      {
+        "name": "engine disposed",
+        "passed": true
+      }
+    ],
+    "passed": true,
+    "finishedUtc": "2026-11-08T05:49:05.300959Z"
+  },
+  "checks": [
+    {
+      "check": "analyze",
+      "exit_code": 0,
+      "elapsed_seconds": 13.966558399999485,
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "analyze",
+        "--no-pub"
+      ],
+      "log": "artifacts/focus-sounds/session-1/checks/analyze.log"
+    },
+    {
+      "check": "android-build",
+      "exit_code": 0,
+      "elapsed_seconds": 325.2683224000002,
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "build",
+        "apk",
+        "--debug",
+        "--target-platform",
+        "android-arm64"
+      ],
+      "log": "artifacts/focus-sounds/session-1/checks/android-build.log"
+    },
+    {
+      "check": "android-native",
+      "exit_code": 0,
+      "elapsed_seconds": 63.11068129999967,
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-Command",
+        "& 'D:/pomodoro/mobile/android/gradlew.bat' :app:testDebugUnitTest --console=plain"
+      ],
+      "log": "artifacts/focus-sounds/session-1/checks/android-native.log"
+    },
+    {
+      "check": "tests",
+      "exit_code": 0,
+      "elapsed_seconds": 105.74647280000045,
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub"
+      ],
+      "log": "artifacts/focus-sounds/session-1/checks/tests.log"
+    },
+    {
+      "check": "windows-build",
+      "exit_code": 0,
+      "elapsed_seconds": 109.88553859999956,
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "build",
+        "windows",
+        "--release"
+      ],
+      "log": "artifacts/focus-sounds/session-1/checks/windows-build.log"
+    },
+    {
+      "check": "windows-native",
+      "exit_code": 0,
+      "elapsed_seconds": 25.103288499999508,
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\test_windows_native.ps1"
+      ],
+      "log": "artifacts/focus-sounds/session-1/checks/windows-native.log"
+    }
+  ],
+  "flutter_tests": 472,
+  "experiment_lease_tests": 3,
+  "asset_verification": {
+    "original_candidates_verified": 8,
+    "two_candidates_per_category": true,
+    "draft_asset_count": 4,
+    "draft_asset_bytes": 3194230,
+    "preserved_existing_locked_packages": 75,
+    "changed_existing_packages": {},
+    "new_packages": {
+      "flutter_soloud": "4.1.7",
+      "jni": "1.1.2",
+      "jni_flutter": "1.0.4+1",
+      "jni_util": "1.0.0",
+      "objective_c": "9.5.0",
+      "package_config": "3.0.0",
+      "path_provider": "2.1.6",
+      "path_provider_android": "2.3.1",
+      "path_provider_foundation": "2.6.0",
+      "path_provider_linux": "2.2.2",
+      "path_provider_platform_interface": "2.1.3",
+      "path_provider_windows": "2.3.0"
+    },
+    "listening": "Pending; numerical diagnostics do not certify audible quality",
+    "windows_release_payload": "Four exact draft hashes, both notices and seven audio DLLs verified",
+    "android_debug_payload": {
+      "result": "Four exact draft hashes, notices and audio native library verified",
+      "bytes": 105093089,
+      "sha256": "c326b6a162a5849426c4d52a57fa88bd40b7975ccebbbd826335bd470d58b816"
+    }
+  },
+  "experiment_footprint": {
+    "runtime_bytes": {
+      "baseline": 27195300,
+      "library": 31206150,
+      "assets": 34400618
+    },
+    "same_final_probe_code_and_lock_for_library_vs_assets": true,
+    "library_and_probe_overhead_bytes": 4010850,
+    "asset_bundle_increment_bytes": 3194468,
+    "limitation": "Unpackaged Windows release experiment, not Poma MSIX/store/download size"
+  },
+  "resource_observations": {
+    "scope": "One Windows x64 release experiment; fixed 250ms observations, not a battery or steady-state performance guarantee",
+    "sample_count": 81,
+    "peak_working_set_bytes": 70471680,
+    "peak_private_bytes": 72192000,
+    "pre_initialization_idle": {
+      "sample_count": 14,
+      "median_working_set_bytes": 63787008.0,
+      "median_private_bytes": 61194240.0,
+      "one_core_cpu_percent": 2.8780558083720433
+    },
+    "playing_with_forced_seeks": {
+      "sample_count": 40,
+      "median_working_set_bytes": 68497408.0,
+      "median_private_bytes": 71368704.0,
+      "one_core_cpu_percent": 2.398759970819914
+    }
+  },
+  "open_gates": [
+    "Human equal-perceived-loudness comparison, ten-minute trials and natural joins on headphones/speakers",
+    "Production coordinator/preferences/timer integration (Session 2)",
+    "Production adaptive UI and rendered/assistive review (Session 3)",
+    "Android/iOS background expiry, audio focus, route changes and physical-device acceptance (Session 4)",
+    "macOS/iOS compilation and native tests; Windows sleep/wake observation; release/store size and battery qualification"
+  ],
+  "failures_and_resolutions": [
+    "Initial 5.2.3 resolution failed; selected SDK-compatible 4.1.7 after real qualification.",
+    "Initial bell filter produced an unbounded intermediate and exhausted free workspace space; only that resolved task-created file was removed. Replaced with finite sample counts, duration/size caps and timeout; originals/profiles untouched.",
+    "Public download workflow initially returned HTML; followed its ordinary second form and wait. Four-digit IDs corrected; no preview masters used.",
+    "Plugin junction setup required existing SDK/cache access; reran locked pub get successfully without enabling Developer Mode. Empty native registrants were detected before playback qualification and regenerated.",
+    "First spike clock lookup targeted kernel32 instead of kernelbase; failed child was bounded/killed after 90 seconds. Corrected lookup, moved setup under error reporting, and qualified successfully. Failure log retained.",
+    "One analyzer style finding corrected; final analysis clean.",
+    "A packaging preflight correctly rejected the old APK while the new build was still running; current fresh Windows/Android payload verification passed."
+  ],
+  "full_evidence_root": "artifacts/focus-sounds/session-1/"
+}
