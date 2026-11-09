@@ -1,0 +1,1197 @@
+{
+  "date": "2026-11-08",
+  "timezone": "Asia/Kolkata",
+  "branch": "codex/focus-soundscapes",
+  "HEAD": "6bd18d3e10f348a5b9d5e4958203fc934b3e24fd",
+  "state": "Local uncommitted Session 2 and Session 3 changes",
+  "checks": [
+    {
+      "check": "ui",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub",
+        "test/focus_sounds_ui_test.dart",
+        "--dart-define=POMA_SOUND_CAPTURES=../artifacts/focus-sounds/session-3/ui"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 33.60797170000296,
+      "log": "artifacts/focus-sounds/session-3/checks/ui-1794149343278435500.log",
+      "record": "artifacts/focus-sounds/session-3/checks/ui-1794149343278435500.json",
+      "source_hashes_match": true
+    },
+    {
+      "check": "tests",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 153.3913102000006,
+      "log": "artifacts/focus-sounds/session-3/checks/tests-1794149516444881700.log",
+      "record": "artifacts/focus-sounds/session-3/checks/tests-1794149516444881700.json",
+      "source_hashes_match": true
+    },
+    {
+      "check": "analyze",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "analyze",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.436424600004102,
+      "log": "artifacts/focus-sounds/session-3/checks/analyze-1794149376925777100.log",
+      "record": "artifacts/focus-sounds/session-3/checks/analyze-1794149376925777100.json",
+      "source_hashes_match": true
+    },
+    {
+      "check": "format",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "D:/SDKs/flutter/bin/cache/dart-sdk/bin/dart.exe",
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "D:\\pomodoro\\mobile\\lib",
+        "D:\\pomodoro\\mobile\\test\\focus_sounds_ui_test.dart",
+        "D:\\pomodoro\\mobile\\test\\focus_audio_test.dart",
+        "D:\\pomodoro\\mobile\\test\\focus_audio_support.dart",
+        "D:\\pomodoro\\mobile\\tool\\focus_audio_session3_review.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.8087922999984585,
+      "log": "artifacts/focus-sounds/session-3/checks/format-1794149387416209300.log",
+      "record": "artifacts/focus-sounds/session-3/checks/format-1794149387416209300.json",
+      "source_hashes_match": true
+    },
+    {
+      "check": "focused",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub",
+        "test/focus_audio_test.dart",
+        "test/focus_audio_preferences_test.dart",
+        "test/focus_audio_desktop_test.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.2630248999994365,
+      "log": "artifacts/focus-sounds/session-3/checks/focused-1794148386762609000.log",
+      "record": "artifacts/focus-sounds/session-3/checks/focused-1794148386762609000.json",
+      "source_hashes_match": null
+    },
+    {
+      "check": "windows-native",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\test_windows_native.ps1"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.865150799996627,
+      "log": "artifacts/focus-sounds/session-3/checks/windows-native-1794148519767657400.log",
+      "record": "artifacts/focus-sounds/session-3/checks/windows-native-1794148519767657400.json",
+      "source_hashes_match": null
+    },
+    {
+      "check": "windows-build",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "build",
+        "windows",
+        "--release",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 77.8450593000016,
+      "log": "artifacts/focus-sounds/session-3/checks/windows-build-1794157707232812900.log",
+      "record": "artifacts/focus-sounds/session-3/checks/windows-build-1794157707232812900.json",
+      "source_hashes_match": true
+    },
+    {
+      "check": "review-build",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "build",
+        "windows",
+        "--release",
+        "--no-pub",
+        "-t",
+        "tool/focus_audio_session3_review.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 84.67254970000067,
+      "log": "artifacts/focus-sounds/session-3/checks/review-build-1794149669869951900.log",
+      "record": "artifacts/focus-sounds/session-3/checks/review-build-1794149669869951900.json",
+      "source_hashes_match": true
+    },
+    {
+      "check": "android-build",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "build",
+        "apk",
+        "--debug",
+        "--target-platform",
+        "android-arm64",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 32.71854489999532,
+      "log": "artifacts/focus-sounds/session-3/checks/android-build-1794149329173444200.log",
+      "record": "artifacts/focus-sounds/session-3/checks/android-build-1794149329173444200.json",
+      "source_hashes_match": true
+    }
+  ],
+  "counts": {
+    "flutter_regression": 533,
+    "sound_ui": 24,
+    "focused_audio": 37,
+    "desktop_native": 233,
+    "native_fonts": 43,
+    "native_guard": 15
+  },
+  "runtime": {
+    "evidence": "artifacts/focus-sounds/session-3/windows-runtime-1794157691406233500/evidence.json",
+    "executable_sha256": "89177c68aa3a2925bce77b560b015506c93a88b0b8e12ef863eab1760a39def3",
+    "aot_sha256": "79b5d8b7754cfa0238e80eeecfa1dfe01e882606c575deef9b64bd1d7b2dd38d",
+    "source_files_match": true,
+    "report": {
+      "kind": "Isolated Windows production UI and real adapter",
+      "listening": "Not performed",
+      "physicalAcceptance": "Pending",
+      "checks": [
+        "real selected sound starts exactly one voice",
+        "UI preview retains selected ocean",
+        "UI preview uses one stream",
+        "chooser dismissal restores continuous Focus",
+        "UI mute immediately revokes output"
+      ],
+      "captures": [
+        "windows-playing.png",
+        "windows-chooser.png",
+        "windows-preview.png",
+        "windows-muted.png"
+      ],
+      "captureSize": {
+        "width": 1521.6,
+        "height": 802.4,
+        "devicePixelRatio": 1.25,
+        "renderScale": 1,
+        "fonts": "Bundled production Sora and Source Sans 3"
+      },
+      "passed": true
+    }
+  },
+  "production": {
+    "windows_executable_sha256": "78b683292615ae7fc22d85ade657001464acea909113e196e16b486242a7371e",
+    "windows_aot_sha256": "ab309800a41443b3fef0baf9c17655610ce6ef60b872dca87064b8bf29240e97",
+    "review_hooks_absent": true,
+    "android_debug_apk_sha256": "4319765ca886f6ea513db9973e999481624ae69b238cba15eb01c5809be9e09b",
+    "android_debug_apk_bytes": 105520092,
+    "audio_bytes": 3194230,
+    "assets": [
+      {
+        "path": "assets/audio/forest_birds.ogg",
+        "bytes": 1366270,
+        "sha256": "be593efb276c646b2329ca8fb63c5a5cd9bc18562ad6ae95945c660a4ebbee5d"
+      },
+      {
+        "path": "assets/audio/ocean_waves.ogg",
+        "bytes": 745622,
+        "sha256": "9eaf1dd84894a4787f55207e99f6caab1c43298292cbb4f6ec2e4c00e60c5e8e"
+      },
+      {
+        "path": "assets/audio/tibetan_bells.ogg",
+        "bytes": 749987,
+        "sha256": "ea8ee25b56d57d7dac554c1e9ba70c28a7154db1fcc1e9c1dfd70f08267a6cd4"
+      },
+      {
+        "path": "assets/audio/waterfall.ogg",
+        "bytes": 332351,
+        "sha256": "26faa280848078a0984fcd4d021806e9fa3c2b3fd3f7795d7331cc55524b2429"
+      }
+    ],
+    "audio_notices_and_production_fonts_match_both_payloads": true
+  },
+  "host_captures": [
+    {
+      "file": "phone-off-closed.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 390.0,
+      "height": 844.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "light",
+      "highContrast": false,
+      "state": "off",
+      "sha256": "3a810e0de02ffae1e74400c01c5aa1bbb8238ecea5d6a0ae6cc75fc4cf868f65"
+    },
+    {
+      "file": "phone-off-chooser.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 390.0,
+      "height": 844.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "light",
+      "highContrast": false,
+      "state": "off",
+      "sha256": "535c1dd7c25c4a60679e7e65c2267274a487372382c1317db9401662f36b23a9"
+    },
+    {
+      "file": "phone-off-footer.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 390.0,
+      "height": 844.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "light",
+      "highContrast": false,
+      "state": "off",
+      "sha256": "5350b6eb3386d4aeebbc76089d55011a68b37a05c1b33205e9e6e2b65f75acaf"
+    },
+    {
+      "file": "phone-ready-closed.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 390.0,
+      "height": 844.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "ready",
+      "sha256": "a2bc49aff8c4301174fc79663161242f9e6920e6c2b58aab26cacb32b95b5b31"
+    },
+    {
+      "file": "phone-ready-chooser.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 390.0,
+      "height": 844.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "ready",
+      "sha256": "a11b444ff62ab9904cee0dc1a0117ede8b9ee3ba7bf78ed559d010a7ec3e7ec6"
+    },
+    {
+      "file": "phone-ready-footer.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 390.0,
+      "height": 844.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "ready",
+      "sha256": "89ac20e7615e1b2b165b1595c628cad712ebd08b752a798027567ef4c0f6f586"
+    },
+    {
+      "file": "phone-playing-closed.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 390.0,
+      "height": 844.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "playing",
+      "sha256": "69af792152ca25e67f543fbf9f54b422e71fd94f042d99c1a7f30a5592df36b8"
+    },
+    {
+      "file": "phone-playing-chooser.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 390.0,
+      "height": 844.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "playing",
+      "sha256": "be3bc366a2f6c3f5fab728214203211ded862ca167078f1a0947fc630eade2e8"
+    },
+    {
+      "file": "phone-playing-preview.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 390.0,
+      "height": 844.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "playing",
+      "preview": "tibetanBells",
+      "sha256": "30eadb03258045fca724c835076e85d3ee0b8a8c95fcd3b421e5d33bef9f700d"
+    },
+    {
+      "file": "phone-playing-footer.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 390.0,
+      "height": 844.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "playing",
+      "sha256": "dd95cac6537baafe182acf5d407ba7bcc07a3c6edd51994d4f04f8cf0c0be848"
+    },
+    {
+      "file": "phone-large-muted-closed.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 320.0,
+      "height": 700.0,
+      "textScale": 2.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "light",
+      "highContrast": false,
+      "state": "muted",
+      "sha256": "66a0d1360abdb552462e6b969e7769ff21118af0f0b9f27c440e522b70e23208"
+    },
+    {
+      "file": "phone-large-muted-chooser.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 320.0,
+      "height": 700.0,
+      "textScale": 2.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "light",
+      "highContrast": false,
+      "state": "muted",
+      "sha256": "112b97f43eb92666587b15a68691e28252b81ae4766d415062b55ea2e53269f2"
+    },
+    {
+      "file": "phone-large-muted-footer.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 320.0,
+      "height": 700.0,
+      "textScale": 2.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "light",
+      "highContrast": false,
+      "state": "muted",
+      "sha256": "e777a405c5a6dd3dd9cc63314b1920406a296b08f71d5863087bab8bbafa4b97"
+    },
+    {
+      "file": "phone-landscape-error-closed.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 700.0,
+      "height": 320.0,
+      "textScale": 2.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "error",
+      "sha256": "22d2fb421bfa8432a2af8778b1062f7ab824164d9d426d5882f6e461e9ba5e85"
+    },
+    {
+      "file": "phone-landscape-error-chooser.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 700.0,
+      "height": 320.0,
+      "textScale": 2.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "error",
+      "sha256": "d9f21dc6e2819e4029cc323dfc2f52f5fc50b6e1b2ea4a8d49b0d6319cf823da"
+    },
+    {
+      "file": "phone-landscape-error-footer.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 700.0,
+      "height": 320.0,
+      "textScale": 2.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "error",
+      "sha256": "5ce97da015ab196b1719239dbc2e49add8caa0b2b25e437385a7876317bab462"
+    },
+    {
+      "file": "desktop-playing-closed.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 1440.0,
+      "height": 1000.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "light",
+      "highContrast": false,
+      "state": "playing",
+      "sha256": "bc53a247cf10b20cb03926512cab5c646d514e50ec88300edb163a2ff663dc61"
+    },
+    {
+      "file": "desktop-playing-chooser.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 1440.0,
+      "height": 1000.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "light",
+      "highContrast": false,
+      "state": "playing",
+      "sha256": "f56e7e681a269bcc024312ec93b1b0ff96e8f7dcdb9b4cfd8b9e1fd256610b1f"
+    },
+    {
+      "file": "desktop-playing-preview.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 1440.0,
+      "height": 1000.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "light",
+      "highContrast": false,
+      "state": "playing",
+      "preview": "tibetanBells",
+      "sha256": "17b3164bf9a647d71d3362595a7e12dc6b237e893c54b88bed7e0d7e0acd1c9d"
+    },
+    {
+      "file": "desktop-playing-footer.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 1440.0,
+      "height": 1000.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "light",
+      "highContrast": false,
+      "state": "playing",
+      "sha256": "17b3164bf9a647d71d3362595a7e12dc6b237e893c54b88bed7e0d7e0acd1c9d"
+    },
+    {
+      "file": "desktop-paused-closed.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 1080.0,
+      "height": 800.0,
+      "textScale": 1.5,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "paused",
+      "sha256": "2debb55cbf32513a17c0e8812ee841716412afb8667c4218eb7b010e222c45c5"
+    },
+    {
+      "file": "desktop-paused-chooser.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 1080.0,
+      "height": 800.0,
+      "textScale": 1.5,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "paused",
+      "sha256": "eed393787707280060f96da3f8ed63ba8ead898c04e6b2b97173c000493da27a"
+    },
+    {
+      "file": "desktop-paused-footer.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 1080.0,
+      "height": 800.0,
+      "textScale": 1.5,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "paused",
+      "sha256": "c24d201e1ebe81d2c973091253c29ff7b7a99701d4f21c042935daac8758bff5"
+    },
+    {
+      "file": "desktop-zero-closed.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 640.0,
+      "height": 600.0,
+      "textScale": 2.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "zero",
+      "sha256": "7d1cbc6bc5151cd29033f19498149dce9ab554ef50a3aac92cb642298a4206d5"
+    },
+    {
+      "file": "desktop-zero-chooser.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 640.0,
+      "height": 600.0,
+      "textScale": 2.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "zero",
+      "sha256": "5138c94f8c836f2e2e3e3dd2710c7fd80be4c0ebb96043fdc7b100d013ef6873"
+    },
+    {
+      "file": "desktop-zero-footer.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 640.0,
+      "height": 600.0,
+      "textScale": 2.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "zero",
+      "sha256": "c17480fef19c7765ca20024e3db23a51bb8377fa13efbae9420811022d3369fd"
+    },
+    {
+      "file": "contrast-light-closed.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 1024.0,
+      "height": 768.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "light",
+      "highContrast": true,
+      "state": "off",
+      "sha256": "f2b0897cd87fba33d62fe3780f8ef59905c623244075fdbedd7649be99016cec"
+    },
+    {
+      "file": "contrast-light-chooser.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 1024.0,
+      "height": 768.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "light",
+      "highContrast": true,
+      "state": "off",
+      "sha256": "dc4ab1c04ae38eb8b29bc6964aaaf8c9fc17d4ff55a6ec172476f61f46b86cac"
+    },
+    {
+      "file": "contrast-light-footer.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 1024.0,
+      "height": 768.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "light",
+      "highContrast": true,
+      "state": "off",
+      "sha256": "f5abf61663d7fadd53b95b28dc10c350176403d2f5957bba8f20657a6732a36c"
+    },
+    {
+      "file": "contrast-dark-closed.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 1024.0,
+      "height": 768.0,
+      "textScale": 2.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": true,
+      "state": "muted",
+      "sha256": "6d55ee0a05fb3ba10b8e57028ce287e194d7be35012d775a41c04a5fe2e8babb"
+    },
+    {
+      "file": "contrast-dark-chooser.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 1024.0,
+      "height": 768.0,
+      "textScale": 2.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": true,
+      "state": "muted",
+      "sha256": "802f222c18f48b42090b6544bbe438a8d44fa724018d30ee14dbf5eaaf58c966"
+    },
+    {
+      "file": "contrast-dark-footer.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 1024.0,
+      "height": 768.0,
+      "textScale": 2.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": true,
+      "state": "muted",
+      "sha256": "243891ad2aa2856860c4abeca97c9b009b8b4e31f334ac0b73c7638965e627e3"
+    },
+    {
+      "file": "desktop-loading-closed.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 1440.0,
+      "height": 1000.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "loading",
+      "sha256": "c932b00b395d4ad6cdf88aba83c05582949f50f889ee359c4cc81faa07154ee5"
+    },
+    {
+      "file": "desktop-loading-chooser.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 1440.0,
+      "height": 1000.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "loading",
+      "sha256": "4640fa7c003d9097d3f75846de300c342da7085242bb9a93d0239a710f358a79"
+    },
+    {
+      "file": "desktop-loading-footer.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 1440.0,
+      "height": 1000.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "loading",
+      "sha256": "4640fa7c003d9097d3f75846de300c342da7085242bb9a93d0239a710f358a79"
+    },
+    {
+      "file": "desktop-error-closed.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 1440.0,
+      "height": 1000.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "error",
+      "sha256": "9583d761375aa37ada4736f77b7ada1656293a7bef6c37973fe268746596f57c"
+    },
+    {
+      "file": "desktop-error-chooser.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 1440.0,
+      "height": 1000.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "error",
+      "sha256": "8796ddfd5c126b94e5eca76888de96bdf1d7db7eaa7f84b10d68b4abd5ea37a3"
+    },
+    {
+      "file": "desktop-error-footer.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 1440.0,
+      "height": 1000.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "dark",
+      "highContrast": false,
+      "state": "error",
+      "sha256": "a3a93683e7b6ecf58fedb4c554f4b31fa271d7e3c3e01efa8ed21ccd02e5354d"
+    },
+    {
+      "file": "phone-unavailable-closed.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 390.0,
+      "height": 844.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "light",
+      "highContrast": false,
+      "state": "unavailable",
+      "sha256": "dbdbda5c317fb45eec09d7514aa91f1ec777a04a7a5d0f608e16a9f34fd7c397"
+    },
+    {
+      "file": "phone-unavailable-chooser.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 390.0,
+      "height": 844.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "light",
+      "highContrast": false,
+      "state": "unavailable",
+      "sha256": "a1534d93a66739fecd493862d7d4d24f7283a6edb98954fdf86edcc20e9c2595"
+    },
+    {
+      "file": "phone-unavailable-footer.png",
+      "backend": "FakeFocusAudioPlayback through production coordinator",
+      "fonts": "Bundled Sora / Source Sans 3",
+      "physicalDevice": false,
+      "width": 390.0,
+      "height": 844.0,
+      "textScale": 1.0,
+      "safeInsets": 24,
+      "reducedMotion": true,
+      "theme": "light",
+      "highContrast": false,
+      "state": "unavailable",
+      "sha256": "109b980842eba107fa2efa3ed68ec36617447fb8169e5b89474eedf16de193cc"
+    }
+  ],
+  "personally_inspected_host_captures": [
+    "artifacts/focus-sounds/session-3/ui/phone-off-closed.png",
+    "artifacts/focus-sounds/session-3/ui/phone-off-chooser.png",
+    "artifacts/focus-sounds/session-3/ui/phone-ready-closed.png",
+    "artifacts/focus-sounds/session-3/ui/phone-playing-closed.png",
+    "artifacts/focus-sounds/session-3/ui/phone-playing-preview.png",
+    "artifacts/focus-sounds/session-3/ui/phone-large-muted-chooser.png",
+    "artifacts/focus-sounds/session-3/ui/phone-large-muted-footer.png",
+    "artifacts/focus-sounds/session-3/ui/phone-landscape-error-footer.png",
+    "artifacts/focus-sounds/session-3/ui/desktop-playing-chooser.png",
+    "artifacts/focus-sounds/session-3/ui/desktop-paused-chooser.png",
+    "artifacts/focus-sounds/session-3/ui/desktop-zero-footer.png",
+    "artifacts/focus-sounds/session-3/ui/contrast-light-chooser.png",
+    "artifacts/focus-sounds/session-3/ui/contrast-dark-chooser.png",
+    "artifacts/focus-sounds/session-3/ui/desktop-loading-closed.png",
+    "artifacts/focus-sounds/session-3/ui/desktop-error-footer.png",
+    "artifacts/focus-sounds/session-3/ui/phone-unavailable-chooser.png"
+  ],
+  "personally_inspected_runtime_captures": [
+    "artifacts/focus-sounds/session-3/windows-runtime-1794157691406233500/runtime/fictional-review-profile/windows-playing.png",
+    "artifacts/focus-sounds/session-3/windows-runtime-1794157691406233500/runtime/fictional-review-profile/windows-chooser.png",
+    "artifacts/focus-sounds/session-3/windows-runtime-1794157691406233500/runtime/fictional-review-profile/windows-preview.png",
+    "artifacts/focus-sounds/session-3/windows-runtime-1794157691406233500/runtime/fictional-review-profile/windows-muted.png"
+  ],
+  "session_2_changes_limited_to_approved_files": [
+    "docs/FOCUS_SOUNDS_PROGRESS.md",
+    "mobile/lib/application/focus_audio_coordinator.dart",
+    "mobile/lib/application/focus_audio_ports.dart",
+    "mobile/lib/data/soloud_focus_audio_playback.dart",
+    "mobile/test/focus_audio_support.dart",
+    "mobile/test/focus_audio_test.dart",
+    "mobile/windows/runner/CMakeLists.txt"
+  ],
+  "historical_check_records": [
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/analyze-1794148238639519600.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/analyze-1794148378295628800.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/analyze-1794148791278321700.json",
+      "exit_code": 1
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/analyze-1794148886203775600.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/analyze-1794149198779859000.json",
+      "exit_code": 1
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/analyze-1794149241588368500.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/analyze-1794149376925777100.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/android-build-1794148648901527200.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/android-build-1794149329173444200.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/focused-1794148386762609000.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/format-1794148675837813300.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/format-1794148893690972300.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/format-1794149209243079800.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/format-1794149249547769000.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/format-1794149387416209300.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/review-build-1794148577864739100.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/review-build-1794149023779953700.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/review-build-1794149669869951900.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/tests-1794148394026438900.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/tests-1794148894414223700.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/tests-1794149516444881700.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/ui-1794147998907770800.json",
+      "exit_code": 1
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/ui-1794148083837594000.json",
+      "exit_code": 1
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/ui-1794148217196496400.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/ui-1794148354660117100.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/ui-1794148764278858100.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/ui-1794149169644262200.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/ui-1794149343278435500.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/windows-build-1794148523633708000.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/windows-build-1794149250410339200.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/windows-build-1794157707232812900.json",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/windows-native-1794148519767657400.json",
+      "exit_code": 0
+    }
+  ],
+  "retained_logs": [
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/analyze-1794148238639519600.log",
+      "sha256": "a1fea1b1343ff1e7e4f0ce3a22f2b513cf1d05aac8356d905a6c0ca1d517cd1e"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/analyze-1794148378295628800.log",
+      "sha256": "89b69cf186e34f6692be58587fc5b65b28e8b5cfc68608e1fd26e99278966237"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/analyze-1794148791278321700.log",
+      "sha256": "7cdb4be2cd20ac68576b5ef39cfdc4b88140277ea90a762633318325c28436a3"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/analyze-1794148886203775600.log",
+      "sha256": "bc8c378671788080e05179b83c5cf29e5ac4f7cc4f4eb4720095b0541c97f810"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/analyze-1794149198779859000.log",
+      "sha256": "eb2354efd246cc20ba755dcce269e22501381109cd603eb422bb136842009d09"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/analyze-1794149241588368500.log",
+      "sha256": "01e1297be3c7328875790be4ec27d8e584a13cf8cff1f41131d614fba899a1db"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/analyze-1794149376925777100.log",
+      "sha256": "db99db87b191664c3b5f172b360090cb480f4d6a8f16af386f63ee907d85c704"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/android-build-1794148648901527200.log",
+      "sha256": "52726d24c2af5aa17e477d1386ca3066fd94e0e49219ad632d25be12ae5ad25c"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/android-build-1794149329173444200.log",
+      "sha256": "b473bae0a726d916d97ccb391d5d8cde818ac7bce709350aa2fddb59f96c5b8a"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/focused-1794148386762609000.log",
+      "sha256": "bfc8daccf6f3efaa159943282a5576da6bd1dd0e786a60a11e9816fa85bb9d22"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/format-1794148675837813300.log",
+      "sha256": "a40d4342e8907597dcecdef07ea7cf2bdc61685a23a2b8a52cc500653f0b5cd6"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/format-1794148893690972300.log",
+      "sha256": "66f47aeea0e4988021bedeedba02419c50d786a2b103432896290a0f040e4c35"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/format-1794149209243079800.log",
+      "sha256": "24036280becb2138fe8b6947ede3049a175ae0301e0c4e709cc71d39c7df0c96"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/format-1794149249547769000.log",
+      "sha256": "24036280becb2138fe8b6947ede3049a175ae0301e0c4e709cc71d39c7df0c96"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/format-1794149387416209300.log",
+      "sha256": "865fc260724d7ac21a3116e0f777ec7a40841070fa3253078fd78196a60fd2f0"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/review-build-1794148577864739100.log",
+      "sha256": "89656e4eef779b362ab726a71743a16288acdd8c4ed71b623e82072e33f9571e"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/review-build-1794149023779953700.log",
+      "sha256": "eed2fcf1aaaa4f63f3a88eabae7b60c7dc21dfdcb8483155cc79cda0f582a115"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/review-build-1794149669869951900.log",
+      "sha256": "7cc5c72d130450702202ae1cd4f5441414f07d5f5be9aa4b597ea1eb9d02ae0c"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/tests-1794148394026438900.log",
+      "sha256": "70c35b896136b19a560fc902d4f85f1ee238bdc1be4fd81b996fcb478c308831"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/tests-1794148894414223700.log",
+      "sha256": "92d9c067291776934eb0d12b439abf399b525b68bf8a93f27506b5fcf1f69840"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/tests-1794149516444881700.log",
+      "sha256": "da534223da3ba9f00e8cda9682601e28c48a3be51d23d8f3ae9e741c06c23b56"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/ui-1794147893218379800.log",
+      "sha256": "5fb87f587797ad7a9c56837ddfa041bdbf4843eecb83574af423bdf72895d29e"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/ui-1794147998907770800.log",
+      "sha256": "96b87a6d9c22c91b3a970fcca9e108225de34170740dbae3f1a84beb932e50d3"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/ui-1794148083837594000.log",
+      "sha256": "f12b32dc48f415150d8d0ab13ec39a7da62a658cd173ee77b13103f300c476f5"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/ui-1794148217196496400.log",
+      "sha256": "210b35a3785754e5b77cf6dcc521c4bdaf9d0eee11e91b7d53fe36b60d161d96"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/ui-1794148354660117100.log",
+      "sha256": "ee4e334b6ec50a9e759830de38234a4f354583b93e9532c9b25e9da5516d0647"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/ui-1794148764278858100.log",
+      "sha256": "66c45523cdeca79e8b30ca01f8495b498251913022bcaacb16a3783e1c54f08c"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/ui-1794149169644262200.log",
+      "sha256": "0a5513415927eef283346e3aea5a151704a367d8d9ceb5f7f1da46614da272f0"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/ui-1794149343278435500.log",
+      "sha256": "ee92d0f11964f2b15bf5387ae3e3cdf3b5814ea04f9e10e51c7e4dfc1059c6d9"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/windows-build-1794148523633708000.log",
+      "sha256": "fd8645941296ce78cc95180e3e274aef3fd4e3fac1f8bafbe9178b752fea33e9"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/windows-build-1794149250410339200.log",
+      "sha256": "01df189b2b86946e4781cd10679ab2a8fe5024b069a3c8d7dd6e5b0803d8b192"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/windows-build-1794157707232812900.log",
+      "sha256": "222a879bbb88b53b2f4ec017d9517f3a27d8ef2d087e8980de6a109f0254a975"
+    },
+    {
+      "path": "artifacts/focus-sounds/session-3/checks/windows-native-1794148519767657400.log",
+      "sha256": "3445d684d03f839dd83ffc8e26ed20cfce9c9878a7135f1a3a02e978985e1489"
+    }
+  ],
+  "limitations": [
+    "Human listening/final recording selection not performed",
+    "Physical Windows sleep/route/tray acceptance pending",
+    "Android/iOS native media/audio-focus/background integration remains Session 4",
+    "Physical TalkBack/VoiceOver/system text scaling and iOS compilation not performed",
+    "Host viewport captures and native voice counts are not physical-device/listening acceptance"
+  ]
+}

@@ -1,0 +1,1340 @@
+{
+  "date": "2026-11-08",
+  "timezone": "Asia/Kolkata",
+  "branch": "codex/focus-soundscapes",
+  "starting_HEAD": "6bd18d3e10f348a5b9d5e4958203fc934b3e24fd",
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0",
+    "kernel_version": "10.0.26200",
+    "route_scope": "Current default render endpoint identities observed during isolated review; hashes omit personal device names",
+    "route_observed_utc": "2026-11-08T11:47:37Z",
+    "endpoint_sha256_by_role": {
+      "console": "9474a38e337f638401604084c87262e220f46a520b7742925b242b1ae65a7491",
+      "multimedia": "9474a38e337f638401604084c87262e220f46a520b7742925b242b1ae65a7491",
+      "communications": "9474a38e337f638401604084c87262e220f46a520b7742925b242b1ae65a7491"
+    }
+  },
+  "source_state": "Session 2 local uncommitted implementation; no install/merge/publication",
+  "sdk": {
+    "flutter": "3.44.2",
+    "dart": "3.12.2",
+    "playback": "flutter_soloud 4.1.7"
+  },
+  "checks": [
+    {
+      "check": "analyze",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "analyze",
+        "--no-pub"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 8.97839870000098,
+      "log": "artifacts/focus-sounds/session-2/checks/analyze-1794135732142860300.log"
+    },
+    {
+      "check": "analyze",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "analyze",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.776750599998195,
+      "log": "artifacts/focus-sounds/session-2/checks/analyze-1794136063913908900.log"
+    },
+    {
+      "check": "analyze",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "analyze",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.886613900001976,
+      "log": "artifacts/focus-sounds/session-2/checks/analyze-1794136272822304600.log"
+    },
+    {
+      "check": "analyze",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "analyze",
+        "--no-pub"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 10.329700899997988,
+      "log": "artifacts/focus-sounds/session-2/checks/analyze-1794136489647881200.log"
+    },
+    {
+      "check": "analyze",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "analyze",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.425185100000817,
+      "log": "artifacts/focus-sounds/session-2/checks/analyze-1794136771653785100.log"
+    },
+    {
+      "check": "analyze",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "analyze",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.761334500002704,
+      "log": "artifacts/focus-sounds/session-2/checks/analyze-1794137050845656000.log"
+    },
+    {
+      "check": "analyze",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "analyze",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 11.558407699998497,
+      "log": "artifacts/focus-sounds/session-2/checks/analyze-1794137663455845600.log"
+    },
+    {
+      "check": "android-build",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "build",
+        "apk",
+        "--debug",
+        "--target-platform",
+        "android-arm64",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 93.06586129999778,
+      "log": "artifacts/focus-sounds/session-2/checks/android-build-1794137235606739800.log"
+    },
+    {
+      "check": "android-build",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "build",
+        "apk",
+        "--debug",
+        "--target-platform",
+        "android-arm64",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 21.240599400000065,
+      "log": "artifacts/focus-sounds/session-2/checks/android-build-1794138079340153500.log"
+    },
+    {
+      "check": "focused",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub",
+        "test/focus_audio_test.dart",
+        "test/focus_audio_preferences_test.dart"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 10.827973999999813,
+      "log": "artifacts/focus-sounds/session-2/checks/focused-1794135312833646100.log"
+    },
+    {
+      "check": "focused",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub",
+        "test/focus_audio_test.dart",
+        "test/focus_audio_preferences_test.dart"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 9.352851700001338,
+      "log": "artifacts/focus-sounds/session-2/checks/focused-1794135446409893700.log"
+    },
+    {
+      "check": "focused",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub",
+        "test/focus_audio_test.dart",
+        "test/focus_audio_preferences_test.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.5008024999988265,
+      "log": "artifacts/focus-sounds/session-2/checks/focused-1794135529287962100.log"
+    },
+    {
+      "check": "focused",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub",
+        "test/focus_audio_test.dart",
+        "test/focus_audio_preferences_test.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.131452499997977,
+      "log": "artifacts/focus-sounds/session-2/checks/focused-1794136072691715000.log"
+    },
+    {
+      "check": "focused",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub",
+        "test/focus_audio_test.dart",
+        "test/focus_audio_preferences_test.dart",
+        "test/focus_audio_desktop_test.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.733957100001135,
+      "log": "artifacts/focus-sounds/session-2/checks/focused-1794136282710085500.log"
+    },
+    {
+      "check": "focused",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub",
+        "test/focus_audio_test.dart",
+        "test/focus_audio_preferences_test.dart",
+        "test/focus_audio_desktop_test.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.87316180000198,
+      "log": "artifacts/focus-sounds/session-2/checks/focused-1794136499992689000.log"
+    },
+    {
+      "check": "focused",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub",
+        "test/focus_audio_test.dart",
+        "test/focus_audio_preferences_test.dart",
+        "test/focus_audio_desktop_test.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.736077600002318,
+      "log": "artifacts/focus-sounds/session-2/checks/focused-1794137061607762700.log"
+    },
+    {
+      "check": "focused",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub",
+        "test/focus_audio_test.dart",
+        "test/focus_audio_preferences_test.dart",
+        "test/focus_audio_desktop_test.dart"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 11.99802819999968,
+      "log": "artifacts/focus-sounds/session-2/checks/focused-1794137572401047700.log"
+    },
+    {
+      "check": "focused",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub",
+        "test/focus_audio_test.dart",
+        "test/focus_audio_preferences_test.dart",
+        "test/focus_audio_desktop_test.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.350751099998888,
+      "log": "artifacts/focus-sounds/session-2/checks/focused-1794137654104202000.log"
+    },
+    {
+      "check": "format",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "D:/SDKs/flutter/bin/dart.bat",
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "D:\\pomodoro\\mobile\\lib",
+        "D:\\pomodoro\\mobile\\test",
+        "D:\\pomodoro\\mobile\\tool\\focus_audio_session2_review.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.1953835999993316,
+      "log": "artifacts/focus-sounds/session-2/checks/format-1794136769456883900.log"
+    },
+    {
+      "check": "format",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "D:/SDKs/flutter/bin/dart.bat",
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "D:\\pomodoro\\mobile\\lib",
+        "D:\\pomodoro\\mobile\\test",
+        "D:\\pomodoro\\mobile\\tool\\focus_audio_session2_review.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.039299799998844,
+      "log": "artifacts/focus-sounds/session-2/checks/format-1794137048805223700.log"
+    },
+    {
+      "check": "format",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "D:/SDKs/flutter/bin/dart.bat",
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "D:\\pomodoro\\mobile\\lib",
+        "D:\\pomodoro\\mobile\\test",
+        "D:\\pomodoro\\mobile\\tool\\focus_audio_session2_review.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.7445826999974088,
+      "log": "artifacts/focus-sounds/session-2/checks/format-1794138100582078500.log"
+    },
+    {
+      "check": "interruption-regression",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub",
+        "test/focus_audio_test.dart",
+        "--plain-name",
+        "older resume awaiting reconciliation cannot end a newer interruption"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 4.488574200000585,
+      "log": "artifacts/focus-sounds/session-2/checks/interruption-regression-1794137617953666000.log"
+    },
+    {
+      "check": "interruption-regression",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub",
+        "test/focus_audio_test.dart",
+        "--plain-name",
+        "older resume awaiting reconciliation cannot end a newer interruption"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.288751100000809,
+      "log": "artifacts/focus-sounds/session-2/checks/interruption-regression-1794137649814320600.log"
+    },
+    {
+      "check": "review-build",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "build",
+        "windows",
+        "--release",
+        "--no-pub",
+        "-t",
+        "tool/focus_audio_session2_review.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 72.85941960000127,
+      "log": "artifacts/focus-sounds/session-2/checks/review-build-1794135881822653500.log"
+    },
+    {
+      "check": "review-build",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "build",
+        "windows",
+        "--release",
+        "--no-pub",
+        "-t",
+        "tool/focus_audio_session2_review.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 50.11460100000113,
+      "log": "artifacts/focus-sounds/session-2/checks/review-build-1794136097811963800.log"
+    },
+    {
+      "check": "review-build",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "build",
+        "windows",
+        "--release",
+        "--no-pub",
+        "-t",
+        "tool/focus_audio_session2_review.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 40.832207200000994,
+      "log": "artifacts/focus-sounds/session-2/checks/review-build-1794136292444711000.log"
+    },
+    {
+      "check": "review-build",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "build",
+        "windows",
+        "--release",
+        "--no-pub",
+        "-t",
+        "tool/focus_audio_session2_review.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 52.976429199999984,
+      "log": "artifacts/focus-sounds/session-2/checks/review-build-1794136508866882200.log"
+    },
+    {
+      "check": "review-build",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "build",
+        "windows",
+        "--release",
+        "--no-pub",
+        "-t",
+        "tool/focus_audio_session2_review.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 50.378294399997685,
+      "log": "artifacts/focus-sounds/session-2/checks/review-build-1794136899091508900.log"
+    },
+    {
+      "check": "review-build",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "build",
+        "windows",
+        "--release",
+        "--no-pub",
+        "-t",
+        "tool/focus_audio_session2_review.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 50.25283280000076,
+      "log": "artifacts/focus-sounds/session-2/checks/review-build-1794137070344757900.log"
+    },
+    {
+      "check": "review-build",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "build",
+        "windows",
+        "--release",
+        "--no-pub",
+        "-t",
+        "tool/focus_audio_session2_review.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 68.78182699999888,
+      "log": "artifacts/focus-sounds/session-2/checks/review-build-1794137814017886300.log"
+    },
+    {
+      "check": "tests",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 140.6886158999987,
+      "log": "artifacts/focus-sounds/session-2/checks/tests-1794135741129293400.log"
+    },
+    {
+      "check": "tests",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 113.74324530000013,
+      "log": "artifacts/focus-sounds/session-2/checks/tests-1794136782079827400.log"
+    },
+    {
+      "check": "tests",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 138.9981482000003,
+      "log": "artifacts/focus-sounds/session-2/checks/tests-1794137675014988100.log"
+    },
+    {
+      "check": "windows-build",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "build",
+        "windows",
+        "--release",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 64.22308229999908,
+      "log": "artifacts/focus-sounds/session-2/checks/windows-build-1794137171381685800.log"
+    },
+    {
+      "check": "windows-build",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "build",
+        "windows",
+        "--release",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 64.97266550000131,
+      "log": "artifacts/focus-sounds/session-2/checks/windows-build-1794138014364201200.log"
+    },
+    {
+      "check": "windows-native",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\test_windows_native.ps1"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 6.19830020000154,
+      "log": "artifacts/focus-sounds/session-2/checks/windows-native-1794135375306953300.log"
+    },
+    {
+      "check": "windows-native",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\test_windows_native.ps1"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.464748800000962,
+      "log": "artifacts/focus-sounds/session-2/checks/windows-native-1794135437943261300.log"
+    },
+    {
+      "check": "windows-native",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\test_windows_native.ps1"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 18.987296800001786,
+      "log": "artifacts/focus-sounds/session-2/checks/windows-native-1794136078824014000.log"
+    },
+    {
+      "check": "windows-native",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\test_windows_native.ps1"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.2632632999993803,
+      "log": "artifacts/focus-sounds/session-2/checks/windows-native-1794136895827374600.log"
+    }
+  ],
+  "latest_successful_checks": {
+    "analyze": {
+      "check": "analyze",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "analyze",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 11.558407699998497,
+      "log": "artifacts/focus-sounds/session-2/checks/analyze-1794137663455845600.log"
+    },
+    "android-build": {
+      "check": "android-build",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "build",
+        "apk",
+        "--debug",
+        "--target-platform",
+        "android-arm64",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 21.240599400000065,
+      "log": "artifacts/focus-sounds/session-2/checks/android-build-1794138079340153500.log"
+    },
+    "focused": {
+      "check": "focused",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub",
+        "test/focus_audio_test.dart",
+        "test/focus_audio_preferences_test.dart",
+        "test/focus_audio_desktop_test.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.350751099998888,
+      "log": "artifacts/focus-sounds/session-2/checks/focused-1794137654104202000.log"
+    },
+    "format": {
+      "check": "format",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "D:/SDKs/flutter/bin/dart.bat",
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "D:\\pomodoro\\mobile\\lib",
+        "D:\\pomodoro\\mobile\\test",
+        "D:\\pomodoro\\mobile\\tool\\focus_audio_session2_review.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.7445826999974088,
+      "log": "artifacts/focus-sounds/session-2/checks/format-1794138100582078500.log"
+    },
+    "interruption-regression": {
+      "check": "interruption-regression",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub",
+        "test/focus_audio_test.dart",
+        "--plain-name",
+        "older resume awaiting reconciliation cannot end a newer interruption"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.288751100000809,
+      "log": "artifacts/focus-sounds/session-2/checks/interruption-regression-1794137649814320600.log"
+    },
+    "review-build": {
+      "check": "review-build",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "build",
+        "windows",
+        "--release",
+        "--no-pub",
+        "-t",
+        "tool/focus_audio_session2_review.dart"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 68.78182699999888,
+      "log": "artifacts/focus-sounds/session-2/checks/review-build-1794137814017886300.log"
+    },
+    "tests": {
+      "check": "tests",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "test",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 138.9981482000003,
+      "log": "artifacts/focus-sounds/session-2/checks/tests-1794137675014988100.log"
+    },
+    "windows-build": {
+      "check": "windows-build",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\flutter.ps1",
+        "build",
+        "windows",
+        "--release",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 64.97266550000131,
+      "log": "artifacts/focus-sounds/session-2/checks/windows-build-1794138014364201200.log"
+    },
+    "windows-native": {
+      "check": "windows-native",
+      "command": [
+        "D:\\pomodoro\\.tools\\rtk\\rtk.exe",
+        "proxy",
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\pomodoro\\scripts\\test_windows_native.ps1"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.2632632999993803,
+      "log": "artifacts/focus-sounds/session-2/checks/windows-native-1794136895827374600.log"
+    }
+  },
+  "test_counts": {
+    "tests": 507,
+    "focused": 35
+  },
+  "native_checks": {
+    "desktop": 233,
+    "fonts": 43,
+    "audio_guard": 15
+  },
+  "runtime_runs": [
+    {
+      "path": "artifacts/focus-sounds/session-2/run-1794136406884395800/evidence.json",
+      "measured": false,
+      "executable_sha256": "e104dd8fb3f0601695780dce008c50e089aa250bc48c619680db68ccab43cbaf",
+      "launch_hidden": false,
+      "aot_sha256": "5749d1f250d1a2b7a936f3f5dd62147cb8961580f5fded2f2310d8bcf7e95461",
+      "passed": false,
+      "failure": "Bad state: native suspend gate silent before Dart callback",
+      "checks": 22,
+      "cold": null,
+      "deadline_offset_micros": null,
+      "summary": {}
+    },
+    {
+      "path": "artifacts/focus-sounds/session-2/run-1794136591097822600/evidence.json",
+      "measured": false,
+      "executable_sha256": "e104dd8fb3f0601695780dce008c50e089aa250bc48c619680db68ccab43cbaf",
+      "launch_hidden": false,
+      "aot_sha256": "526416f172459c1a485b39dad6635bbe1f9280ec9ae2a7900a354d1ab8ae5073",
+      "passed": true,
+      "failure": null,
+      "checks": 31,
+      "cold": {
+        "kind": "Isolated production-core/adapter Windows review; not installed acceptance",
+        "listening": "Not performed",
+        "physicalSleepWake": "Pending",
+        "physicalRouteRemoval": "Pending",
+        "checks": [
+          {
+            "name": "cold persisted enabled selection",
+            "passed": true
+          },
+          {
+            "name": "cold recovered running Focus",
+            "passed": true
+          },
+          {
+            "name": "cold launch has no audio engine",
+            "passed": true
+          },
+          {
+            "name": "real reset clears saved selection",
+            "passed": true
+          }
+        ],
+        "passed": true
+      },
+      "deadline_offset_micros": 935,
+      "summary": {}
+    },
+    {
+      "path": "artifacts/focus-sounds/session-2/run-1794137393452279800/evidence.json",
+      "measured": true,
+      "executable_sha256": "e104dd8fb3f0601695780dce008c50e089aa250bc48c619680db68ccab43cbaf",
+      "launch_hidden": false,
+      "aot_sha256": "bdd4a2a22bfb084b05b05286167dd645ac8fdcc6d2fe0405a5f5ec09fd345066",
+      "passed": true,
+      "failure": null,
+      "checks": 32,
+      "cold": {
+        "kind": "Isolated production-core/adapter Windows review; not installed acceptance",
+        "listening": "Not performed",
+        "physicalSleepWake": "Pending",
+        "physicalRouteRemoval": "Pending",
+        "checks": [
+          {
+            "name": "cold persisted enabled selection",
+            "passed": true
+          },
+          {
+            "name": "cold recovered running Focus",
+            "passed": true
+          },
+          {
+            "name": "cold launch has no audio engine",
+            "passed": true
+          },
+          {
+            "name": "real reset clears saved selection",
+            "passed": true
+          }
+        ],
+        "passed": true
+      },
+      "deadline_offset_micros": 1685,
+      "summary": {
+        "off-idle": {
+          "samples": 111,
+          "duration_seconds": 59.40932909999901,
+          "cpu_percent_one_core": 1.4728326565128884,
+          "median_working_set_bytes": 110448640,
+          "peak_private_bytes": 110141440,
+          "min_handles": 455,
+          "max_handles": 495,
+          "min_threads": 34,
+          "max_threads": 40
+        },
+        "playing": {
+          "samples": 223,
+          "duration_seconds": 119.4422353000009,
+          "cpu_percent_one_core": 1.6090413873893612,
+          "median_working_set_bytes": 90521600,
+          "peak_private_bytes": 115093504,
+          "min_handles": 557,
+          "max_handles": 562,
+          "min_threads": 37,
+          "max_threads": 42
+        },
+        "post-stop-idle": {
+          "samples": 111,
+          "duration_seconds": 59.256551800001034,
+          "cpu_percent_one_core": 0.6064730212668125,
+          "median_working_set_bytes": 58417152,
+          "peak_private_bytes": 102481920,
+          "min_handles": 504,
+          "max_handles": 508,
+          "min_threads": 30,
+          "max_threads": 32
+        }
+      }
+    },
+    {
+      "path": "artifacts/focus-sounds/session-2/run-1794138140901409000/evidence.json",
+      "measured": true,
+      "executable_sha256": "e574e5ecd3d22217c5f7da29549022a2d3a2a44acfb979d41e586015a0e27e40",
+      "launch_hidden": true,
+      "aot_sha256": "a7c698ad590cfcbfbd1df287292adb31eabea271f1684a0fe4d4652ecc12c3b1",
+      "passed": true,
+      "failure": null,
+      "checks": 32,
+      "cold": {
+        "kind": "Isolated production-core/adapter Windows review; not installed acceptance",
+        "listening": "Not performed",
+        "physicalSleepWake": "Pending",
+        "physicalRouteRemoval": "Pending",
+        "checks": [
+          {
+            "name": "cold persisted enabled selection",
+            "passed": true
+          },
+          {
+            "name": "cold recovered running Focus",
+            "passed": true
+          },
+          {
+            "name": "cold launch has no audio engine",
+            "passed": true
+          },
+          {
+            "name": "real reset clears saved selection",
+            "passed": true
+          }
+        ],
+        "passed": true
+      },
+      "deadline_offset_micros": 602,
+      "summary": {
+        "off-idle": {
+          "samples": 112,
+          "duration_seconds": 59.665781399999105,
+          "cpu_percent_one_core": 1.3093769689573054,
+          "median_working_set_bytes": 110092288.0,
+          "peak_private_bytes": 110022656,
+          "min_handles": 479,
+          "max_handles": 487,
+          "min_threads": 34,
+          "max_threads": 40
+        },
+        "playing": {
+          "samples": 223,
+          "duration_seconds": 119.66287020000163,
+          "cpu_percent_one_core": 1.658304699430461,
+          "median_working_set_bytes": 95793152,
+          "peak_private_bytes": 112115712,
+          "min_handles": 550,
+          "max_handles": 562,
+          "min_threads": 35,
+          "max_threads": 41
+        },
+        "post-stop-idle": {
+          "samples": 111,
+          "duration_seconds": 59.45651299999736,
+          "cpu_percent_one_core": 0.7883913407434788,
+          "median_working_set_bytes": 78229504,
+          "peak_private_bytes": 114499584,
+          "min_handles": 508,
+          "max_handles": 534,
+          "min_threads": 31,
+          "max_threads": 33
+        }
+      }
+    }
+  ],
+  "final_runtime": {
+    "path": "artifacts/focus-sounds/session-2/run-1794138140901409000/evidence.json",
+    "measured": true,
+    "executable_sha256": "e574e5ecd3d22217c5f7da29549022a2d3a2a44acfb979d41e586015a0e27e40",
+    "launch_hidden": true,
+    "aot_sha256": "a7c698ad590cfcbfbd1df287292adb31eabea271f1684a0fe4d4652ecc12c3b1",
+    "passed": true,
+    "failure": null,
+    "checks": 32,
+    "cold": {
+      "kind": "Isolated production-core/adapter Windows review; not installed acceptance",
+      "listening": "Not performed",
+      "physicalSleepWake": "Pending",
+      "physicalRouteRemoval": "Pending",
+      "checks": [
+        {
+          "name": "cold persisted enabled selection",
+          "passed": true
+        },
+        {
+          "name": "cold recovered running Focus",
+          "passed": true
+        },
+        {
+          "name": "cold launch has no audio engine",
+          "passed": true
+        },
+        {
+          "name": "real reset clears saved selection",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    "deadline_offset_micros": 602,
+    "summary": {
+      "off-idle": {
+        "samples": 112,
+        "duration_seconds": 59.665781399999105,
+        "cpu_percent_one_core": 1.3093769689573054,
+        "median_working_set_bytes": 110092288.0,
+        "peak_private_bytes": 110022656,
+        "min_handles": 479,
+        "max_handles": 487,
+        "min_threads": 34,
+        "max_threads": 40
+      },
+      "playing": {
+        "samples": 223,
+        "duration_seconds": 119.66287020000163,
+        "cpu_percent_one_core": 1.658304699430461,
+        "median_working_set_bytes": 95793152,
+        "peak_private_bytes": 112115712,
+        "min_handles": 550,
+        "max_handles": 562,
+        "min_threads": 35,
+        "max_threads": 41
+      },
+      "post-stop-idle": {
+        "samples": 111,
+        "duration_seconds": 59.45651299999736,
+        "cpu_percent_one_core": 0.7883913407434788,
+        "median_working_set_bytes": 78229504,
+        "peak_private_bytes": 114499584,
+        "min_handles": 508,
+        "max_handles": 534,
+        "min_threads": 31,
+        "max_threads": 33
+      }
+    }
+  },
+  "review_sources_verified": true,
+  "review_bundle": {
+    "path": "artifacts/focus-sounds/session-2/review-bundle-1794138006932671800",
+    "executable_sha256": "e574e5ecd3d22217c5f7da29549022a2d3a2a44acfb979d41e586015a0e27e40",
+    "aot_sha256": "a7c698ad590cfcbfbd1df287292adb31eabea271f1684a0fe4d4652ecc12c3b1"
+  },
+  "payload": {
+    "assets": [
+      {
+        "path": "assets/audio/tibetan_bells.ogg",
+        "bytes": 749987,
+        "sha256": "ea8ee25b56d57d7dac554c1e9ba70c28a7154db1fcc1e9c1dfd70f08267a6cd4"
+      },
+      {
+        "path": "assets/audio/waterfall.ogg",
+        "bytes": 332351,
+        "sha256": "26faa280848078a0984fcd4d021806e9fa3c2b3fd3f7795d7331cc55524b2429"
+      },
+      {
+        "path": "assets/audio/ocean_waves.ogg",
+        "bytes": 745622,
+        "sha256": "9eaf1dd84894a4787f55207e99f6caab1c43298292cbb4f6ec2e4c00e60c5e8e"
+      },
+      {
+        "path": "assets/audio/forest_birds.ogg",
+        "bytes": 1366270,
+        "sha256": "be593efb276c646b2329ca8fb63c5a5cd9bc18562ad6ae95945c660a4ebbee5d"
+      }
+    ],
+    "asset_bytes": 3194230,
+    "native_audio_files": [
+      {
+        "name": "flutter_soloud_plugin.dll",
+        "bytes": 1353728,
+        "sha256": "e99fa37ad408571b48474736a83b4e9760ef96c6ccd7fcccb053a3a330d02e63"
+      },
+      {
+        "name": "ogg.dll",
+        "bytes": 30208,
+        "sha256": "aad3763723ba548a885fcb9e750d7092970c16234fd4c5d021135b8b89753d3b"
+      },
+      {
+        "name": "opus.dll",
+        "bytes": 460288,
+        "sha256": "1072b0b1f2f50835b48f6428a793b03b417009afe8311bdca595f73a12cb1581"
+      },
+      {
+        "name": "vorbis.dll",
+        "bytes": 737792,
+        "sha256": "adbd21ba4d265995cff8172a5762ca41d6fce13b49a275edea1581aad34b98c1"
+      },
+      {
+        "name": "vorbisenc.dll",
+        "bytes": 563200,
+        "sha256": "1b2134d5035c3be889bd7b14eaaa3ea530dd1c7765295605513bcd2e156a51ee"
+      },
+      {
+        "name": "vorbisfile.dll",
+        "bytes": 36864,
+        "sha256": "3ea75ed11a88f12d46333b3848fc849e05ed730bf5cd3346502d499440435b2b"
+      },
+      {
+        "name": "FLAC.dll",
+        "bytes": 483328,
+        "sha256": "c0498038842c4f78b22770b72a1cf8bcee3cd2653fa58533a6b1f8a01d9b679a"
+      }
+    ],
+    "native_audio_file_bytes": 3665408,
+    "windows_runtime_bytes": 45489921,
+    "windows_executable_sha256": "042abf79326dfeb6b41e50ef20073ac09761575687970627fda86e9ff10b9d56",
+    "windows_aot_sha256": "7014e0d0c764bf6fbd08a6afba5c677f49545b2b2ce2410f4103321af4f29ab9",
+    "excluded_linker_artifacts": [
+      {
+        "name": "poma.exp",
+        "bytes": 1362
+      },
+      {
+        "name": "poma.lib",
+        "bytes": 2680
+      }
+    ],
+    "android_debug_bytes": 105489164,
+    "android_debug_sha256": "3840143bdcd88a17e56cc5973aabe9d8bc981b568160f64c6dd640e60c84cff8",
+    "review_hooks_absent_from_production": true,
+    "exact_assets_and_notices_in_both_builds": true,
+    "size_scope": "File inventory, not net no-audio delta, MSIX compression, release APK, store size or battery guarantee"
+  },
+  "pending": [
+    "Human listening and final draft selection",
+    "Physical Windows sleep/wake and wired/Bluetooth route removal",
+    "Production sound controls and rendered/assistive acceptance (Session 3)",
+    "Android/iOS native media/background/audio-focus integration and physical acceptance (Session 4)",
+    "macOS/iOS compilation and signing access"
+  ],
+  "early_failures": [
+    "Initial restricted SDK lockfile access; resolved by approved check execution with SDK cache access",
+    "Initial analysis/style/FFI callback declaration; corrected",
+    "Initial test helper import and combined v2 fixture setup; corrected",
+    "Initial native link lacked mincore; corrected",
+    "Rapid-control resource retirement race caught by strict-mode test; corrected",
+    "Immediate mixed-voice-count assertion during suspend was invalid; corrected to paused plus zero native gain",
+    "Older resume crossed a newer interruption; reproduced by a failing regression, fixed by revalidating and consuming the interruption token after reconciliation",
+    "Initial new regression fixture omitted dart:async import; corrected"
+  ]
+}

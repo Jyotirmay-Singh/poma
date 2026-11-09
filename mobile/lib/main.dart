@@ -34,6 +34,11 @@ import 'application/focus_block_controller.dart';
 import 'data/google_focus_writer.dart';
 import 'data/windows_focus_store.dart';
 import 'data/windows_focus_time.dart';
+import 'application/focus_audio_coordinator.dart';
+import 'application/focus_audio_ports.dart';
+import 'application/local_reset_participant.dart';
+import 'data/soloud_focus_audio_playback.dart';
+import 'data/mobile_focus_audio_playback.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -75,11 +80,13 @@ class PomaLoader extends StatefulWidget {
     this.repositoryFactory,
     this.clockFactory,
     this.alertsFactory,
+    this.focusAudioFactory,
   });
 
   final LocalRepository Function()? repositoryFactory;
   final TimerClock Function()? clockFactory;
   final LocalAlerts Function()? alertsFactory;
+  final FocusAudioPlaybackPort Function()? focusAudioFactory;
   @override
   State<PomaLoader> createState() => _PomaLoaderState();
 }
@@ -91,6 +98,7 @@ class _PomaLoaderState extends State<PomaLoader> {
   NativeWindowsHost? _windowsHost;
   DesktopController? _desktop;
   CalendarConnectionController? _connection;
+  FocusAudioCoordinator? _focusAudio;
   @override
   void initState() {
     super.initState();
@@ -99,6 +107,7 @@ class _PomaLoaderState extends State<PomaLoader> {
   }
 
   Future<AppController> _load() async {
+    await _focusAudio?.close();
     await _repository?.close();
     DesktopEnvironment? environment;
     if (widget.repositoryFactory == null && Platform.isWindows) {
@@ -129,14 +138,33 @@ class _PomaLoaderState extends State<PomaLoader> {
             _desktop?.calendar.select(CalendarFixture.disconnected),
       );
     }
+    final audio = _focusAudio =
+        widget.focusAudioFactory != null || widget.repositoryFactory == null
+        ? FocusAudioCoordinator(
+            widget.focusAudioFactory?.call() ??
+                (Platform.isAndroid || Platform.isIOS
+                    ? MobileFocusAudioPlayback()
+                    : SoLoudFocusAudioPlayback()),
+          )
+        : null;
     final controller = _controller = await AppController.create(
       repository,
       clock: widget.clockFactory?.call() ?? NativeTimerClock(),
       alerts: alerts,
-      resetParticipant: _connection,
+      resetParticipant: CompositeLocalResetParticipant([?audio, ?_connection]),
+      onFocusAudioSession: audio?.onSession,
+      focusAudio: audio,
+      suspendAudioInBackground: !Platform.isWindows,
       completionPresenter: alerts is CompletionPresenter
           ? alerts as CompletionPresenter
           : null,
+    );
+    audio?.bind(
+      preferences: controller.focusSoundPreferences,
+      save: controller.updateFocusSoundPreferences,
+      reconcile: () async {
+        await controller.reconcile();
+      },
     );
     if (environment != null) {
       const calendarClock = DeviceCalendarClock();
@@ -255,6 +283,8 @@ class _PomaLoaderState extends State<PomaLoader> {
   );
   @override
   void dispose() {
+    _focusAudio?.flushPreferences();
+    _focusAudio?.dispose();
     _desktop?.dispose();
     if (_desktop == null) _connection?.dispose();
     _controller?.dispose();

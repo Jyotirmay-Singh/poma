@@ -92,9 +92,19 @@ def stage_inventory(stage: Path, version: str) -> None:
     sqlite_asset = assets['native-assets']['windows_x64']['package:sqlite3/src/ffi/libsqlite3.g.dart']
     if sqlite_asset != ['absolute', 'sqlite3.dll']:
         raise ValueError('Review SQLite runtime resolution; expected the package-local basename')
+    # The optional desktop JNI shim is built when a developer has a JDK. Poma's
+    # Windows composition uses WindowsLocalAlerts and never initializes the
+    # Android notification/JNI adapter. Do not turn that build-machine artifact
+    # into a Java requirement for this offline Windows app. Future native-asset
+    # or PE references must fail this audit rather than silently lose a library.
+    windows_assets = assets['native-assets']['windows_x64']
+    if 'jni' in json.dumps(windows_assets).lower():
+        raise ValueError('Windows native assets now reference JNI; review the platform packaging policy')
+    if (stage / 'dartjni.dll').exists():
+        raise ValueError('Do not package the Android-only desktop JNI shim or require a local JVM')
     if (stage / 'native_assets.json').exists():
         raise ValueError('Do not distribute the development native-assets manifest containing build paths')
-    prohibited = {".pfx", ".p12", ".key", ".db", ".sqlite", ".jks", ".pdb"}
+    prohibited = {".pfx", ".p12", ".key", ".db", ".sqlite", ".jks", ".pdb", ".lib", ".exp"}
     for file in stage.rglob("*"):
         if file.suffix.lower() in prohibited or file.name.startswith(".env"):
             raise ValueError(f"Unexpected private/development file: {file.name}")
@@ -114,6 +124,8 @@ def stage_inventory(stage: Path, version: str) -> None:
             continue
         imports[binary.relative_to(stage).as_posix()] = []
         for dependency in pe_imports(binary):
+            if dependency in {'dartjni.dll', 'jvm.dll'}:
+                raise ValueError(f'Unexpected Windows Java dependency: {binary.name} -> {dependency}')
             if dependency in local:
                 location = "package"
             elif dependency.startswith(("api-ms-win-", "ext-ms-win-")):
@@ -130,6 +142,8 @@ def stage_inventory(stage: Path, version: str) -> None:
     inventory = {"version": version, "architecture": "x64", "supportTarget": "Windows 11 25H2 build 26200",
                  "builtUtc": datetime.now(timezone.utc).isoformat(), "source": source_identity(),
                  "peImports": imports, "files": records,
+                 "excludedPlatformArtifacts": [{"name": "dartjni.dll",
+                    "reason": "Android notification bridge only; Windows uses its app-owned native alert adapter. No Windows native-asset or PE import references are permitted."}],
                  "limitations": ["Static imports are not loaded-module or clean-profile evidence.",
                                  "Packaged installation, sleep, notification presentation, and offline acceptance require recorded observations."]}
     (stage / "build-inventory.json").write_text(json.dumps(inventory, indent=2) + "\n", encoding="utf-8")

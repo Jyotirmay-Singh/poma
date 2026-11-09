@@ -89,8 +89,10 @@ if (-not $SkipBuild) {
 $release = Join-Path $projectRoot 'mobile/build/windows/x64/runner/Release'
 $exe = Get-Item -LiteralPath (Join-Path $release 'poma.exe')
 if ($exe.VersionInfo.FileVersion -ne $Version) { throw 'The executable version does not match this package. Rebuild it.' }
-# Complete Flutter output, including build-hook native assets. Never select only the EXE.
-Get-ChildItem -LiteralPath $release | Where-Object { $_.Extension -ne '.pdb' -and $_.Name -ne 'native_assets.json' } |
+# Include the complete Windows runtime and codecs. JNI is used by the Android
+# notification adapter only; its optional desktop shim depends on the build
+# machine's JVM. The inventory audit rejects any Windows reference to that shim.
+Get-ChildItem -LiteralPath $release | Where-Object { $_.Extension -notin @('.pdb', '.lib', '.exp') -and $_.Name -notin @('native_assets.json', 'dartjni.dll') } |
   Copy-Item -Destination $stage -Recurse
 Get-ChildItem -LiteralPath $crt -Filter '*.dll' | Copy-Item -Destination $stage
 Copy-Item -LiteralPath (Join-Path $projectRoot 'release/windows/Assets') -Destination $stage -Recurse

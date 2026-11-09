@@ -94,6 +94,258 @@ abstract class PomaLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('en')];
 
+  /// No description provided for @focusSounds.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus sounds'**
+  String get focusSounds;
+
+  /// No description provided for @soundOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get soundOff;
+
+  /// No description provided for @soundBells.
+  ///
+  /// In en, this message translates to:
+  /// **'Tibetan bells'**
+  String get soundBells;
+
+  /// No description provided for @soundWaterfall.
+  ///
+  /// In en, this message translates to:
+  /// **'Waterfall'**
+  String get soundWaterfall;
+
+  /// No description provided for @soundOcean.
+  ///
+  /// In en, this message translates to:
+  /// **'Ocean waves'**
+  String get soundOcean;
+
+  /// No description provided for @soundBirds.
+  ///
+  /// In en, this message translates to:
+  /// **'Forest birds'**
+  String get soundBirds;
+
+  /// No description provided for @soundBellsDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Bowl tones'**
+  String get soundBellsDetail;
+
+  /// No description provided for @soundWaterfallDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Flowing water'**
+  String get soundWaterfallDetail;
+
+  /// No description provided for @soundOceanDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Gentle waves'**
+  String get soundOceanDetail;
+
+  /// No description provided for @soundBirdsDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Birdsong'**
+  String get soundBirdsDetail;
+
+  /// No description provided for @soundOnlyFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Only during Focus'**
+  String get soundOnlyFocus;
+
+  /// No description provided for @soundSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected'**
+  String get soundSelected;
+
+  /// No description provided for @soundReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected for focus'**
+  String get soundReady;
+
+  /// No description provided for @soundPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Playing'**
+  String get soundPlaying;
+
+  /// No description provided for @soundPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound paused'**
+  String get soundPaused;
+
+  /// No description provided for @soundTimerPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused with timer'**
+  String get soundTimerPaused;
+
+  /// No description provided for @soundMuted.
+  ///
+  /// In en, this message translates to:
+  /// **'Muted'**
+  String get soundMuted;
+
+  /// No description provided for @soundZero.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume 0%'**
+  String get soundZero;
+
+  /// No description provided for @soundBreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Silent during break'**
+  String get soundBreak;
+
+  /// No description provided for @soundRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio output changed'**
+  String get soundRoute;
+
+  /// No description provided for @soundInterrupted.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound interrupted'**
+  String get soundInterrupted;
+
+  /// No description provided for @soundFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound couldn’t play'**
+  String get soundFailed;
+
+  /// No description provided for @soundUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Playback unavailable on this device'**
+  String get soundUnavailable;
+
+  /// No description provided for @soundLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading {sound}…'**
+  String soundLoading(String sound);
+
+  /// No description provided for @soundPreviewing.
+  ///
+  /// In en, this message translates to:
+  /// **'Previewing {sound}'**
+  String soundPreviewing(String sound);
+
+  /// No description provided for @soundLoadingPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading preview…'**
+  String get soundLoadingPreview;
+
+  /// No description provided for @soundPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview 10 s'**
+  String get soundPreview;
+
+  /// No description provided for @soundPreviewLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview {sound} for up to 10 seconds'**
+  String soundPreviewLabel(String sound);
+
+  /// No description provided for @soundStopPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop preview'**
+  String get soundStopPreview;
+
+  /// No description provided for @soundStopPreviewLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop preview of {sound}'**
+  String soundStopPreviewLabel(String sound);
+
+  /// No description provided for @soundMute.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute sounds'**
+  String get soundMute;
+
+  /// No description provided for @soundUnmute.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmute sounds'**
+  String get soundUnmute;
+
+  /// No description provided for @soundMuteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute focus sounds'**
+  String get soundMuteLabel;
+
+  /// No description provided for @soundPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play sounds'**
+  String get soundPlay;
+
+  /// No description provided for @soundPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause sounds'**
+  String get soundPause;
+
+  /// No description provided for @soundRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry sound'**
+  String get soundRetry;
+
+  /// No description provided for @soundVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume'**
+  String get soundVolume;
+
+  /// No description provided for @soundVolumeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus sounds volume'**
+  String get soundVolumeLabel;
+
+  /// No description provided for @soundPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String soundPercent(int percent);
+
+  /// No description provided for @soundPercentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent} percent'**
+  String soundPercentLabel(int percent);
+
+  /// No description provided for @soundClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get soundClose;
+
+  /// No description provided for @soundDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get soundDone;
+
   /// No description provided for @focus.
   ///
   /// In en, this message translates to:

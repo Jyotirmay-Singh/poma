@@ -5,10 +5,21 @@ import '../application/local_repository.dart';
 import '../domain/models.dart';
 import '../domain/alert_state.dart';
 import '../domain/desktop_preferences.dart';
+import '../domain/focus_sound_preferences.dart';
 import 'local_storage_policy.dart';
 import 'schema_migrations.dart';
 
 class SqliteRepository implements LocalRepository {
+  // Optional audio corruption must not make core timer/history data unreadable.
+  static FocusSoundPreferences? _focusSounds(String? value) {
+    if (value == null) return null;
+    try {
+      return FocusSoundPreferences.fromJson(storedObject(value));
+    } catch (_) {
+      return const FocusSoundPreferences();
+    }
+  }
+
   SqliteRepository({
     DatabaseFactory? factory,
     this.databasePath,
@@ -139,6 +150,7 @@ class SqliteRepository implements LocalRepository {
             : DesktopPreferences.fromJson(
                 storedObject(state['windowsDesktop']!),
               ),
+        focusSounds: _focusSounds(state['focusSounds']),
       );
     }, exclusive: false);
   }, StorageFailureKind.unreadable);
@@ -227,6 +239,9 @@ class SqliteRepository implements LocalRepository {
           }
         }
         final state = change.state;
+        if (state.focusSounds != null) {
+          FocusSoundPreferences.fromJson(state.focusSounds!.toJson());
+        }
         TimerSettings.fromJson(state.settings.toJson());
         if (state.desktopPreferences != null) {
           DesktopPreferences.fromJson(state.desktopPreferences!.toJson());
@@ -238,6 +253,9 @@ class SqliteRepository implements LocalRepository {
               ? null
               : jsonEncode(state.timer!.toJson()),
           'selectedTaskId': state.selectedTaskId,
+          'focusSounds': state.focusSounds == null
+              ? null
+              : jsonEncode(state.focusSounds!.toJson()),
           'windowsDesktop': state.desktopPreferences == null
               ? null
               : jsonEncode(state.desktopPreferences!.toJson()),

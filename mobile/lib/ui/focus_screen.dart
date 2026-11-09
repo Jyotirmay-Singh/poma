@@ -9,8 +9,9 @@ import 'calendar_screen.dart';
 import 'theme.dart';
 import 'timer_dial.dart';
 import 'design_tokens.dart';
+import 'focus_sounds_control.dart';
 
-class FocusScreen extends StatelessWidget {
+class FocusScreen extends StatefulWidget {
   const FocusScreen({
     required this.controller,
     required this.onTasks,
@@ -20,6 +21,21 @@ class FocusScreen extends StatelessWidget {
   final AppController controller;
   final VoidCallback onTasks;
   final bool announceCompletion;
+  @override
+  State<FocusScreen> createState() => _FocusScreenState();
+}
+
+class _FocusScreenState extends State<FocusScreen> {
+  final _headingFocus = FocusNode();
+  AppController get controller => widget.controller;
+  VoidCallback get onTasks => widget.onTasks;
+  bool get announceCompletion => widget.announceCompletion;
+  @override
+  void dispose() {
+    _headingFocus.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final timer = controller.timer;
@@ -174,6 +190,23 @@ class FocusScreen extends StatelessWidget {
           child: Text(copy.retryTotals),
         ),
     ];
+    final sounds = controller.focusAudio == null
+        ? <Widget>[]
+        : <Widget>[
+            FocusSoundsControl(
+              controller: controller,
+              fallbackFocus: _headingFocus,
+            ),
+          ];
+    final contextCount = activeFocus ? 4 : 1;
+    final stacked = <Widget>[
+      ...timerWidgets,
+      ...details.take(contextCount),
+      if (!activeFocus && sounds.isNotEmpty)
+        const SizedBox(height: PomaSpace.md),
+      ...sounds,
+      ...details.skip(contextCount),
+    ];
     if (DesktopScope.maybeOf(context) == null) {
       // Keep mobile sliver children separate: grouping this entire screen into
       // a single Column merges the timer's screen-reader status with its hints.
@@ -181,9 +214,12 @@ class FocusScreen extends StatelessWidget {
         controller: controller,
         readingSurface: false,
         children: [
-          ScreenHeading(title: copy.focus),
-          ...timerWidgets,
-          ...details,
+          Focus(
+            focusNode: _headingFocus,
+            skipTraversal: true,
+            child: ScreenHeading(title: copy.focus),
+          ),
+          ...stacked,
         ],
       );
     }
@@ -192,7 +228,11 @@ class FocusScreen extends StatelessWidget {
       readingSurface: false,
       maxContentWidth: PomaLayout.workspaceWidth,
       children: [
-        ScreenHeading(title: copy.focus),
+        Focus(
+          focusNode: _headingFocus,
+          skipTraversal: true,
+          child: ScreenHeading(title: copy.focus),
+        ),
         LayoutBuilder(
           builder: (context, constraints) {
             if (DesktopScope.maybeOf(context) != null &&
@@ -204,7 +244,7 @@ class FocusScreen extends StatelessWidget {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: timerWidgets,
+                      children: [...timerWidgets, ...sounds],
                     ),
                   ),
                   const SizedBox(width: PomaSpace.xl),
@@ -220,7 +260,7 @@ class FocusScreen extends StatelessWidget {
             }
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [...timerWidgets, ...details],
+              children: stacked,
             );
           },
         ),

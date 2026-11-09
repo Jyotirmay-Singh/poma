@@ -2,12 +2,15 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <application
-        android:label="Poma"
+        android:label="${pomaAppLabel}"
         android:allowBackup="false"
         android:fullBackupContent="@xml/backup_rules"
         android:dataExtractionRules="@xml/data_extraction_rules"
-        android:name="${applicationName}"
+        android:name=".PomaApplication"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
@@ -37,6 +40,8 @@
             android:name="flutterEmbedding"
             android:value="2" />
         <receiver android:name=".PomaAlarmReceiver" android:exported="false" />
+        <service android:name=".PomaAudioService" android:exported="false" android:foregroundServiceType="mediaPlayback" />
+        <receiver android:name=".PomaAudioControlReceiver" android:exported="false" />
         <receiver android:name=".PomaDismissReceiver" android:exported="false" />
         <receiver android:name=".PomaRestoreReceiver" android:exported="false">
             <intent-filter>

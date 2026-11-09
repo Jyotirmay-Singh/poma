@@ -36,7 +36,7 @@ std::wstring DataDirectory() {
   PWSTR location = nullptr;
   winrt::check_hresult(SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &location));
   std::wstring directory = std::wstring(location) + L"\\Poma\\Development";
-#ifdef POMA_CALENDAR_REVIEW
+#if defined(POMA_CALENDAR_REVIEW) || defined(POMA_FOCUS_AUDIO_REVIEW)
   wchar_t executable[32768]{};
   GetModuleFileNameW(nullptr, executable, 32768);
   directory = std::wstring(executable);

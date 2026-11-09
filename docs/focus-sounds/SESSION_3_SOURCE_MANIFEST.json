@@ -1,0 +1,118 @@
+{
+  "HEAD": "6bd18d3e10f348a5b9d5e4958203fc934b3e24fd",
+  "branch": "codex/focus-soundscapes",
+  "state": "Local uncommitted Session 3 changes",
+  "excludes_self": true,
+  "files": [
+    {
+      "path": "docs/FOCUS_SOUNDS_PROGRESS.md",
+      "bytes": 52307,
+      "sha256": "2c3fb7b419f099b6d2b1fd09376facfe8d7827d7c32e249c4bc09f5c2639a719"
+    },
+    {
+      "path": "docs/FOCUS_SOUNDS_SESSION_3.md",
+      "bytes": 8555,
+      "sha256": "b5e1bacd35eed73337b0d8425bc5dcb0a8b9b651c45eadacf84d8da84cd589e2"
+    },
+    {
+      "path": "docs/UI_DESIGN_SYSTEM.md",
+      "bytes": 14033,
+      "sha256": "84949da48adee5854d8f2ed2169c8e253063c4a2b42053a612d13b6107197715"
+    },
+    {
+      "path": "docs/focus-sounds/SESSION_3_VERIFICATION.json",
+      "bytes": 42992,
+      "sha256": "da363624fbeca9bd04711e1961e2349ab11d5574055c3892f8b7257d0c8b67c3"
+    },
+    {
+      "path": "mobile/lib/application/focus_audio_ports.dart",
+      "bytes": 2883,
+      "sha256": "afc374e146e6c125d84d28539e72248ea513b0dc610f66ccd0f9b434077dd34a"
+    },
+    {
+      "path": "mobile/lib/application/focus_audio_coordinator.dart",
+      "bytes": 16551,
+      "sha256": "ad3b3d96fdec9567e782980d1a3c4271e69d7b97b380d2c33433b73cee95f11a"
+    },
+    {
+      "path": "mobile/lib/data/soloud_focus_audio_playback.dart",
+      "bytes": 7545,
+      "sha256": "a2f04227e5b82da3cea52258e43e3444150603104ba1fbdd42a2bfc7f1017d7e"
+    },
+    {
+      "path": "mobile/lib/ui/focus_screen.dart",
+      "bytes": 14096,
+      "sha256": "067bfddfb0b662ae2514e362954e2767d4634c5ff76003a30c13ea180296d3fa"
+    },
+    {
+      "path": "mobile/lib/ui/focus_sounds_control.dart",
+      "bytes": 5817,
+      "sha256": "83e2e4bde18a4509e21bd2cfdd1f83d26babb175787139be8657fce5557240c8"
+    },
+    {
+      "path": "mobile/lib/ui/focus_sounds_chooser.dart",
+      "bytes": 19358,
+      "sha256": "707d54ea9b8f06db3636c31d08a75fcd3c684a6ab4ee41fcfc4369eebc107a07"
+    },
+    {
+      "path": "mobile/lib/ui/copy.dart",
+      "bytes": 5510,
+      "sha256": "fb29e4d52a8a5897bc397e45e291a67e7c713134f25d7a7aef09b2361ca4a77f"
+    },
+    {
+      "path": "mobile/lib/l10n/app_en.arb",
+      "bytes": 13855,
+      "sha256": "6d47b51b73e17bd20a1b1a9d43595a80b651a89b5dd5e7ef50a93f90b4506fd4"
+    },
+    {
+      "path": "mobile/lib/l10n/poma_localizations.dart",
+      "bytes": 40887,
+      "sha256": "392a8601bbc707230e9e20f5b24a275edace3a77b0ffd116f88001939a129b37"
+    },
+    {
+      "path": "mobile/lib/l10n/poma_localizations_en.dart",
+      "bytes": 18856,
+      "sha256": "f04f3fd9d7740846de1cb7936ce8f507c6e406629db08cc216fc074a72c6cd20"
+    },
+    {
+      "path": "mobile/test/focus_audio_test.dart",
+      "bytes": 19826,
+      "sha256": "80f1f5d941c6a38325452c811fbf59433b2017854da40b084f7906d1e82a2fc0"
+    },
+    {
+      "path": "mobile/test/focus_audio_support.dart",
+      "bytes": 5630,
+      "sha256": "51ab6d9fd42ec489efeb8574407f5819f85e9f01c8c9c6a32e77723b10818952"
+    },
+    {
+      "path": "mobile/test/focus_sounds_ui_test.dart",
+      "bytes": 20336,
+      "sha256": "90009751ff7bc9ab8985d583219baa0d033e6ec195066b9542d8717c5bb67229"
+    },
+    {
+      "path": "mobile/tool/focus_audio_session3_review.dart",
+      "bytes": 6240,
+      "sha256": "2a905e12e2cbb2391908356ce7bf6aba179942ae54a84027dd9f0c5b5977a93b"
+    },
+    {
+      "path": "mobile/windows/runner/CMakeLists.txt",
+      "bytes": 3044,
+      "sha256": "2c14c76637032772156e00440520422dc92cea45abfa6a313d5d836e6eda5400"
+    },
+    {
+      "path": "scripts/check_focus_sounds_session3.py",
+      "bytes": 3607,
+      "sha256": "6375f132d18579972c2a75a9240aa5ff54a34a9c909694054e152cbe06229a70"
+    },
+    {
+      "path": "scripts/collect_focus_sounds_session3.py",
+      "bytes": 4104,
+      "sha256": "09975fc15464a63656736be68956755254c03873a20ffd5ffdabf9bf1cff93a9"
+    },
+    {
+      "path": "scripts/record_focus_sounds_session3.py",
+      "bytes": 8749,
+      "sha256": "98da9bd867b92cf77fd805e00cd5c19c1d91df58e93e750115417f24a132f9b5"
+    }
+  ]
+}

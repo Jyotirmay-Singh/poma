@@ -1,0 +1,173 @@
+{
+  "starting_HEAD": "6bd18d3e10f348a5b9d5e4958203fc934b3e24fd",
+  "branch": "codex/focus-soundscapes",
+  "state": "Local uncommitted Session 2 changes",
+  "excludes_self": true,
+  "files": [
+    {
+      "path": "docs/FOCUS_SOUNDS_PROGRESS.md",
+      "bytes": 46374,
+      "sha256": "5287389aadb4550de8a6626deb2aeca4c2aae4b610e739acf0059d4321a23ad1"
+    },
+    {
+      "path": "docs/FOCUS_SOUNDS_SESSION_2.md",
+      "bytes": 12151,
+      "sha256": "0c59c5563e6408c272407a9eb3523fc075314e5a3d2551530d05446e6db81603"
+    },
+    {
+      "path": "docs/focus-sounds/SESSION_2_VERIFICATION.json",
+      "bytes": 41248,
+      "sha256": "c060ede87e79da4f35e21620f0f3a6909728b0540fccfe2e19a7815054edc97a"
+    },
+    {
+      "path": "mobile/lib/application/app_controller.dart",
+      "bytes": 32247,
+      "sha256": "ea0b51ccbe144a6dd0d18fc787698390927d16f14464dc6b4b2a5fdb6bd70af5"
+    },
+    {
+      "path": "mobile/lib/application/desktop_controller.dart",
+      "bytes": 18741,
+      "sha256": "91f3443fd36d25ed3e00db099d5b1a05a4babd6eecfcf96b1dad768733014ab2"
+    },
+    {
+      "path": "mobile/lib/application/focus_audio_coordinator.dart",
+      "bytes": 16420,
+      "sha256": "6253468205dadfb805c28bb2e9651cad579b3f3501a53c08bd912322d86776da"
+    },
+    {
+      "path": "mobile/lib/application/focus_audio_ports.dart",
+      "bytes": 2643,
+      "sha256": "e72b18b5df94942bcc811df2ff076b07ccf84ff88cfd3f726723fd1b48eb1716"
+    },
+    {
+      "path": "mobile/lib/application/local_reset_participant.dart",
+      "bytes": 952,
+      "sha256": "990cb23faf342ac9556274acf7fe0df3df48c194e6eda8d5b0af52b44cdf121b"
+    },
+    {
+      "path": "mobile/lib/data/local_repository.dart",
+      "bytes": 14810,
+      "sha256": "3600486850b399027bd53881209fb1ebb6119f7eb749d5ed2cc032bd05581143"
+    },
+    {
+      "path": "mobile/lib/data/soloud_focus_audio_playback.dart",
+      "bytes": 7384,
+      "sha256": "8d47586501be6a600d39f30cc560763a675bb422bb67085cb3ffebb04f2eec4e"
+    },
+    {
+      "path": "mobile/lib/data/windows_focus_audio_guard.dart",
+      "bytes": 2489,
+      "sha256": "08e2d2caa3d593efd01c5745ef8f7545092f288d0ca8c90400b8f0e82d3e1920"
+    },
+    {
+      "path": "mobile/lib/domain/focus_sound_preferences.dart",
+      "bytes": 1852,
+      "sha256": "a85d023cf92a35c5e7e7916e4db336478105b12400a50d3b4e1b950708a79e1b"
+    },
+    {
+      "path": "mobile/lib/domain/models.dart",
+      "bytes": 12207,
+      "sha256": "de0793435180053839cf19ef390ebea5e091193c2b08e044301e533835ad5a9b"
+    },
+    {
+      "path": "mobile/lib/main.dart",
+      "bytes": 17274,
+      "sha256": "3e183f41723221df37be5380f0d32d9dc47a48701941797df5b2803f2f95cc93"
+    },
+    {
+      "path": "mobile/test/focus_audio_desktop_test.dart",
+      "bytes": 2703,
+      "sha256": "d7a0856f04e12b78dac8fc1ac376f2c8213769d34bbb5353fe74136ba802135c"
+    },
+    {
+      "path": "mobile/test/focus_audio_preferences_test.dart",
+      "bytes": 4712,
+      "sha256": "a3e6fe8e4bf1b03bbd4f09338b6d94196b6f3dd0657cbfcb060e4aa1ba488231"
+    },
+    {
+      "path": "mobile/test/focus_audio_support.dart",
+      "bytes": 5544,
+      "sha256": "ea751aab7c2ae9692db3db07407b187f3c0d3c2658e21071400b0f610d879c9f"
+    },
+    {
+      "path": "mobile/test/focus_audio_test.dart",
+      "bytes": 18464,
+      "sha256": "6b405a6596764d327351df5c5a0644b7c91bd74e6828da14faa6696d19f75856"
+    },
+    {
+      "path": "mobile/test/support.dart",
+      "bytes": 6494,
+      "sha256": "2a4ea902e8d781db4cbbbbaa22915b7c1b7668536a405cbddbbd2d1cadb2dbb6"
+    },
+    {
+      "path": "mobile/tool/focus_audio_session2_review.dart",
+      "bytes": 13963,
+      "sha256": "eb1a62253557e1c6a6e5366355d17ac87dfa68418a6b2690a0985acd2e42686e"
+    },
+    {
+      "path": "mobile/windows/runner/CMakeLists.txt",
+      "bytes": 3041,
+      "sha256": "b3426a8cd055d34391be5c60cd911a1014852a0dc5dc70cfdb7cc023261c9131"
+    },
+    {
+      "path": "mobile/windows/runner/desktop_host.cpp",
+      "bytes": 76601,
+      "sha256": "dd9cf1ebed1e48c20e432839d29827e3d54378c36ef7ce5a48a061f58d0eb746"
+    },
+    {
+      "path": "mobile/windows/runner/desktop_instance.cpp",
+      "bytes": 9980,
+      "sha256": "d87e27763a6df5b1df2e3602a80b138a6c1901e032d15d5c14008a54e0fe70c1"
+    },
+    {
+      "path": "mobile/windows/runner/desktop_util.h",
+      "bytes": 6240,
+      "sha256": "ac1fb0fc00d741cbf9c7411c2bcaa0a66322fadd238825231deedf5636db1a58"
+    },
+    {
+      "path": "mobile/windows/runner/focus_audio_guard.cpp",
+      "bytes": 7773,
+      "sha256": "3fdb2f967bdfc079a97149ccee88c52b6f02b2c25f5853efdea8714f93291f7f"
+    },
+    {
+      "path": "mobile/windows/runner/focus_audio_guard.h",
+      "bytes": 650,
+      "sha256": "22327095ac08533cdfe6bed103af6f5228c71d002b3c895abe2a5c6fafa3a9e4"
+    },
+    {
+      "path": "mobile/windows/runner/main.cpp",
+      "bytes": 2751,
+      "sha256": "987e751ba010e0f1653bcb0497f6d31d490ce31d3f705a60bdf9f16a9c61a413"
+    },
+    {
+      "path": "mobile/windows/tests/CMakeLists.txt",
+      "bytes": 2426,
+      "sha256": "a15acbf5a97027abfd4c7f27771bf78232e45edc1817ea1582f609c5ffe07119"
+    },
+    {
+      "path": "mobile/windows/tests/focus_audio_fake.cpp",
+      "bytes": 502,
+      "sha256": "e2d6a05a1f239cb70f2e1dff1932ddad275fb4343faabf65edec759d727b965d"
+    },
+    {
+      "path": "mobile/windows/tests/focus_audio_native_test.cpp",
+      "bytes": 2382,
+      "sha256": "c819f9ef471a33a32a2f0aabe9aadd5d79bc8a594fe96692f4a1ec1df4235a86"
+    },
+    {
+      "path": "scripts/check_focus_sounds_session2.py",
+      "bytes": 3077,
+      "sha256": "10fc40c12ffe4aa5d547856e4f913af89cb8113fe1182e455566b6458a43aa04"
+    },
+    {
+      "path": "scripts/collect_focus_sounds_session2.py",
+      "bytes": 11692,
+      "sha256": "5c2b975b5edb753345ad0ea00efb7b15009e6f4d275b31e042a7307342366605"
+    },
+    {
+      "path": "scripts/measure_focus_sounds_session2.py",
+      "bytes": 6903,
+      "sha256": "7edbf3ac70de57ae715947ed276feb21794e09672e2327ba9887e1b6fc988c15"
+    }
+  ]
+}

@@ -33,7 +33,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE,
             winrt::Windows::ApplicationModel::Activation::ActivationKind::StartupTask;
       } catch (...) {}
     }
+#ifdef POMA_FOCUS_AUDIO_REVIEW
+    poma::SingleInstance instance(poma::DataDirectory(), L"Poma.FocusAudioReview.Session2");
+#else
     poma::SingleInstance instance(poma::DataDirectory());
+#endif
     if (!instance.owner()) {
       const bool forwarded = toast ? poma::RelayToastActivation(instance) : instance.Forward(L"open");
       if (!forwarded && !toast) MessageBoxW(nullptr,

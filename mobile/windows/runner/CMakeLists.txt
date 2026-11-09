@@ -9,6 +9,7 @@ project(runner LANGUAGES CXX)
 add_executable(${BINARY_NAME} WIN32
   "flutter_window.cpp"
   "desktop_host.cpp"
+  "focus_audio_guard.cpp"
   "desktop_instance.cpp"
   "main.cpp"
   "utils.cpp"
@@ -39,6 +40,7 @@ target_link_libraries(${BINARY_NAME} PRIVATE flutter flutter_wrapper_app)
 target_link_libraries(${BINARY_NAME} PRIVATE "dwmapi.lib")
 target_link_libraries(${BINARY_NAME} PRIVATE runtimeobject shell32 advapi32 ole32 mincore comctl32 wtsapi32)
 target_link_libraries(${BINARY_NAME} PRIVATE crypt32)
+target_link_libraries(${BINARY_NAME} PRIVATE powrprof)
 target_link_libraries(${BINARY_NAME} PRIVATE winhttp oleacc uuid)
 
 # Isolated synthetic desktop-review entry point; never enabled for lib/main.dart.
@@ -46,6 +48,12 @@ file(STRINGS "${FLUTTER_MANAGED_DIR}/ephemeral/generated_config.cmake" calendar_
   REGEX "FLUTTER_TARGET=.*calendar_session[789]_review[.]dart")
 if(calendar_review_target)
   target_compile_definitions(${BINARY_NAME} PRIVATE POMA_CALENDAR_REVIEW)
+endif()
+
+file(STRINGS "${FLUTTER_MANAGED_DIR}/ephemeral/generated_config.cmake" focus_audio_review_target
+  REGEX "FLUTTER_TARGET=.*focus_audio_session[234]_review[.]dart")
+if(focus_audio_review_target)
+  target_compile_definitions(${BINARY_NAME} PRIVATE POMA_FOCUS_AUDIO_REVIEW)
 endif()
 target_compile_definitions(${BINARY_NAME} PRIVATE _WIN32_WINNT=0x0A00 WINVER=0x0A00)
 target_include_directories(${BINARY_NAME} PRIVATE "${CMAKE_SOURCE_DIR}")

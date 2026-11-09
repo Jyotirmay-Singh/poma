@@ -1,0 +1,1677 @@
+{
+  "utc": "2026-11-09T06:49:20.573659+00:00",
+  "host_monotonic": 6784.4297081,
+  "branch": "codex/focus-soundscapes",
+  "HEAD": "6bd18d3e10f348a5b9d5e4958203fc934b3e24fd",
+  "state": "Uncommitted Android alert-race correction; earlier Sessions 2/3/4 preserved",
+  "baseline_manifest": "docs/focus-sounds/SESSION_4_SOURCE_MANIFEST.json",
+  "baseline_mobile_inputs_compared": 286,
+  "changed_mobile_inputs": [
+    "mobile/lib/application/focus_audio_coordinator.dart",
+    "mobile/test/focus_audio_mobile_test.dart",
+    "mobile/test/focus_audio_support.dart"
+  ],
+  "scope": "Application/native/assets/test/build/helper inputs; documentation and generated verification JSON excluded",
+  "files": [
+    {
+      "path": "mobile/.gitignore",
+      "bytes": 748,
+      "sha256": "1e725ca8cb4e6c2a19dc889d0cebb497d954f091aba3b08d53df20edd0a98cdb"
+    },
+    {
+      "path": "mobile/.metadata",
+      "bytes": 1264,
+      "sha256": "9d6712472d1fc8c3d91a0e85619aacefd8c12e6de9dac20594aaffecd913fe79"
+    },
+    {
+      "path": "mobile/README.md",
+      "bytes": 1893,
+      "sha256": "3f4c6660bdf9831d8ed21262ddd70dc51e15d2fc304b307e334b40d49af6c675"
+    },
+    {
+      "path": "mobile/analysis_options.yaml",
+      "bytes": 1448,
+      "sha256": "b63207cf529949ec4727b68c23dbb38ce255b6f6f4ae1effcb5c1dcf2852d238"
+    },
+    {
+      "path": "mobile/android/.gitignore",
+      "bytes": 261,
+      "sha256": "f71124c824597e6d097331809f10a66f4a3f2a56cd357ac47b4a648ffd41a070"
+    },
+    {
+      "path": "mobile/android/app/build.gradle.kts",
+      "bytes": 3708,
+      "sha256": "67130c242a7f6cd800d27c075ae50214c70daee5245f96b0134d95823009a777"
+    },
+    {
+      "path": "mobile/android/app/proguard-rules.pro",
+      "bytes": 125,
+      "sha256": "e7daa120a38b846d3fedffa8589d1357affca6649ebf3446ae797c4031ab9955"
+    },
+    {
+      "path": "mobile/android/app/src/debug/AndroidManifest.xml",
+      "bytes": 385,
+      "sha256": "b01a4541a8144c15bc617bab7eb267c99fa1476368fbbda5a12cdbf4e316a34c"
+    },
+    {
+      "path": "mobile/android/app/src/main/AndroidManifest.xml",
+      "bytes": 3784,
+      "sha256": "3a519e7f9858351b513c7148c2b40a3be9a49550c7b6f63abf0f6e6e5d777eb0"
+    },
+    {
+      "path": "mobile/android/app/src/main/cpp/CMakeLists.txt",
+      "bytes": 458,
+      "sha256": "44b6defa13a438893a114ffd26981f866f0045e76f7eb8d4929db96685fb6b7a"
+    },
+    {
+      "path": "mobile/android/app/src/main/cpp/focus_audio_jni.cpp",
+      "bytes": 2756,
+      "sha256": "a480d41aea982bcf76aec6c44a674afd192ccd5e2768c5617515f003a0976d93"
+    },
+    {
+      "path": "mobile/android/app/src/main/kotlin/dev/poma/poma/AlertPolicy.kt",
+      "bytes": 640,
+      "sha256": "34a8b84c219f230b96b5467bf64f2bf4b347b63ea6a348597674decbe0caaf40"
+    },
+    {
+      "path": "mobile/android/app/src/main/kotlin/dev/poma/poma/AlertWorkQueue.kt",
+      "bytes": 400,
+      "sha256": "a8d09f330025719a5e871d77a2036069ad968b906d52f1f32454ef5b548e2176"
+    },
+    {
+      "path": "mobile/android/app/src/main/kotlin/dev/poma/poma/MainActivity.kt",
+      "bytes": 1749,
+      "sha256": "21caaf1143a0fb83172959b31dc3de6a1467157ddefa2ee56f93573c45994d59"
+    },
+    {
+      "path": "mobile/android/app/src/main/kotlin/dev/poma/poma/PomaAlerts.kt",
+      "bytes": 18890,
+      "sha256": "d3859809fda133b94d17c1a3152a489baf0d55118d6988348f58da8a8b34dad3"
+    },
+    {
+      "path": "mobile/android/app/src/main/kotlin/dev/poma/poma/PomaApplication.kt",
+      "bytes": 553,
+      "sha256": "9be5222b4cdd1cb3ca99211cad10f607ee8839b0e1f33abeaed3beb8d4004215"
+    },
+    {
+      "path": "mobile/android/app/src/main/kotlin/dev/poma/poma/PomaAudioBridge.kt",
+      "bytes": 12213,
+      "sha256": "c68e6d0bcd6e7d810da39a2c7c129db4ae8c53b9e4a6ec1305f5c1c47865da71"
+    },
+    {
+      "path": "mobile/android/app/src/main/kotlin/dev/poma/poma/PomaAudioNative.kt",
+      "bytes": 1015,
+      "sha256": "5b5bb4ae0464c9d86a463c095737d2d47613b1d305e9d44770fc4888ea83f367"
+    },
+    {
+      "path": "mobile/android/app/src/main/kotlin/dev/poma/poma/PomaAudioPolicy.kt",
+      "bytes": 752,
+      "sha256": "7233ffde745207d759c1476a1fcee9e90feef346b0e4fe25ceff4889558565fc"
+    },
+    {
+      "path": "mobile/android/app/src/main/kotlin/dev/poma/poma/PomaAudioService.kt",
+      "bytes": 5201,
+      "sha256": "e0bf02cadaa926e719073657b0fbd7b2f30dfb2f6bbc6453e4413f97962427b3"
+    },
+    {
+      "path": "mobile/android/app/src/main/kotlin/dev/poma/poma/PomaPlatformPlugin.kt",
+      "bytes": 1349,
+      "sha256": "7e224d5ebec39f3b6ba8e10acd36d4c0b5a29122bba56962fb1e3f170734498c"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/drawable-nodpi/poma_splash.png",
+      "bytes": 9407,
+      "sha256": "cae734f88ed658e270aef9ea534fbe4c2e18856a9bbea2e564150b19825aeedd"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/drawable-v21/launch_background.xml",
+      "bytes": 230,
+      "sha256": "0d95d9c6ef74fba22ff55c358f452d535f6aa3da8feaadb044b14e8d25132de8"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/drawable/ic_launcher_foreground.xml",
+      "bytes": 674,
+      "sha256": "9bdc4bdfb1813a089e1f65a5b3ae97512bfc17b061b4598cb7a4e3ea8546ca5f"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/drawable/ic_launcher_monochrome.xml",
+      "bytes": 680,
+      "sha256": "6cd7ae17899bd70fa5c1977f0051cff921418ffdce5059aa2effc633916b395e"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/drawable/ic_stat_poma.xml",
+      "bytes": 334,
+      "sha256": "1b3aa057f6ded608f7ffc2fe0b2ad06d9ad6487e12429b6bb16de250dac1fe6d"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/drawable/launch_background.xml",
+      "bytes": 230,
+      "sha256": "0d95d9c6ef74fba22ff55c358f452d535f6aa3da8feaadb044b14e8d25132de8"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+      "bytes": 232,
+      "sha256": "d195865cc29eaa904b8997cefd46b2034446dd598ce7eb10372eeff9ae09a02e"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/mipmap-anydpi-v33/ic_launcher.xml",
+      "bytes": 297,
+      "sha256": "362f175b1a45ae249f6c7b1ef43c5a78c840e7c829640c2548fe7d9607e9df56"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/mipmap-hdpi/ic_launcher.png",
+      "bytes": 2840,
+      "sha256": "973161991a6e094288ca328191cbc1fabf963185db6d83e696b6c37a8a58d32d"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/mipmap-mdpi/ic_launcher.png",
+      "bytes": 1788,
+      "sha256": "8a4bb0dcbfdf3996cb5cb86b7e03c8814e3110f64d1d77e1aa4e1ed0e5cdbeee"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png",
+      "bytes": 3921,
+      "sha256": "d2d3c066c6229ebb9ff51a2e70ea4277a07ed6f048cbeb3277d5f0d21b8f9780"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png",
+      "bytes": 6013,
+      "sha256": "37280c33a9ffde99414c6a67c5da4f15f068b687460ba9206dac4d6705cb77be"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+      "bytes": 8006,
+      "sha256": "34f04dceedda78df282ac59240b0bcda931fda1183275d2277eb04b0a32335d2"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/values-night-v31/styles.xml",
+      "bytes": 344,
+      "sha256": "fb44f772d2b8eea0d21cdbee85ac4fa330fecd2548261fd0a97cea5c72a6329e"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/values-night/styles.xml",
+      "bytes": 1013,
+      "sha256": "ea763597dc1a84c8034251caee98d7753e0fbf57340ffc94677427de4b537516"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/values-v31/styles.xml",
+      "bytes": 344,
+      "sha256": "2826c7fcd7eda94dbf36a5f1ccf76a34af83651ffc3c139e0b3572724bf7646f"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/values/branding.xml",
+      "bytes": 74,
+      "sha256": "8d7125f048a2159965124a38e77ec1de8e67c6de389f778856e6cacf012280bd"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/values/strings.xml",
+      "bytes": 519,
+      "sha256": "f2f0c3343118ebf76d46ffb49feb32aa6300a9e833501c776b162e3c4ab83b82"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/values/styles.xml",
+      "bytes": 1014,
+      "sha256": "cca15a99b59380a548bf6a890f7ca5380ee509b1f9bbb2f5f9ec3589fa25c2f7"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/xml/backup_rules.xml",
+      "bytes": 487,
+      "sha256": "865cae97840e81b9950d70457a05c5c1125a68364b0a83f44cd3daa030bc7e96"
+    },
+    {
+      "path": "mobile/android/app/src/main/res/xml/data_extraction_rules.xml",
+      "bytes": 1050,
+      "sha256": "cb029b35db0e976c087100424e16e14a6256b46962398887520e51508c3b5842"
+    },
+    {
+      "path": "mobile/android/app/src/profile/AndroidManifest.xml",
+      "bytes": 385,
+      "sha256": "b01a4541a8144c15bc617bab7eb267c99fa1476368fbbda5a12cdbf4e316a34c"
+    },
+    {
+      "path": "mobile/android/app/src/test/kotlin/dev/poma/poma/AlertPolicyTest.kt",
+      "bytes": 1285,
+      "sha256": "78b1e6094e6f35190f62da5fa635dd184be69f284b7407b7f906577b2d4b3647"
+    },
+    {
+      "path": "mobile/android/app/src/test/kotlin/dev/poma/poma/AlertWorkQueueTest.kt",
+      "bytes": 1884,
+      "sha256": "bae8f60f73882c36ff8e08a4570c9409a74bcff094bbad043281cdd4df5661a9"
+    },
+    {
+      "path": "mobile/android/app/src/test/kotlin/dev/poma/poma/PomaAudioPolicyTest.kt",
+      "bytes": 876,
+      "sha256": "24ccf91fbfa956abb9891d4b76772b7fb45f7977514437cbe5387e8271fe92b1"
+    },
+    {
+      "path": "mobile/android/build.gradle.kts",
+      "bytes": 561,
+      "sha256": "218f400e3fff31c9c986a2535dfb974560e1b4d33cc27b7c1fee96a2b7e44454"
+    },
+    {
+      "path": "mobile/android/gradle.properties",
+      "bytes": 306,
+      "sha256": "7714698de712a7872e371f0dbae626c255fc83ac1c15e52e7cd9fcaa241b5092"
+    },
+    {
+      "path": "mobile/android/gradle/wrapper/gradle-wrapper.properties",
+      "bytes": 207,
+      "sha256": "670071e5c2e25f86f82bc9db52f5d8d7c8f7b1788686a9d4c967753c69d9a2b4"
+    },
+    {
+      "path": "mobile/android/settings.gradle.kts",
+      "bytes": 797,
+      "sha256": "d6b16579d5f6a6066cc22323c4e34adb82020f7b75378bffed7f0358bc949ce3"
+    },
+    {
+      "path": "mobile/assets/audio/forest_birds.ogg",
+      "bytes": 1366270,
+      "sha256": "be593efb276c646b2329ca8fb63c5a5cd9bc18562ad6ae95945c660a4ebbee5d"
+    },
+    {
+      "path": "mobile/assets/audio/ocean_waves.ogg",
+      "bytes": 745622,
+      "sha256": "9eaf1dd84894a4787f55207e99f6caab1c43298292cbb4f6ec2e4c00e60c5e8e"
+    },
+    {
+      "path": "mobile/assets/audio/tibetan_bells.ogg",
+      "bytes": 749987,
+      "sha256": "ea8ee25b56d57d7dac554c1e9ba70c28a7154db1fcc1e9c1dfd70f08267a6cd4"
+    },
+    {
+      "path": "mobile/assets/audio/waterfall.ogg",
+      "bytes": 332351,
+      "sha256": "26faa280848078a0984fcd4d021806e9fa3c2b3fd3f7795d7331cc55524b2429"
+    },
+    {
+      "path": "mobile/assets/fonts/SORA_SOURCE.json",
+      "bytes": 1651,
+      "sha256": "a9fbba6a56a9ed5e242521acd42bc00bddeca3c9866d77316175aaf738057e5f"
+    },
+    {
+      "path": "mobile/assets/fonts/SOURCE.json",
+      "bytes": 759,
+      "sha256": "acc1ad9ba6be0f977041c62eac7acee9d596bd232a96acb33124332a138373b5"
+    },
+    {
+      "path": "mobile/assets/fonts/Sora-Medium.ttf",
+      "bytes": 58776,
+      "sha256": "60a13b0582d265280194513a0fde17bba04441570f83df77f4b39caeb4b69716"
+    },
+    {
+      "path": "mobile/assets/fonts/Sora-SemiBold.ttf",
+      "bytes": 58872,
+      "sha256": "cd64a05a06e69e753e787a52bd5b387f6e5506d085f93c4afc2aefd8927dfac1"
+    },
+    {
+      "path": "mobile/assets/fonts/SourceSans3-Medium.ttf",
+      "bytes": 424748,
+      "sha256": "a7af35c1cab5dd0b29d742f86f2edfdf83fa7ec213643e765c5c51a2dc24edbc"
+    },
+    {
+      "path": "mobile/assets/fonts/SourceSans3-Regular.ttf",
+      "bytes": 431196,
+      "sha256": "4644c81b86ec9caaa76b634889968ed3c4f4f52f054855933acc7c2b21e53b0f"
+    },
+    {
+      "path": "mobile/assets/fonts/SourceSans3-Semibold.ttf",
+      "bytes": 425904,
+      "sha256": "a3f4f8dcf343a8f24dc61951de93f3ba1558b15cd250ba24af8a40e957081b7d"
+    },
+    {
+      "path": "mobile/assets/legal/notices.txt",
+      "bytes": 5438,
+      "sha256": "8890d3baa36cbdca0ebe416ee8a34ae397e5cdc4613b67017588c3a3b313ac91"
+    },
+    {
+      "path": "mobile/assets/legal/privacy-windows.txt",
+      "bytes": 9317,
+      "sha256": "f334244b3f3621fa551ba6f7d71c32b3c199f629e8011d8077c7b0a9d5bc50b3"
+    },
+    {
+      "path": "mobile/assets/legal/privacy.txt",
+      "bytes": 3653,
+      "sha256": "1afdea4cf06409cca7e71af797448818102c60c0bb32d724f266039c56452bf8"
+    },
+    {
+      "path": "mobile/assets/licenses/android-native.txt",
+      "bytes": 24505,
+      "sha256": "6f1c9bfa7a67989f558be584742aed414bb25047fe61114f43b1b30543f10423"
+    },
+    {
+      "path": "mobile/assets/licenses/focus-audio-native.txt",
+      "bytes": 25048,
+      "sha256": "5e0c455f9ce8a255ac9453b2170b077efb5cef58282a452bb9e74994cb6581b8"
+    },
+    {
+      "path": "mobile/assets/licenses/focus-sounds.txt",
+      "bytes": 7744,
+      "sha256": "6398fa9d01e068ae8d897e3028cc8c5d7b95da21c466b64ccefcbbd05a32463a"
+    },
+    {
+      "path": "mobile/assets/licenses/pomatez.txt",
+      "bytes": 1075,
+      "sha256": "a31cf6bc9c179423268c3043bb5071982e996484d63376eabbb406aeed347a03"
+    },
+    {
+      "path": "mobile/assets/licenses/sora.txt",
+      "bytes": 4385,
+      "sha256": "ba0b9729c9428ba79a0459ab8ec575791b51509dbec213e383d0316d37fec299"
+    },
+    {
+      "path": "mobile/assets/licenses/source-sans-3.txt",
+      "bytes": 4486,
+      "sha256": "56af9b9c6715597e458284a474dc118a50a4150e9d547c70f7b4a33c3e6a9328"
+    },
+    {
+      "path": "mobile/assets/licenses/windows-native.txt",
+      "bytes": 1588,
+      "sha256": "72d3e16850d0dfc39760600320aa2a11e2694449e56705d906570c0a574ab0c6"
+    },
+    {
+      "path": "mobile/integration_test/native_offline_test.dart",
+      "bytes": 4036,
+      "sha256": "008f7b8c2b2fb1007005e0cb3344d00a760a9e3373c77822671af3a9aac78c5a"
+    },
+    {
+      "path": "mobile/integration_test/windows_offline_test.dart",
+      "bytes": 8433,
+      "sha256": "fb1367ddeaceabe41cb10b34d62e81aa47a1dc2bb44ed7f5e1aea2d9729692c3"
+    },
+    {
+      "path": "mobile/ios/.gitignore",
+      "bytes": 603,
+      "sha256": "e85b4db8ba6ed14708e5f7d3c60336e5a3067ce11329b84aa8ba5d98603ee253"
+    },
+    {
+      "path": "mobile/ios/Flutter/AppFrameworkInfo.plist",
+      "bytes": 744,
+      "sha256": "e51cfa76fca1ae586244b43bf97423577315d2906394c1e7768ef43b8d23e161"
+    },
+    {
+      "path": "mobile/ios/Flutter/Debug.xcconfig",
+      "bytes": 31,
+      "sha256": "c0d1da54718e75f2028962b689258ecc741abf7cdaed50483aa5225264d0a7d7"
+    },
+    {
+      "path": "mobile/ios/Flutter/Release.xcconfig",
+      "bytes": 31,
+      "sha256": "c0d1da54718e75f2028962b689258ecc741abf7cdaed50483aa5225264d0a7d7"
+    },
+    {
+      "path": "mobile/ios/Runner.xcodeproj/project.pbxproj",
+      "bytes": 28362,
+      "sha256": "74be28c592ec76c15dc66d41e12f1f33e7a4f4d96e83cab77ccac6fd958623e4"
+    },
+    {
+      "path": "mobile/ios/Runner.xcodeproj/project.xcworkspace/contents.xcworkspacedata",
+      "bytes": 142,
+      "sha256": "ac28b35c2b940210bec0fff8e424b07fd0efe9112ab178a10533583f251a386c"
+    },
+    {
+      "path": "mobile/ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist",
+      "bytes": 246,
+      "sha256": "d557c2c32fc6258ec28981fa45dc847b76c9968beb90a2e26d13ef9c4ea45c30"
+    },
+    {
+      "path": "mobile/ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings",
+      "bytes": 234,
+      "sha256": "dd64c0308ab2971c456871b990b24a008bdc3ece09833e8dbe9675e33a496e74"
+    },
+    {
+      "path": "mobile/ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme",
+      "bytes": 4836,
+      "sha256": "a46c0d064503db8bf9f452b492c61fdf76f9febb8894005fe30b2facec21e550"
+    },
+    {
+      "path": "mobile/ios/Runner.xcworkspace/contents.xcworkspacedata",
+      "bytes": 159,
+      "sha256": "706a4c812f2a1e220e6785c27580020d58048e2ae4d30d1280f3c43344ce6b38"
+    },
+    {
+      "path": "mobile/ios/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist",
+      "bytes": 246,
+      "sha256": "d557c2c32fc6258ec28981fa45dc847b76c9968beb90a2e26d13ef9c4ea45c30"
+    },
+    {
+      "path": "mobile/ios/Runner.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings",
+      "bytes": 234,
+      "sha256": "dd64c0308ab2971c456871b990b24a008bdc3ece09833e8dbe9675e33a496e74"
+    },
+    {
+      "path": "mobile/ios/Runner/AppDelegate.swift",
+      "bytes": 4171,
+      "sha256": "e73901f5e764d22579decfa75f6e43cabbbcecd281347e4d5668d6a7ab70e942"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json",
+      "bytes": 2641,
+      "sha256": "5f8b941b774bde4496d73347c1f79cbdd786bb76fbdab9ed1f3f0cb78a0fb0d3"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png",
+      "bytes": 40156,
+      "sha256": "e59bb52552243684cb74e88514ff9f83f58d3077394ed403a54a23a9cf08067e"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@1x.png",
+      "bytes": 617,
+      "sha256": "d222eb9c12e1d0e40a7acf6d62ce0cf6fe5d4e82c22363bfee70d23113558778"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@2x.png",
+      "bytes": 1415,
+      "sha256": "493499ec8b2f8b3cbf9a32b7659c77e83640724215e4277a90a87050bcae81cc"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@3x.png",
+      "bytes": 2389,
+      "sha256": "90f276589257381c3d6b7610d45ab3ca405c6f4cfd100e0558ba18399bd6ae31"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@1x.png",
+      "bytes": 1007,
+      "sha256": "a7382a76e762c9aae16beb953a263c0d29f2dd5a9276223afef62b82839df5af"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@2x.png",
+      "bytes": 2187,
+      "sha256": "9faa87c3ca0f3a4f38ef741d9cf84d51c9e1162c92e61c85ff5a8d1b120c0dc8"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@3x.png",
+      "bytes": 3638,
+      "sha256": "03206764f58c2603bef8f6893f2d67647acf30831632a000fc5cbc10f4c9d2d6"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@1x.png",
+      "bytes": 1415,
+      "sha256": "493499ec8b2f8b3cbf9a32b7659c77e83640724215e4277a90a87050bcae81cc"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@2x.png",
+      "bytes": 3275,
+      "sha256": "883f65048e1f72463e497ebb8752d26440892b1fad07c44264962e06983ef030"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@3x.png",
+      "bytes": 4969,
+      "sha256": "5a4336760ed547adc9df5d0a9e2ee25e408a7335a4f889dfae585c6240b04aac"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@2x.png",
+      "bytes": 4969,
+      "sha256": "5a4336760ed547adc9df5d0a9e2ee25e408a7335a4f889dfae585c6240b04aac"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@3x.png",
+      "bytes": 7417,
+      "sha256": "593e9feabb7110970a386e6485eb21ad656c7c529fc801d581e036a0b891bbae"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@1x.png",
+      "bytes": 3084,
+      "sha256": "4f02d633e910d0639aef92ebe5870056fe16b3eaf4951e9705ebae296b057081"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@2x.png",
+      "bytes": 6183,
+      "sha256": "d0fdd977b0391f7de9bcb32feee84bec4685df43fb44b6e9c23f4797dfab1478"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-83.5x83.5@2x.png",
+      "bytes": 6828,
+      "sha256": "719a72a7270c36c8789175847aa75cdece509c06f1bc20fbc895235c67cd3416"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/LaunchBackground.colorset/Contents.json",
+      "bytes": 672,
+      "sha256": "e765e7be4d6a775eb916bb2e2a08aec26e6986eaee5e2096d414199c84483c43"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/LaunchImage.imageset/Contents.json",
+      "bytes": 414,
+      "sha256": "fbd112a9f3b541a1d811f71ac8e4fe68b6176687d973a5f4d99b7aa4a722e94e"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png",
+      "bytes": 4703,
+      "sha256": "858e5e9a22bc6f4086d2e082e0e16df4fbcf89148f9761b03815b37a6e012866"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png",
+      "bytes": 9407,
+      "sha256": "cae734f88ed658e270aef9ea534fbe4c2e18856a9bbea2e564150b19825aeedd"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png",
+      "bytes": 14187,
+      "sha256": "44c00b8a544a1dee3b2da04cf9ece839037e9312ed1f4842604084ea1f22c4ac"
+    },
+    {
+      "path": "mobile/ios/Runner/Assets.xcassets/LaunchImage.imageset/README.md",
+      "bytes": 340,
+      "sha256": "853ac958e2416fe2540f6f61165283a3618b71a7ba5f85f65ac41c2158dfcd21"
+    },
+    {
+      "path": "mobile/ios/Runner/Base.lproj/LaunchScreen.storyboard",
+      "bytes": 2477,
+      "sha256": "fb91d56a6a4d69a55414e8014c35df0aa0794c54212293f8bdcc807d962567ae"
+    },
+    {
+      "path": "mobile/ios/Runner/Base.lproj/Main.storyboard",
+      "bytes": 1631,
+      "sha256": "dcea4686c02065e56217fd19fcfb73d7509b41872e7486126149d47a18559363"
+    },
+    {
+      "path": "mobile/ios/Runner/Info.plist",
+      "bytes": 2347,
+      "sha256": "c301fa493f5c79b2572907c8957716dabfd67bdf39f16c27fdc8800b65388e99"
+    },
+    {
+      "path": "mobile/ios/Runner/PomaFocusAudio.h",
+      "bytes": 848,
+      "sha256": "d81a0654bce2e55eaf697e8f2a23b501daaee051db20f691129bc2824412400e"
+    },
+    {
+      "path": "mobile/ios/Runner/PomaFocusAudio.swift",
+      "bytes": 10745,
+      "sha256": "582c26b44c7b9aaf120241887d945185d1b89f31aecd7cd1f613b637f8c5ad9b"
+    },
+    {
+      "path": "mobile/ios/Runner/PomaLocalAlerts.swift",
+      "bytes": 12511,
+      "sha256": "34e1108951ad30ada3ddda0366922e2ccae639a08f2a6f2884f6af6867b20228"
+    },
+    {
+      "path": "mobile/ios/Runner/PrivacyInfo.xcprivacy",
+      "bytes": 727,
+      "sha256": "9d845ce60df26168dab2696685dd63136204f035db25218e49eb9db3a7ee7c64"
+    },
+    {
+      "path": "mobile/ios/Runner/Runner-Bridging-Header.h",
+      "bytes": 67,
+      "sha256": "b845ff6a0fc6dfd0bf88fc7284cb25d914d1c351c95607de818bedbdf405870b"
+    },
+    {
+      "path": "mobile/ios/Runner/SceneDelegate.swift",
+      "bytes": 392,
+      "sha256": "f02546a2896bc776ea76658d5b9e3ee109741b89ae8b290970a8c94fbcf53043"
+    },
+    {
+      "path": "mobile/ios/Runner/en.lproj/Localizable.strings",
+      "bytes": 193,
+      "sha256": "c373be766a9dff24f8501962d72d9c2bdd4865a8be26e18b70fb720b0716df5b"
+    },
+    {
+      "path": "mobile/ios/RunnerTests/RunnerTests.swift",
+      "bytes": 6573,
+      "sha256": "d394842c5bbb736804236adf088dffc3003be7c798bae38bc02ee711e245f99e"
+    },
+    {
+      "path": "mobile/l10n.yaml",
+      "bytes": 130,
+      "sha256": "48a66b71124f07a0713025a77f764574bd362f096bbe3cb8a2bc6db026a10823"
+    },
+    {
+      "path": "mobile/lib/application/alert_coordinator.dart",
+      "bytes": 4371,
+      "sha256": "a4a522055becc9b2f0f5035d8a33621f80aeb9fb0832e8cc1b21100b5226b73e"
+    },
+    {
+      "path": "mobile/lib/application/app_controller.dart",
+      "bytes": 32247,
+      "sha256": "ea0b51ccbe144a6dd0d18fc787698390927d16f14464dc6b4b2a5fdb6bd70af5"
+    },
+    {
+      "path": "mobile/lib/application/calendar_agenda_controller.dart",
+      "bytes": 23893,
+      "sha256": "6e5979609db93b016086ad9fbb78a3ddefc34b9234f15a10015b49fd6bd90df1"
+    },
+    {
+      "path": "mobile/lib/application/calendar_connection_controller.dart",
+      "bytes": 30685,
+      "sha256": "aa9eafc4e1927d1e188c0c3e34a52dc543dfc1151f375d200c43e2d04efc7dd5"
+    },
+    {
+      "path": "mobile/lib/application/calendar_controller.dart",
+      "bytes": 9961,
+      "sha256": "0b0538548c384bfbf3391bbda73f9d9acbbde29803dcbb7effb9493a9468695f"
+    },
+    {
+      "path": "mobile/lib/application/calendar_presentation_ports.dart",
+      "bytes": 367,
+      "sha256": "abaa6c1854720fc26befa9e2e533e7016fbf0ed2e47e080ea2840c14bb8fa736"
+    },
+    {
+      "path": "mobile/lib/application/calendar_read_controller.dart",
+      "bytes": 11681,
+      "sha256": "55dfcc6844610eb7b1884d23b158ea56597ecc2a420616042b4e7a88e5331cc6"
+    },
+    {
+      "path": "mobile/lib/application/calendar_read_ports.dart",
+      "bytes": 1556,
+      "sha256": "084875555c393149bac3ab298421ee3a3fb89fe371afdf4638acdc6b13c0d772"
+    },
+    {
+      "path": "mobile/lib/application/calendar_reminder_controller.dart",
+      "bytes": 12565,
+      "sha256": "6aaf9c8b20160d1ab89bfa221f6e1ef86018f6361f98e6481e6dbae9640e7720"
+    },
+    {
+      "path": "mobile/lib/application/calendar_reminder_ports.dart",
+      "bytes": 684,
+      "sha256": "25ccda3148b5e93eba956592da88b3333184818277dd13d95b16c5bbf116adc7"
+    },
+    {
+      "path": "mobile/lib/application/desktop_controller.dart",
+      "bytes": 18741,
+      "sha256": "91f3443fd36d25ed3e00db099d5b1a05a4babd6eecfcf96b1dad768733014ab2"
+    },
+    {
+      "path": "mobile/lib/application/focus_audio_coordinator.dart",
+      "bytes": 18548,
+      "sha256": "a9d4a7ecb84e8eab5d8e7b536ecfda823bed50a2705ca6acab89c35bb6c3908d"
+    },
+    {
+      "path": "mobile/lib/application/focus_audio_ports.dart",
+      "bytes": 3842,
+      "sha256": "da7b9bec7caa2cc21f16fc3d19156023a5ae4539d2a0bca1b907851f9e92ed6a"
+    },
+    {
+      "path": "mobile/lib/application/focus_block_controller.dart",
+      "bytes": 24471,
+      "sha256": "3dab8c2078e1ff86d5fb4d6a1af16f41b3983f0afb1d8a281dd76d7f5e1ca77c"
+    },
+    {
+      "path": "mobile/lib/application/focus_block_ports.dart",
+      "bytes": 3139,
+      "sha256": "17f64df1f46c345b18397a898be8f52f66598ade1b54d2856df28442fbda9a30"
+    },
+    {
+      "path": "mobile/lib/application/local_alerts.dart",
+      "bytes": 1245,
+      "sha256": "f974d62c8d53ef1f96b57cf51f275833e2ee14227759ad68b1aba5b7a06e0d6e"
+    },
+    {
+      "path": "mobile/lib/application/local_repository.dart",
+      "bytes": 3489,
+      "sha256": "b9dc42a9e64071e4fba5d82e13f3730e662705cbb22ee685dee7e68d46323b09"
+    },
+    {
+      "path": "mobile/lib/application/local_reset_participant.dart",
+      "bytes": 952,
+      "sha256": "990cb23faf342ac9556274acf7fe0df3df48c194e6eda8d5b0af52b44cdf121b"
+    },
+    {
+      "path": "mobile/lib/data/calendar_time.dart",
+      "bytes": 1504,
+      "sha256": "7e938a77fe33660c876c10e93072134a2a1f1732fcf7be26964e72f03de61518"
+    },
+    {
+      "path": "mobile/lib/data/google_calendar_authorization.dart",
+      "bytes": 14794,
+      "sha256": "ba1901407c9ae785d06be58c61154b781b27db4edee830150529052751ea2852"
+    },
+    {
+      "path": "mobile/lib/data/google_calendar_reader.dart",
+      "bytes": 14964,
+      "sha256": "a25207331f37031d2548a57f59f03d02ea35569f9d462d343e688a43eaebac66"
+    },
+    {
+      "path": "mobile/lib/data/google_focus_writer.dart",
+      "bytes": 16661,
+      "sha256": "6fc57b1275d47f5bb662d1d6f613541784728f12eddb4aab86b9d3f83a37db61"
+    },
+    {
+      "path": "mobile/lib/data/launch_reporter.dart",
+      "bytes": 692,
+      "sha256": "15f6aa3df0b5c40586efaaa7aa147cd9bd35bf06262603bac1b23823aae1631e"
+    },
+    {
+      "path": "mobile/lib/data/local_alerts.dart",
+      "bytes": 3441,
+      "sha256": "0f68b9c36e1232fddc95d1ee8b8eb0cb466414707638a73a009baf95a68a843a"
+    },
+    {
+      "path": "mobile/lib/data/local_repository.dart",
+      "bytes": 14810,
+      "sha256": "3600486850b399027bd53881209fb1ebb6119f7eb749d5ed2cc032bd05581143"
+    },
+    {
+      "path": "mobile/lib/data/local_storage_policy.dart",
+      "bytes": 1119,
+      "sha256": "34efa517a4119232e8ffdb88984c78d0eb5994e8b2c68b14274604ca203e6c51"
+    },
+    {
+      "path": "mobile/lib/data/mobile_focus_audio_playback.dart",
+      "bytes": 7327,
+      "sha256": "316c40ef178913d93fadd4748d6d34cf70736c08928aabcc6a391a7fe41351bb"
+    },
+    {
+      "path": "mobile/lib/data/schema_migrations.dart",
+      "bytes": 4667,
+      "sha256": "0854c7b9dc393cdf66aa2e9de61c5f9f7c5a421b0030814a1d75c99c7d9846f4"
+    },
+    {
+      "path": "mobile/lib/data/soloud_focus_audio_playback.dart",
+      "bytes": 7593,
+      "sha256": "282675e61edb9f75149e526fb616218f127073c1c6cb8d608ed54f3a8d5644c4"
+    },
+    {
+      "path": "mobile/lib/data/timer_clock.dart",
+      "bytes": 1339,
+      "sha256": "3e8e7a5aeb2f4955f4f666e2b24b3262777ee96e126fb1c57b76c47f121c83d6"
+    },
+    {
+      "path": "mobile/lib/data/windows_calendar_cache.dart",
+      "bytes": 2026,
+      "sha256": "112d0b00de3414d6d04e5232316b6ea27e03473578ccb0ab2083720378b17f4c"
+    },
+    {
+      "path": "mobile/lib/data/windows_calendar_credentials.dart",
+      "bytes": 3512,
+      "sha256": "a229fdf0f10bcd8e8157107f365aab4cc3f33b1373561b4562842f2f190aefca"
+    },
+    {
+      "path": "mobile/lib/data/windows_calendar_reminders.dart",
+      "bytes": 2186,
+      "sha256": "026a61d2f9e28d5d1e0527498123f4e1e3ff428166f428fdf56ff34d95a246a5"
+    },
+    {
+      "path": "mobile/lib/data/windows_focus_audio_guard.dart",
+      "bytes": 2489,
+      "sha256": "08e2d2caa3d593efd01c5745ef8f7545092f288d0ca8c90400b8f0e82d3e1920"
+    },
+    {
+      "path": "mobile/lib/data/windows_focus_store.dart",
+      "bytes": 2136,
+      "sha256": "f3c5d7cc43a9b3d7f0fe97ca48d82c5a05151c1f291b86782b284120cf0ced38"
+    },
+    {
+      "path": "mobile/lib/data/windows_focus_time.dart",
+      "bytes": 1305,
+      "sha256": "52b78915e6260d7f4e056ee739e95d6117b26ecb7be2dbbad536f6f8633063c1"
+    },
+    {
+      "path": "mobile/lib/data/windows_platform.dart",
+      "bytes": 7026,
+      "sha256": "bde0bfee95457552445a0f2038671f39174604f5fcee4afdcacf96f26b741006"
+    },
+    {
+      "path": "mobile/lib/domain/alert_state.dart",
+      "bytes": 4094,
+      "sha256": "9bb7818c5f43f5d012bb675b775bef403a4e37aa909d4b3bf48c5ec0a575daf8"
+    },
+    {
+      "path": "mobile/lib/domain/calendar_data.dart",
+      "bytes": 13959,
+      "sha256": "3769092c64b8bdf261f39fe73554e2a64c7f27a1bb04d3e26a51f8c6c5f58173"
+    },
+    {
+      "path": "mobile/lib/domain/calendar_preview.dart",
+      "bytes": 1598,
+      "sha256": "fc31f651a504bc57ff7d665472a6248caa72bba7abff1101f7279a9b6377ed47"
+    },
+    {
+      "path": "mobile/lib/domain/calendar_reminders.dart",
+      "bytes": 1337,
+      "sha256": "ebeb748c1d98db6fb2ac4320ef39487c4c7c2bef4babc6bf16001ba3de0e4bb4"
+    },
+    {
+      "path": "mobile/lib/domain/desktop_preferences.dart",
+      "bytes": 2646,
+      "sha256": "470888d2b69102612cdbfc9eb9dabf2192907fba08b44d7b950925282b2f01ca"
+    },
+    {
+      "path": "mobile/lib/domain/focus_blocks.dart",
+      "bytes": 15489,
+      "sha256": "b5d959d80790b5001ba330f01a73b0c911b7adaf6abbb6f2a53b29bbdd4cce1b"
+    },
+    {
+      "path": "mobile/lib/domain/focus_sound_preferences.dart",
+      "bytes": 1852,
+      "sha256": "a85d023cf92a35c5e7e7916e4db336478105b12400a50d3b4e1b950708a79e1b"
+    },
+    {
+      "path": "mobile/lib/domain/models.dart",
+      "bytes": 12207,
+      "sha256": "de0793435180053839cf19ef390ebea5e091193c2b08e044301e533835ad5a9b"
+    },
+    {
+      "path": "mobile/lib/domain/timer_engine.dart",
+      "bytes": 11146,
+      "sha256": "d33d1bb09d7d739fb23cc6963120097f27f0978460d58cf3e83ef60e9a079c7b"
+    },
+    {
+      "path": "mobile/lib/l10n/app_en.arb",
+      "bytes": 13855,
+      "sha256": "6d47b51b73e17bd20a1b1a9d43595a80b651a89b5dd5e7ef50a93f90b4506fd4"
+    },
+    {
+      "path": "mobile/lib/l10n/poma_localizations.dart",
+      "bytes": 40887,
+      "sha256": "392a8601bbc707230e9e20f5b24a275edace3a77b0ffd116f88001939a129b37"
+    },
+    {
+      "path": "mobile/lib/l10n/poma_localizations_en.dart",
+      "bytes": 18856,
+      "sha256": "f04f3fd9d7740846de1cb7936ce8f507c6e406629db08cc216fc074a72c6cd20"
+    },
+    {
+      "path": "mobile/lib/main.dart",
+      "bytes": 17448,
+      "sha256": "8bfb47f5529a40f020977c01207b6dd0e0c177d976ed57722d876df8408a0d56"
+    },
+    {
+      "path": "mobile/lib/release_metadata.dart",
+      "bytes": 224,
+      "sha256": "1f85c84a29c2d74efdfd188d1b35324798db3a426bb78339c359db0130003971"
+    },
+    {
+      "path": "mobile/lib/ui/app_shell.dart",
+      "bytes": 14896,
+      "sha256": "529e3953ab019b09247271fbbcae041991520d16436e4b281467d9816b858dd7"
+    },
+    {
+      "path": "mobile/lib/ui/calendar_schedule.dart",
+      "bytes": 31004,
+      "sha256": "d7df994fbafdb62aca5d228bbd9f1be9e505e32434d771447b6216da6af172c4"
+    },
+    {
+      "path": "mobile/lib/ui/calendar_schedule_adapter.dart",
+      "bytes": 3246,
+      "sha256": "c747359929da1c9830938a718af9379f6ccae0440db996537bcec4c7eee8c336"
+    },
+    {
+      "path": "mobile/lib/ui/calendar_screen.dart",
+      "bytes": 44442,
+      "sha256": "35dc0e0ce1be01b1a5472147a7cb9cb477923a398562a74c8e88c4f075c62dbe"
+    },
+    {
+      "path": "mobile/lib/ui/copy.dart",
+      "bytes": 5510,
+      "sha256": "fb29e4d52a8a5897bc397e45e291a67e7c713134f25d7a7aef09b2361ca4a77f"
+    },
+    {
+      "path": "mobile/lib/ui/design_tokens.dart",
+      "bytes": 3281,
+      "sha256": "7c8f547b94645cce69fb088e5cdc7424c36d9436a783dc413d37a7f894b03613"
+    },
+    {
+      "path": "mobile/lib/ui/desktop_scope.dart",
+      "bytes": 438,
+      "sha256": "3438474e488de05f7976ac480e290264e918f28bc601345e98ab94b187d58de0"
+    },
+    {
+      "path": "mobile/lib/ui/focus_screen.dart",
+      "bytes": 14096,
+      "sha256": "067bfddfb0b662ae2514e362954e2767d4634c5ff76003a30c13ea180296d3fa"
+    },
+    {
+      "path": "mobile/lib/ui/focus_sounds_chooser.dart",
+      "bytes": 19358,
+      "sha256": "707d54ea9b8f06db3636c31d08a75fcd3c684a6ab4ee41fcfc4369eebc107a07"
+    },
+    {
+      "path": "mobile/lib/ui/focus_sounds_control.dart",
+      "bytes": 5817,
+      "sha256": "83e2e4bde18a4509e21bd2cfdd1f83d26babb175787139be8657fce5557240c8"
+    },
+    {
+      "path": "mobile/lib/ui/insights_screen.dart",
+      "bytes": 13970,
+      "sha256": "77f2cea4a210d501f5f695aa40b47e278202ddddac9d0e38b4816b58fb6d4b9a"
+    },
+    {
+      "path": "mobile/lib/ui/legal_screen.dart",
+      "bytes": 1549,
+      "sha256": "8b37ce07c74e2403ce88ab2506443311d7d3d7a4ecac7dc6661e43197ac74bc6"
+    },
+    {
+      "path": "mobile/lib/ui/settings_screen.dart",
+      "bytes": 35444,
+      "sha256": "b2bde0086a26b5b7f6f8e4260c8e2c19ab5ee87ab1915c7fcca59a82683e2a42"
+    },
+    {
+      "path": "mobile/lib/ui/space_backdrop.dart",
+      "bytes": 5488,
+      "sha256": "2fc224d786970a766dc14358d3b78c5d8a1fe941b0ad6d6dd5fcae287ca14481"
+    },
+    {
+      "path": "mobile/lib/ui/tasks_screen.dart",
+      "bytes": 7251,
+      "sha256": "b253f8e5f505489293c46b77f77a4b42f20b57eb9798894693f4dbda55638a58"
+    },
+    {
+      "path": "mobile/lib/ui/theme.dart",
+      "bytes": 7106,
+      "sha256": "82bf86a02dc51ade8b558174768b66f8b83104198d4aac672dc43a6515f584a4"
+    },
+    {
+      "path": "mobile/lib/ui/timer_dial.dart",
+      "bytes": 5736,
+      "sha256": "938d45e423b2f1c88576ff3b554b95ecc1a22df4271665740339bb2be82c2ef0"
+    },
+    {
+      "path": "mobile/native/focus_audio_runtime.cpp",
+      "bytes": 12943,
+      "sha256": "cadc8641412c3322609750812e124480c70f462023f782e8862a043854babf81"
+    },
+    {
+      "path": "mobile/native/focus_audio_runtime.h",
+      "bytes": 2513,
+      "sha256": "3251b2a669fe3f9c5f876b4f85306c4f3786b0af78be0695b2ce6ece4e1f3b47"
+    },
+    {
+      "path": "mobile/pubspec.lock",
+      "bytes": 19854,
+      "sha256": "b6878b917f7c80cebbd1ee025d27dfaff959f98f288dddaaff655a353cd32054"
+    },
+    {
+      "path": "mobile/pubspec.yaml",
+      "bytes": 5186,
+      "sha256": "a829284aad19a08eb647a5f986f3f6a2d540fd7e255093bc55bdad1330397a0c"
+    },
+    {
+      "path": "mobile/test/alert_support.dart",
+      "bytes": 1919,
+      "sha256": "712510029751a272313f654ea51cebcba4244c3144b1adc37a7412aabb75b752"
+    },
+    {
+      "path": "mobile/test/alerts_test.dart",
+      "bytes": 16869,
+      "sha256": "aec95ff3bdbdc7cf93e09cf1f5276c1136a478425b48852816c26caff27bd5cd"
+    },
+    {
+      "path": "mobile/test/calendar_agenda_test.dart",
+      "bytes": 26031,
+      "sha256": "4d9f5c0eb8c3e6824a4d79e26ddf0a264a59395f300cbf6b8f803985b7b1e613"
+    },
+    {
+      "path": "mobile/test/calendar_connection_test.dart",
+      "bytes": 33922,
+      "sha256": "9f16a2fc2d80fc30de9ebe68cc3236223690bdfbcd850af6be2dafadd3efc33b"
+    },
+    {
+      "path": "mobile/test/calendar_preview_test.dart",
+      "bytes": 9715,
+      "sha256": "951b1f612c102c745c851df8767344326fb337c99601cef2c1eedec8f2f21f57"
+    },
+    {
+      "path": "mobile/test/calendar_read_test.dart",
+      "bytes": 39616,
+      "sha256": "783d0c959b2ff1ac69ee3b13d260d984feebca52bb4d388c99e6117f11ad2ebd"
+    },
+    {
+      "path": "mobile/test/calendar_reminder_test.dart",
+      "bytes": 18697,
+      "sha256": "7035890d44d0542d7851c8ed5bad6e34d6aabfc60bdc83be59f379af45268fa6"
+    },
+    {
+      "path": "mobile/test/calendar_resilience_test.dart",
+      "bytes": 15357,
+      "sha256": "88b600146e42014b0d699468f8cb357ba3612ce0a230e250f1e4a780ddabb0d0"
+    },
+    {
+      "path": "mobile/test/calendar_schedule_test.dart",
+      "bytes": 27410,
+      "sha256": "c5cf147e6a41ee5878b8ce0e2b44e7e44dda19051984484fc2f10250780dce9f"
+    },
+    {
+      "path": "mobile/test/calendar_write_consent_test.dart",
+      "bytes": 10355,
+      "sha256": "52f4712e128250ce4b6d395053f78ef749337ae1867d26dac897c4ae6c0ccc1c"
+    },
+    {
+      "path": "mobile/test/contrast_support.dart",
+      "bytes": 4802,
+      "sha256": "d69cc9f173380189d971122a08850c75c001ed27d3d02d111245216c33d762ec"
+    },
+    {
+      "path": "mobile/test/contrast_support_test.dart",
+      "bytes": 2367,
+      "sha256": "1e1eb839d552f1e719bb199ab61b16c4a5a9942bfbcce3814148f67977258b4b"
+    },
+    {
+      "path": "mobile/test/controller_test.dart",
+      "bytes": 20118,
+      "sha256": "9a7ddf156c4ccb5fbd5242182284f6e1391996a8f39eb37e8802dd893511f93b"
+    },
+    {
+      "path": "mobile/test/desktop_test.dart",
+      "bytes": 26053,
+      "sha256": "c4696872008ac231457eb76aa5d057b8fc3b741065131facb647401646c933e1"
+    },
+    {
+      "path": "mobile/test/durability_test.dart",
+      "bytes": 25884,
+      "sha256": "6dba549040d9a32eaf91379926a331b68205179d8c37e7dcdf9b006cdb8b4eaa"
+    },
+    {
+      "path": "mobile/test/durability_ui_test.dart",
+      "bytes": 9011,
+      "sha256": "6aaf771107e432fe85750f31ad0c5b4e325bb1b52e749486161d61c6a566b808"
+    },
+    {
+      "path": "mobile/test/fixtures/calendar_links.tsv",
+      "bytes": 2019,
+      "sha256": "432a71eca7e0fe522b241f538704349412a36e6183d20e8687b3b11593bbb400"
+    },
+    {
+      "path": "mobile/test/fixtures/v1.sql",
+      "bytes": 1272,
+      "sha256": "78064c2d7ae9b6c71e3de1f0727ddcb52855dcc041311fb5f34370bb129cdbab"
+    },
+    {
+      "path": "mobile/test/fixtures/v2.sql",
+      "bytes": 657,
+      "sha256": "04443d01a7c8e8cab0952942be369c1e017e481f8a9af5264820b3c67be6e2ac"
+    },
+    {
+      "path": "mobile/test/flutter_test_config.dart",
+      "bytes": 428,
+      "sha256": "4e8222c9a02cf7175fd56c71457901962c819fc571d3e8e8dd3f91071fa53c7f"
+    },
+    {
+      "path": "mobile/test/focus_audio_desktop_test.dart",
+      "bytes": 2703,
+      "sha256": "d7a0856f04e12b78dac8fc1ac376f2c8213769d34bbb5353fe74136ba802135c"
+    },
+    {
+      "path": "mobile/test/focus_audio_mobile_test.dart",
+      "bytes": 6123,
+      "sha256": "cd0fefa963814e58f22e0538f133cf1da9718eb6f97eda4792fca891226d5745"
+    },
+    {
+      "path": "mobile/test/focus_audio_preferences_test.dart",
+      "bytes": 4712,
+      "sha256": "a3e6fe8e4bf1b03bbd4f09338b6d94196b6f3dd0657cbfcb060e4aa1ba488231"
+    },
+    {
+      "path": "mobile/test/focus_audio_support.dart",
+      "bytes": 6597,
+      "sha256": "9622c9202008335b87d71c0d28c80d10062d9de30cdc2eebbcfbe09000d87d5d"
+    },
+    {
+      "path": "mobile/test/focus_audio_test.dart",
+      "bytes": 19826,
+      "sha256": "80f1f5d941c6a38325452c811fbf59433b2017854da40b084f7906d1e82a2fc0"
+    },
+    {
+      "path": "mobile/test/focus_blocks_test.dart",
+      "bytes": 22730,
+      "sha256": "6427d4761f32cd6aa952fc20048484a45a7f764ae2ce60aa303fc529e1d76ed7"
+    },
+    {
+      "path": "mobile/test/focus_calendar_ui_test.dart",
+      "bytes": 7724,
+      "sha256": "aaaebee9478a05eabe168808ca4fcd0a9b97859ed848e95cb608e51658aa6fdc"
+    },
+    {
+      "path": "mobile/test/focus_process_crash_test.dart",
+      "bytes": 4568,
+      "sha256": "f833a7d1d49e2040d45dc3bad0d5cab48a8f01bcab38c9f008ae87eaca7db3fe"
+    },
+    {
+      "path": "mobile/test/focus_sounds_ui_test.dart",
+      "bytes": 20336,
+      "sha256": "90009751ff7bc9ab8985d583219baa0d033e6ec195066b9542d8717c5bb67229"
+    },
+    {
+      "path": "mobile/test/font_support.dart",
+      "bytes": 1168,
+      "sha256": "a6a2fedd8f0bc836af564ef0e9637a457e4bd9cad7ade612ee3a34e230fdca06"
+    },
+    {
+      "path": "mobile/test/google_focus_writer_test.dart",
+      "bytes": 12395,
+      "sha256": "488354589ad0f3850e0abf45c4e0d65d8b0d8241535d374efbe9c32e0cb8fb74"
+    },
+    {
+      "path": "mobile/test/launch_reporter_test.dart",
+      "bytes": 3171,
+      "sha256": "b9e6ce36d8b23976029526549b19a5add56c8fdb9215f48914ad1657165b37b8"
+    },
+    {
+      "path": "mobile/test/local_storage_policy_test.dart",
+      "bytes": 1993,
+      "sha256": "a1c66aaa4de1369d6aad89c22dce22aab4f0305af821288a859e8307de75140a"
+    },
+    {
+      "path": "mobile/test/native_probe_support.dart",
+      "bytes": 915,
+      "sha256": "4e05f369eabde19f13527728e5010b46b626898aac6ee25892dd4408165922ea"
+    },
+    {
+      "path": "mobile/test/native_reader_concurrency_test.dart",
+      "bytes": 3398,
+      "sha256": "e36b9fa8062885d64e1d4d7371ba9c53ec79ff79e7c13fe5d8fb01df3bb38b98"
+    },
+    {
+      "path": "mobile/test/notification_repository_test.dart",
+      "bytes": 6119,
+      "sha256": "37d9d162f0ffcb40bb269ac1fb9d74a6bacdee26d5272249082550f1864dc1e5"
+    },
+    {
+      "path": "mobile/test/offline_flow_test.dart",
+      "bytes": 5187,
+      "sha256": "845224269f5e79be018e8e4d4c5d4552546372440b9e9381491460514444a5b0"
+    },
+    {
+      "path": "mobile/test/probes/crash_probe.dart",
+      "bytes": 1288,
+      "sha256": "f3d923cfb2e5d2fad83c46ee7739aa938a5bb83556bd60bbe5d42cfd2aff64e1"
+    },
+    {
+      "path": "mobile/test/probes/focus_write_crash_probe.dart",
+      "bytes": 2115,
+      "sha256": "201a3e1baf97cd7b7cfb6693892a44aa296f0dbe4994f957f7282467581baa81"
+    },
+    {
+      "path": "mobile/test/process_crash_test.dart",
+      "bytes": 5614,
+      "sha256": "1c1d762240a0518720fc6a422f9edcb179005932a7151b9ed9a20d0aa1220fd2"
+    },
+    {
+      "path": "mobile/test/refinement_test.dart",
+      "bytes": 29071,
+      "sha256": "f3db6a49b035efafce81cbe99ca8ceb70fe2703f88d056445174ff3aa28c6ba4"
+    },
+    {
+      "path": "mobile/test/release_ui_test.dart",
+      "bytes": 3514,
+      "sha256": "4515c0c4cc8de551b03fc768f0dfdc83ce665835280422bdd215ca5be3632a5e"
+    },
+    {
+      "path": "mobile/test/repository_test.dart",
+      "bytes": 10363,
+      "sha256": "e302a83f1cc8b3a2c0face7f584ee53054941b47b02bdcbab0508f1a0edd882e"
+    },
+    {
+      "path": "mobile/test/space_appearance_test.dart",
+      "bytes": 5362,
+      "sha256": "33f8e8d4edbd9e3f7655c693cee8a720b6ca52ef4ad284aff6a0d09ce1310276"
+    },
+    {
+      "path": "mobile/test/startup_work_test.dart",
+      "bytes": 9418,
+      "sha256": "3cea30eef5ed797dac059b01252fb0bafbd1bd16e0a4579c5e037b4b2d6ae76e"
+    },
+    {
+      "path": "mobile/test/support.dart",
+      "bytes": 6494,
+      "sha256": "2a4ea902e8d781db4cbbbbaa22915b7c1b7668536a405cbddbbd2d1cadb2dbb6"
+    },
+    {
+      "path": "mobile/test/timer_clock_test.dart",
+      "bytes": 2423,
+      "sha256": "a69d343dbf050a4dfa8ad0cd0f85d8700e29ddde0fd610ac3b91614f7f1df51e"
+    },
+    {
+      "path": "mobile/test/timer_engine_test.dart",
+      "bytes": 25558,
+      "sha256": "f6d9ad2de7b693d68181a2bf628cef96de40c314d10f6d76186b5b03d112b268"
+    },
+    {
+      "path": "mobile/test/ui_test.dart",
+      "bytes": 13728,
+      "sha256": "9e7dc6ec0f3e2f01b294df0ef38f7c2bd8facc617409b525f0e8c33b08161245"
+    },
+    {
+      "path": "mobile/test/windows_foundation_test.dart",
+      "bytes": 10074,
+      "sha256": "33b7f067e426a0b4ee8e8970021ac5cc5d2b93e33f2a3b1e90db9e12b2154b7f"
+    },
+    {
+      "path": "mobile/tool/calendar_session7_review.dart",
+      "bytes": 9807,
+      "sha256": "20584c339ec9d2f0a9e7425cd54f026937a5c8ccaf8478a971bbfd8095b10302"
+    },
+    {
+      "path": "mobile/tool/calendar_session8_review.dart",
+      "bytes": 4503,
+      "sha256": "51ce494511bffef9248113ff59e55893d288fb116dfee6a1648b09cf5a15cd96"
+    },
+    {
+      "path": "mobile/tool/calendar_session9_review.dart",
+      "bytes": 11579,
+      "sha256": "7ee8d5755fcee0fe03919b26180f10292974a2aad87eb2b373c587150ae621d4"
+    },
+    {
+      "path": "mobile/tool/focus_audio_session2_review.dart",
+      "bytes": 13963,
+      "sha256": "eb1a62253557e1c6a6e5366355d17ac87dfa68418a6b2690a0985acd2e42686e"
+    },
+    {
+      "path": "mobile/tool/focus_audio_session3_review.dart",
+      "bytes": 6240,
+      "sha256": "2a905e12e2cbb2391908356ce7bf6aba179942ae54a84027dd9f0c5b5977a93b"
+    },
+    {
+      "path": "mobile/tool/focus_audio_session4_review.dart",
+      "bytes": 775,
+      "sha256": "dac4bea6674aebd0e82438bfda0730ba73ef1ace40bd7cb8924985a25525c296"
+    },
+    {
+      "path": "mobile/tool/seed_profile.dart",
+      "bytes": 5542,
+      "sha256": "503ed59ea94ab0b5c79ebe20ab77801be7ecdb3af49fc7ee891faef038416974"
+    },
+    {
+      "path": "mobile/windows/.gitignore",
+      "bytes": 291,
+      "sha256": "96345475f1a3c66bd32d28178fba151ab1506b35b1f7857b8f7651863093ea11"
+    },
+    {
+      "path": "mobile/windows/CMakeLists.txt",
+      "bytes": 6230,
+      "sha256": "ee99ae5fbcaad698f704a1340016a277f33bc1fe0606e33b6afaa03f0fa193a3"
+    },
+    {
+      "path": "mobile/windows/flutter/CMakeLists.txt",
+      "bytes": 3742,
+      "sha256": "1fe418971b6f41bb35ceb3d64113a835f3f6f171ecaa707bf232492b57a588d6"
+    },
+    {
+      "path": "mobile/windows/flutter/generated_plugin_registrant.cc",
+      "bytes": 164,
+      "sha256": "82e02567f2faf5e732dc92a2fb0d01104f7ba8c48973f8cfd41a860b4fac3f3b"
+    },
+    {
+      "path": "mobile/windows/flutter/generated_plugin_registrant.h",
+      "bytes": 302,
+      "sha256": "dbc11635d7b1ba1887adf40df5b83d634e9c3ab0bee34510c71528bb4d73602a"
+    },
+    {
+      "path": "mobile/windows/flutter/generated_plugins.cmake",
+      "bytes": 804,
+      "sha256": "c9ee32253d06a18ffd9320db7e4d1efe8db26ddf956b1edb99c0406ce9bda298"
+    },
+    {
+      "path": "mobile/windows/runner/CMakeLists.txt",
+      "bytes": 3045,
+      "sha256": "9f2c336338082188da79868c8fe4c265650371083bacb60fa7b18759c710029e"
+    },
+    {
+      "path": "mobile/windows/runner/Runner.rc",
+      "bytes": 3812,
+      "sha256": "f2260510d0a8fc2ed2eddc7b5a4a9987f196b235ce85f35cdecc4c96677d8076"
+    },
+    {
+      "path": "mobile/windows/runner/calendar_credentials.h",
+      "bytes": 14812,
+      "sha256": "55cbfa99ea50c46f7c0119e0113fe33565bf9d5438f56f64711e2f9d05db7fa1"
+    },
+    {
+      "path": "mobile/windows/runner/calendar_links.h",
+      "bytes": 4244,
+      "sha256": "d3484c000bbb7012047e4c4f29eae4a9b8d30d42268b42d78da2606d66268bac"
+    },
+    {
+      "path": "mobile/windows/runner/desktop_host.cpp",
+      "bytes": 76601,
+      "sha256": "dd9cf1ebed1e48c20e432839d29827e3d54378c36ef7ce5a48a061f58d0eb746"
+    },
+    {
+      "path": "mobile/windows/runner/desktop_host.h",
+      "bytes": 3977,
+      "sha256": "561983cdc71c3533565c26abb01664c993c0fcb82c3b6773f546a3f16aa4059f"
+    },
+    {
+      "path": "mobile/windows/runner/desktop_instance.cpp",
+      "bytes": 9980,
+      "sha256": "d87e27763a6df5b1df2e3602a80b138a6c1901e032d15d5c14008a54e0fe70c1"
+    },
+    {
+      "path": "mobile/windows/runner/desktop_instance.h",
+      "bytes": 1046,
+      "sha256": "925dcf7cde3c8037989932c9b306c79e72f8a4d35fe7f67b96389ea6288fa0b8"
+    },
+    {
+      "path": "mobile/windows/runner/desktop_util.h",
+      "bytes": 6240,
+      "sha256": "ac1fb0fc00d741cbf9c7411c2bcaa0a66322fadd238825231deedf5636db1a58"
+    },
+    {
+      "path": "mobile/windows/runner/flutter_window.cpp",
+      "bytes": 2569,
+      "sha256": "55a40db20104b9506674d7deff0facbda8bed0826cea1f76edaac4a6fd3f243c"
+    },
+    {
+      "path": "mobile/windows/runner/flutter_window.h",
+      "bytes": 1150,
+      "sha256": "a8f5c9a909dc015676bf774673f6c88459b460d59780912408dc183ffa4a984a"
+    },
+    {
+      "path": "mobile/windows/runner/focus_audio_guard.cpp",
+      "bytes": 7773,
+      "sha256": "3fdb2f967bdfc079a97149ccee88c52b6f02b2c25f5853efdea8714f93291f7f"
+    },
+    {
+      "path": "mobile/windows/runner/focus_audio_guard.h",
+      "bytes": 650,
+      "sha256": "22327095ac08533cdfe6bed103af6f5228c71d002b3c895abe2a5c6fafa3a9e4"
+    },
+    {
+      "path": "mobile/windows/runner/focus_time.h",
+      "bytes": 2573,
+      "sha256": "4282d11969fd0d3b23679facd286a3af7d5f158562b7b62756d421afa22119d0"
+    },
+    {
+      "path": "mobile/windows/runner/main.cpp",
+      "bytes": 2751,
+      "sha256": "987e751ba010e0f1653bcb0497f6d31d490ce31d3f705a60bdf9f16a9c61a413"
+    },
+    {
+      "path": "mobile/windows/runner/resource.h",
+      "bytes": 784,
+      "sha256": "70508da1c0678872657267479cf033452ad465f099d68b1d90c8b818e8884a72"
+    },
+    {
+      "path": "mobile/windows/runner/resources/app_icon.ico",
+      "bytes": 27036,
+      "sha256": "469daa02703337c07725e70521ed0c10dca9abbdc680a3776ad299f4649c64df"
+    },
+    {
+      "path": "mobile/windows/runner/resources/tray_black.ico",
+      "bytes": 20128,
+      "sha256": "bdcf580102ed0b93ba191c126d6e27b19dc55c2cdab38e6ac0ed29d374ca4f41"
+    },
+    {
+      "path": "mobile/windows/runner/resources/tray_icon.ico",
+      "bytes": 43207,
+      "sha256": "372e373faca9d1ea817922f9da36a71f7b7dbb66ce6e02a7a0791624b612498b"
+    },
+    {
+      "path": "mobile/windows/runner/resources/tray_white.ico",
+      "bytes": 22668,
+      "sha256": "bd685da4205364784c1c2f1b85fff8267e524c96b3c783779b858775f5a509ce"
+    },
+    {
+      "path": "mobile/windows/runner/runner.exe.manifest",
+      "bytes": 602,
+      "sha256": "825d243e9fa1542619909c1b72d09b3ed7c1f3b225bb8367c125835e5dc3f8aa"
+    },
+    {
+      "path": "mobile/windows/runner/utils.cpp",
+      "bytes": 2168,
+      "sha256": "6c2c87106b4b29d534c7edcafb3b7f7b9079caa3cdafa7e56671ad2adf5a2543"
+    },
+    {
+      "path": "mobile/windows/runner/utils.h",
+      "bytes": 672,
+      "sha256": "95a7f7dddb832997cefa937a96f89472332277e75734a5de553610760b744b03"
+    },
+    {
+      "path": "mobile/windows/runner/win32_window.cpp",
+      "bytes": 8567,
+      "sha256": "b741c3958a06e6681dafd66771cf4c4adc9bdf50eabd5af31e538ca57f735de8"
+    },
+    {
+      "path": "mobile/windows/runner/win32_window.h",
+      "bytes": 3522,
+      "sha256": "7dd03746b19dcf3542829b2f6e8ed40a2714ce5f2cb3b0e23f0118a2fcf62d62"
+    },
+    {
+      "path": "mobile/windows/tests/CMakeLists.txt",
+      "bytes": 3076,
+      "sha256": "356eb9cbf32f4d46830f32a61d74a16886662f5453ef55f0382e2914c8bf5602"
+    },
+    {
+      "path": "mobile/windows/tests/desktop_native_test.cpp",
+      "bytes": 25540,
+      "sha256": "545f00bdddde69ac607a9c2b2672e2de1b6410a82059b1ecffdfe7a36509cedc"
+    },
+    {
+      "path": "mobile/windows/tests/focus_audio_fake.cpp",
+      "bytes": 502,
+      "sha256": "e2d6a05a1f239cb70f2e1dff1932ddad275fb4343faabf65edec759d727b965d"
+    },
+    {
+      "path": "mobile/windows/tests/focus_audio_native_test.cpp",
+      "bytes": 2382,
+      "sha256": "c819f9ef471a33a32a2f0aabe9aadd5d79bc8a594fe96692f4a1ec1df4235a86"
+    },
+    {
+      "path": "mobile/windows/tests/font_native_test.cpp",
+      "bytes": 2850,
+      "sha256": "d8e71cf2020792e58ad4994e9bfb074b32c81a1a9e380b65090a03d75860d0f5"
+    },
+    {
+      "path": "mobile/windows/tests/mobile_audio_runtime_test.cpp",
+      "bytes": 11783,
+      "sha256": "a6e186587a284ab0e53031ecdd3e36981cef351963a0dd3062a1b7b7e9b3e0da"
+    },
+    {
+      "path": "scripts/acquire_focus_sounds.py",
+      "bytes": 6649,
+      "sha256": "e32c94778ede57aec6f0560b51bfcf7421977da520a52f20d52d9904e64029aa"
+    },
+    {
+      "path": "scripts/build_android_release.ps1",
+      "bytes": 1818,
+      "sha256": "71a78a539fe93b4b5857bffb25a9912f402fda9202e1bfd45a6554582332fcf4"
+    },
+    {
+      "path": "scripts/build_windows_release.ps1",
+      "bytes": 10974,
+      "sha256": "89e9b962ab14ece8ce1c369e54b8b449bd853533801ebe3285453fc428fa1d88"
+    },
+    {
+      "path": "scripts/check_focus_sounds.py",
+      "bytes": 2623,
+      "sha256": "d635d15901289dde37c36cf2bb5b93e8211493adc70665d91968ce42d597d6ff"
+    },
+    {
+      "path": "scripts/check_focus_sounds_session2.py",
+      "bytes": 3077,
+      "sha256": "10fc40c12ffe4aa5d547856e4f913af89cb8113fe1182e455566b6458a43aa04"
+    },
+    {
+      "path": "scripts/check_focus_sounds_session3.py",
+      "bytes": 3607,
+      "sha256": "6375f132d18579972c2a75a9240aa5ff54a34a9c909694054e152cbe06229a70"
+    },
+    {
+      "path": "scripts/check_focus_sounds_session4.py",
+      "bytes": 7288,
+      "sha256": "0a65d54b6b06998f805a8f258f1deff1a56b7419a12977196fe959198c1f73fe"
+    },
+    {
+      "path": "scripts/check_release_scope.py",
+      "bytes": 3620,
+      "sha256": "85268d700dc709a6944083d197092b02f3212d1e642b2c2284a069c347e8100d"
+    },
+    {
+      "path": "scripts/collect_focus_sound_notices.py",
+      "bytes": 4641,
+      "sha256": "9b2bec0123e5fbac3a62efdffef2802237a634f67e4a1faa73df8deabfb07f2b"
+    },
+    {
+      "path": "scripts/collect_focus_sounds_session2.py",
+      "bytes": 11692,
+      "sha256": "5c2b975b5edb753345ad0ea00efb7b15009e6f4d275b31e042a7307342366605"
+    },
+    {
+      "path": "scripts/collect_focus_sounds_session3.py",
+      "bytes": 4155,
+      "sha256": "d9c5674930dacffa916d5ba12ec5a0d2c87e7886c3428825b9a9249512f547c3"
+    },
+    {
+      "path": "scripts/collect_focus_sounds_session4.py",
+      "bytes": 9109,
+      "sha256": "ad7924b3c68b7e4b931063fb21e2e309402054b480627d084871112e6cd4f5d7"
+    },
+    {
+      "path": "scripts/collect_native_notices.py",
+      "bytes": 4148,
+      "sha256": "845dbdb5928c702920ab8149353333ec28c561b5de88a6e963a182e868b80a6b"
+    },
+    {
+      "path": "scripts/create_android_upload_key.ps1",
+      "bytes": 2471,
+      "sha256": "1834338f94d0823000d0d38b0fe81443b061146f7a2452da469236b425ecca06"
+    },
+    {
+      "path": "scripts/create_windows_signing_certificate.ps1",
+      "bytes": 4124,
+      "sha256": "aa696b5f273ded1407f8b1d9d2d8cefe35bbd53da7d62887f1eb089d34c4d512"
+    },
+    {
+      "path": "scripts/estimate_android_download.ps1",
+      "bytes": 3115,
+      "sha256": "4b9585a9fa08abe0723a1160d12991bc08164ff017c0c55e7342fe341d277041"
+    },
+    {
+      "path": "scripts/export_focus_sound_evidence.py",
+      "bytes": 6528,
+      "sha256": "6cd22e0e5a970848b59047c46d4b7f1fad54b8a5c4be29ce2a02560ae6e0fe0f"
+    },
+    {
+      "path": "scripts/finalize_windows_kit.ps1",
+      "bytes": 5487,
+      "sha256": "5bb6d5e50755bdf9c483321b5247dcb8b2cba803ae61f30c566d1da344780a6a"
+    },
+    {
+      "path": "scripts/flutter.ps1",
+      "bytes": 1805,
+      "sha256": "08f8b772697f5ea809c516057c89f3567e90105e8fdec008ce2d4ab7d6be1b8f"
+    },
+    {
+      "path": "scripts/generate_branding.py",
+      "bytes": 6503,
+      "sha256": "6b265b6f89aa89ef1e20e2fd7bee895e6dc2e44cd74156a458484e7cd3ccba59"
+    },
+    {
+      "path": "scripts/generate_windows_assets.py",
+      "bytes": 1694,
+      "sha256": "108ed77c1051e8eab01fe1d67243813b281409a9853cdf523d76b8dda9ccbc47"
+    },
+    {
+      "path": "scripts/inspect_focus_sounds_android.py",
+      "bytes": 18043,
+      "sha256": "f95a8e84fa1065253ec6a2f49f0acb1d618fdc153a30924042eeb4e4f5b1f0ef"
+    },
+    {
+      "path": "scripts/inspect_focus_sounds_session4.py",
+      "bytes": 8209,
+      "sha256": "5ba63b0c161bdbaa557a13650ecd8696f151c313fd526818644c3b5a24451e5e"
+    },
+    {
+      "path": "scripts/inspect_windows_runtime.ps1",
+      "bytes": 1932,
+      "sha256": "68071be1e347ede8b213850cab52742470c9d5eacf2969c656a2a6bc5a3c6023"
+    },
+    {
+      "path": "scripts/measure_focus_sounds_session2.py",
+      "bytes": 6913,
+      "sha256": "cc21c6bf73c38c10e1a39cdcbd3fb30036313a62f660598b49efc5deda090056"
+    },
+    {
+      "path": "scripts/measure_focus_sounds_session4.py",
+      "bytes": 334,
+      "sha256": "18ff71bb8c9d357803509eb575c086dd0600aa76e900253764fc24d8840fb4b2"
+    },
+    {
+      "path": "scripts/measure_windows_calendar_session9.ps1",
+      "bytes": 7136,
+      "sha256": "da36b15dc67b3d71a21229809af2b34fbdadb0b16aa51f0648de76a7d774a098"
+    },
+    {
+      "path": "scripts/prepare_focus_sounds.py",
+      "bytes": 8071,
+      "sha256": "a087a28f82d901b2021a34c42ffe6fab835de7fa567c2b4afeb3dca8937772aa"
+    },
+    {
+      "path": "scripts/prepare_release.py",
+      "bytes": 1884,
+      "sha256": "15e46bbb0cfa4c7d181637b5322d28ddfda9112d39cd2183eab9145319e3a69b"
+    },
+    {
+      "path": "scripts/prepare_windows_links.ps1",
+      "bytes": 1204,
+      "sha256": "7f68a245063df428e9b97773142f392f31eb5821ceacd1181ed336e30d9aed73"
+    },
+    {
+      "path": "scripts/profile_android.py",
+      "bytes": 9031,
+      "sha256": "6f0f8bfe8ca6e91110ef3e8bdd5a144d77b5e75392ff829ac0f3598eda4351c2"
+    },
+    {
+      "path": "scripts/record_android_trace.py",
+      "bytes": 5142,
+      "sha256": "cdcbed2b8052e8c58bb527c3fb7b63b70706899d5d21fc8f4aa9a961f694c6da"
+    },
+    {
+      "path": "scripts/record_focus_sounds_android.py",
+      "bytes": 25284,
+      "sha256": "86f681761346f948185b01529b37f72fc008f40c0f5d8e5a0710b767b2fa9381"
+    },
+    {
+      "path": "scripts/record_focus_sounds_session3.py",
+      "bytes": 8749,
+      "sha256": "98da9bd867b92cf77fd805e00cd5c19c1d91df58e93e750115417f24a132f9b5"
+    },
+    {
+      "path": "scripts/record_focus_sounds_session4.py",
+      "bytes": 12922,
+      "sha256": "f58d1a3149e5770b4c1bf6c7a42eac79808c1d7b71e14d4479e51bc89e887c76"
+    },
+    {
+      "path": "scripts/release_evidence.py",
+      "bytes": 3611,
+      "sha256": "68eec44127d5b0d394a65b09bbaec9cff883e56cc29d445cd1e7b56d3a001226"
+    },
+    {
+      "path": "scripts/sign_windows_release.ps1",
+      "bytes": 4138,
+      "sha256": "78d58dabe87168d4dae22534fa5999dcf5c77b88feb9b13b13d9ecde6ac2754b"
+    },
+    {
+      "path": "scripts/summarize_android_trace.py",
+      "bytes": 5831,
+      "sha256": "1f5f96af5270cef0d751c574a74c06207b71b83c229d95ed4418a4d3d6744c91"
+    },
+    {
+      "path": "scripts/test_windows_calendar_config.ps1",
+      "bytes": 2775,
+      "sha256": "1b2c8e703a133e0e7cf5d8afe9493f75a502f498990806cad05c8042597b93f8"
+    },
+    {
+      "path": "scripts/test_windows_native.ps1",
+      "bytes": 1187,
+      "sha256": "557cf0c8e5ee415fcaec65a2f5cee1e85e990068ee1b3edeabf93b40341cd9d9"
+    },
+    {
+      "path": "scripts/verify_android_release.py",
+      "bytes": 7217,
+      "sha256": "823b1f8108a7fcd9ed6583aedcb4bc224d89e239805d1145991da1229267f6bd"
+    },
+    {
+      "path": "scripts/verify_focus_sound_assets.py",
+      "bytes": 5037,
+      "sha256": "1060c6786e6022b93eb07e68bc390bd5ddefe648e809eceda227b106d53fe005"
+    },
+    {
+      "path": "scripts/verify_windows_calendar_session9.py",
+      "bytes": 14591,
+      "sha256": "e60ddec0323494413b9a658e491c2f3b883527871ae8358ee0b3212f0ba6815c"
+    },
+    {
+      "path": "scripts/verify_windows_pilot.py",
+      "bytes": 10672,
+      "sha256": "243a532ee84b78220f0d2239e33e88874b6fde2d32f989bb3ef15728f476bc72"
+    },
+    {
+      "path": "scripts/windows_release.py",
+      "bytes": 8724,
+      "sha256": "9a7ed4e4d420aa7e04cc928a975d33fe4d1e6e8b2de5b481690f018c2e1e7fa9"
+    },
+    {
+      "path": "scripts/windows_session2_profile.ps1",
+      "bytes": 4581,
+      "sha256": "443633701f268e4fc4792d308ee4236f4c2303a922dbf2c9f7b7b5d3b8bc29f7"
+    }
+  ]
+}

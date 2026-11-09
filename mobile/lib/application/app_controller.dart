@@ -6,6 +6,9 @@ import 'local_repository.dart';
 import 'alert_coordinator.dart';
 import 'local_alerts.dart';
 import 'local_reset_participant.dart';
+import 'focus_audio_ports.dart';
+import 'focus_audio_coordinator.dart';
+import '../domain/focus_sound_preferences.dart';
 import '../domain/alert_state.dart';
 import '../domain/models.dart';
 import '../domain/timer_engine.dart';
@@ -64,6 +67,9 @@ class AppController extends ChangeNotifier {
     this._dayRange,
     this._completionPresenter,
     this._resetParticipant,
+    this._onFocusAudioSession,
+    this.focusAudio,
+    this.suspendAudioInBackground,
   ) : tasks = state.tasks.toList(),
       sessions = state.sessions.toList(),
       _revision = state.revision,
@@ -71,6 +77,7 @@ class AppController extends ChangeNotifier {
       _calendarUtc = now.utcNow,
       selectedTaskId = state.selectedTaskId,
       _desktopPreferences = state.desktopPreferences,
+      _focusSoundPreferences = state.focusSounds,
       timer = TimerEngine(
         settings: state.settings,
         restored: state.timer,
@@ -87,6 +94,9 @@ class AppController extends ChangeNotifier {
     LocalAlerts? alerts,
     CompletionPresenter? completionPresenter,
     LocalResetParticipant? resetParticipant,
+    void Function(FocusAudioSessionEvent)? onFocusAudioSession,
+    FocusAudioCoordinator? focusAudio,
+    bool suspendAudioInBackground = false,
     DateTime Function(DateTime)? toLocal,
     DayRange Function(DateTime)? dayRange,
   }) async {
@@ -102,6 +112,9 @@ class AppController extends ChangeNotifier {
       dayRange ?? DayRange.local,
       completionPresenter,
       resetParticipant,
+      onFocusAudioSession,
+      focusAudio,
+      suspendAudioInBackground,
     );
     final result = await controller.reconcile(forceAlerts: true);
     if (!result.clockSucceeded) {
@@ -114,6 +127,45 @@ class AppController extends ChangeNotifier {
 
   final LocalRepository repository;
   final LocalResetParticipant? _resetParticipant;
+  final void Function(FocusAudioSessionEvent)? _onFocusAudioSession;
+  final FocusAudioCoordinator? focusAudio;
+  final bool suspendAudioInBackground;
+  FocusSoundPreferences? _focusSoundPreferences;
+  FocusSoundPreferences get focusSoundPreferences =>
+      _focusSoundPreferences ?? const FocusSoundPreferences();
+
+  Future<void> updateFocusSoundPreferences(FocusSoundPreferences next) async {
+    if (_disposed) return;
+    if (_deferUntilReset(() => unawaited(updateFocusSoundPreferences(next)))) {
+      return;
+    }
+    FocusSoundPreferences.fromJson(next.toJson());
+    if (_focusSoundPreferences == next) return;
+    _focusSoundPreferences = next;
+    await _persist(refreshReads: false);
+    _notify();
+  }
+
+  void _audioEvent(
+    TimerAction action,
+    TimerTransition transition,
+    ClockReading? reading,
+  ) {
+    try {
+      _onFocusAudioSession?.call(
+        FocusAudioSessionEvent(
+          snapshot: timer.snapshot(),
+          action: action,
+          transition: transition,
+          reading: reading,
+          restoration: !_residentEffectsEnabled,
+        ),
+      );
+    } catch (_) {
+      /* Optional audio cannot fail a timer command. */
+    }
+  }
+
   final TimerEngine timer;
   PhaseCompletionNotice? _lastPhaseCompletion;
   PhaseCompletionNotice? get lastPhaseCompletion => _lastPhaseCompletion;
@@ -234,6 +286,7 @@ class AppController extends ChangeNotifier {
   static DateTime _systemLocal(DateTime value) => value.toLocal();
 
   Future<ReconciliationResult> setForeground(bool foreground) {
+    if (!foreground) focusAudio?.background(mobile: suspendAudioInBackground);
     if (_foreground == foreground) return Future.value(_idleResult());
     _foreground = foreground;
     _scheduleMidnight();
@@ -396,6 +449,14 @@ class AppController extends ChangeNotifier {
           _lastPhaseCompletion = null;
         }
       } on TimerClockException {
+        _audioEvent(
+          action,
+          const TimerTransition(
+            changed: false,
+            outcome: TimerCommandOutcome.unchanged,
+          ),
+          null,
+        );
         clockError =
             'Timer time could not be read. Try again. Your data is kept.';
         _syncTicker();
@@ -422,6 +483,7 @@ class AppController extends ChangeNotifier {
       }
       // Capture state in command order before allowing another user action.
       final snapshot = timer.snapshot();
+      _audioEvent(action, transition, now);
       final alertChanged = _alerts?.update(snapshot, now) ?? false;
       final save =
           transition.changed ||
@@ -668,6 +730,7 @@ class AppController extends ChangeNotifier {
       alerts: _alerts?.state ?? _savedAlerts,
       cleanupPending: cleanupPending,
       desktopPreferences: _desktopPreferences,
+      focusSounds: _focusSoundPreferences,
     );
     _pending.add(
       LocalChange(
@@ -884,6 +947,7 @@ class AppController extends ChangeNotifier {
       _lastPhaseCompletion = null;
       _pendingPresentations.clear();
       _desktopPreferences = null;
+      _focusSoundPreferences = null;
       tasks.clear();
       sessions.clear();
       selectedTaskId = null;
@@ -947,6 +1011,7 @@ class AppController extends ChangeNotifier {
   @override
   void dispose() {
     if (_disposed) return;
+    focusAudio?.pauseSounds();
     _disposed = true;
     _ticker?.cancel();
     _midnight?.cancel();

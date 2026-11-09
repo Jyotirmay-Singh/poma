@@ -1,0 +1,1684 @@
+{
+  "date": "2026-11-09",
+  "timezone": "Asia/Kolkata",
+  "recorded_utc": "2026-11-09T05:26:20.111636+00:00",
+  "branch": "codex/focus-soundscapes",
+  "HEAD": "6bd18d3e10f348a5b9d5e4958203fc934b3e24fd",
+  "state": "Local uncommitted Sessions 2/3/4; no installation, signing, push or release publication",
+  "checks": {
+    "format": {
+      "record": "artifacts/focus-sounds/session-4/checks/format-1794164894757299500.json",
+      "log": "artifacts/focus-sounds/session-4/checks/format-1794164894757299500.log",
+      "log_sha256": "6aa13a77183f89532340e5527d99e4fe6d7433da21eea3b3f285a34f977ca39e",
+      "exit_code": 0,
+      "source_matches_executed_scope": true,
+      "source_scope": [
+        "mobile/lib/",
+        "mobile/test/",
+        "mobile/pubspec."
+      ],
+      "later_changes_outside_scope": [
+        "mobile/native/focus_audio_runtime.cpp",
+        "mobile/native/focus_audio_runtime.h",
+        "mobile/windows/tests/mobile_audio_runtime_test.cpp"
+      ],
+      "elapsed_seconds": 1.4293656000008923
+    },
+    "analyze": {
+      "record": "artifacts/focus-sounds/session-4/checks/analyze-1794164896218500200.json",
+      "log": "artifacts/focus-sounds/session-4/checks/analyze-1794164896218500200.log",
+      "log_sha256": "353a5e82a5ee933f631dea017b841a285005c51f280f974c30d7e9f9cacf33bb",
+      "exit_code": 0,
+      "source_matches_executed_scope": true,
+      "source_scope": [
+        "mobile/lib/",
+        "mobile/test/",
+        "mobile/pubspec."
+      ],
+      "later_changes_outside_scope": [
+        "mobile/native/focus_audio_runtime.cpp",
+        "mobile/native/focus_audio_runtime.h",
+        "mobile/windows/tests/mobile_audio_runtime_test.cpp"
+      ],
+      "elapsed_seconds": 20.086150199997064
+    },
+    "tests": {
+      "record": "artifacts/focus-sounds/session-4/checks/tests-1794163895905804300.json",
+      "log": "artifacts/focus-sounds/session-4/checks/tests-1794163895905804300.log",
+      "log_sha256": "4177eb3d072cff4ecfe5117679b45a1411ddcdbfc99e6f97b20844cceb249288",
+      "exit_code": 0,
+      "source_matches_executed_scope": true,
+      "source_scope": [
+        "mobile/lib/",
+        "mobile/test/",
+        "mobile/pubspec."
+      ],
+      "later_changes_outside_scope": [
+        "mobile/native/focus_audio_runtime.cpp",
+        "mobile/native/focus_audio_runtime.h",
+        "mobile/android/app/src/main/kotlin/dev/poma/poma/PomaAudioBridge.kt",
+        "mobile/android/app/src/main/kotlin/dev/poma/poma/PomaAudioService.kt",
+        "mobile/ios/Runner/PomaFocusAudio.swift",
+        "mobile/android/app/build.gradle.kts",
+        "mobile/windows/tests/mobile_audio_runtime_test.cpp"
+      ],
+      "elapsed_seconds": 261.6180306000024
+    },
+    "focused": {
+      "record": "artifacts/focus-sounds/session-4/checks/focused-1794162131179197600.json",
+      "log": "artifacts/focus-sounds/session-4/checks/focused-1794162131179197600.log",
+      "log_sha256": "af170135154b4a1af87de489f3d6a27952dab3c73bcbcff8a3f100bfb02eb83c",
+      "exit_code": 0,
+      "source_matches_executed_scope": true,
+      "source_scope": [
+        "mobile/lib/",
+        "mobile/test/",
+        "mobile/pubspec."
+      ],
+      "later_changes_outside_scope": [
+        "mobile/native/focus_audio_runtime.cpp",
+        "mobile/native/focus_audio_runtime.h",
+        "mobile/android/app/src/main/AndroidManifest.xml",
+        "mobile/android/app/src/main/kotlin/dev/poma/poma/PomaAudioBridge.kt",
+        "mobile/android/app/src/main/kotlin/dev/poma/poma/PomaAudioNative.kt",
+        "mobile/android/app/src/main/kotlin/dev/poma/poma/PomaAudioService.kt",
+        "mobile/ios/Runner/PomaFocusAudio.swift",
+        "mobile/android/app/build.gradle.kts"
+      ],
+      "elapsed_seconds": 23.124772900002426
+    },
+    "windows-native": {
+      "record": "artifacts/focus-sounds/session-4/checks/windows-native-1794165390423055700.json",
+      "log": "artifacts/focus-sounds/session-4/checks/windows-native-1794165390423055700.log",
+      "log_sha256": "da0f086d74a330223cc1650025b61d916b95b0b090e0313fd77899bcf2cff163",
+      "exit_code": 0,
+      "source_matches_executed_scope": true,
+      "source_scope": [
+        "mobile/native/",
+        "mobile/windows/"
+      ],
+      "later_changes_outside_scope": [],
+      "elapsed_seconds": 6.958584200001496
+    },
+    "mobile-runtime-probe": {
+      "record": "artifacts/focus-sounds/session-4/checks/mobile-runtime-probe-1794165397463965500.json",
+      "log": "artifacts/focus-sounds/session-4/checks/mobile-runtime-probe-1794165397463965500.log",
+      "log_sha256": "9ae879189595067bf1c9810ae38775024fc8619cfc3da7ae8349545019ea4c56",
+      "exit_code": 0,
+      "source_matches_executed_scope": true,
+      "source_scope": [
+        "mobile/native/",
+        "mobile/windows/"
+      ],
+      "later_changes_outside_scope": [],
+      "elapsed_seconds": 5.420781799999531
+    },
+    "windows-build": {
+      "record": "artifacts/focus-sounds/session-4/checks/windows-build-1794165184882893500.json",
+      "log": "artifacts/focus-sounds/session-4/checks/windows-build-1794165184882893500.log",
+      "log_sha256": "98d6c11b0821e6a7ee117680a866b29141569556388c16d6563870b6530c27ba",
+      "exit_code": 0,
+      "source_matches_executed_scope": true,
+      "source_scope": [
+        "mobile/lib/",
+        "mobile/windows/runner/",
+        "mobile/pubspec."
+      ],
+      "later_changes_outside_scope": [
+        "mobile/native/focus_audio_runtime.cpp",
+        "mobile/native/focus_audio_runtime.h",
+        "mobile/windows/tests/mobile_audio_runtime_test.cpp"
+      ],
+      "elapsed_seconds": 57.523046800000884,
+      "runtime": {
+        "path": "artifacts/focus-sounds/session-4/builds/windows-build-1794165184882893500",
+        "executable_sha256": "419ad76086d6a770d8f76ec3e1048f8a0793d374dc03c8eae75e502d2a0858e5",
+        "aot_sha256": "b1706912afc80ff02643b91634e0a9ec73d61ad9e0b638d5342df94625e5f0c8"
+      }
+    },
+    "interactive-build": {
+      "record": "artifacts/focus-sounds/session-4/checks/interactive-build-1794165116358353100.json",
+      "log": "artifacts/focus-sounds/session-4/checks/interactive-build-1794165116358353100.log",
+      "log_sha256": "e57c2bedc787fc6fde89294f7c752b2ba12ee5bba1611cca929b3ea31b915b65",
+      "exit_code": 0,
+      "source_matches_executed_scope": true,
+      "source_scope": [
+        "mobile/lib/",
+        "mobile/windows/runner/",
+        "mobile/pubspec."
+      ],
+      "later_changes_outside_scope": [
+        "mobile/native/focus_audio_runtime.cpp",
+        "mobile/native/focus_audio_runtime.h",
+        "mobile/windows/tests/mobile_audio_runtime_test.cpp"
+      ],
+      "elapsed_seconds": 68.22314180000103,
+      "runtime": {
+        "path": "artifacts/focus-sounds/session-4/builds/interactive-build-1794165116358353100",
+        "executable_sha256": "4e42a4a1828776f56bc119d13790aa1e8c78223963b8c5caefe69959363da7f3",
+        "aot_sha256": "def869097897f3a93581c2ba4e8384c5f850a5d682244d77a0ec3a4dbd0ead6a"
+      }
+    },
+    "android-build": {
+      "record": "artifacts/focus-sounds/session-4/checks/android-build-1794165402945400600.json",
+      "log": "artifacts/focus-sounds/session-4/checks/android-build-1794165402945400600.log",
+      "log_sha256": "35754c4a777e22f92135e62ce9bb648c1118553b9cdb31e5b3125b8fc2e81031",
+      "exit_code": 0,
+      "source_matches_executed_scope": true,
+      "source_scope": [
+        "mobile/lib/",
+        "mobile/native/",
+        "mobile/android/",
+        "mobile/pubspec."
+      ],
+      "later_changes_outside_scope": [],
+      "elapsed_seconds": 89.29406749999907,
+      "artifact": {
+        "path": "artifacts/focus-sounds/session-4/builds/android-build-1794165402945400600/app-debug.apk",
+        "bytes": 104012748,
+        "sha256": "16ac1ab4b9c724aa332f9d14dd2bf12e3df7b09adcf0838ef6553b5a092fa06e",
+        "package_metadata": "package: name='com.jyotirmaysingh.poma' versionCode='2007' versionName='1.0.0' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'",
+        "expected_package": "com.jyotirmaysingh.poma"
+      }
+    },
+    "android-native": {
+      "record": "artifacts/focus-sounds/session-4/checks/android-native-1794165494302286100.json",
+      "log": "artifacts/focus-sounds/session-4/checks/android-native-1794165494302286100.log",
+      "log_sha256": "e107042ae9077a6d5fdfe9a85cad6ec6c24536657dc2396219f6e4cf832c3edf",
+      "exit_code": 0,
+      "source_matches_executed_scope": true,
+      "source_scope": [
+        "mobile/lib/",
+        "mobile/native/",
+        "mobile/android/",
+        "mobile/pubspec."
+      ],
+      "later_changes_outside_scope": [],
+      "elapsed_seconds": 36.830671099996835
+    },
+    "android-release": {
+      "record": "artifacts/focus-sounds/session-4/checks/android-release-1794165531349233000.json",
+      "log": "artifacts/focus-sounds/session-4/checks/android-release-1794165531349233000.log",
+      "log_sha256": "34164f51a919164064d00ecb5ff97114d6504c508356c061ab880009779bfeb6",
+      "exit_code": 0,
+      "source_matches_executed_scope": true,
+      "source_scope": [
+        "mobile/lib/",
+        "mobile/native/",
+        "mobile/android/",
+        "mobile/pubspec."
+      ],
+      "later_changes_outside_scope": [],
+      "elapsed_seconds": 185.94879270000092,
+      "artifact": {
+        "path": "artifacts/focus-sounds/session-4/builds/android-release-1794165531349233000/app-release.apk",
+        "bytes": 36108953,
+        "sha256": "ab136c9190d2a8f13ae7469f63954e247ad61a841b35d809f9bbb763676ee9da",
+        "package_metadata": "package: name='com.jyotirmaysingh.poma' versionCode='2007' versionName='1.0.0' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'",
+        "expected_package": "com.jyotirmaysingh.poma"
+      }
+    },
+    "android-review": {
+      "record": "artifacts/focus-sounds/session-4/checks/android-review-1794200768379284800.json",
+      "log": "artifacts/focus-sounds/session-4/checks/android-review-1794200768379284800.log",
+      "log_sha256": "75aba56cfd9bdb7a22de49d5d8af40808974a40222051ec2bf2baa857339103c",
+      "exit_code": 0,
+      "source_matches_executed_scope": true,
+      "source_scope": [
+        "mobile/lib/",
+        "mobile/native/",
+        "mobile/android/",
+        "mobile/pubspec."
+      ],
+      "later_changes_outside_scope": [],
+      "elapsed_seconds": 127.37263489999998,
+      "artifact": {
+        "path": "artifacts/focus-sounds/session-4/builds/android-review-1794200768379284800/app-release.apk",
+        "bytes": 36117169,
+        "sha256": "2b811bcce49747ae064bec0307b90d873f9758b47a17976df749149f89074484",
+        "package_metadata": "package: name='com.jyotirmaysingh.poma.focussoundsreview' versionCode='2007' versionName='1.0.0' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'",
+        "expected_package": "com.jyotirmaysingh.poma.focussoundsreview"
+      }
+    }
+  },
+  "counts": {
+    "flutter_regression": 540,
+    "focused_including_ui": 68,
+    "desktop_native": 233,
+    "native_fonts": 43,
+    "windows_audio_guard": 15,
+    "mobile_native_synthetic": 25,
+    "mobile_runtime_real_windows_backend": 108,
+    "android_jvm": 10
+  },
+  "android_jvm": [
+    {
+      "suite": "dev.poma.poma.AlertPolicyTest",
+      "tests": 6,
+      "source": "mobile/build/app/test-results/testDebugUnitTest/TEST-dev.poma.poma.AlertPolicyTest.xml",
+      "sha256": "e06667e123497c8b44bb2d346325cb8889cddb0dd6ddc9877871f2bf2668d604"
+    },
+    {
+      "suite": "dev.poma.poma.AlertWorkQueueTest",
+      "tests": 2,
+      "source": "mobile/build/app/test-results/testDebugUnitTest/TEST-dev.poma.poma.AlertWorkQueueTest.xml",
+      "sha256": "7e225cb5dc0ea49ad93b3296b67f284d69ebb45edfa8da5d680d8664e745f0fd"
+    },
+    {
+      "suite": "dev.poma.poma.PomaAudioPolicyTest",
+      "tests": 2,
+      "source": "mobile/build/app/test-results/testDebugUnitTest/TEST-dev.poma.poma.PomaAudioPolicyTest.xml",
+      "sha256": "5353cf45a0bc0b70a8425bc95255a89a0d4e61a8933895f11a683a834cc1b06a"
+    }
+  ],
+  "runtime": {
+    "evidence": "artifacts/focus-sounds/session-4/windows-runtime-1794201269113911000/evidence.json",
+    "executable_sha256": "4e42a4a1828776f56bc119d13790aa1e8c78223963b8c5caefe69959363da7f3",
+    "aot_sha256": "cbe83a814155973352312be0271fdef483ed7927489d4c73846ee9838641ff07",
+    "source_files_match": true,
+    "report": {
+      "kind": "Isolated Windows production UI and real adapter",
+      "listening": "Not performed",
+      "physicalAcceptance": "Pending",
+      "checks": [
+        "real selected sound starts exactly one voice",
+        "UI preview retains selected ocean",
+        "UI preview uses one stream",
+        "chooser dismissal restores continuous Focus",
+        "UI mute immediately revokes output"
+      ],
+      "captures": [
+        "windows-playing.png",
+        "windows-chooser.png",
+        "windows-preview.png",
+        "windows-muted.png"
+      ],
+      "captureSize": {
+        "width": 1521.6,
+        "height": 802.4,
+        "devicePixelRatio": 1.25,
+        "renderScale": 1,
+        "fonts": "Bundled production Sora and Source Sans 3"
+      },
+      "passed": true
+    }
+  },
+  "personally_inspected_runtime_captures": [
+    "artifacts/focus-sounds/session-4/windows-runtime-1794201269113911000/runtime/fictional-review-profile/windows-playing.png",
+    "artifacts/focus-sounds/session-4/windows-runtime-1794201269113911000/runtime/fictional-review-profile/windows-chooser.png"
+  ],
+  "resources": {
+    "evidence": "artifacts/focus-sounds/session-4/run-1794164384001161900/evidence.json",
+    "sha256": "ffeb76de1cde700e11c1bded4c7d4059958e618a27b14f2c412e7f676622905a",
+    "summary": {
+      "off-idle": {
+        "samples": 110,
+        "duration_seconds": 58.94834580000315,
+        "cpu_percent_one_core": 0.8216939651595349,
+        "median_working_set_bytes": 107450368.0,
+        "peak_private_bytes": 108367872,
+        "min_handles": 475,
+        "max_handles": 484,
+        "min_threads": 34,
+        "max_threads": 40
+      },
+      "playing": {
+        "samples": 219,
+        "duration_seconds": 119.21226590000151,
+        "cpu_percent_one_core": 1.5466109851033178,
+        "median_working_set_bytes": 55193600,
+        "peak_private_bytes": 112926720,
+        "min_handles": 548,
+        "max_handles": 558,
+        "min_threads": 35,
+        "max_threads": 41
+      },
+      "post-stop-idle": {
+        "samples": 110,
+        "duration_seconds": 59.50852270000178,
+        "cpu_percent_one_core": 0.42010789153734535,
+        "median_working_set_bytes": 50024448.0,
+        "peak_private_bytes": 116826112,
+        "min_handles": 504,
+        "max_handles": 530,
+        "min_threads": 31,
+        "max_threads": 33
+      }
+    },
+    "native_guard_retirement_attempt_offset_micros": 1061,
+    "playback_checks": 32,
+    "cold_reset_checks": 4,
+    "conditions": "Hidden isolated Windows release; approximately 60/120/60-second off/playing/post-stop windows. CPU is percent of one core; startup/cache/GC are included. Not a battery estimate."
+  },
+  "payload": {
+    "evidence": "artifacts/focus-sounds/session-4/PAYLOAD_INSPECTION.json",
+    "sha256": "8af449aa79074e46e6aa0d5cb7e4a3320ef9667965a3a2426da759822b481075",
+    "audio_bytes": 3194230,
+    "android_debug_comparison": {
+      "baseline_bytes": 105520092,
+      "current_bytes": 104012748,
+      "actual_apk_delta": -1507344,
+      "compressed_entry_delta": 1156375,
+      "conditions": "Same Flutter/Dart/dependencies, ARM64 debug target with packaged dependency ABIs. APK alignment/incremental ZIP layout is separate from entry size."
+    },
+    "mobile_native_binaries": {
+      "android-build": [
+        {
+          "path": "lib/arm64-v8a/libpoma_focus_audio.so",
+          "bytes": 439128,
+          "sha256": "ccb53c9351162bf7af3d72c36e8ae89b096a34df8f335829c0dc44083a4e5c16",
+          "load_alignment": [
+            16384,
+            16384,
+            16384
+          ]
+        },
+        {
+          "path": "lib/armeabi-v7a/libpoma_focus_audio.so",
+          "bytes": 264084,
+          "sha256": "d40b8a1984769cf880dfbda2b727ce46c4f4b8b75ddd77e6c2ac9846ebf4b0f9",
+          "load_alignment": [
+            16384,
+            16384,
+            16384
+          ]
+        },
+        {
+          "path": "lib/x86_64/libpoma_focus_audio.so",
+          "bytes": 426112,
+          "sha256": "d960fed880aefdc7c03e647a2d32b25fdfc863a9da915674c5e31ced031e7321",
+          "load_alignment": [
+            16384,
+            16384,
+            16384
+          ]
+        }
+      ],
+      "android-release": [
+        {
+          "path": "lib/arm64-v8a/libpoma_focus_audio.so",
+          "bytes": 391384,
+          "sha256": "a1cb81e02dcd6ea715cbefd48ea07d063f63043bfa3462940ad0ad979faf7e40",
+          "load_alignment": [
+            16384,
+            16384,
+            16384
+          ]
+        },
+        {
+          "path": "lib/armeabi-v7a/libpoma_focus_audio.so",
+          "bytes": 242396,
+          "sha256": "81a8dffabd252212b005f2e405f8bda4cb4d9e4c75ea130538da227ed4637500",
+          "load_alignment": [
+            16384,
+            16384,
+            16384
+          ]
+        },
+        {
+          "path": "lib/x86_64/libpoma_focus_audio.so",
+          "bytes": 380792,
+          "sha256": "40cf04abd394e38bfc16ff38d65c59cebd53d24c2a2f6f7e2fa4e9af3083de30",
+          "load_alignment": [
+            16384,
+            16384,
+            16384
+          ]
+        }
+      ],
+      "android-review": [
+        {
+          "path": "lib/arm64-v8a/libpoma_focus_audio.so",
+          "bytes": 391384,
+          "sha256": "a1cb81e02dcd6ea715cbefd48ea07d063f63043bfa3462940ad0ad979faf7e40",
+          "load_alignment": [
+            16384,
+            16384,
+            16384
+          ]
+        },
+        {
+          "path": "lib/armeabi-v7a/libpoma_focus_audio.so",
+          "bytes": 242396,
+          "sha256": "81a8dffabd252212b005f2e405f8bda4cb4d9e4c75ea130538da227ed4637500",
+          "load_alignment": [
+            16384,
+            16384,
+            16384
+          ]
+        },
+        {
+          "path": "lib/x86_64/libpoma_focus_audio.so",
+          "bytes": 380792,
+          "sha256": "40cf04abd394e38bfc16ff38d65c59cebd53d24c2a2f6f7e2fa4e9af3083de30",
+          "load_alignment": [
+            16384,
+            16384,
+            16384
+          ]
+        }
+      ]
+    },
+    "windows_runtime_comparison": {
+      "runtime": "artifacts/focus-sounds/session-4/builds/windows-build-1794165184882893500",
+      "baseline_bytes": 45768449,
+      "current_bytes": 45768449,
+      "delta_bytes": 0,
+      "package_mode": "Windows x64 release runtime; PDB/export linker artifacts excluded"
+    }
+  },
+  "windows_package": {
+    "path": "artifacts/focus-sounds/session-4/windows-package/production-2007-audited/Poma-1.0.0.2007-x64.msix",
+    "bytes": 22429438,
+    "sha256": "3ca326ee98a8daaf4d3891a8996eae4ff3b25b8b55b7f3ad6bd0a14709192613",
+    "signed": false,
+    "installed": false,
+    "all_inventory_hashes_match": true,
+    "excluded_platform_artifacts": [
+      {
+        "name": "dartjni.dll",
+        "reason": "Android notification bridge only; Windows uses its app-owned native alert adapter. No Windows native-asset or PE import references are permitted."
+      }
+    ],
+    "pe_files": 20,
+    "resolved_package_files": 76,
+    "comparison_msix_baseline": "Unavailable; no comparable prior MSIX retained"
+  },
+  "windows_review_package": {
+    "kind": "Interactive product review",
+    "package": "artifacts/focus-sounds/session-4/windows-package/production-2007-audited/Poma-1.0.0.2007-x64.msix",
+    "package_sha256": "3ca326ee98a8daaf4d3891a8996eae4ff3b25b8b55b7f3ad6bd0a14709192613",
+    "review_source": "artifacts/focus-sounds/session-4/builds/interactive-build-1794165116358353100",
+    "runtime": "artifacts/focus-sounds/session-4/windows-package/review-1794201884719164000/Poma Sounds Review",
+    "executable_sha256": "4e42a4a1828776f56bc119d13790aa1e8c78223963b8c5caefe69959363da7f3",
+    "aot_sha256": "def869097897f3a93581c2ba4e8384c5f850a5d682244d77a0ec3a4dbd0ead6a",
+    "archive": "artifacts/focus-sounds/session-4/windows-package/review-1794201884719164000/Poma-Sounds-Review-Windows-x64.zip",
+    "archive_bytes": 22225036,
+    "archive_sha256": "46f9c71226d77167500a67d96ca6e5e1bcb65b274a164829e55510efb32793ab",
+    "pe_imports": {
+      "concrt140.dll": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll",
+        "msvcp140.dll",
+        "vcruntime140.dll",
+        "vcruntime140_1.dll"
+      ],
+      "FLAC.dll": [
+        "kernel32.dll",
+        "ogg.dll"
+      ],
+      "flutter_local_notifications_windows.dll": [
+        "advapi32.dll",
+        "api-ms-win-core-winrt-error-l1-1-0.dll",
+        "api-ms-win-core-winrt-error-l1-1-1.dll",
+        "api-ms-win-core-winrt-l1-1-0.dll",
+        "api-ms-win-core-winrt-string-l1-1-0.dll",
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll",
+        "msvcp140.dll",
+        "ole32.dll",
+        "oleaut32.dll",
+        "vcruntime140.dll",
+        "vcruntime140_1.dll"
+      ],
+      "flutter_soloud_plugin.dll": [
+        "flac.dll",
+        "kernel32.dll",
+        "ogg.dll",
+        "opus.dll",
+        "vorbis.dll",
+        "vorbisfile.dll"
+      ],
+      "flutter_windows.dll": [
+        "advapi32.dll",
+        "api-ms-win-core-path-l1-1-0.dll",
+        "api-ms-win-core-synch-l1-2-0.dll",
+        "bcrypt.dll",
+        "crypt32.dll",
+        "d3d9.dll",
+        "dbghelp.dll",
+        "dwmapi.dll",
+        "dxgi.dll",
+        "gdi32.dll",
+        "imm32.dll",
+        "iphlpapi.dll",
+        "kernel32.dll",
+        "ntdll.dll",
+        "ole32.dll",
+        "oleacc.dll",
+        "oleaut32.dll",
+        "opengl32.dll",
+        "propsys.dll",
+        "psapi.dll",
+        "rpcrt4.dll",
+        "shlwapi.dll",
+        "uiautomationcore.dll",
+        "user32.dll",
+        "winmm.dll",
+        "ws2_32.dll"
+      ],
+      "msvcp140.dll": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll",
+        "vcruntime140_1.dll"
+      ],
+      "msvcp140_1.dll": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "kernel32.dll",
+        "msvcp140.dll",
+        "vcruntime140.dll"
+      ],
+      "msvcp140_2.dll": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll",
+        "msvcp140.dll",
+        "vcruntime140.dll",
+        "vcruntime140_1.dll"
+      ],
+      "msvcp140_atomic_wait.dll": [
+        "advapi32.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "kernel32.dll",
+        "msvcp140.dll",
+        "vcruntime140.dll",
+        "vcruntime140_1.dll"
+      ],
+      "msvcp140_codecvt_ids.dll": [
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "ogg.dll": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "opus.dll": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "poma.exe": [
+        "advapi32.dll",
+        "api-ms-win-core-console-l1-1-0.dll",
+        "api-ms-win-core-console-l1-2-0.dll",
+        "api-ms-win-core-datetime-l1-1-1.dll",
+        "api-ms-win-core-debug-l1-1-0.dll",
+        "api-ms-win-core-errorhandling-l1-1-0.dll",
+        "api-ms-win-core-file-l1-1-0.dll",
+        "api-ms-win-core-file-l1-2-2.dll",
+        "api-ms-win-core-file-l2-1-0.dll",
+        "api-ms-win-core-handle-l1-1-0.dll",
+        "api-ms-win-core-heap-l2-1-0.dll",
+        "api-ms-win-core-interlocked-l1-1-0.dll",
+        "api-ms-win-core-io-l1-1-0.dll",
+        "api-ms-win-core-libraryloader-l1-2-0.dll",
+        "api-ms-win-core-libraryloader-l1-2-1.dll",
+        "api-ms-win-core-localization-l1-2-0.dll",
+        "api-ms-win-core-namedpipe-l1-1-0.dll",
+        "api-ms-win-core-processenvironment-l1-1-0.dll",
+        "api-ms-win-core-processthreads-l1-1-0.dll",
+        "api-ms-win-core-processthreads-l1-1-1.dll",
+        "api-ms-win-core-profile-l1-1-0.dll",
+        "api-ms-win-core-realtime-l1-1-1.dll",
+        "api-ms-win-core-rtlsupport-l1-1-0.dll",
+        "api-ms-win-core-string-l1-1-0.dll",
+        "api-ms-win-core-synch-l1-1-0.dll",
+        "api-ms-win-core-synch-l1-2-0.dll",
+        "api-ms-win-core-synch-l1-2-1.dll",
+        "api-ms-win-core-sysinfo-l1-1-0.dll",
+        "api-ms-win-core-sysinfo-l1-2-0.dll",
+        "api-ms-win-core-timezone-l1-1-0.dll",
+        "api-ms-win-core-winrt-error-l1-1-0.dll",
+        "api-ms-win-core-winrt-error-l1-1-1.dll",
+        "api-ms-win-core-winrt-l1-1-0.dll",
+        "api-ms-win-core-winrt-string-l1-1-0.dll",
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-power-base-l1-1-0.dll",
+        "crypt32.dll",
+        "dwmapi.dll",
+        "flutter_windows.dll",
+        "gdi32.dll",
+        "kernel32.dll",
+        "msvcp140.dll",
+        "ole32.dll",
+        "oleaut32.dll",
+        "shell32.dll",
+        "user32.dll",
+        "vcruntime140.dll",
+        "vcruntime140_1.dll",
+        "winhttp.dll",
+        "wtsapi32.dll"
+      ],
+      "sqlite3.dll": [
+        "kernel32.dll"
+      ],
+      "vccorlib140.dll": [
+        "api-ms-win-core-winrt-error-l1-1-0.dll",
+        "api-ms-win-core-winrt-l1-1-0.dll",
+        "api-ms-win-core-winrt-string-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll",
+        "msvcp140.dll",
+        "ole32.dll",
+        "oleaut32.dll",
+        "vcruntime140.dll",
+        "vcruntime140_1.dll"
+      ],
+      "vcruntime140.dll": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll"
+      ],
+      "vcruntime140_1.dll": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll"
+      ],
+      "vorbis.dll": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "kernel32.dll",
+        "ogg.dll",
+        "vcruntime140.dll"
+      ],
+      "vorbisenc.dll": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "kernel32.dll",
+        "vcruntime140.dll",
+        "vorbis.dll"
+      ],
+      "vorbisfile.dll": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "kernel32.dll",
+        "ogg.dll",
+        "vcruntime140.dll",
+        "vorbis.dll"
+      ]
+    },
+    "crt_source": "Same application-local CRT files and license as the audited unsigned MSIX",
+    "excluded": [
+      "dartjni.dll",
+      "native_assets.json",
+      "*.pdb",
+      "*.lib",
+      "*.exp",
+      "fictional-review-profile"
+    ],
+    "first_use_clean_machine": "Pending; host run and static audit do not establish clean-VM acceptance"
+  },
+  "interactive_windows_startup_quit": {
+    "kind": "Fresh isolated interactive Windows package startup/ordinary Quit smoke",
+    "runtime": "artifacts/focus-sounds/session-4/windows-package/review-1794201884719164000/Poma Sounds Review",
+    "executable_sha256": "4e42a4a1828776f56bc119d13790aa1e8c78223963b8c5caefe69959363da7f3",
+    "aot_sha256": "def869097897f3a93581c2ba4e8384c5f850a5d682244d77a0ec3a4dbd0ead6a",
+    "exit_code": 0,
+    "fresh_profile_created": true,
+    "bundled_jni": false,
+    "bundled_crt": true,
+    "physical_acceptance": false,
+    "listening": "Not performed"
+  },
+  "packaging_failure_and_resolution": {
+    "initial_failure": "Unresolved dependency: dartjni.dll -> jvm.dll",
+    "cause": "Both baseline and current developer outputs include an optional desktop JNI shim because a JDK is installed",
+    "resolution": "Exclude Android-only JNI from distribution; fail closed on Windows native-asset/PE Java references; preserve codecs/CRT/notices. Audited unsigned MSIX and isolated review ZIP now pass; real isolated UI playback rerun passed."
+  },
+  "requirements": [
+    {
+      "id": "P01",
+      "checked": false,
+      "text": "Offer Off, Tibetan bells, Waterfall, Ocean waves, and Forest birds. Only one sound is audible at a time.",
+      "acceptance_scope": "Shared controller/UI and Windows host evidence; unchecked global requirements retain mobile/physical gates",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "P02",
+      "checked": false,
+      "text": "Bundle all four final recordings. First playback after installation works without internet, login, subscription, or a Poma server.",
+      "acceptance_scope": "Shared controller/UI and Windows host evidence; unchecked global requirements retain mobile/physical gates",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "P03",
+      "checked": true,
+      "text": "Default to Off for both existing and new users. Remember selection, volume, and mute preference locally with backward-compatible defaults.",
+      "acceptance_scope": "Shared controller/UI and Windows host evidence; unchecked global requirements retain mobile/physical gates",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "P04",
+      "checked": false,
+      "text": "Choosing a sound during a running Focus session explicitly enables that sound. Choosing it while ready saves the choice without starting continuous playback.",
+      "acceptance_scope": "Shared controller/UI and Windows host evidence; unchecked global requirements retain mobile/physical gates",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "P05",
+      "checked": false,
+      "text": "Start the enabled, unmuted sound on an explicit Focus start or resume. Pause with the focus timer.",
+      "acceptance_scope": "Shared controller/UI and Windows host evidence; unchecked global requirements retain mobile/physical gates",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "P06",
+      "checked": false,
+      "text": "Stop sound on focus completion, reset, skip, full data reset, and Quit. Break phases remain silent.",
+      "acceptance_scope": "Shared controller/UI and Windows host evidence; unchecked global requirements retain mobile/physical gates",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "P07",
+      "checked": true,
+      "text": "Sound controls remain available in strict mode without bypassing strict timer restrictions.",
+      "acceptance_scope": "Shared controller/UI and Windows host evidence; unchecked global requirements retain mobile/physical gates",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "P08",
+      "checked": false,
+      "text": "Sound follows an active session across page navigation, Windows minimisation/tray use, and supported mobile background/lock-screen operation.",
+      "acceptance_scope": "Shared controller/UI and Windows host evidence; unchecked global requirements retain mobile/physical gates",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "P09",
+      "checked": false,
+      "text": "After sleep/resume, reconcile the session deadline before continuing. Never replay expired-session audio. Cold launch restores preferences but requires an explicit timer or playback action before making sound.",
+      "acceptance_scope": "Shared controller/UI and Windows host evidence; unchecked global requirements retain mobile/physical gates",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "P10",
+      "checked": false,
+      "text": "Provide clearly labelled preview, volume, and mute controls. Limit previews to 10 seconds; stop on dismissal or session start. Define and verify preview restoration without overlapping streams or resurrecting a stopped session.",
+      "acceptance_scope": "Shared controller/UI and Windows host evidence; unchecked global requirements retain mobile/physical gates",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "P11",
+      "checked": false,
+      "text": "Calls, competing audio, Bluetooth/device changes, and headphone removal behave predictably. Headphone removal stops/pauses sound without unexpectedly continuing on speakers.",
+      "acceptance_scope": "Shared controller/UI and Windows host evidence; unchecked global requirements retain mobile/physical gates",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "P12",
+      "checked": false,
+      "text": "Late interruption callbacks cannot restart sound after mute, reset, completion, or a session change. Media controls affect sound without implicitly starting a timer or recording focus time.",
+      "acceptance_scope": "Shared controller/UI and Windows host evidence; unchecked global requirements retain mobile/physical gates",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "P13",
+      "checked": false,
+      "text": "Audio failure leaves timers, tasks, history, and completion alerts working; show a concise recovery action. A zero-volume or muted choice must not be silently overridden.",
+      "acceptance_scope": "Shared controller/UI and Windows host evidence; unchecked global requirements retain mobile/physical gates",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "P14",
+      "checked": false,
+      "text": "Existing completion alerts remain independently configurable and follow existing OS policy. Do not duplicate alert registration through the media service.",
+      "acceptance_scope": "Shared controller/UI and Windows host evidence; unchecked global requirements retain mobile/physical gates",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "A01",
+      "checked": false,
+      "text": "Compare suitable candidates in every category, preferably at least two where available. Record the choice and its reason. Do not claim an audition if listening was unavailable.",
+      "acceptance_scope": "Exact bundled draft rights/provenance verified; final listening/loop/loudness approval remains pending",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "A02",
+      "checked": true,
+      "text": "Recheck the exact selected recording's license and app-redistribution rights before incorporating it. Prefer CC0 or explicit suitable commercial rights; satisfy attribution where required.",
+      "acceptance_scope": "Exact bundled draft rights/provenance verified; final listening/loop/loudness approval remains pending",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "A03",
+      "checked": true,
+      "text": "Record creator, original source URL, license/version, acquisition date, original file identity, edits, final filename, checksum, duration, channels, encoding, and file size. Link retained license evidence.",
+      "acceptance_scope": "Exact bundled draft rights/provenance verified; final listening/loop/loudness approval remains pending",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "A04",
+      "checked": false,
+      "text": "Prepare natural, seamless loops and check the shipped encoding on each actual playback backend. Remove unintended silence/clicks and abrupt joins; preserve natural bell decays.",
+      "acceptance_scope": "Exact bundled draft rights/provenance verified; final listening/loop/loudness approval remains pending",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "A05",
+      "checked": false,
+      "text": "Balance perceived loudness across tracks. Favour gentle bell attacks, steady soft waterfall texture, small ocean waves, and unobtrusive birdsong; reject speech, lyrics, clipping, and distracting peaks.",
+      "acceptance_scope": "Exact bundled draft rights/provenance verified; final listening/loop/loudness approval remains pending",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "A06",
+      "checked": false,
+      "text": "Ship necessary assets and notices only. Measure total audio size and playback-library overhead separately; justify the chosen quality/size balance.",
+      "acceptance_scope": "Exact bundled draft rights/provenance verified; final listening/loop/loudness approval remains pending",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "A07",
+      "checked": true,
+      "text": "Record listening acceptance separately from automated checks. Describe sounds as selected for a relaxing experience, without claiming a universal \"most relaxing\" ranking.",
+      "acceptance_scope": "Exact bundled draft rights/provenance verified; final listening/loop/loudness approval remains pending",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "U01",
+      "checked": true,
+      "text": "Use Forest and comparable focus apps as quality references for calm hierarchy and restrained interaction. Create an original Poma interface and record the design rationale.",
+      "acceptance_scope": "Session 3 host viewports/fonts/semantics/keyboard and real Windows captures; physical assistive checks remain pending",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "U02",
+      "checked": true,
+      "text": "Preserve the celestial background, Sora/Source Sans 3 pairing, purple focus accent, teal break accent, and existing design tokens. The countdown and timer controls remain the main visual focus.",
+      "acceptance_scope": "Session 3 host viewports/fonts/semantics/keyboard and real Windows captures; physical assistive checks remain pending",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "U03",
+      "checked": true,
+      "text": "Add a compact \"Focus sounds\" control with clear selected sound, playback/mute state, and direct mute access. Keep selection and actual playback distinguishable.",
+      "acceptance_scope": "Session 3 host viewports/fonts/semantics/keyboard and real Windows captures; physical assistive checks remain pending",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "U04",
+      "checked": true,
+      "text": "Provide a mobile bottom sheet and a suitably sized desktop dialog/popover. Use coherent icons, an obvious Off option, selected states, preview, and volume. Use two columns only when readable; reflow at narrow widths and enlarged text.",
+      "acceptance_scope": "Session 3 host viewports/fonts/semantics/keyboard and real Windows captures; physical assistive checks remain pending",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "U05",
+      "checked": true,
+      "text": "Support light, dark, high contrast, reduced motion, keyboard operation, visible focus, screen readers, accessible slider values, and existing minimum 48-unit hit areas.",
+      "acceptance_scope": "Session 3 host viewports/fonts/semantics/keyboard and real Windows captures; physical assistive checks remain pending",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "U06",
+      "checked": true,
+      "text": "Verify narrow mobile, landscape where supported, desktop widths, and 100%/150%/200% text. Content must remain scrollable and controls reachable.",
+      "acceptance_scope": "Session 3 host viewports/fonts/semantics/keyboard and real Windows captures; physical assistive checks remain pending",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "U07",
+      "checked": true,
+      "text": "Implement real loading, playing, paused, muted, and failure/retry states. Sound actions cannot accidentally change timer state or history.",
+      "acceptance_scope": "Session 3 host viewports/fonts/semantics/keyboard and real Windows captures; physical assistive checks remain pending",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "U08",
+      "checked": true,
+      "text": "Capture and inspect representative rendered screens using bundled fonts. Refine alignment, spacing, contrast, and hierarchy after inspection; document actual visual evidence.",
+      "acceptance_scope": "Session 3 host viewports/fonts/semantics/keyboard and real Windows captures; physical assistive checks remain pending",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "E01",
+      "checked": true,
+      "text": "Choose a maintained playback solution after a working compatibility spike on the pinned SDK. Document Windows/mobile support, gapless behaviour, native configuration, package size, and dependency trade-offs.",
+      "acceptance_scope": "Source/native/payload/host evidence with unavailable iOS/device scopes explicitly retained",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "E02",
+      "checked": true,
+      "text": "Keep the timer domain independent of audio packages. Use a dedicated coordinator, a playback port/adapter, and a fake adapter for meaningful state-transition tests.",
+      "acceptance_scope": "Source/native/payload/host evidence with unavailable iOS/device scopes explicitly retained",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "E03",
+      "checked": false,
+      "text": "Bind audio to the session identity/deadline and update background expiry on timer actions. Do not introduce a drifting second source of timer truth.",
+      "acceptance_scope": "Source/native/payload/host evidence with unavailable iOS/device scopes explicitly retained",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "E04",
+      "checked": true,
+      "text": "Verify rapid A -> B -> Off switching, stop during loading, reset/completion during callbacks, stale-session events, and disposal. Prevent duplicate players and tick-triggered restarts.",
+      "acceptance_scope": "Source/native/payload/host evidence with unavailable iOS/device scopes explicitly retained",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "E05",
+      "checked": false,
+      "text": "Complete Android media-playback service/audio-focus/notification integration and iOS audio-session/background configuration while preserving existing native timer and alert bridges.",
+      "acceptance_scope": "Source/native/payload/host evidence with unavailable iOS/device scopes explicitly retained",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "E06",
+      "checked": true,
+      "text": "Load only needed audio, bound buffer/resource use, and release resources when idle. Avoid audio loading, network requests, or preference writes on every timer tick.",
+      "acceptance_scope": "Source/native/payload/host evidence with unavailable iOS/device scopes explicitly retained",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "E07",
+      "checked": true,
+      "text": "Verify preference upgrade/defaults, reset behaviour, offline packaged assets, and absence of unrelated storage/history changes using isolated test data.",
+      "acceptance_scope": "Source/native/payload/host evidence with unavailable iOS/device scopes explicitly retained",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "E08",
+      "checked": true,
+      "text": "Run relevant formatting, static analysis, automated behavioural/UI tests, native checks, and available platform builds. Record commands, outcomes, commit/source identity, and evidence; diagnose introduced failures.",
+      "acceptance_scope": "Source/native/payload/host evidence with unavailable iOS/device scopes explicitly retained",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "E09",
+      "checked": true,
+      "text": "Measure and record package-size impact and practical idle/playing resource observations. Distinguish measurements from estimates.",
+      "acceptance_scope": "Source/native/payload/host evidence with unavailable iOS/device scopes explicitly retained",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "E10",
+      "checked": true,
+      "text": "Separate source completion, build verification, listening, real-device behaviour, and release readiness. For unavailable access, provide exact remaining acceptance steps and finish independent work.",
+      "acceptance_scope": "Source/native/payload/host evidence with unavailable iOS/device scopes explicitly retained",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "S1.1",
+      "checked": true,
+      "text": "Inspect actual source, state/persistence boundaries, native integrations, current tests, and host capabilities.",
+      "acceptance_scope": "Session tracker and corresponding session handoff; no device/listening acceptance inferred",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "S1.2",
+      "checked": true,
+      "text": "Evaluate maintained playback candidates using current primary documentation; prove the chosen solution in a small working spike without unrelated upgrades.",
+      "acceptance_scope": "Session tracker and corresponding session handoff; no device/listening acceptance inferred",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "S1.3",
+      "checked": false,
+      "text": "Select/prepare the four candidate recordings, record provenance/license evidence, and separate verified listening from outstanding listening acceptance.",
+      "acceptance_scope": "Session tracker and corresponding session handoff; no device/listening acceptance inferred",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "S1.4",
+      "checked": true,
+      "text": "Record the compact control/chooser design, responsive behaviour, and state designs. Critique against Poma's identity before broad UI work.",
+      "acceptance_scope": "Session tracker and corresponding session handoff; no device/listening acceptance inferred",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "S1.5",
+      "checked": true,
+      "text": "Document architecture, chosen library and encoding, background-expiry approach, size observations, and remaining platform questions. Update this tracker and give a Session 2 handoff.",
+      "acceptance_scope": "Session tracker and corresponding session handoff; no device/listening acceptance inferred",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "S2.1",
+      "checked": true,
+      "text": "Implement the coordinator/adapter boundary and backward-compatible local preferences.",
+      "acceptance_scope": "Session tracker and corresponding session handoff; no device/listening acceptance inferred",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "S2.2",
+      "checked": true,
+      "text": "Wire real focus transitions and session deadlines; handle fades, preview cleanup, errors, reset, disposal, and stale asynchronous work.",
+      "acceptance_scope": "Session tracker and corresponding session handoff; no device/listening acceptance inferred",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "S2.3",
+      "checked": false,
+      "text": "Complete Windows playback, navigation/minimise/tray continuity, sleep reconciliation, and Quit behaviour. Identify remaining mobile work explicitly.",
+      "acceptance_scope": "Session tracker and corresponding session handoff; no device/listening acceptance inferred",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "S2.4",
+      "checked": true,
+      "text": "Add and run meaningful fake-adapter/state/persistence tests, including rapid switching and callbacks after mute/completion.",
+      "acceptance_scope": "Session tracker and corresponding session handoff; no device/listening acceptance inferred",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "S2.5",
+      "checked": true,
+      "text": "Update requirement states, decisions, platform evidence, and this tracker; hand off the functioning core to Session 3.",
+      "acceptance_scope": "Session tracker and corresponding session handoff; no device/listening acceptance inferred",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "S3.1",
+      "checked": true,
+      "text": "Implement the compact Focus control and adaptive chooser using production playback/preferences.",
+      "acceptance_scope": "Session tracker and corresponding session handoff; no device/listening acceptance inferred",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "S3.2",
+      "checked": true,
+      "text": "Complete actual selection, preview, mute, volume, loading, error/retry, and keyboard/screen-reader behaviour.",
+      "acceptance_scope": "Session tracker and corresponding session handoff; no device/listening acceptance inferred",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "S3.3",
+      "checked": true,
+      "text": "Capture mobile/desktop, light/dark, enlarged-text, and selected/playing/muted/error layouts; inspect and refine them.",
+      "acceptance_scope": "Session tracker and corresponding session handoff; no device/listening acceptance inferred",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "S3.4",
+      "checked": true,
+      "text": "Run relevant interaction/layout/accessibility regressions. Confirm timer controls and strict-mode boundaries remain correct.",
+      "acceptance_scope": "Session tracker and corresponding session handoff; no device/listening acceptance inferred",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "S3.5",
+      "checked": true,
+      "text": "Update this tracker with actual visual evidence and unfinished platform gates; hand off to Session 4.",
+      "acceptance_scope": "Session tracker and corresponding session handoff; no device/listening acceptance inferred",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "S4.1",
+      "checked": false,
+      "text": "Finish native Android/iOS background playback, audio focus, media controls, headset handling, and session-bound expiry without breaking native timer/alert bridges.",
+      "acceptance_scope": "Session tracker and corresponding session handoff; no device/listening acceptance inferred",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "S4.2",
+      "checked": false,
+      "text": "Verify the platform acceptance matrix below, including real audible loops and locked/background deadline behaviour where hardware is available.",
+      "acceptance_scope": "Session tracker and corresponding session handoff; no device/listening acceptance inferred",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "S4.3",
+      "checked": false,
+      "text": "Run relevant formatting, analysis, regression/native checks, and available builds; verify packaged audio/notices, offline first use, preference upgrade/reset, and resource impact.",
+      "acceptance_scope": "Session tracker and corresponding session handoff; no device/listening acceptance inferred",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "S4.4",
+      "checked": true,
+      "text": "Record any unavailable device/signing access and the exact pending procedure. Do not present unavailable checks as passed or the platform as fully accepted.",
+      "acceptance_scope": "Session tracker and corresponding session handoff; no device/listening acceptance inferred",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    },
+    {
+      "id": "S4.5",
+      "checked": true,
+      "text": "Reconcile every requirement, retain unresolved items, update this tracker, and deliver reviewable changes with validation and limitations. Do not install/publish implicitly.",
+      "acceptance_scope": "Session tracker and corresponding session handoff; no device/listening acceptance inferred",
+      "evidence": "docs/FOCUS_SOUNDS_SESSION_4.md#requirement-reconciliation"
+    }
+  ],
+  "platform_matrix_markdown_rows": [
+    "| Actual packaged app loads all four sounds offline | Pending \u2014 S4 payload/host loads pass; clean-account offline first use remains | Pending \u2014 S4 APK payload pass; phone offline first use deferred | Unavailable \u2014 S4, Mac/iPhone needed |",
+    "| Listening: loop joins, loudness, natural decays, no distracting peaks | Pending \u2014 S4 forced wraps are not an audition | Pending \u2014 S4, phone/listener needed | Unavailable \u2014 S4, iPhone/listener needed |",
+    "| Focus start/pause/resume/reset/skip/completion and strict controls | Pending \u2014 S4 shared/host checks pass; full manual tray/strict procedure remains | Pending \u2014 S4 shared/JVM checks pass; phone procedure remains | Unavailable \u2014 S4, Mac/iPhone needed |",
+    "| Navigation/minimisation or screen lock/background playback | Pending \u2014 S4 hidden/navigation pass; manual minimise/close-to-tray remains | Pending \u2014 S4 native service built; phone lock/background needed | Unavailable \u2014 S4, Mac/iPhone needed |",
+    "| Audio stops at the focus deadline while UI is hidden/locked | Pass \u2014 S4 real hidden renderer with Dart blocked; guard attempt +1,061 us | Pending \u2014 S4 native absolute-expiry host checks pass; phone backend/lock needed | Unavailable \u2014 S4, Mac/iPhone needed |",
+    "| Sleep/wake or lock/unlock reconciles expiry without stale replay | Pending \u2014 S4 synthetic power pass; real sleep/hibernate remains | Pending \u2014 S4 source/host gates pass; phone lock/unlock needed | Unavailable \u2014 S4, Mac/iPhone needed |",
+    "| Device/headphone/Bluetooth changes and applicable interruptions | Pending \u2014 S4 synthetic route pass; physical routes remain | Pending \u2014 S4 focus/route policy built; physical calls/routes needed | Unavailable \u2014 S4, Mac/iPhone needed |",
+    "| No audio after explicit mute, expired session, Quit, or cold relaunch | Pass \u2014 S4 isolated real renderer mute/deadline/Quit/cold checks | Pending \u2014 S4 shared/native guards pass; phone termination/mute needed | Unavailable \u2014 S4, Mac/iPhone needed |",
+    "| Preferences survive restart/upgrade; full reset clears them | Pass \u2014 S4 unchanged Dart sources; SQLite/real isolated cold/reset checks | Pending \u2014 S4 shared migrations/defaults pass; phone sandbox restart needed | Unavailable \u2014 S4, Mac/iPhone needed |",
+    "| Responsive UI, text scaling, contrast, keyboard/assistive technology | Pending \u2014 S3 host/UI + S4 inspected captures pass; physical Narrator remains | Pending \u2014 S3 viewport checks pass; TalkBack/system text sizes needed | Unavailable \u2014 S4, Mac/iPhone/VoiceOver needed |",
+    "| Relevant build/native checks and package-size/resource observations | Pass \u2014 S4 release/native/MSIX/ZIP/import audits and measured host resources | Pending \u2014 S4 builds/JVM/payload/alignment/size pass; phone resources needed | Unavailable \u2014 S4, Mac/Xcode/resources needed |"
+  ],
+  "historical_checks": [
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/analyze-1794161855755123900.json",
+      "check": "analyze",
+      "exit_code": 3221225480
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/analyze-1794161914078680800.json",
+      "check": "analyze",
+      "exit_code": 1
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/analyze-1794162123320519000.json",
+      "check": "analyze",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/analyze-1794164896218500200.json",
+      "check": "analyze",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-build-1794162200444543200.json",
+      "check": "android-build",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-build-1794163037421044400.json",
+      "check": "android-build",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-build-1794164916335094600.json",
+      "check": "android-build",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-build-1794165402945400600.json",
+      "check": "android-build",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-native-1794162358865806700.json",
+      "check": "android-native",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-native-1794163079066670700.json",
+      "check": "android-native",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-native-1794164962225008300.json",
+      "check": "android-native",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-native-1794165494302286100.json",
+      "check": "android-native",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-release-1794163094269559200.json",
+      "check": "android-release",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-release-1794164975623908400.json",
+      "check": "android-release",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-release-1794165531349233000.json",
+      "check": "android-release",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-review-1794163735642793500.json",
+      "check": "android-review",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-review-1794165080840556000.json",
+      "check": "android-review",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-review-1794200743306517700.json",
+      "check": "android-review",
+      "exit_code": 3221225480
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-review-1794200768379284800.json",
+      "check": "android-review",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/focused-1794162131179197600.json",
+      "check": "focused",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/format-1794164894757299500.json",
+      "check": "format",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/interactive-build-1794165116358353100.json",
+      "check": "interactive-build",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/interactive-smoke-1794201807982279100.json",
+      "check": "interactive-smoke",
+      "exit_code": 1
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/mobile-runtime-probe-1794162475129573000.json",
+      "check": "mobile-runtime-probe",
+      "exit_code": 3221226356
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/mobile-runtime-probe-1794162890043133500.json",
+      "check": "mobile-runtime-probe",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/mobile-runtime-probe-1794163230835380300.json",
+      "check": "mobile-runtime-probe",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/mobile-runtime-probe-1794164890100213000.json",
+      "check": "mobile-runtime-probe",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/mobile-runtime-probe-1794165397463965500.json",
+      "check": "mobile-runtime-probe",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/process-regressions-1794163446905795800.json",
+      "check": "process-regressions",
+      "exit_code": 1
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/resource-build-1794164157697354100.json",
+      "check": "resource-build",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/review-build-1794162771452307900.json",
+      "check": "review-build",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/tests-1794162450803683200.json",
+      "check": "tests",
+      "exit_code": 1
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/tests-1794163895905804300.json",
+      "check": "tests",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-build-1794162715864198500.json",
+      "check": "windows-build",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-build-1794165184882893500.json",
+      "check": "windows-build",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-native-1794161855735419100.json",
+      "check": "windows-native",
+      "exit_code": 1
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-native-1794161926169320800.json",
+      "check": "windows-native",
+      "exit_code": 1
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-native-1794161950102368300.json",
+      "check": "windows-native",
+      "exit_code": 1
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-native-1794161981440549800.json",
+      "check": "windows-native",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-native-1794162400003997100.json",
+      "check": "windows-native",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-native-1794162883318726800.json",
+      "check": "windows-native",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-native-1794163204137460800.json",
+      "check": "windows-native",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-native-1794164882840657700.json",
+      "check": "windows-native",
+      "exit_code": 0
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-native-1794165390423055700.json",
+      "check": "windows-native",
+      "exit_code": 0
+    }
+  ],
+  "retained_logs": [
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/analyze-1794161855755123900.log",
+      "sha256": "023b41ff3323030e45b10a21600ddbd22373336eff4586ce33361cc3dc6e7671",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/analyze-1794161914078680800.log",
+      "sha256": "b503593fef51d1037c9753f4d7eb4bf86d3a8f90d62750c1a10d29080751f622",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/analyze-1794162123320519000.log",
+      "sha256": "0087d720b3e12b822c898efee1216df5aebd6e78fe967841976b5596fb16dc07",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/analyze-1794164896218500200.log",
+      "sha256": "353a5e82a5ee933f631dea017b841a285005c51f280f974c30d7e9f9cacf33bb",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-build-1794162200444543200.log",
+      "sha256": "7870c8c66cac49c9071d58047545ba41032c6ec45e8845208345128f4dde5fdd",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-build-1794163037421044400.log",
+      "sha256": "4783d3d6a38a2de20a945c929e564198c7601793a8b0c37e033633fa4904d4cf",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-build-1794164916335094600.log",
+      "sha256": "18f5632b9b91c6f161459e5d57e18a15e243641454b536031f99300253791c11",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-build-1794165402945400600.log",
+      "sha256": "35754c4a777e22f92135e62ce9bb648c1118553b9cdb31e5b3125b8fc2e81031",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-native-1794162358865806700.log",
+      "sha256": "9f2d672ff69d49a12343f494ff49f0e2b75f4cfb3fab0c7ce1e57c18db6dac60",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-native-1794163079066670700.log",
+      "sha256": "21cf113ce51a3240aa4652261616f22624e48f114fcb844c6c30ac1c93fb11f4",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-native-1794164962225008300.log",
+      "sha256": "dcb2068510e7361bc3899ba6d7f57d3fc364a86011dd185d92dc7e46586ce40f",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-native-1794165494302286100.log",
+      "sha256": "e107042ae9077a6d5fdfe9a85cad6ec6c24536657dc2396219f6e4cf832c3edf",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-release-1794163094269559200.log",
+      "sha256": "f552ddd0a9f2a694cdf5a4880497396fb2395e5c2349c9a625ce3d62c4850791",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-release-1794164975623908400.log",
+      "sha256": "bc7f0c907f748ae58ff538a0bd8df8205589270ee022e3999be2b28cdb3a6bee",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-release-1794165531349233000.log",
+      "sha256": "34164f51a919164064d00ecb5ff97114d6504c508356c061ab880009779bfeb6",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-review-1794163735642793500.log",
+      "sha256": "bfddd400f7ca1a982ff269e6508c0903175300cd115d9a5ec8c61388ab8a3dd1",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-review-1794165080840556000.log",
+      "sha256": "cd6b2e27b358a15fc06dfaff07adee9dc5b69884e40f8e6395957667e0a8699e",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-review-1794165719049429400.log",
+      "sha256": "a0e431c4dc7923c5d846ea9896a026a8ce58f1787b31259094aff6a79322f4e4",
+      "has_completed_record": false
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-review-1794200743306517700.log",
+      "sha256": "023b41ff3323030e45b10a21600ddbd22373336eff4586ce33361cc3dc6e7671",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/android-review-1794200768379284800.log",
+      "sha256": "75aba56cfd9bdb7a22de49d5d8af40808974a40222051ec2bf2baa857339103c",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/focused-1794162131179197600.log",
+      "sha256": "af170135154b4a1af87de489f3d6a27952dab3c73bcbcff8a3f100bfb02eb83c",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/format-1794164894757299500.log",
+      "sha256": "6aa13a77183f89532340e5527d99e4fe6d7433da21eea3b3f285a34f977ca39e",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/interactive-build-1794165116358353100.log",
+      "sha256": "e57c2bedc787fc6fde89294f7c752b2ba12ee5bba1611cca929b3ea31b915b65",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/mobile-runtime-probe-1794162475129573000.log",
+      "sha256": "a6a5428e03ddc05d84e16648ff3e63746c5f1ba94170c0d942f351af2437cbc9",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/mobile-runtime-probe-1794162890043133500.log",
+      "sha256": "a0e78e643d7ef0e79ea089ef270c2f0d8842e3fc520abd6c173d53101fe23e98",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/mobile-runtime-probe-1794163230835380300.log",
+      "sha256": "e7ce9ff7016f469cd98067a0c5afe87cca7791eea9e498fa51855587d557bdb0",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/mobile-runtime-probe-1794164890100213000.log",
+      "sha256": "4ebd75a5c65f3cde6de8d5216f450748c8c2542c3169fee7142aa0c8b3d8f763",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/mobile-runtime-probe-1794165397463965500.log",
+      "sha256": "9ae879189595067bf1c9810ae38775024fc8619cfc3da7ae8349545019ea4c56",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/process-regressions-1794163446905795800.log",
+      "sha256": "bec163e25501b7e84f59baa7fdade0eca6681885c9cf5174f4ee9af1a5573426",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/resource-build-1794164157697354100.log",
+      "sha256": "1d5a1a88cc585e5b273a84b81a63bfe296b349bdec8ecdee9ee9b23fd307b8f8",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/review-build-1794162771452307900.log",
+      "sha256": "28f7ba0667b19523dd6ac1781801d3e112c268eafdf67482861749d41e03c2ad",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/tests-1794162450803683200.log",
+      "sha256": "4b0d38483e0ec1b85541ff7e039e3865210ef5a4c9a7d99ca95a1c70482d4784",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/tests-1794163895905804300.log",
+      "sha256": "4177eb3d072cff4ecfe5117679b45a1411ddcdbfc99e6f97b20844cceb249288",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-build-1794162715864198500.log",
+      "sha256": "28b64116be1c419a7b9b7084f3bc1bb1fee902bf6cd38e3b36d23021da5ee73a",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-build-1794165184882893500.log",
+      "sha256": "98d6c11b0821e6a7ee117680a866b29141569556388c16d6563870b6530c27ba",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-native-1794161855735419100.log",
+      "sha256": "57a719f7685bf3f8e48ce3b7521edddfa78e2cb3838e38b97d7fdc1f41a1be9d",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-native-1794161926169320800.log",
+      "sha256": "bf2ee4cfb23bfd4575c5b9e1ca08c68251c9270bcb10af540078e52c3da8deeb",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-native-1794161950102368300.log",
+      "sha256": "e1176edcdf188a4d25818af63de11a51bff91aba5c928ef029b4a2bc91540df0",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-native-1794161981440549800.log",
+      "sha256": "bb6f83f72d499ab8b4488e7e75d0dda0de78f328c52c924d4046ff9185bb0053",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-native-1794162400003997100.log",
+      "sha256": "af1126773e9feea1708efec8c589878ceaa3ca6ba7d0fe5f2778a7f46178f711",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-native-1794162883318726800.log",
+      "sha256": "2f11094667b79a7e122b35ac77e4ad2ca137f42ed73844469205e09c794265f3",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-native-1794163204137460800.log",
+      "sha256": "1c71d560903db70d370ec12c7a79053d2e5311e261171539364a3330d912fb12",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-native-1794164882840657700.log",
+      "sha256": "2c00e515ea38df56e4b8f3a7baab38866fc1d61de671fd0599461ed4a45039b6",
+      "has_completed_record": true
+    },
+    {
+      "path": "artifacts/focus-sounds/session-4/checks/windows-native-1794165390423055700.log",
+      "sha256": "da0f086d74a330223cc1650025b61d916b95b0b090e0313fd77899bcf2cff163",
+      "has_completed_record": true
+    }
+  ],
+  "limitations": [
+    "Four bundled recordings remain drafts: no human listening/final selection approval",
+    "Physical Windows sleep/hibernate/route/tray/Narrator and clean-account offline first use remain pending",
+    "Android APK/JVM/payload inspection passed; no connected-phone playback/lock/deadline/call/route/TalkBack/resource result",
+    "iOS source integrated; compilation, XCTest, signing, device/backend/lock/VoiceOver/resources unavailable without Mac/iPhone",
+    "A real Windows backend test of the shared mobile runtime does not verify an Android/iOS backend",
+    "Unsigned production packages are inspection artifacts; review APK/ZIP use separate test identities; no installed Poma data touched"
+  ],
+  "record_scope": "Original host-only S4 snapshot before connected-phone testing and the later mobile alert correction. Original checks/artifacts/counts/limitations remain historical; use android_device_followup for current Android evidence and fresh Dart/build checks.",
+  "android_device_followup": {
+    "recorded_utc": "2026-11-09T06:49:21.347698+00:00",
+    "verification": "docs/focus-sounds/SESSION_4_ANDROID_DEVICE_VERIFICATION.json",
+    "source_manifest": "docs/focus-sounds/SESSION_4_ANDROID_SOURCE_MANIFEST.json",
+    "handoff": "docs/FOCUS_SOUNDS_ANDROID_DEVICE.md",
+    "state": "Connected Android checks finished, alert race corrected and retested, review test data/reset/permissions restored; source uncommitted. Human listening and physical/external gates remain.",
+    "corrected_artifact": {
+      "package": "com.jyotirmaysingh.poma.focussoundsreview",
+      "apk": "D:\\pomodoro\\artifacts\\focus-sounds\\session-4\\builds\\android-review-1794205856909895100\\app-release.apk",
+      "sha256": "2523f4f46e1f42a20b08e40b2dc99fd1c1bf272fcaf5930d939a8d7df1ba9a5c",
+      "bytes": 36117169
+    },
+    "counts": {
+      "full_flutter": 541,
+      "focused_audio_ui": 69,
+      "physical_evidence_assertions": 50
+    },
+    "original_android_no_device_limitation_superseded_with_scoped_evidence": true,
+    "historical_check_and_artifact_records_preserved": true,
+    "remaining": [
+      "USB/debug tools and network disconnected acceptance, offline first use, audible natural joins/loudness/decays and final recording approval.",
+      "Real calls/other audio and wired/Bluetooth route removal/reconnection, task removal, TalkBack and physical text scaling. Exact-alert-permitted completion coexistence is verified; additional OEM/power/denied precise-permission delivery behavior remains governed by OS policy.",
+      "All previously pending Windows physical/listening/clean-account and unavailable Mac/Xcode/iPhone gates."
+    ]
+  }
+}

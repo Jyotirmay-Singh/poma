@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+        AAD000012026110800000001 /* PomaFocusAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAD000012026110800000002 /* PomaFocusAudio.swift */; };
+        AAD000012026110800000003 /* focus_audio_runtime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAD000012026110800000004 /* focus_audio_runtime.cpp */; };
         AAC000012026102100000001 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = AAC000012026102100000002 /* Localizable.strings */; };
         AAB000012026102000000001 /* PomaLocalAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAB000012026102000000002 /* PomaLocalAlerts.swift */; };
         AAB000012026102000000003 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = AAB000012026102000000004 /* PrivacyInfo.xcprivacy */; };
@@ -45,6 +47,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+        AAD000012026110800000002 /* PomaFocusAudio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomaFocusAudio.swift; sourceTree = "<group>"; };
+        AAD000012026110800000004 /* focus_audio_runtime.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ../../native/focus_audio_runtime.cpp; sourceTree = "<group>"; };
+        AAD000012026110800000005 /* PomaFocusAudio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PomaFocusAudio.h; sourceTree = "<group>"; };
         AAC000012026102100000002 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
         AAB000012026102000000002 /* PomaLocalAlerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomaLocalAlerts.swift; sourceTree = "<group>"; };
         AAB000012026102000000004 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -129,6 +134,9 @@
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
                 AAB000012026102000000002 /* PomaLocalAlerts.swift */,
+                AAD000012026110800000002 /* PomaFocusAudio.swift */,
+                AAD000012026110800000004 /* focus_audio_runtime.cpp */,
+                AAD000012026110800000005 /* PomaFocusAudio.h */,
                 AAB000012026102000000004 /* PrivacyInfo.xcprivacy */,
                 AAC000012026102100000002 /* Localizable.strings */,
 				7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */,
@@ -294,6 +302,8 @@
 			files = (
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
                 AAB000012026102000000001 /* PomaLocalAlerts.swift in Sources */,
+                AAD000012026110800000001 /* PomaFocusAudio.swift in Sources */,
+                AAD000012026110800000003 /* focus_audio_runtime.cpp in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */,
 			);

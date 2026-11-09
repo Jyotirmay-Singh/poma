@@ -5,12 +5,68 @@ import '../application/app_controller.dart';
 import '../application/local_alerts.dart';
 import '../application/local_repository.dart';
 import '../domain/models.dart';
+import '../domain/focus_sound_preferences.dart';
+import '../application/focus_audio_ports.dart';
 import '../l10n/poma_localizations.dart';
 import 'desktop_scope.dart';
 
 extension PomaCopy on BuildContext {
   PomaLocalizations get copy => PomaLocalizations.of(this)!;
 }
+
+String focusSoundName(PomaLocalizations copy, FocusSoundId sound) =>
+    switch (sound) {
+      FocusSoundId.off => copy.soundOff,
+      FocusSoundId.tibetanBells => copy.soundBells,
+      FocusSoundId.waterfall => copy.soundWaterfall,
+      FocusSoundId.oceanWaves => copy.soundOcean,
+      FocusSoundId.forestBirds => copy.soundBirds,
+    };
+
+String focusSoundStatus(
+  PomaLocalizations copy,
+  FocusAudioState state,
+  FocusPhase phase,
+  RunStatus status,
+) {
+  final p = state.preferences;
+  if (state.availability == FocusAudioAvailability.unavailable) {
+    return copy.soundUnavailable;
+  }
+  if (p.muted) return copy.soundMuted;
+  if (p.volume == 0) return copy.soundZero;
+  if (state.canRetry) return copy.soundFailed;
+  if (state.previewSound case final sound?) {
+    return state.transport == FocusAudioTransport.loading
+        ? copy.soundLoadingPreview
+        : copy.soundPreviewing(focusSoundName(copy, sound));
+  }
+  if (p.sound == FocusSoundId.off) return copy.soundOff;
+  if (phase != FocusPhase.focus) return copy.soundBreak;
+  if (state.routeBlocked) return copy.soundRoute;
+  if (state.interrupted || state.suspended) return copy.soundInterrupted;
+  return switch (state.transport) {
+    FocusAudioTransport.loading => copy.soundLoading(
+      focusSoundName(copy, p.sound),
+    ),
+    FocusAudioTransport.playing => copy.soundPlaying,
+    _ =>
+      status == RunStatus.paused
+          ? copy.soundTimerPaused
+          : status == RunStatus.ready
+          ? copy.soundReady
+          : copy.soundPaused,
+  };
+}
+
+bool focusSoundCanPlay(AppController controller, FocusAudioState state) =>
+    controller.clockError == null &&
+    state.availability == FocusAudioAvailability.available &&
+    controller.timer.phase == FocusPhase.focus &&
+    controller.timer.status == RunStatus.running &&
+    state.preferences.sound != FocusSoundId.off &&
+    !state.preferences.muted &&
+    state.preferences.volume > 0;
 
 String phaseName(PomaLocalizations copy, FocusPhase phase) => switch (phase) {
   FocusPhase.focus => copy.focus,

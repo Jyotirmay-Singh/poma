@@ -1,5 +1,33 @@
 # Poma UI refinement
 
+## Focus sounds — Session 3
+
+The optional sound control retains the celestial sky, opaque surfaces, bundled
+Sora/Source Sans 3, and existing Focus/break accents. It sits below supporting
+timer actions on split desktop layouts. Stacked layouts keep the current task
+(or ready next-task card) before sounds; the dial and primary timer actions retain
+their sizes. Selection and actual output have separate labels.
+
+The chooser uses small parallel outline tiles with independent preview actions.
+Its desktop dialog is capped at 560 logical units. Phone sheets use safe areas,
+a drag handle and a 90% available-height cap. Two columns require at least 480
+units of chooser content width and text scaling at most 125%, following the
+Session 1 specification; otherwise tiles stack. Heights follow wrapped content.
+At 150%/200%, controls reflow and the entire chooser scrolls, including dismissal.
+Existing 48-unit targets, 8/12-unit corners and spacing tokens apply.
+
+Radio selection, text and outlines make choices identifiable beyond color.
+Preview status never changes the selected radio. The initial selected option is
+focused and scrolled only as necessary; focus is trapped and restored on dismissal.
+Keyboard volume changes use the coordinator's coalescing, retain zero and support
+1% arrows/Home/End. Reduced motion removes route animation. Disabled previews
+retain readable secondary text; unavailability is explained separately.
+
+Design reference: [Forest's official product presentation](https://www.forestapp.cc/)
+informs restrained supporting controls and one clear focal point. All layout,
+celestial identity, typography and controls are Poma's. Session 3 visual evidence
+and remaining physical/assistive gates are recorded in FOCUS_SOUNDS_SESSION_3.md.
+
 ## Calm space appearance — 7 November 2026
 
 Windows and mobile share one still sky behind the route tree, including startup

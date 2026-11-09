@@ -9,6 +9,144 @@ class PomaLocalizationsEn extends PomaLocalizations {
   PomaLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get focusSounds => 'Focus sounds';
+
+  @override
+  String get soundOff => 'Off';
+
+  @override
+  String get soundBells => 'Tibetan bells';
+
+  @override
+  String get soundWaterfall => 'Waterfall';
+
+  @override
+  String get soundOcean => 'Ocean waves';
+
+  @override
+  String get soundBirds => 'Forest birds';
+
+  @override
+  String get soundBellsDetail => 'Bowl tones';
+
+  @override
+  String get soundWaterfallDetail => 'Flowing water';
+
+  @override
+  String get soundOceanDetail => 'Gentle waves';
+
+  @override
+  String get soundBirdsDetail => 'Birdsong';
+
+  @override
+  String get soundOnlyFocus => 'Only during Focus';
+
+  @override
+  String get soundSelected => 'Selected';
+
+  @override
+  String get soundReady => 'Selected for focus';
+
+  @override
+  String get soundPlaying => 'Playing';
+
+  @override
+  String get soundPaused => 'Sound paused';
+
+  @override
+  String get soundTimerPaused => 'Paused with timer';
+
+  @override
+  String get soundMuted => 'Muted';
+
+  @override
+  String get soundZero => 'Volume 0%';
+
+  @override
+  String get soundBreak => 'Silent during break';
+
+  @override
+  String get soundRoute => 'Audio output changed';
+
+  @override
+  String get soundInterrupted => 'Sound interrupted';
+
+  @override
+  String get soundFailed => 'Sound couldn’t play';
+
+  @override
+  String get soundUnavailable => 'Playback unavailable on this device';
+
+  @override
+  String soundLoading(String sound) {
+    return 'Loading $sound…';
+  }
+
+  @override
+  String soundPreviewing(String sound) {
+    return 'Previewing $sound';
+  }
+
+  @override
+  String get soundLoadingPreview => 'Loading preview…';
+
+  @override
+  String get soundPreview => 'Preview 10 s';
+
+  @override
+  String soundPreviewLabel(String sound) {
+    return 'Preview $sound for up to 10 seconds';
+  }
+
+  @override
+  String get soundStopPreview => 'Stop preview';
+
+  @override
+  String soundStopPreviewLabel(String sound) {
+    return 'Stop preview of $sound';
+  }
+
+  @override
+  String get soundMute => 'Mute sounds';
+
+  @override
+  String get soundUnmute => 'Unmute sounds';
+
+  @override
+  String get soundMuteLabel => 'Mute focus sounds';
+
+  @override
+  String get soundPlay => 'Play sounds';
+
+  @override
+  String get soundPause => 'Pause sounds';
+
+  @override
+  String get soundRetry => 'Retry sound';
+
+  @override
+  String get soundVolume => 'Volume';
+
+  @override
+  String get soundVolumeLabel => 'Focus sounds volume';
+
+  @override
+  String soundPercent(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String soundPercentLabel(int percent) {
+    return '$percent percent';
+  }
+
+  @override
+  String get soundClose => 'Close';
+
+  @override
+  String get soundDone => 'Done';
+
+  @override
   String get focus => 'Focus';
 
   @override

@@ -537,6 +537,7 @@ class DesktopController extends ChangeNotifier {
 
   Future<void> quit() async {
     if (_quitting || _disposed) return;
+    controller.focusAudio?.beginQuit();
     _quitting = true;
     await focusBlocks?.stop();
     ++_startEpoch;
@@ -547,6 +548,7 @@ class DesktopController extends ChangeNotifier {
       await shell.showMain();
       if (await confirmDiscard?.call() != true) {
         _quitting = false;
+        controller.focusAudio?.cancelQuit();
         unawaited(focusBlocks?.initialize());
         await controller.setForeground(true);
         _queuePublish();
@@ -554,6 +556,7 @@ class DesktopController extends ChangeNotifier {
       }
     }
     await shell.armDeadline(null);
+    await controller.focusAudio?.close();
     _disposeCalendar();
     controller.removeListener(_queuePublish);
     controller.dispose();

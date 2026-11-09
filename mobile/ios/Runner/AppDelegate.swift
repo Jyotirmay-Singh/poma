@@ -16,6 +16,7 @@ import UserNotifications
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
     PomaLocalAlerts.shared.attach(messenger: engineBridge.applicationRegistrar.messenger())
+    _ = PomaFocusAudioBridge(messenger: engineBridge.applicationRegistrar.messenger())
 
     let clockChannel = FlutterMethodChannel(
       name: "dev.poma.poma/timer_clock",

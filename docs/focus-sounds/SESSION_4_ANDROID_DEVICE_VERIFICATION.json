@@ -1,0 +1,336 @@
+{
+  "utc": "2026-11-09T06:49:21.347698+00:00",
+  "host_monotonic": 6785.2037549,
+  "branch": "codex/focus-soundscapes",
+  "HEAD": "6bd18d3e10f348a5b9d5e4958203fc934b3e24fd",
+  "state": "Connected Android checks finished, alert race corrected and retested, review test data/reset/permissions restored; source uncommitted. Human listening and physical/external gates remain.",
+  "device": {
+    "ro.product.model": "moto g54 5G",
+    "ro.product.device": "cancunf",
+    "ro.build.version.release": "15",
+    "ro.build.version.sdk": "35",
+    "ro.product.cpu.abi": "arm64-v8a"
+  },
+  "artifact": {
+    "package": "com.jyotirmaysingh.poma.focussoundsreview",
+    "apk": "D:\\pomodoro\\artifacts\\focus-sounds\\session-4\\builds\\android-review-1794205856909895100\\app-release.apk",
+    "sha256": "2523f4f46e1f42a20b08e40b2dc99fd1c1bf272fcaf5930d939a8d7df1ba9a5c",
+    "bytes": 36117169
+  },
+  "initial_artifact": {
+    "package": "com.jyotirmaysingh.poma.focussoundsreview",
+    "apk": "D:\\pomodoro\\artifacts\\focus-sounds\\session-4\\builds\\android-review-1794200768379284800\\app-release.apk",
+    "sha256": "2b811bcce49747ae064bec0307b90d873f9758b47a17976df749149f89074484",
+    "bytes": 36117169
+  },
+  "signing": "Release-mode review build, debug-signed; production identity unchanged",
+  "initial_source_identity_at_initial_observation": {
+    "checked_against": "docs/focus-sounds/SESSION_4_SOURCE_MANIFEST.json",
+    "compared": 291,
+    "changed": []
+  },
+  "source_manifest": "docs/focus-sounds/SESSION_4_ANDROID_SOURCE_MANIFEST.json",
+  "source_manifest_sha256": "49e3b22e99c687f203c79e12bd4f79ab78bf973c3eb917c99085d7c15f8c213f",
+  "changed_mobile_inputs_since_initial_apk": [
+    "mobile/lib/application/focus_audio_coordinator.dart",
+    "mobile/test/focus_audio_mobile_test.dart",
+    "mobile/test/focus_audio_support.dart"
+  ],
+  "fresh_checks": {
+    "format": {
+      "record": "artifacts/focus-sounds/session-4/checks/format-1794205436012924000.json",
+      "record_sha256": "a3fd201f36b7290cdb69c3ad833141e4548ec9cfd784f0f5c78d45dc045223e2",
+      "log": "artifacts/focus-sounds/session-4/checks/format-1794205436012924000.log",
+      "log_sha256": "14d98d3e11e340ce0b33635cbf373969d1fded643838a8be109f4a9549725e87",
+      "exit_code": 0,
+      "elapsed_seconds": 1.5460731000002852,
+      "source_inputs_verified": 186,
+      "source_matches_current": true
+    },
+    "analyze": {
+      "record": "artifacts/focus-sounds/session-4/checks/analyze-1794205437646508000.json",
+      "record_sha256": "8ae2771cc8bc062faec67be6bebfcb8ca57638a3f5c52eb22708d04571f9052f",
+      "log": "artifacts/focus-sounds/session-4/checks/analyze-1794205437646508000.log",
+      "log_sha256": "6c6ba8dc0f2ad207765877d340b6921973e995d74b225414b086cea4985b3a0a",
+      "exit_code": 0,
+      "elapsed_seconds": 73.18293710000034,
+      "source_inputs_verified": 186,
+      "source_matches_current": true
+    },
+    "focused": {
+      "record": "artifacts/focus-sounds/session-4/checks/focused-1794205510877891200.json",
+      "record_sha256": "fa8f05cc965ab24ab15d910768e769db786f8109084bae3dc81053a13832724f",
+      "log": "artifacts/focus-sounds/session-4/checks/focused-1794205510877891200.log",
+      "log_sha256": "7bf1278364b5fb2015117aa0f9ca37c48b03f63bbb815edf414f6eac8b20fc40",
+      "exit_code": 0,
+      "elapsed_seconds": 33.10561789999974,
+      "source_inputs_verified": 186,
+      "source_matches_current": true,
+      "tests_passed": 69
+    },
+    "tests": {
+      "record": "artifacts/focus-sounds/session-4/checks/tests-1794205544031098600.json",
+      "record_sha256": "f1fddb9b6c847e3d819a3ce919f544ca901fb4a36a7c7bfb6e652862be66e121",
+      "log": "artifacts/focus-sounds/session-4/checks/tests-1794205544031098600.log",
+      "log_sha256": "8a0f0c0fb6ab0b46c1bfa1b794a699635fa4d3c5767856ea833504df49313b8c",
+      "exit_code": 0,
+      "elapsed_seconds": 312.8060593,
+      "source_inputs_verified": 186,
+      "source_matches_current": true,
+      "tests_passed": 541
+    },
+    "android-review": {
+      "record": "artifacts/focus-sounds/session-4/checks/android-review-1794205856909895100.json",
+      "record_sha256": "2a85964684557438d1256fc633a0c8458bea43c82bdfa0b629151eb94ec1912e",
+      "log": "artifacts/focus-sounds/session-4/checks/android-review-1794205856909895100.log",
+      "log_sha256": "3dcba1bc9e3b3037d8d61c0be8634b6a272b4aa4cc7e4837ba487b1d7639e939",
+      "exit_code": 0,
+      "elapsed_seconds": 111.12124810000023,
+      "source_inputs_verified": 186,
+      "source_matches_current": true,
+      "artifact": {
+        "path": "artifacts/focus-sounds/session-4/builds/android-review-1794205856909895100/app-release.apk",
+        "bytes": 36117169,
+        "sha256": "2523f4f46e1f42a20b08e40b2dc99fd1c1bf272fcaf5930d939a8d7df1ba9a5c",
+        "package_metadata": "package: name='com.jyotirmaysingh.poma.focussoundsreview' versionCode='2007' versionName='1.0.0' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'",
+        "expected_package": "com.jyotirmaysingh.poma.focussoundsreview"
+      }
+    },
+    "windows-build": {
+      "record": "artifacts/focus-sounds/session-4/checks/windows-build-1794205968452636900.json",
+      "record_sha256": "a70eb990aaed233d8693180ec68648f90365eede7087f6d31ac4f04bb97ea830",
+      "log": "artifacts/focus-sounds/session-4/checks/windows-build-1794205968452636900.log",
+      "log_sha256": "f746768314919aac27ef588e7048647bc4abbda6a0363f29cc200264ffcf9b4a",
+      "exit_code": 0,
+      "elapsed_seconds": 86.21518090000063,
+      "source_inputs_verified": 186,
+      "source_matches_current": true,
+      "runtime": {
+        "path": "artifacts/focus-sounds/session-4/builds/windows-build-1794205968452636900",
+        "executable_sha256": "419ad76086d6a770d8f76ec3e1048f8a0793d374dc03c8eae75e502d2a0858e5",
+        "aot_sha256": "3a81d94cb8e50b9d236dfe150845fc354f55f189280c4a6f58c06ff8520babdb"
+      }
+    }
+  },
+  "counts": {
+    "full_flutter": 541,
+    "focused_audio_ui": 69,
+    "physical_evidence_assertions": 50
+  },
+  "native_check_reuse": "Prior S4 Kotlin/JVM, C++/Windows/mobile-runtime, payload/license and package audits retain their exact unchanged native/assets/config scope. New Dart behavior has fresh analysis/tests/Android/Windows builds; old Windows review ZIP is not described as rebuilt after the correction.",
+  "checks": {
+    "fresh_launch_off_ready_no_completed_rounds": "Pass",
+    "default_volume_35_percent": "Pass",
+    "four_previews_android_playing": "Pass",
+    "three_timed_previews_end_without_timer_start": "Pass",
+    "chooser_dismissal_stops_birds_preview": "Pass",
+    "ready_selection_silent": "Pass",
+    "start_with_alert_onboarding_declined_plays": "Pass",
+    "media_pause_leaves_timer_running": "Pass",
+    "media_play_during_running_focus_plays": "Pass",
+    "timer_pause_stops_audio": "Pass",
+    "media_play_cannot_resume_paused_timer": "Pass",
+    "reset_paused_and_running_stops_audio": "Pass",
+    "explicit_timer_resume_plays": "Pass",
+    "locked_focus_remains_active_before_deadline": "Pass",
+    "locked_deadline_stops_service_session_focus": "Pass",
+    "locked_deadline_releases_audio_track_and_wake_lock": "Pass",
+    "expired_media_play_stays_silent": "Pass",
+    "force_stop_and_cold_relaunch_silent": "Pass",
+    "initial_source_unchanged_at_initial_observation": "Pass",
+    "locked_return_ready_and_one_completion": "Pass",
+    "break_start_and_media_play_remain_silent": "Pass",
+    "mute_blocks_start_and_media_play": "Pass",
+    "unmute_running_focus_plays": "Pass",
+    "zero_slider_start_and_media_play_remain_silent": "Pass",
+    "midpoint_slider_and_playback": "Pass",
+    "muted_preferences_survive_cold_restart": "Pass",
+    "rapid_bells_waterfall_off_stays_stopped": "Pass",
+    "running_selection_explicitly_plays": "Pass",
+    "settled_preview_restores_correct_source": "Pass",
+    "skip_to_ready_break_stops": "Pass",
+    "strict_locks_timer_and_keeps_mute_enabled": "Pass",
+    "preview_reset_skip_media_do_not_earn_completions": "Pass",
+    "strict_deadline_adds_exactly_one_completion": "Pass",
+    "installed_apk_bytes_match_corrected_build": "Pass",
+    "review_update_keeps_preferences_and_five_completions": "Pass",
+    "corrected_ready_selection_silent": "Pass",
+    "corrected_navigation_home_keeps_audio_before_deadline": "Pass",
+    "corrected_background_expiry_stops_without_ui": "Pass",
+    "corrected_completion_notification_survives_audio_expiry": "Pass",
+    "corrected_expiry_releases_native_track_and_wake_lock": "Pass",
+    "corrected_return_ready_and_exactly_one_completion": "Pass",
+    "active_force_stop_retires_service_and_focus": "Pass",
+    "cold_relaunch_before_expiry_restores_running_timer_without_audio": "Pass",
+    "reset_after_active_cold_launch_adds_no_history": "Pass",
+    "full_review_reset_restores_off_ready_and_zero_rounds": "Pass",
+    "full_review_reset_clears_history_and_tasks": "Pass",
+    "full_review_reset_restores_volume_mute_and_strict_defaults": "Pass",
+    "temporary_review_permissions_restored": "Pass",
+    "final_cold_launch_default_silent_no_notifications": "Pass",
+    "production_still_installed_and_system_volume_zero": "Pass"
+  },
+  "check_scopes": {
+    "initial_apk_before_fix": [
+      "fresh_launch_off_ready_no_completed_rounds",
+      "default_volume_35_percent",
+      "four_previews_android_playing",
+      "three_timed_previews_end_without_timer_start",
+      "chooser_dismissal_stops_birds_preview",
+      "ready_selection_silent",
+      "start_with_alert_onboarding_declined_plays",
+      "media_pause_leaves_timer_running",
+      "media_play_during_running_focus_plays",
+      "timer_pause_stops_audio",
+      "media_play_cannot_resume_paused_timer",
+      "reset_paused_and_running_stops_audio",
+      "explicit_timer_resume_plays",
+      "locked_focus_remains_active_before_deadline",
+      "locked_deadline_stops_service_session_focus",
+      "locked_deadline_releases_audio_track_and_wake_lock",
+      "expired_media_play_stays_silent",
+      "force_stop_and_cold_relaunch_silent",
+      "initial_source_unchanged_at_initial_observation",
+      "locked_return_ready_and_one_completion",
+      "break_start_and_media_play_remain_silent",
+      "mute_blocks_start_and_media_play",
+      "unmute_running_focus_plays",
+      "zero_slider_start_and_media_play_remain_silent",
+      "midpoint_slider_and_playback",
+      "muted_preferences_survive_cold_restart",
+      "rapid_bells_waterfall_off_stays_stopped",
+      "running_selection_explicitly_plays",
+      "settled_preview_restores_correct_source",
+      "skip_to_ready_break_stops",
+      "strict_locks_timer_and_keeps_mute_enabled",
+      "preview_reset_skip_media_do_not_earn_completions",
+      "strict_deadline_adds_exactly_one_completion"
+    ],
+    "corrected_apk": [
+      "installed_apk_bytes_match_corrected_build",
+      "review_update_keeps_preferences_and_five_completions",
+      "corrected_ready_selection_silent",
+      "corrected_navigation_home_keeps_audio_before_deadline",
+      "corrected_background_expiry_stops_without_ui",
+      "corrected_completion_notification_survives_audio_expiry",
+      "corrected_expiry_releases_native_track_and_wake_lock",
+      "corrected_return_ready_and_exactly_one_completion",
+      "active_force_stop_retires_service_and_focus",
+      "cold_relaunch_before_expiry_restores_running_timer_without_audio",
+      "reset_after_active_cold_launch_adds_no_history",
+      "full_review_reset_restores_off_ready_and_zero_rounds",
+      "full_review_reset_clears_history_and_tasks",
+      "full_review_reset_restores_volume_mute_and_strict_defaults",
+      "temporary_review_permissions_restored",
+      "final_cold_launch_default_silent_no_notifications",
+      "production_still_installed_and_system_volume_zero"
+    ]
+  },
+  "regression_and_resolution": {
+    "initial_status": "Fail: audio expiry withdraws independent completion request",
+    "sound_on_notification_ids_at_66s": [],
+    "sound_off_control_notification_ids_at_61s": [
+      3
+    ],
+    "sound_off_control_notification_ids_at_66s": [
+      3
+    ],
+    "corrected_status": "Pass for the observed Android 15 precise-alert/Home procedure",
+    "corrected_notification_ids_at_66s": [
+      4
+    ],
+    "failure_test": "artifacts/focus-sounds/session-4/checks/focused-1794205317670938700.json",
+    "resolution": "Mobile native audio expiry disarms/releases audio; normal controller foreground/resume/actions own timer/history reconciliation. Desktop retains immediate reconciliation.",
+    "before_fix_exit_code": 1,
+    "before_fix_log": "artifacts/focus-sounds/session-4/checks/focused-1794205317670938700.log"
+  },
+  "locked_deadline": {
+    "duration_seconds": 60,
+    "screen_state": "Android Dozing, confirmed by dumpsys power at 10 and 30 seconds",
+    "timeline": [
+      {
+        "evidence": "065-deadline-locked-10s.state.json",
+        "host_seconds_after_start_action": 10.366,
+        "playing_service_and_focus": true
+      },
+      {
+        "evidence": "065-deadline-locked-30s.state.json",
+        "host_seconds_after_start_action": 30.406,
+        "playing_service_and_focus": true
+      },
+      {
+        "evidence": "065-deadline-locked-55s.state.json",
+        "host_seconds_after_start_action": 55.386,
+        "playing_service_and_focus": true
+      },
+      {
+        "evidence": "065-deadline-locked-59s.state.json",
+        "host_seconds_after_start_action": 59.4,
+        "playing_service_and_focus": true
+      },
+      {
+        "evidence": "065-deadline-locked-61s.state.json",
+        "host_seconds_after_start_action": 61.392,
+        "playing_service_and_focus": false
+      },
+      {
+        "evidence": "065-deadline-locked-64s.state.json",
+        "host_seconds_after_start_action": 64.389,
+        "playing_service_and_focus": false
+      },
+      {
+        "evidence": "065-deadline-locked-69s.state.json",
+        "host_seconds_after_start_action": 69.415,
+        "playing_service_and_focus": false
+      }
+    ],
+    "precision": "Polling bounds only; no speaker-latency or subsecond deadline claim",
+    "audio_track": "Own AudioFlinger track present while locked/playing and removed after deadline; raw own-PID rows retained",
+    "conditions": "USB/ADB attached; default phone networking/power policy unchanged; speaker stream muted at zero"
+  },
+  "resources": {
+    "units": "Android dumpsys meminfo kB; ps RSS in KiB",
+    "playing_pss_kb_at_10s_30s": [
+      104236,
+      102376
+    ],
+    "post_stop_pss_kb_at_64s": 94829,
+    "playing_ps_rss_kib_at_30s": 198180,
+    "cpu": "Raw own-process cumulative CPU time retained at one-second resolution; no precise CPU-rate or battery/energy claim",
+    "wake_lock": "Review focus-audio partial wake lock held before expiry, absent after expiry"
+  },
+  "corrected_background_deadline": {
+    "evidence_prefix": "313-fixed-precise-background",
+    "duration_seconds": 60,
+    "before": "Five one-minute completions; native Ocean waves + media ID -1124 while Home",
+    "after": "Stopped at 61/66-second observations; completion ID 4 visible at 66-second capture before UI reentry; six completed minutes on return; next break Ready",
+    "conditions": "Notifications and precise alerts temporarily allowed only for review app; USB/network unchanged; system speaker volume zero"
+  },
+  "personally_inspected_captures": [
+    "377-final-cold-default.png",
+    "370-review-default-preferences.png"
+  ],
+  "listening": "Pending, explicitly deferred by user: Continue the device checks; I'll listen later. Speaker stream muted at zero; no hearing/loop-quality claim.",
+  "permissions": "Review-only POST_NOTIFICATIONS and precise-alert access temporarily enabled for controlled alert comparison, then restored to denied/off. Final UI/appop/package dump and no notifications retained. System media stream remains original zero.",
+  "remaining": [
+    "USB/debug tools and network disconnected acceptance, offline first use, audible natural joins/loudness/decays and final recording approval.",
+    "Real calls/other audio and wired/Bluetooth route removal/reconnection, task removal, TalkBack and physical text scaling. Exact-alert-permitted completion coexistence is verified; additional OEM/power/denied precise-permission delivery behavior remains governed by OS policy.",
+    "All previously pending Windows physical/listening/clean-account and unavailable Mac/Xcode/iPhone gates."
+  ],
+  "safety": "Only separate review app installed/updated, exercised and reset. Production dev.poma.poma remains installed and its data was not targeted. No security bypass, microphone grant, Git commit/push/merge or release publication.",
+  "evidence_root": "artifacts/focus-sounds/session-4/android-device-20261109",
+  "evidence_index_sha256": "976484a8c8a6183fca26e85425f20910e0e10bcf203cc8fd2ceffd2affc398cd",
+  "evidence_files": 801,
+  "fixture_failures": {
+    "scope": "ADB/environment and initial UI fixture; not an application regression",
+    "retained": [
+      "Restricted ADB daemon startup failed; permitted execution succeeded.",
+      "Initial start encountered the existing alert onboarding dialog (031/034 UI evidence). Fixture then looked for an unobserved 'Pause focus' label and stopped. After declining onboarding, observed 'Pause' and 'Resume' controls were used successfully.",
+      "Android media_session volume --help returned unknown argument and its usage. The documented --set/--get syntax was then used.",
+      "STREAM_MUSIC speaker volume was 0/muted. Attempt to set low 3/15 still reported 0. Set 0 again and verified restoration. No audible result is inferred.",
+      "Early media-session snapshots captured PAUSED during loading. Later expected-title PLAYING/native-track captures establish playback/restoration; the helper now waits for expected source metadata.",
+      "An evidence filename listing initially parsed a nonnumeric prefix; the corrected read-only listing succeeded.",
+      "After active force-stop, the resource helper treated pidof exit 1/no output as an error. Scoped allow_empty handling fixed this evidence fixture; no process/wake lock was then confirmed. The first cold reopen occurred after the real one-minute deadline and legitimately added the seventh completion; despite filename 334-force-no-new-completion, its UI says seven. A fresh three-minute trial cold-reopened while still Running, stayed silent, and reset without adding history (342-350)."
+    ]
+  }
+}

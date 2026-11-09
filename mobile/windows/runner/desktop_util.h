@@ -7,11 +7,19 @@
 #include <optional>
 
 namespace poma {
+#ifdef POMA_FOCUS_AUDIO_REVIEW
+inline constexpr wchar_t kActivatorString[] = L"{970A3EE5-5721-4FC9-8AB1-FA8994C723D7}";
+inline constexpr GUID kActivator = {0x970a3ee5, 0x5721, 0x4fc9,
+    {0x8a, 0xb1, 0xfa, 0x89, 0x94, 0xc7, 0x23, 0xd7}};
+inline constexpr GUID kTrayGuid = {0x6d191081, 0xc183, 0x49bb,
+    {0x83, 0xee, 0x19, 0x42, 0x6a, 0x36, 0xd4, 0x0d}};
+#else
 inline constexpr wchar_t kActivatorString[] = L"{970A3EE4-5721-4FC9-8AB1-FA8994C723D7}";
 inline constexpr GUID kActivator = {0x970a3ee4, 0x5721, 0x4fc9,
     {0x8a, 0xb1, 0xfa, 0x89, 0x94, 0xc7, 0x23, 0xd7}};
 inline constexpr GUID kTrayGuid = {0x6d191080, 0xc183, 0x49bb,
     {0x83, 0xee, 0x19, 0x42, 0x6a, 0x36, 0xd4, 0x0d}};
+#endif
 inline constexpr UINT kIpcMessage = WM_APP + 51;
 inline constexpr UINT kAlertMessage = WM_APP + 52;
 inline constexpr UINT kAsyncMessage = WM_APP + 53;

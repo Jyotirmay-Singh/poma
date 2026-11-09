@@ -849,6 +849,17 @@ void DesktopHost::Method(const flutter::MethodCall<V>& call, std::unique_ptr<Res
       result->Success(); return;
     }
 #endif
+#ifdef POMA_FOCUS_AUDIO_REVIEW
+    if (method == "reviewAudioEnvironment") { result->Success(V(true)); return; }
+    if (method == "reviewAudioVisibility") {
+      if (Flag(args, "visible")) ShowMain();
+      else { HidePopup(); ShowWindow(window_, SW_HIDE); Visibility(); }
+      result->Success(); return;
+    }
+    if (method == "reviewAudioTimer") {
+      TimerAction(Text(args, "action"), snapshot_); result->Success(); return;
+    }
+#endif
     if (method == "calendarFormat") {
       RunAsync([args] {
         M formatted;
