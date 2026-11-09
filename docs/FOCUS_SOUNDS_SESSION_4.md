@@ -3,8 +3,12 @@
 Execution began 8 November 2026; handoff date 9 November 2026, Asia/Kolkata.
 Branch `codex/focus-soundscapes`, HEAD
 `6bd18d3e10f348a5b9d5e4958203fc934b3e24fd`. Session 2/3 work was preserved.
-All changes remain local and uncommitted. Production Poma and its profile remain
-untouched; no Git publication, merge, tag, or release publication is included.
+These implementation/check snapshots were originally captured with uncommitted
+work. The user subsequently authorized source publication: implementation commit
+`c59291323fc5b0b61880d378316dca666649af5f` was fast-forwarded/pushed to `main`,
+then the feature branch was deleted locally/remotely after verified synchronization.
+The original verification JSON/manifests retain their capture-time branch/HEAD.
+Production Poma and its profile remain untouched; no app release/tag is included.
 
 **Android follow-up, 9 November:** the connected moto g54 5G now has only the
 separate **Poma Sounds Review** update. Physical checks found and corrected an

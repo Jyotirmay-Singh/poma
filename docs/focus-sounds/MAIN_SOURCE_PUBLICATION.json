@@ -1,0 +1,49 @@
+{
+  "recorded_utc": "2026-11-09T07:20:10.305544+00:00",
+  "implementation_commit": "c59291323fc5b0b61880d378316dca666649af5f",
+  "branch": "main",
+  "baseline_manifest": "docs/focus-sounds/SESSION_4_ANDROID_SOURCE_MANIFEST.json",
+  "baseline_manifest_sha256": "eff352adae9f70d664c6dceb2e44d8c48aa8e7c507c5abff92eaf7b8a9047797",
+  "inputs_compared": 332,
+  "exact_byte_matches": 326,
+  "line_ending_only_matches": [
+    {
+      "path": "mobile/assets/licenses/focus-audio-native.txt",
+      "captured_crlf_sha256": "5e0c455f9ce8a255ac9453b2170b077efb5cef58282a452bb9e74994cb6581b8",
+      "committed_lf_sha256": "fb7ce456772d01cac57cd1bb0f83d3c1dd79639612ae530c3e28bcd96c6c438a",
+      "change": "CRLF to LF only; exact reverse-conversion matches captured bytes"
+    },
+    {
+      "path": "mobile/assets/licenses/focus-sounds.txt",
+      "captured_crlf_sha256": "6398fa9d01e068ae8d897e3028cc8c5d7b95da21c466b64ccefcbbd05a32463a",
+      "committed_lf_sha256": "df3f66d6f4bb7dc791517cf582de4f796e92a4597309b6cd26c78c98ffbee01f",
+      "change": "CRLF to LF only; exact reverse-conversion matches captured bytes"
+    },
+    {
+      "path": "mobile/ios/Runner/Info.plist",
+      "captured_crlf_sha256": "c301fa493f5c79b2572907c8957716dabfd67bdf39f16c27fdc8800b65388e99",
+      "committed_lf_sha256": "e45de2f83d089711579891b30afc2ab7da7e23760999d1d566c6d74d082c3efd",
+      "change": "CRLF to LF only; exact reverse-conversion matches captured bytes"
+    },
+    {
+      "path": "mobile/ios/Runner/Runner-Bridging-Header.h",
+      "captured_crlf_sha256": "b845ff6a0fc6dfd0bf88fc7284cb25d914d1c351c95607de818bedbdf405870b",
+      "committed_lf_sha256": "67beb1490ba8357225d259b41df94b192544c799434d607d70b019705c9e9004",
+      "change": "CRLF to LF only; exact reverse-conversion matches captured bytes"
+    },
+    {
+      "path": "mobile/ios/Runner/SceneDelegate.swift",
+      "captured_crlf_sha256": "f02546a2896bc776ea76658d5b9e3ee109741b89ae8b290970a8c94fbcf53043",
+      "committed_lf_sha256": "e4b9d3284e403a9acda1385882d51539b8eb7521279ac9386281db8eca694c69",
+      "change": "CRLF to LF only; exact reverse-conversion matches captured bytes"
+    },
+    {
+      "path": "mobile/test/focus_sounds_ui_test.dart",
+      "captured_crlf_sha256": "90009751ff7bc9ab8985d583219baa0d033e6ec195066b9542d8717c5bb67229",
+      "committed_lf_sha256": "9cce79b02e63930cac53060ec548601fd975967359b8b9cb6a0da47d8b5e933c",
+      "change": "CRLF to LF only; exact reverse-conversion matches captured bytes"
+    }
+  ],
+  "semantic_source_changes_since_verified_builds": 0,
+  "scope": "Git checkout normalized six text files to LF. Original source/build/device records retain captured byte identities; all four Ogg recordings and all other 326 inputs are byte-identical. This is source publication, not an app release."
+}

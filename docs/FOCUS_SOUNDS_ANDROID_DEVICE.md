@@ -1,7 +1,12 @@
 # Focus sounds: Android device follow-up
 
-9 November 2026, Asia/Kolkata. Branch `codex/focus-soundscapes`, HEAD
-`6bd18d3e10f348a5b9d5e4958203fc934b3e24fd`; accumulated feature work is uncommitted.
+9 November 2026, Asia/Kolkata. Device evidence was captured on branch
+`codex/focus-soundscapes`, HEAD
+`6bd18d3e10f348a5b9d5e4958203fc934b3e24fd`, with uncommitted feature work then.
+The implementation was subsequently committed as
+`c59291323fc5b0b61880d378316dca666649af5f`, fast-forwarded/pushed to `main`,
+and the feature branch deleted locally/remotely after verified synchronization.
+Recorded source/build evidence keeps its original capture scope.
 The user connected a phone and authorized device checks. Only the separately
 identified **Poma Sounds Review** application is used. Production `dev.poma.poma`
 and its profile remain untouched.
