@@ -23,7 +23,10 @@ final _identityEndpoint = Uri.https(
 /// Only production Google endpoints are compiled in. Tests inject transport,
 /// browser and durations, never alternate endpoints into a distributed build.
 class DesktopGoogleAuthorization
-    implements GoogleCalendarAuthorization, GoogleFocusAuthorization {
+    implements
+        GoogleCalendarAuthorization,
+        GoogleFocusAuthorization,
+        GoogleCapabilityAuthorization {
   DesktopGoogleAuthorization({
     required this.browser,
     http.Client Function()? clientFactory,
@@ -59,10 +62,24 @@ class DesktopGoogleAuthorization
   Future<CalendarAuthorization> authorizeFocus(
     GoogleCalendarConfiguration config,
   ) => _authorize(config, focus: true);
+  @override
+  Future<CalendarAuthorization> authorizeScopes(
+    GoogleCalendarConfiguration config,
+    Set<String> scopes,
+  ) {
+    if (!approvedCalendarScopes(scopes)) {
+      throw const CalendarConnectionFailure(CalendarFailureKind.permissions);
+    }
+    return _authorize(config, focus: true, requestedScopes: scopes);
+  }
+
   Future<CalendarAuthorization> _authorize(
     GoogleCalendarConfiguration config, {
     required bool focus,
+    Set<String>? requestedScopes,
   }) async {
+    final scopes =
+        requestedScopes ?? (focus ? calendarFocusScopes : calendarReadScopes);
     if (!config.configured || _disposed || _attempt != null) {
       throw const CalendarConnectionFailure(CalendarFailureKind.response);
     }
@@ -77,7 +94,7 @@ class DesktopGoogleAuthorization
       transport = _GoogleTokenClient(
         _clientFactory(),
         requestTimeout,
-        requiredScopes: focus ? calendarFocusScopes : calendarReadScopes,
+        requiredScopes: scopes,
         exact: focus,
         requireRefresh: focus,
       );
@@ -93,7 +110,7 @@ class DesktopGoogleAuthorization
       );
       final url = grant.getAuthorizationUrl(
         attempt.redirect,
-        scopes: focus ? calendarFocusScopes : calendarReadScopes,
+        scopes: scopes,
         state: attempt.state,
       );
       final browserUrl = url.replace(
@@ -139,17 +156,29 @@ class DesktopGoogleAuthorization
     GoogleCalendarConfiguration config,
     CalendarCredential credential,
   ) => _refreshCredential(config, credential, focus: true);
+  @override
+  Future<CalendarAuthorization> refreshVerified(
+    GoogleCalendarConfiguration config,
+    CalendarCredential credential,
+  ) => _refreshCredential(
+    config,
+    credential,
+    focus: true,
+    requestedScopes: credential.scopes,
+  );
   Future<CalendarAuthorization> _refreshCredential(
     GoogleCalendarConfiguration config,
     CalendarCredential credential, {
     required bool focus,
+    Set<String>? requestedScopes,
   }) async {
     final epoch = _epoch;
     final transport = _GoogleTokenClient(
       _clientFactory(),
       requestTimeout,
       verifiedScopes: credential.scopes,
-      requiredScopes: focus ? calendarFocusScopes : calendarReadScopes,
+      requiredScopes:
+          requestedScopes ?? (focus ? calendarFocusScopes : calendarReadScopes),
       exact: focus,
     );
     _clients.add(transport);

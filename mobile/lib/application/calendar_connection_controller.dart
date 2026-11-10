@@ -12,6 +12,17 @@ const calendarReadScopes = {
   'https://www.googleapis.com/auth/calendar.events.readonly',
 };
 const calendarFocusScopes = {...calendarReadScopes, focusWriteScope};
+const calendarCreationScope =
+    'https://www.googleapis.com/auth/calendar.events.owned';
+const calendarCreationScopes = {...calendarReadScopes, calendarCreationScope};
+bool approvedCalendarScopes(Set<String> scopes) =>
+    scopes.containsAll(calendarReadScopes) &&
+    scopes.every(
+      (s) =>
+          calendarReadScopes.contains(s) ||
+          s == focusWriteScope ||
+          s == calendarCreationScope,
+    );
 
 class CalendarWriteReceipt {
   const CalendarWriteReceipt({required this.generation, required this.enabled});
@@ -106,12 +117,18 @@ class CalendarCredential extends CalendarAccountIdentity {
     required this.refreshToken,
     required this.scopes,
     this.focusReceipt,
+    this.creationReceipt,
   });
   final String refreshToken;
   final Set<String> scopes;
   final CalendarWriteReceipt? focusReceipt;
+  final CalendarWriteReceipt? creationReceipt;
   Map<String, Object?> toJson() => {
-    'version': focusReceipt == null ? 1 : 3,
+    'version': creationReceipt != null || scopes.contains(calendarCreationScope)
+        ? 4
+        : focusReceipt == null
+        ? 1
+        : 3,
     'clientId': clientId,
     'accountId': accountId,
     'refreshToken': refreshToken,
@@ -125,13 +142,22 @@ class CalendarCredential extends CalendarAccountIdentity {
         'accountId': accountId,
         'scopes': scopes.toList(),
       },
+    if (creationReceipt != null)
+      'creationReceipt': {
+        'version': 1,
+        'generation': creationReceipt!.generation,
+        'enabled': creationReceipt!.enabled,
+        'clientId': clientId,
+        'accountId': accountId,
+        'scopes': scopes.toList(),
+      },
   };
   static CalendarCredential fromJson(Object? value) {
     try {
       final map = value as Map;
       CalendarWriteReceipt? receipt;
       final r = map['focusReceipt'];
-      if (map['version'] == 3 &&
+      if (const {3, 4}.contains(map['version']) &&
           r is Map &&
           r['version'] == 1 &&
           r['clientId'] == map['clientId'] &&
@@ -142,13 +168,34 @@ class CalendarCredential extends CalendarAccountIdentity {
           r['scopes'] is List) {
         final granted = Set<String>.from(r['scopes'] as List),
             actual = Set<String>.from(map['scopes'] as List);
-        if (setEquals(granted, calendarFocusScopes) &&
-            setEquals(actual, calendarFocusScopes)) {
+        if (setEquals(granted, actual) &&
+            approvedCalendarScopes(actual) &&
+            actual.contains(focusWriteScope)) {
           receipt = CalendarWriteReceipt(
             generation: r['generation'] as String,
             enabled: r['enabled'] as bool,
           );
         }
+      }
+      CalendarWriteReceipt? creation;
+      final c = map['creationReceipt'];
+      final actual = Set<String>.from(map['scopes'] as List);
+      if (map['version'] == 4 &&
+          c is Map &&
+          c['version'] == 1 &&
+          c['clientId'] == map['clientId'] &&
+          c['accountId'] == map['accountId'] &&
+          c['generation'] is String &&
+          validFocusUuid(c['generation'] as String) &&
+          c['enabled'] is bool &&
+          c['scopes'] is List &&
+          setEquals(Set<String>.from(c['scopes'] as List), actual) &&
+          approvedCalendarScopes(actual) &&
+          actual.contains(calendarCreationScope)) {
+        creation = CalendarWriteReceipt(
+          generation: c['generation'] as String,
+          enabled: c['enabled'] as bool,
+        );
       }
       final result = CalendarCredential(
         clientId: map['clientId'] as String,
@@ -156,8 +203,9 @@ class CalendarCredential extends CalendarAccountIdentity {
         refreshToken: map['refreshToken'] as String,
         scopes: Set<String>.from(map['scopes'] as List),
         focusReceipt: receipt,
+        creationReceipt: creation,
       );
-      if (!const {1, 3}.contains(map['version']) ||
+      if (!const {1, 3, 4}.contains(map['version']) ||
           result.accountId.isEmpty ||
           result.refreshToken.isEmpty ||
           !result.scopes.containsAll(calendarReadScopes)) {
@@ -214,6 +262,17 @@ abstract interface class GoogleFocusAuthorization {
     GoogleCalendarConfiguration config,
   );
   Future<CalendarAuthorization> refreshFocus(
+    GoogleCalendarConfiguration config,
+    CalendarCredential credential,
+  );
+}
+
+abstract interface class GoogleCapabilityAuthorization {
+  Future<CalendarAuthorization> authorizeScopes(
+    GoogleCalendarConfiguration config,
+    Set<String> scopes,
+  );
+  Future<CalendarAuthorization> refreshVerified(
     GoogleCalendarConfiguration config,
     CalendarCredential credential,
   );
@@ -282,6 +341,20 @@ class CalendarConnectionController extends ChangeNotifier
   CalendarWriteCapability _writeStatus = CalendarWriteCapability.disabled;
   String? writeMessage;
   bool _writeBlocked = false;
+  bool _upgrading = false, _creationBlocked = false;
+  CalendarWriteReceipt? _creationBeforeUpgrade;
+  CalendarWriteCapability creationCapability = CalendarWriteCapability.disabled;
+  String? creationMessage;
+  String? get creationGeneration => _credential?.creationReceipt?.generation;
+  bool get creationEnabled =>
+      !_disposed &&
+      !cleanupPending &&
+      !_creationBlocked &&
+      _credential != null &&
+      approvedCalendarScopes(_credential!.scopes) &&
+      _credential!.scopes.contains(calendarCreationScope) &&
+      _credential?.creationReceipt?.enabled == true;
+  bool get creationUpgradeActive => _upgrading;
   @override
   String get focusClientId => configuration.clientId;
   @override
@@ -293,6 +366,9 @@ class CalendarConnectionController extends ChangeNotifier
       !_disposed &&
       !cleanupPending &&
       !_writeBlocked &&
+      _credential != null &&
+      approvedCalendarScopes(_credential!.scopes) &&
+      _credential!.scopes.contains(focusWriteScope) &&
       !const {
         CalendarWriteCapability.granting,
         CalendarWriteCapability.verifying,
@@ -482,8 +558,15 @@ class CalendarConnectionController extends ChangeNotifier
         accountId: credential.accountId,
         refreshToken: result.refreshToken ?? credential.refreshToken,
         scopes: result.scopes,
-        focusReceipt: setEquals(result.scopes, calendarFocusScopes)
+        focusReceipt:
+            approvedCalendarScopes(result.scopes) &&
+                result.scopes.contains(focusWriteScope)
             ? credential.focusReceipt
+            : null,
+        creationReceipt:
+            approvedCalendarScopes(result.scopes) &&
+                result.scopes.contains(calendarCreationScope)
+            ? credential.creationReceipt
             : null,
       );
       try {
@@ -580,45 +663,80 @@ class CalendarConnectionController extends ChangeNotifier
     return result;
   }
 
-  Future<void> enableFocusScheduling() async {
-    if (_disposed ||
-        !operationsEnabled ||
-        const {
-          CalendarWriteCapability.granting,
-          CalendarWriteCapability.verifying,
-        }.contains(_writeStatus)) {
+  Future<void> enableFocusScheduling() => _enableCapability(creation: false);
+  Future<void> enableCreation() => _enableCapability(creation: true);
+
+  Future<void> _enableCapability({required bool creation}) async {
+    if (_disposed || !operationsEnabled || _upgrading) {
       return;
     }
     final auth = writeAuthorization;
-    if (auth is! GoogleFocusAuthorization ||
+    if ((auth is! GoogleCapabilityAuthorization &&
+            auth is! GoogleFocusAuthorization) ||
         store is! AtomicProtectedCalendarStore) {
-      writeMessage = 'Focus scheduling is unavailable in this build.';
+      if (creation) {
+        creationMessage = 'Task creation is unavailable in this build.';
+      } else {
+        writeMessage = 'Focus scheduling is unavailable in this build.';
+      }
       _notify();
       return;
     }
     final attempt = ++_writeAttempt,
         epoch = _epoch,
         key = _identity!.accountKey;
-    _writeStatus = CalendarWriteCapability.granting;
-    writeMessage = null;
+    final previousFocusStatus = _writeStatus,
+        previousFocusBlocked = _writeBlocked;
+    final previousCreationStatus = creationCapability,
+        previousCreationBlocked = _creationBlocked;
+    if (creation) _creationBeforeUpgrade = _credential?.creationReceipt;
+    CalendarCredential? promoted;
+    final scopes = {
+      ...calendarReadScopes,
+      ...?_credential?.scopes.where(
+        (s) => s == focusWriteScope || s == calendarCreationScope,
+      ),
+      creation ? calendarCreationScope : focusWriteScope,
+    };
+    _upgrading = true;
+    if (creation) {
+      creationCapability = CalendarWriteCapability.granting;
+      creationMessage = null;
+    } else {
+      _writeStatus = CalendarWriteCapability.granting;
+      writeMessage = null;
+    }
     _notify();
     bool current() =>
         _current(epoch) &&
         attempt == _writeAttempt &&
         _identity?.accountKey == key;
     try {
-      final candidate = await (auth as GoogleFocusAuthorization).authorizeFocus(
-        configuration,
-      );
+      final candidate = auth is GoogleCapabilityAuthorization
+          ? await (auth as GoogleCapabilityAuthorization).authorizeScopes(
+              configuration,
+              scopes,
+            )
+          : !creation && setEquals(scopes, calendarFocusScopes)
+          ? await (auth as GoogleFocusAuthorization).authorizeFocus(
+              configuration,
+            )
+          : throw const CalendarConnectionFailure(
+              CalendarFailureKind.permissions,
+            );
       if (!current()) return;
       if (candidate.accountId != _identity!.accountId ||
-          !setEquals(candidate.scopes, calendarFocusScopes) ||
+          !setEquals(candidate.scopes, scopes) ||
           candidate.refreshToken?.isNotEmpty != true ||
           candidate.accessToken.isEmpty ||
           !candidate.expiresAt.isAfter(_now())) {
         throw const CalendarConnectionFailure(CalendarFailureKind.permissions);
       }
-      _writeStatus = CalendarWriteCapability.verifying;
+      if (creation) {
+        creationCapability = CalendarWriteCapability.verifying;
+      } else {
+        _writeStatus = CalendarWriteCapability.verifying;
+      }
       _notify();
       var credential = CalendarCredential(
         clientId: configuration.clientId,
@@ -626,13 +744,18 @@ class CalendarConnectionController extends ChangeNotifier
         refreshToken: candidate.refreshToken!,
         scopes: candidate.scopes,
       );
-      final verified = await (auth as GoogleFocusAuthorization).refreshFocus(
-        configuration,
-        credential,
-      );
+      final verified = auth is GoogleCapabilityAuthorization
+          ? await (auth as GoogleCapabilityAuthorization).refreshVerified(
+              configuration,
+              credential,
+            )
+          : await (auth as GoogleFocusAuthorization).refreshFocus(
+              configuration,
+              credential,
+            );
       if (!current()) return;
       if (verified.accountId != candidate.accountId ||
-          !setEquals(verified.scopes, calendarFocusScopes) ||
+          !setEquals(verified.scopes, scopes) ||
           verified.accessToken.isEmpty ||
           !verified.expiresAt.isAfter(_now())) {
         throw const CalendarConnectionFailure(CalendarFailureKind.permissions);
@@ -642,11 +765,14 @@ class CalendarConnectionController extends ChangeNotifier
         accountId: candidate.accountId,
         refreshToken: verified.refreshToken ?? credential.refreshToken,
         scopes: verified.scopes,
-        focusReceipt: CalendarWriteReceipt(
-          generation: focusUuid(),
-          enabled: true,
-        ),
+        focusReceipt: creation
+            ? _credential?.focusReceipt
+            : CalendarWriteReceipt(generation: focusUuid(), enabled: true),
+        creationReceipt: creation
+            ? CalendarWriteReceipt(generation: focusUuid(), enabled: true)
+            : _credential?.creationReceipt,
       );
+      promoted = credential;
       await _persistCredential(
         credential,
         expected: _credential,
@@ -656,32 +782,52 @@ class CalendarConnectionController extends ChangeNotifier
       if (!current()) return;
       final committed = await store.read();
       if (!current()) return;
-      if (committed.credential?.focusReceipt?.generation !=
-              credential.focusReceipt!.generation ||
-          committed.credential?.focusReceipt?.enabled != true ||
-          !setEquals(committed.credential?.scopes, calendarFocusScopes)) {
-        _writeBlocked = true;
+      if (jsonEncode(committed.credential?.toJson()) !=
+          jsonEncode(credential.toJson())) {
         throw const CalendarConnectionFailure(CalendarFailureKind.storage);
       }
       _access = verified;
       _identity = credential;
-      _writeBlocked = false;
-      _writeStatus = CalendarWriteCapability.setupRequired;
-      writeMessage =
-          'Focus scheduling enabled. Review calendar setup before scheduling a block.';
+      if (creation) {
+        _creationBlocked = false;
+        creationCapability = CalendarWriteCapability.ready;
+        creationMessage =
+            'Task creation enabled. Review the form before adding an event.';
+      } else {
+        _writeBlocked = false;
+        _writeStatus = CalendarWriteCapability.setupRequired;
+        writeMessage =
+            'Focus scheduling enabled. Review calendar setup before scheduling a block.';
+      }
     } catch (_) {
       if (current()) {
-        _writeBlocked = true;
-        _writeStatus = CalendarWriteCapability.disabled;
-        writeMessage =
-            'Focus scheduling was not enabled. Your previous calendar connection and selection are retained.';
+        if (creation) {
+          _creationBlocked = _credential == promoted
+              ? true
+              : previousCreationBlocked;
+          creationCapability = _credential == promoted
+              ? CalendarWriteCapability.blocked
+              : previousCreationStatus;
+          creationMessage =
+              'Task creation was not enabled. Your previous connection and focus scheduling are retained.';
+        } else {
+          _writeBlocked = _credential == promoted ? true : previousFocusBlocked;
+          _writeStatus = _credential == promoted
+              ? CalendarWriteCapability.blocked
+              : previousFocusStatus;
+          writeMessage =
+              'Focus scheduling was not enabled. Your previous calendar connection and selection are retained.';
+        }
       }
+    } finally {
+      if (attempt == _writeAttempt) _upgrading = false;
     }
     _notify();
   }
 
   Future<void> cancelFocusConsent() async {
     ++_writeAttempt;
+    _upgrading = false;
     _writeBlocked = true;
     _writeStatus = CalendarWriteCapability.disabled;
     writeMessage = 'Focus scheduling setup cancelled.';
@@ -703,6 +849,7 @@ class CalendarConnectionController extends ChangeNotifier
 
   Future<void> disableFocusScheduling() async {
     ++_writeAttempt;
+    _upgrading = false;
     _writeBlocked = true;
     _writeStatus = CalendarWriteCapability.disabled;
     _notify();
@@ -716,6 +863,7 @@ class CalendarConnectionController extends ChangeNotifier
           accountId: old.accountId,
           refreshToken: old.refreshToken,
           scopes: old.scopes,
+          creationReceipt: old.creationReceipt,
           focusReceipt: CalendarWriteReceipt(
             generation: receipt.generation,
             enabled: false,
@@ -730,6 +878,74 @@ class CalendarConnectionController extends ChangeNotifier
       _writeStatus = CalendarWriteCapability.blocked;
       writeMessage =
           'Scheduling stopped, but saving disablement needs attention. Retry before closing Poma.';
+    }
+    _notify();
+  }
+
+  void blockCreation() {
+    _creationBlocked = true;
+    creationCapability = CalendarWriteCapability.blocked;
+    creationMessage =
+        'Google refused task creation. Calendar viewing and focus scheduling remain separate.';
+    _notify();
+  }
+
+  Future<void> cancelCreationConsent() async {
+    final wasUpgrading =
+        _upgrading &&
+        const {
+          CalendarWriteCapability.granting,
+          CalendarWriteCapability.verifying,
+        }.contains(creationCapability);
+    final restoreEnabled = _creationBeforeUpgrade?.enabled == true;
+    ++_writeAttempt;
+    _upgrading = false;
+    creationCapability = creationEnabled
+        ? CalendarWriteCapability.ready
+        : CalendarWriteCapability.disabled;
+    creationMessage = 'Task creation setup cancelled. Your draft is kept.';
+    _notify();
+    await writeAuthorization?.cancelPending();
+    await _credentialCommits;
+    if (wasUpgrading &&
+        !restoreEnabled &&
+        _credential?.creationReceipt?.enabled == true) {
+      await disableCreation();
+    }
+  }
+
+  Future<void> disableCreation() async {
+    ++_writeAttempt;
+    _upgrading = false;
+    _creationBlocked = true;
+    creationCapability = CalendarWriteCapability.disabled;
+    _notify();
+    await writeAuthorization?.cancelPending();
+    await _credentialCommits;
+    final old = _credential, receipt = _credential?.creationReceipt;
+    if (old == null || receipt == null) return;
+    try {
+      await _persistCredential(
+        CalendarCredential(
+          clientId: old.clientId,
+          accountId: old.accountId,
+          refreshToken: old.refreshToken,
+          scopes: old.scopes,
+          focusReceipt: old.focusReceipt,
+          creationReceipt: CalendarWriteReceipt(
+            generation: receipt.generation,
+            enabled: false,
+          ),
+        ),
+        expected: old,
+        epoch: _epoch,
+      );
+      creationMessage =
+          'Task creation disabled on this device. Google events are preserved.';
+    } catch (_) {
+      creationCapability = CalendarWriteCapability.blocked;
+      creationMessage =
+          'Creation stopped, but saving disablement needs attention. Retry before closing Poma.';
     }
     _notify();
   }
@@ -842,6 +1058,9 @@ class CalendarConnectionController extends ChangeNotifier
     final token = _credential?.refreshToken ?? _access?.accessToken;
     final epoch = ++_epoch;
     ++_writeAttempt;
+    _upgrading = false;
+    _creationBlocked = true;
+    creationCapability = CalendarWriteCapability.disabled;
     _writeBlocked = true;
     _writeStatus = CalendarWriteCapability.disabled;
     unawaited(writeAuthorization?.cancelPending());

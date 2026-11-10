@@ -784,6 +784,19 @@ void DesktopHost::Method(const flutter::MethodCall<V>& call, std::unique_ptr<Res
         resolved[V("utcMicros")]=V(matches.front().utc_micros);resolved[V("offsetMinutes")]=V(matches.front().offset_minutes);
       }result->Success(V(resolved));return;
     }
+    if(method=="creationJournalOpen"||method=="creationJournalSave"||method=="creationJournalStop"||method=="creationJournalDisable") {
+      if(!calendar_credentials_)calendar_credentials_=std::make_unique<CalendarCredentialStore>(directory_);
+      auto* store=calendar_credentials_.get();
+      if(method=="creationJournalDisable"){store->DisableCreation(Flag(args,"disabled"));result->Success();}
+      else if(method=="creationJournalStop"){store->StopCreation(Flag(args,"purge"));result->Success();}
+      else if(method=="creationJournalOpen"){
+        const auto saved=store->OpenCreation(Number(args,"revision",-1),Text(args,"accountKey"));
+        result->Success(V(M{{V("generation"),V(saved.scope)},{V("revision"),V(saved.revision)},
+          {V("disabled"),V(saved.disabled)},{V("document"),saved.document?V(*saved.document):V()}}));
+      }else{
+        RunAsync([store,args]()->V{return V(store->SaveCreation(Number(args,"credentialRevision",-1),Number(args,"generation",-1),Number(args,"revision",-1),Text(args,"accountKey"),Text(args,"document")));},std::move(result));
+      }return;
+    }
     if(method=="focusJournalOpen"||method=="focusJournalSave"||method=="focusJournalStop"||method=="focusJournalDisable") {
       if(!calendar_credentials_)calendar_credentials_=std::make_unique<CalendarCredentialStore>(directory_);
       auto* store=calendar_credentials_.get();

@@ -5,12 +5,8 @@ import 'package:kalender/kalender.dart' as k;
 import '../application/calendar_read_ports.dart';
 import '../domain/calendar_data.dart';
 
-String scheduleEventIdentity(CalendarEvent event) => jsonEncode([
-  event.calendarId,
-  event.id,
-  event.recurringEventId,
-  event.originalStart,
-]);
+String scheduleEventIdentity(CalendarEvent event) =>
+    calendarEventIdentity(event);
 
 /// A disposable presentation of a provider event. No scheduling journal entries
 /// are added here: only Google's retained snapshots supply confirmed tiles.

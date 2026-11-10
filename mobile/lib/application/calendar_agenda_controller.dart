@@ -241,8 +241,7 @@ class CalendarAgendaController extends ChangeNotifier {
         : name;
   }
 
-  String _rowId(CalendarEvent e) =>
-      jsonEncode([e.calendarId, e.id, e.recurringEventId, e.originalStart]);
+  String _rowId(CalendarEvent e) => calendarEventIdentity(e);
   String _time(DateTime value) =>
       _formats['${value.microsecondsSinceEpoch}'] ?? 'Local time loading';
   String _details(CalendarEvent e) => [

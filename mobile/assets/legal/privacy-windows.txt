@@ -13,7 +13,16 @@ calendar setup and a final reviewed confirmation. Poma does not import tasks or
 synchronize phone data. A resident refresh runs about every five minutes
 and on meaningful lifecycle/manual actions, never on timer ticks.
 The separate calendar demo always uses fictional data.
-Focus scheduling requests exactly the two read permissions plus
+Optional Day Clock task creation requests the two read permissions plus
+https://www.googleapis.com/auth/calendar.events.owned. Google grants access to
+see, create, change and delete events on calendars you own, including primary.
+Poma exposes reviewed ordinary event creation only, without attendees, recurring
+events, task synchronization or general event editing/deletion. The selected
+calendar's default visibility and reminders apply. Optional event colours use
+Google's supported palette; Busy/Free is explicit. No event is sent by consent.
+Enabling an additional capability retains already verified applicable scopes;
+reading, focus scheduling and task creation have separate local enablement.
+Focus scheduling requests the two read permissions plus
 https://www.googleapis.com/auth/calendar.app.created. Google's permission can
 manage events on calendars the app creates and can authorize calendar resource
 operations too. Poma exposes dedicated Poma Focus calendar creation and checked
@@ -76,6 +85,25 @@ profile below. Access tokens stay in memory. Tokens and authorization return URL
 are not logged. External Testing authorization may expire after seven days;
 revocation or account policy may also require explicit Reconnect.
 
+Day Clock keeps raw unfinished forms in memory until Keep draft is chosen or
+Google creation consent is opened. Account-bound kept drafts and immutable
+reviewed operations are stored unencrypted in the account's
+day-clock-creates.json, separately from focus-blocks.json, the seven-date agenda
+cache and Pomodoro records. The journal contains the reviewed title, exact UTC
+times/offsets, device timezone context, original account/calendar, colour,
+Busy/Free, stable operation/event IDs, payload hash, safe status and event link.
+Optional local task associations stay local. A reviewed operation is durably
+saved before sending. Returning online or restarting never publishes a draft.
+Uncertain saves check the original event ID before any explicit same-ID Retry;
+unrelated or changed events are not adopted or overwritten. A successful save
+remains Saved if schedule refresh fails. Hidden calendars are shown only when
+you choose Show calendar; dates outside retained clock coverage remain labelled.
+Unresolved operations are retained; terminal records and expired kept drafts
+are cleaned up after the existing 30-day journal retention interval when saved.
+Lock, suspend, quit and permission/account changes invalidate submission
+authority. Disable task creation retains viewing and focus scheduling; full
+disconnect/reset removes creation records without deleting Google events.
+
 Disconnect immediately disables calendar access and removes calendar credentials
 and calendar-derived local data, preserving tasks and focus history. Cleanup
 failures are visible and retryable. Poma attempts Google revocation, but offline
@@ -88,7 +116,8 @@ can finish interrupted removal. Late calendar responses and old storage leases
 cannot restore cleared account data. Local removal does not erase external
 backups, and Google revocation never deletes remote events.
 
-Calendar metadata, your selection, event identities/titles, date/time intervals,
+Calendar metadata, your selection, event identities/titles, event colour IDs and
+Google's retained event-colour palette, date/time intervals,
 self-response state, validated conference/event URLs and snapshot age/coverage are
 stored separately under calendar/accounts/<account-key>/state.json. This cache is
 not encrypted by Poma. Descriptions, attachments and full attendee lists are not

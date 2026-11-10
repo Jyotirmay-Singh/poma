@@ -278,6 +278,57 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 child: const Text('Retry scheduling storage'),
               ),
             if (desktop.calendarSection == CalendarPageSection.settings) ...[
+              if (desktop.creation case final creation?) ...[
+                _Heading('Task creation'),
+                const Text(
+                  'Optional Google event access on calendars you own, including primary. Poma creates only ordinary events you review in Day Clock. Calendar viewing and focus scheduling remain separate.',
+                ),
+                if (connection?.creationMessage case final message?)
+                  Text(message),
+                if (creation.message case final message?) Text(message),
+                Wrap(
+                  spacing: PomaSpace.xs,
+                  runSpacing: PomaSpace.xs,
+                  children: [
+                    if (connection?.creationEnabled != true ||
+                        creation.disabled)
+                      FilledButton(
+                        onPressed:
+                            connection?.operationsEnabled == true &&
+                                connection?.creationUpgradeActive != true
+                            ? () => _run(() async {
+                                if (await _approve(
+                                  'Enable task creation?',
+                                  'Google grants event access on calendars you own. Poma only creates the ordinary event you review. Nothing is scheduled by enabling access.',
+                                  'Enable task creation',
+                                )) {
+                                  await creation.enable();
+                                }
+                              })
+                            : null,
+                        child: const Text('Enable task creation'),
+                      ),
+                    if (connection?.creationEnabled == true &&
+                        !creation.disabled)
+                      TextButton(
+                        onPressed: () => _run(creation.disable),
+                        child: const Text('Disable task creation'),
+                      ),
+                    if (connection?.creationUpgradeActive == true)
+                      TextButton(
+                        onPressed: connection?.cancelCreationConsent,
+                        child: const Text('Cancel task creation setup'),
+                      ),
+                    if (creation.journal == null &&
+                        connection?.verifiedAccountKey != null)
+                      TextButton(
+                        onPressed: creation.initialize,
+                        child: const Text('Retry task-save storage'),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: PomaSpace.lg),
+              ],
               if (c != null && connection != null) ...[
                 _Heading('Focus scheduling'),
                 const Text(

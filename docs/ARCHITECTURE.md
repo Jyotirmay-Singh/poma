@@ -1,5 +1,30 @@
 # Architecture decisions
 
+## Windows Day Clock creation — Session 2
+
+Day Clock reuses the existing reader, cache, selected calendars, regional agenda
+presentation and refresh cadence. Its browsing controller owns manual date/half
+and selection. `CalendarCreationController` owns a separate durable command lane;
+the form retains raw fields and validates exact device-local endpoints through
+the existing native resolver. The timer, task completion and focus history are
+independent. Only the final reviewed action can send an ordinary event.
+
+The existing Desktop credential owner now supports exact read/focus/creation
+combinations with separate receipts in backward-compatible version 4 credentials.
+Owned creation requests `calendar.events.owned`; full-set upgrades preserve prior
+verified capabilities and local enablement. Candidate refresh/promotion is
+serialized against credential changes. The focus writer's provenance/ownership
+checks remain unchanged; it does not accept generic Day Clock events.
+
+`GoogleCalendarEventWriter` implements owner-role preflight, create and exact-ID
+readback only. Distinct `pomadc` IDs and Day Clock markers prevent confusion with
+focus ownership. Native creation journal methods share the existing profile,
+atomic-write helpers and credential/account invalidation owner, but have separate
+leases, revisions, disablement and files. No creation operation enters the agenda
+cache as a pending event or becomes a timer command. After Saved, a refresh starts
+after any earlier in-flight read. Only shared Google snapshots produce sectors;
+refresh failure remains Saved with a notice and event link. See DAY_CLOCK_PROGRESS.md.
+
 ## Main-window calendar schedule
 
 The Windows Calendar page has explicit Schedule, Focus blocks and Calendar
@@ -20,7 +45,9 @@ clear tiles and open details. See [Schedule behavior](CALENDAR_SCHEDULE.md).
 ## Windows focus scheduling — Session 12
 
 `CalendarWriteCapability` is independent of the read connection. A separate
-Desktop authorization adapter stages the exact three-scope grant, verifies the
+Desktop authorization adapter stages the exact requested full capability set
+(the original read pair plus app-created access, retaining owned creation if
+already granted), verifies the
 same client/account and refresh lineage, then atomically promotes a DPAPI record.
 Native protected commit revisions reject competing stale credential saves without
 rebinding the agenda cache. Old records grant no inferred scheduling capability.

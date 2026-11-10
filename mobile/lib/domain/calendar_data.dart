@@ -1,3 +1,12 @@
+import 'dart:convert';
+
+String calendarEventIdentity(CalendarEvent event) => jsonEncode([
+  event.calendarId,
+  event.id,
+  event.recurringEventId,
+  event.originalStart,
+]);
+
 /// Provider dates are calendar values, never local/UTC instants.
 class CalendarDate implements Comparable<CalendarDate> {
   CalendarDate(this.year, this.month, this.day) {
@@ -137,6 +146,8 @@ class CalendarEvent {
     this.originalStart,
     this.meetingUrl,
     this.eventUrl,
+    this.colorId,
+    this.eventLabelId,
   });
   final String id, calendarId, title, status, selfResponse;
   final DateTime? startUtc, endUtc;
@@ -147,6 +158,7 @@ class CalendarEvent {
       originalStart,
       meetingUrl,
       eventUrl;
+  final String? colorId, eventLabelId;
   bool get allDay => startDate != null;
   bool get eligible => status != 'cancelled' && selfResponse != 'declined';
   bool overlaps(CalendarWindow window) => allDay
@@ -169,6 +181,8 @@ class CalendarEvent {
     'originalStart': originalStart,
     'meetingUrl': meetingUrl,
     'eventUrl': eventUrl,
+    'colorId': colorId,
+    'eventLabelId': eventLabelId,
   };
   factory CalendarEvent.fromJson(Map map) {
     final result = CalendarEvent(
@@ -195,6 +209,8 @@ class CalendarEvent {
       originalStart: map['originalStart'] as String?,
       meetingUrl: safeCalendarUrl(map['meetingUrl'] as String?, meeting: true),
       eventUrl: safeCalendarUrl(map['eventUrl'] as String?, meeting: false),
+      colorId: map['colorId'] as String?,
+      eventLabelId: map['eventLabelId'] as String?,
     );
     if (result.id.isEmpty ||
         (result.allDay
@@ -344,6 +360,7 @@ class CalendarAccountData {
     List<CalendarSource> sources = const [],
     Set<String> selected = const {},
     Map<String, CalendarSnapshot> snapshots = const {},
+    this.palette,
   }) : sources = List.unmodifiable(sources),
        selected = Set.unmodifiable(selected),
        snapshots = Map.unmodifiable(snapshots);
@@ -351,15 +368,18 @@ class CalendarAccountData {
   final List<CalendarSource> sources;
   final Set<String> selected;
   final Map<String, CalendarSnapshot> snapshots;
+  final CalendarEventPalette? palette;
   CalendarAccountData copyWith({
     List<CalendarSource>? sources,
     Set<String>? selected,
     Map<String, CalendarSnapshot>? snapshots,
+    CalendarEventPalette? palette,
   }) => CalendarAccountData(
     accountKey: accountKey,
     sources: sources ?? this.sources,
     selected: selected ?? this.selected,
     snapshots: snapshots ?? this.snapshots,
+    palette: palette ?? this.palette,
   );
   CalendarAccountData trim(CalendarWindow window) => copyWith(
     snapshots: {
@@ -373,6 +393,7 @@ class CalendarAccountData {
     'sources': sources.map((s) => s.toJson()).toList(),
     'selected': selected.toList(),
     'snapshots': snapshots.map((k, v) => MapEntry(k, v.toJson())),
+    if (palette != null) 'eventPalette': palette!.toJson(),
   };
   factory CalendarAccountData.fromJson(Map map, String key) {
     if (map['version'] != 1 || map['accountKey'] != key) {
@@ -385,6 +406,7 @@ class CalendarAccountData {
           .map((s) => CalendarSource.fromJson(s as Map))
           .toList(),
       selected: selected,
+      palette: CalendarEventPalette.cached(map['eventPalette']),
       snapshots: {
         for (final entry in (map['snapshots'] as Map).entries)
           if (selected.contains(entry.key))
@@ -402,5 +424,73 @@ class CalendarAccountData {
       throw const FormatException('Invalid calendar selection.');
     }
     return result;
+  }
+}
+
+class CalendarEventColor {
+  const CalendarEventColor(this.background, this.foreground);
+  final String background, foreground;
+}
+
+/// Optional cache addition. A damaged/old palette must never discard events.
+class CalendarEventPalette {
+  CalendarEventPalette(
+    Map<String, CalendarEventColor> colors,
+    this.fetchedAt, {
+    this.updated,
+  }) : colors = Map.unmodifiable(colors);
+  final Map<String, CalendarEventColor> colors;
+  final DateTime fetchedAt;
+  final String? updated;
+  Map<String, Object?> toJson() => {
+    'fetchedAt': fetchedAt.toIso8601String(),
+    'updated': updated,
+    'colors': {
+      for (final e in colors.entries)
+        e.key: {
+          'background': e.value.background,
+          'foreground': e.value.foreground,
+        },
+    },
+  };
+  static CalendarEventPalette parse(
+    Map value,
+    DateTime fetchedAt, {
+    bool cache = false,
+  }) {
+    final entries = value[cache ? 'colors' : 'event'] as Map;
+    final colors = <String, CalendarEventColor>{};
+    for (final entry in entries.entries) {
+      final item = entry.value as Map;
+      final background = safeCalendarColor(item['background']);
+      final foreground = safeCalendarColor(item['foreground']);
+      if (entry.key is! String ||
+          (entry.key as String).isEmpty ||
+          background == null ||
+          foreground == null) {
+        throw const FormatException('Invalid Google event palette.');
+      }
+      colors[entry.key as String] = CalendarEventColor(background, foreground);
+    }
+    if (colors.isEmpty) throw const FormatException('Empty event palette.');
+    return CalendarEventPalette(
+      colors,
+      fetchedAt,
+      updated: value['updated'] as String?,
+    );
+  }
+
+  static CalendarEventPalette? cached(Object? value) {
+    if (value == null) return null;
+    try {
+      final map = value as Map;
+      return parse(
+        map,
+        DateTime.parse(map['fetchedAt'] as String).toUtc(),
+        cache: true,
+      );
+    } catch (_) {
+      return null;
+    }
   }
 }

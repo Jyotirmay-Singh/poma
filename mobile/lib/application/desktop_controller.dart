@@ -13,6 +13,8 @@ import 'calendar_presentation_ports.dart';
 import 'calendar_reminder_controller.dart';
 import 'focus_block_controller.dart';
 import '../domain/calendar_data.dart';
+import 'day_clock_controller.dart';
+import 'calendar_event_creation_controller.dart';
 
 class FocusCalendarConflict {
   const FocusCalendarConflict(
@@ -58,7 +60,7 @@ abstract interface class DesktopShell {
 enum CalendarPageSection { schedule, focusBlocks, settings }
 
 /// Destination IDs are stable; their visual order differs from their IDs.
-const desktopDestinationOrder = [0, 1, 4, 2, 3];
+const desktopDestinationOrder = [0, 1, 4, 5, 2, 3];
 
 class DesktopController extends ChangeNotifier {
   DesktopController(
@@ -87,8 +89,18 @@ class DesktopController extends ChangeNotifier {
   CalendarAgendaController? agenda;
   CalendarReminderController? reminders;
   FocusBlockController? focusBlocks;
+  DayClockController? dayClock;
+  CalendarCreationController? creation;
+  void attachCreation(CalendarCreationController value) {
+    creation = value;
+    dayClock?.attachCreation(value);
+    value.addListener(_calendarChanged);
+    unawaited(value.initialize());
+  }
+
   void attachFocusBlocks(FocusBlockController value) {
     focusBlocks = value;
+    dayClock?.time = value.time;
     value.unlocked = sessionState == 'unlocked';
     value.addListener(_calendarChanged);
     unawaited(value.initialize());
@@ -130,6 +142,9 @@ class DesktopController extends ChangeNotifier {
   void _disposeCalendar() {
     if (_calendarDisposed) return;
     _calendarDisposed = true;
+    dayClock?.dispose();
+    creation?.removeListener(_calendarChanged);
+    creation?.dispose();
     focusBlocks?.removeListener(_calendarChanged);
     focusBlocks?.dispose();
     reminders?.removeListener(_calendarChanged);
@@ -162,6 +177,11 @@ class DesktopController extends ChangeNotifier {
         },
       );
       agenda!.addListener(_calendarChanged);
+      dayClock = DayClockController(
+        reader: calendarData!,
+        agenda: agenda!,
+        unlocked: sessionState == 'unlocked',
+      );
     }
     _queuePublish();
     unawaited(connection?.initialize());
@@ -200,8 +220,8 @@ class DesktopController extends ChangeNotifier {
     int index, {
     CalendarPageSection section = CalendarPageSection.schedule,
   }) {
-    if (index == 4) {
-      calendarSection = section;
+    if (index == 4 || index == 5) {
+      if (index == 4) calendarSection = section;
       unawaited(calendarData?.opened());
     }
     controller.showInsights(index == 2);
@@ -230,6 +250,7 @@ class DesktopController extends ChangeNotifier {
         case 'resume':
         case 'timeChanged':
           calendarPresentationRevision++;
+          dayClock?.timeContextChanged();
           unawaited(focusBlocks?.stop().then((_) => focusBlocks?.initialize()));
           reminders?.lifecycle();
           agenda?.preferencesChanged();
@@ -238,6 +259,7 @@ class DesktopController extends ChangeNotifier {
           await refreshStartup();
         case 'suspend':
           unawaited(focusBlocks?.stop());
+          unawaited(creation?.stop());
           reminders?.lifecycle(suspended: true);
         case 'calendarReminderDeadline':
           if (values['generation'] is int) {
@@ -260,6 +282,7 @@ class DesktopController extends ChangeNotifier {
               : 'unknown';
           if (sessionState != 'unlocked') ++_startEpoch;
           focusBlocks?.unlocked = sessionState == 'unlocked';
+          dayClock?.setUnlocked(sessionState == 'unlocked');
           reminders?.unlocked = sessionState == 'unlocked';
           _queuePublish();
           notifyListeners();
@@ -539,7 +562,9 @@ class DesktopController extends ChangeNotifier {
     if (_quitting || _disposed) return;
     controller.focusAudio?.beginQuit();
     _quitting = true;
+    creation?.setUnlocked(false);
     await focusBlocks?.stop();
+    await creation?.stop();
     ++_startEpoch;
     notifyListeners();
     await controller.setForeground(false);
@@ -548,8 +573,10 @@ class DesktopController extends ChangeNotifier {
       await shell.showMain();
       if (await confirmDiscard?.call() != true) {
         _quitting = false;
+        creation?.setUnlocked(sessionState == 'unlocked');
         controller.focusAudio?.cancelQuit();
         unawaited(focusBlocks?.initialize());
+        unawaited(creation?.initialize());
         await controller.setForeground(true);
         _queuePublish();
         return;

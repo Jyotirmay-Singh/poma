@@ -174,7 +174,12 @@ ThemeData pomaTheme(Brightness brightness, {bool highContrast = false}) {
     ),
     navigationRailTheme: NavigationRailThemeData(
       backgroundColor: colors.surface,
-      indicatorColor: colors.primary.withValues(alpha: .10),
+      indicatorColor: highContrast
+          ? colors.primary
+          : colors.primary.withValues(alpha: .10),
+      selectedIconTheme: highContrast
+          ? IconThemeData(color: colors.onPrimary)
+          : null,
       selectedLabelTextStyle: textTheme.labelLarge?.copyWith(
         color: colors.primary,
       ),

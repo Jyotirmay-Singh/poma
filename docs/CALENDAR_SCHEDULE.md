@@ -3,9 +3,11 @@
 Windows Calendar opens on **Schedule**, with **Focus blocks** and **Calendar
 settings** as explicit section destinations. Settings and native agenda/tray
 setup actions open Calendar settings. Completing a reviewed focus operation
-opens Focus blocks. Ctrl+1–5 follow the visual navigation order: Focus, Tasks,
-Calendar, History / Insights, Settings. Android and iOS keep their four offline
-destinations.
+opens Focus blocks. Ctrl+1–6 follow the visual navigation order: Focus, Tasks,
+Calendar, Day Clock, History / Insights, Settings. Day Clock shares the reader.
+Its separately enabled task-creation flow adds reviewed ordinary Google events
+to owned calendars, including primary, with durable same-ID save recovery.
+Android and iOS keep their four offline destinations.
 
 The sufficiently wide layout shows a rolling **Next 7 days** timeline, anchored
 to the reader's first local date rather than Monday. **Day** offers bounded
@@ -20,10 +22,10 @@ deferred; no reader, cache or credential scope is expanded.
 The existing calendar reader remains the only source of Google snapshots for
 both the main window and compact native tray agenda. Status and per-source
 freshness/coverage distinguish verified empty days from missing, partial or stale
-data. Refresh keeps retained events visible. Viewing requires no focus-write
-consent. Only retained Google events become schedule tiles; local drafts and
-uncertain write operations stay in Focus blocks, avoiding journal/snapshot
-duplicates.
+data. Refresh keeps retained events visible. Viewing requires neither focus-write
+nor task-creation consent. Only retained Google events become schedule tiles;
+local drafts and uncertain operations stay in their separate focus/Day Clock
+status areas, avoiding journal/snapshot duplicates.
 
 Presentation identity combines calendar ID, event ID, recurring series ID and
 original instance start. Titles and display names are not identifiers. Timed

@@ -5,6 +5,21 @@ background with offline Sora headings/countdowns and Source Sans 3 body text.
 The installed upgrade preserves existing data and Calendar configuration.
 See the [space appearance release and verification](docs/SPACE_APPEARANCE_RELEASE.md).
 
+## Windows Day Clock — source implementation and verification
+
+Day Clock shares the existing selected-calendar reader and shows AM/PM event
+sectors, event colours, an agenda and honest coverage states. Add task creates a
+reviewed ordinary timed Google event on an owned calendar, including primary,
+through separately enabled `calendar.events.owned` access. Focus scheduling keeps
+its dedicated-calendar and event ownership checks. Kept drafts and reviewed saves
+have a separate durable journal; uncertain sends check the original event ID and
+never replay automatically. The refined interface includes measured enlarged-text
+dials, a quiet agenda, reduced-motion/focus handling and one clear Saved summary.
+See [Day Clock verification](docs/DAY_CLOCK_VERIFICATION.md),
+[progress and remaining live checks](docs/DAY_CLOCK_PROGRESS.md)
+and [Poma Google configuration](docs/GOOGLE_CALENDAR_SETUP.md). This source work
+does not update the installed 2027 package or establish live Google acceptance.
+
 ## Windows explicit focus scheduling — private Session 12
 
 The Windows Calendar page separates optional Google viewing from focus scheduling.
@@ -147,7 +162,7 @@ Build outputs, signing keys, SDK configuration, and local development notes are 
 Core timers, tasks and history have no backend or network dependency. The optional
 Windows Google connection makes direct HTTPS authorization, token, primary-calendar
 identity and revocation requests. Android/iOS remain offline; phone syncing and
-event writes are outside this session. [Architecture](docs/ARCHITECTURE.md) describes
+mobile calendar writes remain outside this work. [Architecture](docs/ARCHITECTURE.md) describes
 the separate state owners and platform boundaries.
 
 ## Starter boundaries

@@ -11,6 +11,7 @@ import 'tasks_screen.dart';
 import 'desktop_scope.dart';
 import 'calendar_screen.dart';
 import 'design_tokens.dart';
+import 'day_clock_screen.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({required this.controller, super.key});
@@ -64,6 +65,11 @@ class _AppShellState extends State<AppShell> {
       ),
       1 => TasksScreen(controller: controller),
       2 => InsightsScreen(controller: controller),
+      5 when desktop != null => DayClockScreen(
+        app: controller,
+        desktop: desktop,
+        key: const ValueKey('day-clock-page'),
+      ),
       4 when desktop != null => CalendarScreen(
         controller: controller,
         desktop: desktop,
@@ -78,7 +84,7 @@ class _AppShellState extends State<AppShell> {
           MediaQuery.textScalerOf(context).scale(1) < 1.5;
       return CallbackShortcuts(
         bindings: {
-          for (var i = 0; i < 5; i++)
+          for (var i = 0; i < desktopDestinationOrder.length; i++)
             SingleActivator(
               [
                 LogicalKeyboardKey.digit1,
@@ -86,6 +92,7 @@ class _AppShellState extends State<AppShell> {
                 LogicalKeyboardKey.digit3,
                 LogicalKeyboardKey.digit4,
                 LogicalKeyboardKey.digit5,
+                LogicalKeyboardKey.digit6,
               ][i],
               control: true,
             ): () =>
@@ -116,20 +123,17 @@ class _AppShellState extends State<AppShell> {
                             child: NavigationRail(
                               extended: extended,
                               minExtendedWidth: 216,
-                              selectedIndex: const [
-                                0,
-                                1,
-                                4,
-                                2,
-                                3,
-                              ].indexOf(_tab),
+                              selectedIndex: desktopDestinationOrder.indexOf(
+                                _tab,
+                              ),
                               onDestinationSelected: (i) =>
-                                  _goTo(const [0, 1, 4, 2, 3][i]),
+                                  _goTo(desktopDestinationOrder[i]),
                               destinations: [
                                 for (final entry in [
                                   (Icons.timelapse, copy.focus),
                                   (Icons.checklist, copy.tasks),
                                   (Icons.calendar_month_outlined, 'Calendar'),
+                                  (Icons.schedule_outlined, 'Day Clock'),
                                   (Icons.bar_chart, copy.desktopHistory),
                                   (Icons.tune, copy.settings),
                                 ])
@@ -168,16 +172,18 @@ class _AppShellState extends State<AppShell> {
                 copy.focus,
                 copy.tasks,
                 if (desktop != null) 'Calendar',
+                if (desktop != null) 'Day Clock',
                 copy.insights,
                 copy.settings,
               ];
               final ids = desktop == null
                   ? const [0, 1, 2, 3]
-                  : const [0, 1, 4, 2, 3];
+                  : desktopDestinationOrder;
               final icons = [
                 Icons.timelapse,
                 Icons.checklist,
                 if (desktop != null) Icons.calendar_month_outlined,
+                if (desktop != null) Icons.schedule_outlined,
                 Icons.bar_chart,
                 Icons.tune,
               ];

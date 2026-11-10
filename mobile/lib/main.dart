@@ -31,6 +31,9 @@ import 'data/windows_calendar_cache.dart';
 import 'application/calendar_reminder_controller.dart';
 import 'data/windows_calendar_reminders.dart';
 import 'application/focus_block_controller.dart';
+import 'application/calendar_event_creation_controller.dart';
+import 'data/google_calendar_event_writer.dart';
+import 'data/windows_calendar_creation_store.dart';
 import 'data/google_focus_writer.dart';
 import 'data/windows_focus_store.dart';
 import 'data/windows_focus_time.dart';
@@ -198,6 +201,20 @@ class _PomaLoaderState extends State<PomaLoader> {
       );
       focusWriter.verifyTime = focusBlocks.verifyTime;
       _desktop!.attachFocusBlocks(focusBlocks);
+      final eventWriter = GoogleCalendarEventWriter(_connection!);
+      final creation = CalendarCreationController(
+        connection: _connection!,
+        reader: calendarData,
+        store: WindowsCalendarCreationStore(
+          _windowsHost!.channel,
+          _connection!,
+        ),
+        writer: eventWriter,
+        time: focusBlocks.time,
+      );
+      eventWriter.mutationAllowed = () => creation.ready && creation.busy;
+      eventWriter.verifyTime = creation.verifyTime;
+      _desktop!.attachCreation(creation);
       final reminderAdapter = WindowsCalendarReminders(_windowsHost!.channel);
       _desktop!.attachReminders(
         CalendarReminderController(
@@ -451,6 +468,7 @@ class _PomaAppState extends State<PomaApp> with WidgetsBindingObserver {
                         LogicalKeyboardKey.digit3,
                         LogicalKeyboardKey.digit4,
                         LogicalKeyboardKey.digit5,
+                        LogicalKeyboardKey.digit6,
                       ][i],
                       control: true,
                     ): () =>

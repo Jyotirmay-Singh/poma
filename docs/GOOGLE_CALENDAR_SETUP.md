@@ -1,5 +1,60 @@
 # Poma Windows Calendar: owner setup plan
 
+## Day Clock Session 2 — optional owned-calendar task creation
+
+Day Clock adds a separate, optional creation capability using **Poma's existing
+Desktop OAuth client and credential owner**. It does not use Codex Google
+connector credentials. Ordinary Connect continues to request only the two read
+permissions below. Enabling task creation requests:
+
+- `https://www.googleapis.com/auth/calendar.calendarlist.readonly`
+- `https://www.googleapis.com/auth/calendar.events.readonly`
+- `https://www.googleapis.com/auth/calendar.events.owned`
+
+If focus scheduling was already granted, the complete request also retains
+`https://www.googleapis.com/auth/calendar.app.created`. Enabling focus scheduling
+after task creation likewise retains the owned-events grant. Local enablement
+and capability receipts remain independent. Disabling either feature is local;
+it does not claim to revoke one Google scope. Disconnect retains the full
+revocation/cleanup behavior described below.
+
+Google's owned-events grant permits seeing, creating, changing and deleting
+events on calendars the user owns. Poma exposes **reviewed one-off creation
+only** through Day Clock. Primary and owned secondary calendars are eligible;
+shared calendars with writer access are viewable but not creation destinations.
+The existing focus writer still requires its verified app-created calendar and
+focus ownership. Calendar names are not permission boundaries.
+
+For the same existing Google project, confirm Calendar API enablement and add
+the owned-events scope in **Google Auth Platform → Data Access**. Keep the
+existing audience/test-user restrictions, Desktop client, PKCE/loopback flow and
+owner-local curated build defines. Do not add broad `calendar`, `calendar.events`,
+Tasks, profile or calendar metadata scopes, publish the OAuth app, or change the
+installed package to work around a consent problem. A configured Poma build is
+required; compiling without the owner-local defines leaves Connect unavailable.
+
+Installed-app upgrades use a fresh full-set consent request. Poma stages the
+candidate, checks raw exact scope evidence, a replacement refresh token and the
+same account, then refreshes/verifies it before atomic protected promotion.
+Decline, cancellation and incomplete/wrong-account candidates preserve the
+previous usable connection and focus grant. No event is sent by consent: return
+to the form, check the exact times, and choose **Add to Google Calendar**.
+
+Normal events use the chosen Busy/Free setting, optional supported Google
+`colorId` with `eventLabelVersion=0`, and calendar defaults for visibility and
+reminders. Event IDs and private Day Clock recovery markers are distinct from
+focus ownership markers. No attendees, recurrence, task completion or timer
+history are uploaded. Drafts and creation journals contain unencrypted local
+calendar data; refresh credentials and capability receipts remain DPAPI protected.
+
+The public Calendar v3 discovery definition was inspected during planning:
+`events.insert` supports `calendar.events.owned`; label version 0 uses `colorId`.
+That scope does **not** authorize `calendars.get`, so the focus writer's existing
+app-created metadata eligibility check has not been broadened by this feature.
+This is API/source evidence, not proof of a live account grant. Owner-assisted
+disposable-calendar consent/create/readback and installed-build checks remain
+separate gates recorded in DAY_CLOCK_PROGRESS.md.
+
 ## Optional Session 12 setup
 
 The separate Windows Calendar page now contains connection, calendar selection,

@@ -30,6 +30,8 @@ class CalendarReadController extends ChangeNotifier {
   Future<void> _transition = Future.value();
   bool loading = false, saving = false;
   CalendarReadFailure? failure;
+  CalendarReadFailure? paletteFailure;
+  CalendarEventPalette? get palette => _data?.palette;
   final Map<String, CalendarReadFailure> sourceFailures = {};
   final Set<String> _blockedSources = {};
   List<CalendarSource> get sources => _data?.sources ?? const [];
@@ -118,6 +120,7 @@ class CalendarReadController extends ChangeNotifier {
     _catalogBlocked = false;
     _blockedSources.clear();
     sourceFailures.clear();
+    paletteFailure = null;
     failure = null;
     saving = false;
     loading = key != null;
@@ -288,6 +291,13 @@ class CalendarReadController extends ChangeNotifier {
     return result;
   }
 
+  /// A pre-insert refresh must not absorb the refresh that confirms creation.
+  Future<void> refreshAfterCreation() async {
+    final running = _refreshing;
+    if (running != null) await running;
+    await refresh(manual: true);
+  }
+
   Future<void> _refresh(int generation) async {
     failure = null;
     try {
@@ -369,6 +379,29 @@ class CalendarReadController extends ChangeNotifier {
         }
       }
       _notify();
+    }
+    // Palette refresh shares the reader's cadence and cancellation/account scope.
+    // Its failure never removes retained events or turns an event fetch into a
+    // failed snapshot. There is no palette timer or presentation-tick I/O.
+    final paletteProvider = provider;
+    final fetched = palette?.fetchedAt;
+    if (_current(generation) &&
+        paletteProvider is CalendarPaletteProvider &&
+        (fetched == null ||
+            fetched.isAfter(now) ||
+            now.difference(fetched) >= const Duration(days: 1) ||
+            paletteFailure != null)) {
+      try {
+        final next = await (paletteProvider as CalendarPaletteProvider)
+            .eventPalette();
+        if (!_current(generation)) return;
+        if (await _save(_data!.copyWith(palette: next), generation)) {
+          paletteFailure = null;
+        }
+      } catch (error) {
+        if (_current(generation)) paletteFailure = _safe(error);
+      }
+      if (_current(generation)) _notify();
     }
   }
 

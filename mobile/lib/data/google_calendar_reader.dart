@@ -9,7 +9,8 @@ import '../application/calendar_connection_controller.dart';
 import '../application/calendar_read_ports.dart';
 import '../domain/calendar_data.dart';
 
-class GoogleCalendarReader implements CalendarReadProvider {
+class GoogleCalendarReader
+    implements CalendarReadProvider, CalendarPaletteProvider {
   GoogleCalendarReader({
     required this.access,
     required this.clock,
@@ -31,6 +32,21 @@ class GoogleCalendarReader implements CalendarReadProvider {
   int _epoch = 0;
   bool _disposed = false;
   static bool _zonesReady = false;
+  @override
+  Future<CalendarEventPalette> eventPalette() async {
+    final epoch = _epoch;
+    final map = await _get(
+      Uri.https('www.googleapis.com', '/calendar/v3/colors'),
+      epoch,
+    );
+    _check(epoch);
+    try {
+      return CalendarEventPalette.parse(map, clock.nowUtc());
+    } catch (_) {
+      throw const CalendarReadFailure(CalendarReadFailureKind.response);
+    }
+  }
+
   void _check(int epoch) {
     if (_disposed || epoch != _epoch) {
       throw const CalendarReadFailure(CalendarReadFailureKind.cancelled);
@@ -130,7 +146,7 @@ class GoogleCalendarReader implements CalendarReadProvider {
           'maxResults': '2500',
           'maxAttendees': '1',
           'fields':
-              'nextPageToken,items(id,status,summary,start,end,recurringEventId,originalStartTime,attendees(self,responseStatus),hangoutLink,conferenceData(entryPoints(entryPointType,uri)),htmlLink,location,description)',
+              'nextPageToken,items(id,status,summary,start,end,colorId,eventLabelId,recurringEventId,originalStartTime,attendees(self,responseStatus),hangoutLink,conferenceData(entryPoints(entryPointType,uri)),htmlLink,location,description)',
         },
         epoch,
         (item) {
@@ -194,6 +210,8 @@ class GoogleCalendarReader implements CalendarReadProvider {
       'originalStart': original?['dateTime'] ?? original?['date'],
       'meetingUrl': meeting,
       'eventUrl': map['htmlLink'],
+      'colorId': map['colorId'],
+      'eventLabelId': map['eventLabelId'],
     });
   }
 

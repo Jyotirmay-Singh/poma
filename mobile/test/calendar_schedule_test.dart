@@ -649,8 +649,9 @@ void main() {
         expect(find.text('Choose a task'), findsOneWidget);
         for (final entry in [
           (LogicalKeyboardKey.digit3, 4),
-          (LogicalKeyboardKey.digit4, 2),
-          (LogicalKeyboardKey.digit5, 3),
+          (LogicalKeyboardKey.digit4, 5),
+          (LogicalKeyboardKey.digit5, 2),
+          (LogicalKeyboardKey.digit6, 3),
         ]) {
           await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
           await tester.sendKeyEvent(entry.$1);

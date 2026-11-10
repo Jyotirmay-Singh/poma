@@ -75,6 +75,7 @@ class CalendarCredentialStore {
       // Account replacement must reject worker saves before Dart publishes the
       // new identity, including a crash between credential commit and notify.
       ++focus_scope_; focus_account_.clear();
+      ++creation_scope_; creation_account_.clear();
       PurgeAccounts();
     }
     AtomicWrite(folder_ / L"connection.dpapi", encrypted);
@@ -119,6 +120,7 @@ class CalendarCredentialStore {
     std::lock_guard<std::mutex> guard(mutex_);
     if (expected_revision != revision_ || identity.empty() || identity.size() > kLimit) Fail();
     ++revision_; InvalidateCacheLocked(); ++focus_scope_;focus_account_.clear();
+    ++creation_scope_;creation_account_.clear();
     EnsureFolder();
     Bytes plaintext(identity.begin(), identity.end()), encrypted;
     try { encrypted = protect_(plaintext, Entropy()); }
@@ -158,12 +160,50 @@ class CalendarCredentialStore {
   int64_t Clear() {
     std::lock_guard<std::mutex> guard(mutex_);
     ++revision_; InvalidateCacheLocked(); ++focus_scope_;focus_account_.clear(); // Invalidate even when disk cleanup fails.
+    ++creation_scope_;creation_account_.clear();
     EnsureFolder();
     AtomicWrite(folder_ / L"disconnected", Bytes{1});
     Purge();
     return revision_;
   }
+  FocusRead OpenCreation(int64_t expected_revision, const std::string& account) {
+    std::lock_guard<std::mutex> guard(mutex_);
+    if (expected_revision != revision_ || Exists(folder_ / L"disconnected")) Fail();
+    ValidateAccount(account); ++creation_scope_; creation_account_=account; creation_revision_=0;
+    const auto file=CreationPath(expected_revision,creation_scope_,account) / L"day-clock-creates.json";
+    std::optional<std::string> document;
+    if(Exists(file)){const auto bytes=ReadBytes(file,kCacheLimit);document=std::string(bytes.begin(),bytes.end());}
+    return {creation_scope_,creation_revision_,Exists(folder_ / L"creation-stopped"),document,Exists(folder_ / L"creation-disabled")};
+  }
+  int64_t SaveCreation(int64_t expected_revision,int64_t scope,int64_t expected_commit,const std::string& account,const std::string& value) {
+    std::lock_guard<std::mutex> guard(mutex_);
+    if(expected_commit!=creation_revision_ || value.empty() || value.size()>kCacheLimit)Fail();
+    const auto path=CreationPath(expected_revision,scope,account);
+    std::filesystem::create_directories(path);CheckDirectory(path);
+    AtomicWrite(path / L"day-clock-creates.json",Bytes(value.begin(),value.end()));
+    return ++creation_revision_;
+  }
+  void DisableCreation(bool disabled) {
+    std::lock_guard<std::mutex> guard(mutex_);EnsureFolder();
+    if(disabled){++creation_scope_;creation_account_.clear();AtomicWrite(folder_ / L"creation-disabled",Bytes{1});}
+    else RemoveFile(folder_ / L"creation-disabled");
+  }
+  void StopCreation(bool purge=false) {
+    std::lock_guard<std::mutex> guard(mutex_);
+    const auto account=creation_account_;++creation_scope_;creation_account_.clear();
+    EnsureFolder();AtomicWrite(folder_ / L"creation-stopped",Bytes{1});
+    if(purge&&!account.empty()){
+      const auto path=folder_ / L"accounts" / std::wstring(account.begin(),account.end());CheckDirectory(path);
+      RemoveFile(path / L"day-clock-creates.json");RemoveFile(path / L"day-clock-creates.json.tmp");
+    }
+  }
  private:
+  std::filesystem::path CreationPath(int64_t revision,int64_t scope,const std::string& account) {
+    ValidateAccount(account);
+    if(revision!=revision_||scope!=creation_scope_||account!=creation_account_||Exists(folder_ / L"disconnected"))Fail();
+    CheckDirectory(profile_);CheckDirectory(folder_);const auto parent=folder_ / L"accounts";
+    const auto path=parent / std::wstring(account.begin(),account.end());CheckDirectory(parent);CheckDirectory(path);return path;
+  }
   static constexpr size_t kLimit = 64 * 1024;
   static constexpr size_t kCacheLimit = 16 * 1024 * 1024;
   void InvalidateCacheLocked() { ++cache_scope_; account_.clear(); }
@@ -283,6 +323,8 @@ class CalendarCredentialStore {
   int64_t revision_ = 0;
   int64_t commit_revision_ = 0, focus_scope_ = 0, focus_revision_ = 0;
   std::string focus_account_;
+  int64_t creation_scope_ = 0, creation_revision_ = 0;
+  std::string creation_account_;
   int64_t cache_scope_ = 0;
   std::string account_;
 };

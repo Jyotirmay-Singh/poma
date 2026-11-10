@@ -262,6 +262,36 @@ int main(int argc, char** argv) {
       Check(rejected,"W15 full disconnect invalidates focus lease");std::filesystem::remove_all(profile);
     }
     {
+      using Store=poma::CalendarCredentialStore;
+      const auto profile=std::filesystem::path(directory)/L"creation-session2";
+      const std::string account(64,'b');Store store(profile.wstring());
+      Check(store.Commit(0,0,"synthetic-creation-credential",false)==1,"DC credential commit");
+      auto focus=store.OpenFocus(0,account);auto creation=store.OpenCreation(0,account);
+      Check(!creation.document&&!creation.disabled,"DC new journal has no inferred operations");
+      Check(store.SaveCreation(0,creation.scope,0,account,"reviewed-create")==1,"DC durable creation commit");
+      Check(store.SaveFocus(0,focus.scope,0,account,"focus-preserved")==1,"DC creation lease does not invalidate focus");
+      bool rejected=false;try{store.SaveCreation(0,creation.scope,0,account,"duplicate");}catch(...){rejected=true;}
+      Check(rejected,"DC stale creation revision rejects double commit");
+      store.DisableCreation(true);
+      rejected=false;try{store.SaveCreation(0,creation.scope,1,account,"late");}catch(...){rejected=true;}
+      Check(rejected,"DC disable rejects queued creation save");
+      Check(store.SaveFocus(0,focus.scope,1,account,"focus-still-preserved")==2,"DC creation disable leaves focus lease valid");
+      creation=store.OpenCreation(0,account);Check(creation.disabled&&creation.document=="reviewed-create","DC disabled journal retained");
+      store.DisableCreation(false);creation=store.OpenCreation(0,account);
+      store.StopCreation();rejected=false;try{store.SaveCreation(0,creation.scope,0,account,"late-after-lock");}catch(...){rejected=true;}
+      Check(rejected,"DC stop invalidates queued saves");
+      Store reopened(profile.wstring());reopened.Read();creation=reopened.OpenCreation(0,account);
+      Check(creation.stopped&&creation.document=="reviewed-create","DC stopped intent survives process-style reopen");
+      Check(reopened.Commit(0,1,"replacement-account",true)==2,"DC account replacement commits");
+      rejected=false;try{reopened.SaveCreation(0,creation.scope,0,account,"old-account");}catch(...){rejected=true;}
+      Check(rejected,"DC account replacement rejects late creation acknowledgement");
+      creation=reopened.OpenCreation(0,account);Check(!creation.document,"DC account replacement purges creation data");
+      reopened.SaveCreation(0,creation.scope,0,account,"new-operation");reopened.StopCreation(true);
+      creation=reopened.OpenCreation(0,account);Check(!creation.document,"DC explicit purge removes creation journal");
+      reopened.Clear();rejected=false;try{reopened.SaveCreation(0,creation.scope,0,account,"late-after-disconnect");}catch(...){rejected=true;}
+      Check(rejected,"DC disconnect rejects old creation lease");std::filesystem::remove_all(profile);
+    }
+    {
       DYNAMIC_TIME_ZONE_INFORMATION eastern{},india{},entry{};bool found_east=false,found_india=false;
       for(DWORD i=0;EnumDynamicTimeZoneInformation(i,&entry)==ERROR_SUCCESS;++i){
         if(std::wstring(entry.TimeZoneKeyName)==L"Eastern Standard Time"){eastern=entry;found_east=true;}

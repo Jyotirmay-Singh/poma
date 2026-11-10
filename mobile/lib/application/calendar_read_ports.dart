@@ -28,6 +28,11 @@ abstract interface class CalendarReadProvider {
   void dispose();
 }
 
+/// Optional additive capability; existing/offline providers need not implement it.
+abstract interface class CalendarPaletteProvider {
+  Future<CalendarEventPalette> eventPalette();
+}
+
 class CalendarCacheLease {
   const CalendarCacheLease(this.revision, this.scope, this.accountKey);
   final int revision, scope;
