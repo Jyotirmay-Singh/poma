@@ -25,6 +25,14 @@ installed and assistive acceptance are recorded in DAY_CLOCK_VERIFICATION.md and
 DAY_CLOCK_PROGRESS.md. Source is ready for review; no installation or publishing
 was performed.
 
+Later follow-up, 10 November 2026: the owner requested commit/push and explicitly
+authorized a local update for testing. Source was pushed as `f9c849f`; configured
+Poma **1.0.0.2028** was installed with data preservation and its Day Clock/form
+were exercised. The detailed installed observations and remaining live Google
+and assistive acceptance are in the verification report's local application
+follow-up. This extends the earlier installation boundary; no publishing or
+personal-calendar event testing was performed.
+
 ## Approved Session 2 implementation — 9 November 2026
 
 The owner approved connecting the existing form through an independent owned-

@@ -1,12 +1,56 @@
 # Day Clock progress
 
+## Committed source and authorized local update — 10 November 2026
+
+Sessions 1–3 were committed and pushed to `origin/main` as
+[`f9c849f74fc770c51b2ca5f1f7feb383a12125ef`](https://github.com/Jyotirmay-Singh/poma/commit/f9c849f74fc770c51b2ca5f1f7feb383a12125ef).
+The owner then explicitly approved updating the locally present Poma for testing.
+The installed **1.0.0.2027** package was updated in place to **1.0.0.2028**, built
+from that commit using a local version override and the existing Calendar
+configuration/signer. No runtime source or source package version was changed.
+
+- Configured Release compilation passed in **70.1s**; MSIX signature **Valid**.
+  The package audit verified **76 payload hashes** with no selected privacy-scan
+  findings. Installer SHA-256:
+  `b8245b8e6511ed0678fd940cfeaf941c6f7fb8a65421e3ce9fe7d246472d54f2`.
+- A closed-profile backup preceded installation. **Five profile files** matched
+  before first launch; **76 installed payload files** matched the package and
+  installed status was **Ok**. After testing, database fingerprints for tasks,
+  sessions, settings and the complete stored timer matched the backup exactly.
+- Observed installed behavior: six navigation shortcuts using right-Control;
+  PM/future-date browsing retained across navigation; Now restores current AM
+  and the hand; wide/normal layouts and form/page scrolling; Enter/Tab/ordinary
+  key entry; Escape returns focus to Add task. Existing Focus remained paused
+  at **24:59**, 0/4 rounds, and the original window size/Focus page was restored.
+- Entered fictional `plan` on **11 November 2026, 10–11 PM**. Check task showed
+  **60 minutes**, India Standard Time and **UTC+05:30 at both endpoints**.
+  Expired access was reported consistently in Calendar/Day Clock; availability
+  stayed unknown, fields remained intact and Google Save stayed unavailable.
+  No reconnection, consent change, kept draft or Google event was submitted.
+- Live disposable-calendar save/readback and installed failure/recovery remain
+  **pending**. Actual notifications/tray, DPI/sleep-resume, physical keyboard and
+  assistive acceptance were not established. No publishing was performed.
+
+The [local application verification](DAY_CLOCK_VERIFICATION.md#local-application-follow-up--10-november-2026)
+records the observed boundaries and
+[separate package/evidence hashes](../artifacts/day-clock/session3/local-app/evidence-manifest.json).
+Representative unmodified installed captures:
+[PM browsing](../artifacts/day-clock/session3/local-app/screenshots/installed-pm-browsing.jpg),
+[Now](../artifacts/day-clock/session3/local-app/screenshots/installed-following-now.jpg),
+[preserved Focus](../artifacts/day-clock/session3/local-app/screenshots/installed-focus-preserved.jpg).
+The fictional-account form and Saved captures remain in the Session 3 evidence
+below. Historical source-only results and the original unconfigured 2007 runtime
+receipt are retained; the configured 2028 build reused the build output path.
+
 ## Session 3 — final refinement and verification — 9–10 November 2026
 
 Status: **Session 3 complete in source, deterministically verified and compiled;
 ready for review.** The owner approved the final plan and selected fictional test
-data only. Live Google, installed-app and physical assistive acceptance remain
-pending. No installation, publication, Google configuration or personal-calendar
-testing was performed. The full scenario matrix, actual Flutter screens and
+data only. At source completion, live Google, installed-app and physical
+assistive acceptance were pending. No installation, publication, Google
+configuration or personal-calendar testing was performed in that source-only
+stage; the later authorized installed checks are recorded above.
+The full scenario matrix, actual Flutter screens and
 acceptance boundaries are in [Day Clock verification](DAY_CLOCK_VERIFICATION.md).
 
 - Re-read repository instructions, the feature/plan/progress/visual/design-system
@@ -68,7 +112,8 @@ replay a draft or retain an obsolete hidden/refresh warning.
 ### Source and build identity
 
 - Base commit: `c3625a68774f0478146f4abb84e5b039d52465f9`; all existing work
-  preserved and Sessions 1–3 remain uncommitted for review.
+  was preserved. Sessions 1–3 were uncommitted during these runs and were later
+  committed/pushed as recorded above.
 - Flutter **3.44.2**, Dart **3.12.2**, framework
   `c9a6c484230f8b5e408ec57be1ef71dee1e77020`.
 - The manifest inventories **205 source/test/native/asset/workflow inputs** and
@@ -105,11 +150,12 @@ installed-app or live-account screenshots.
 
 ### Remaining acceptance
 
-Live Poma OAuth/consent and disposable-calendar create/readback, an installed
-configured package, physical Narrator/assistive operation, actual system DPI and
-sleep/resume, and real notification/tray observations remain **pending**. The
-automated regressions and native checks support those acceptance steps without
-claiming them. Installation and publishing remain separate actions. Existing
+Live Poma OAuth/consent and disposable-calendar create/readback, physical
+Narrator/assistive operation, actual system DPI and sleep/resume, and real
+notification/tray observations remain **pending**. Basic configured-package
+installation and UI checks were subsequently observed as recorded above.
+The automated regressions and native checks support the remaining acceptance
+steps without claiming them. Publishing remains separate. Existing
 owned-calendar, seven-date coverage and custom label-colour limitations are
 recorded in the verification report.
 

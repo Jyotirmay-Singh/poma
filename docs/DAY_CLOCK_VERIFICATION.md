@@ -8,8 +8,10 @@ renders from actual Google, installed-app and assistive-technology acceptance.
 complete Flutter suite passed **709 tests** in 3m 15s. The final feature/capture
 run passed **168 tests** and produced **284 actual Flutter PNGs**. Analysis and
 formatting are clean; native Windows checks passed **4/4 executables, 331
-assertions**, and Windows Release compilation passed in **77.7s**. Live Google,
-installed-app and physical assistive acceptance remain pending.
+assertions**, and Windows Release compilation passed in **77.7s**. That source-only
+run did not establish live Google, installed-app or physical assistive acceptance.
+The later, explicitly authorized local update and installed checks are recorded
+below under [Local application follow-up](#local-application-follow-up--10-november-2026).
 
 ## Finished interface and fixes
 
@@ -143,8 +145,9 @@ outside the final gallery.
 | Windows Release compilation | **Passed**, 77.7s; [log](../artifacts/day-clock/session3/windows-final.log) |
 | Evidence integrity | Final [manifest](../artifacts/day-clock/session3/verification-manifest.json) and [audit](../artifacts/day-clock/session3/final-audit.json); hashes, local links and final capture-run provenance checked |
 
-Base commit: `c3625a68774f0478146f4abb84e5b039d52465f9`. Sessions 1–3 remain
-uncommitted for review. Flutter **3.44.2**, Dart **3.12.2**, framework
+Base commit: `c3625a68774f0478146f4abb84e5b039d52465f9`. Sessions 1–3 were
+uncommitted during these verification runs; they were subsequently committed and
+pushed as `f9c849f74fc770c51b2ca5f1f7feb383a12125ef`. Flutter **3.44.2**, Dart **3.12.2**, framework
 `c9a6c484230f8b5e408ec57be1ef71dee1e77020`; release entrypoint lib/main.dart.
 
 The manifest hashes **205 source/test/native/asset/workflow inputs**, **44 runtime
@@ -160,7 +163,9 @@ Source-input set SHA-256:
 - The native runner is unchanged from Session 2; the Dart image identifies this
   new interface/controller build. No private Google defines were supplied.
   This is an unconfigured compilation, with the unchanged 1.0.0+2007 source
-  version, and does not replace the installed 1.0.0.2027 application/profile.
+  version, and did not replace the installed 1.0.0.2027 application/profile.
+  The subsequent configured 2028 build below reused the build output directory;
+  these historical runtime hashes must not be treated as its current contents.
 
 Intermediate runs exposed a geometry initializer error, disabled-text contrast,
 an enlarged-form fixture scroll race, CalendarDate identity assertions, a
@@ -174,9 +179,9 @@ supersede intermediate/failed logs; overlapping run counts are not additive.
 | --- | --- |
 | Production-code deterministic tests / host Flutter renders / native checks | Recorded above |
 | Live Google OAuth, decline/partial grants, creation and Google UI readback | **Pending — owner selected deterministic-only testing** |
-| Installed configured Windows package, real notifications/tray, DPI and actual sleep/resume | **Pending — no installation performed** |
+| Installed configured Windows package | **Basic 2028 installed checks observed below**; real notifications/tray, DPI and actual sleep/resume remain pending |
 | Narrator/other assistive technology and physical keyboard/touch operation | **Pending — host semantics are supporting evidence only** |
-| Publishing / signing / installer preparation | **Separate action; not performed** |
+| Publishing | **Not performed**; the later authorized local update was packaged and signed separately |
 
 Live acceptance requires an explicitly authorized disposable owned calendar and
 named test events using Poma's configured Desktop OAuth flow. Compare exact
@@ -191,3 +196,74 @@ verified account (otherwise fields remain in memory); calendar data is locally
 unencrypted while credentials/receipts retain DPAPI protection. Custom label-only
 colours remain unavailable. Invitations, recurrence authoring and arbitrary
 remote editing/deletion are outside the feature.
+
+## Local application follow-up — 10 November 2026
+
+After the source commit was pushed, the owner requested testing the locally
+present Poma and explicitly approved **“Update locally and test Day Clock”**.
+The previous installed 1.0.0.2027 package had five destinations and no Day Clock.
+It was updated in place to **1.0.0.2028**, built from the pushed commit above.
+The source package version remains unchanged; 2028 is a local build override.
+No runtime source changed after the completed 709-test verification.
+
+The established Windows release workflow used the existing private Desktop
+Calendar configuration and signing identity. Release compilation passed in
+**70.1s**. The MSIX signature was **Valid**; the package audit verified **76
+payload hashes** and reported no findings in its bounded privacy scan. No
+certificate trust, Google project configuration or publishing change was made.
+
+- Package family: `JyotirmaySingh.Poma.Desktop_kz516h6tttq8c`.
+- Installer: `artifacts/windows/Poma-1.0.0.2028-day-clock/Poma-1.0.0.2028-x64.msix`.
+- Installer SHA-256:
+  `b8245b8e6511ed0678fd940cfeaf941c6f7fb8a65421e3ce9fe7d246472d54f2`.
+- Source inventory SHA-256 from the configured package audit:
+  `a755a86e748098649af171737003982221d5cfabc316a806752f0e3bd10a8e2b`.
+
+Poma was closed cleanly before an owner-private profile backup. All **five
+profile files** matched the backup immediately after installation, before launch;
+all **76 installed payload files** matched the verified package and package
+status was **Ok**. After the UI checks, read-only database fingerprints exactly
+matched the backup for tasks, session history, settings and the complete stored
+timer. Focus visibly remained **paused at 24:59**, with 0/4 rounds and no task.
+The window was returned to its original size and Focus destination.
+
+| Installed check | Observed result |
+| --- | --- |
+| Navigation and existing screens | All six destinations opened using right-Control + 1–6. Focus, empty Tasks, Calendar, History and Settings rendered; no timer or preference was changed. |
+| Manual browsing | PM and 11 November 2026 remained selected across navigation to Focus and back. The real-time hand was absent while browsing the future half-day. |
+| Now | Returned to 10 November/current AM, displayed Following Now and the correct approximately 11:30 AM hand/centre. Subsequent minute updates were visible. |
+| Real task form | Entered fictional title `plan`, explicit 2026-11-11 start/end dates and 10:00–11:00 PM through ordinary key presses. Check task displayed **60 minutes**, India Standard Time and **UTC+05:30 at both endpoints**. |
+| Access boundary | Calendar and Day Clock both showed Reconnect Google Calendar and unknown/unverified availability. The form retained its fields, reported Not scheduled, and disabled creation/Google Save. The displayed existing primary destination was not verified online or used as a test target. |
+| Keyboard and focus | Enter opened Add task; ordinary text/numeric keys and Tab operated labelled fields. Escape closed the modal and its accessible focus returned to Add task. |
+| Layout | Normal 1067×754 and maximized 1536×840 windows were inspected. The wide dial/agenda columns and both the page and form scroll areas exposed their lower content. |
+
+The automation helper's bulk text entry and left-Control injection did not
+produce the expected result. Individual key presses and right-Control shortcuts
+did, so no production keyboard defect is inferred from those helper attempts.
+These observations do not establish physical-keyboard or Narrator acceptance.
+
+No creation consent, reconnection, Keep draft or Google Save action was taken.
+The fictional form was closed in memory; nothing was scheduled. Live Google
+acceptance of the one-event/one-sector/one-agenda result, online destination
+verification and installed recovery cases therefore remain **pending**. They
+require an explicitly authorized disposable owned calendar. The earlier
+fictional-provider tests remain the evidence for those complete flows.
+
+Separate follow-up evidence preserves the distinction from the historical
+unconfigured 2007 build and source-only manifest:
+
+- [Configured package audit](../artifacts/day-clock/session3/local-app/package-audit.json),
+  [build log](../artifacts/day-clock/session3/local-package-build.log) and
+  [signing log](../artifacts/day-clock/session3/local-package-sign.log).
+- [Installed observations](../artifacts/day-clock/session3/local-app/installed-app-verification.json),
+  [data preservation](../artifacts/day-clock/session3/local-app/data-preservation.json) and
+  [follow-up evidence hashes](../artifacts/day-clock/session3/local-app/evidence-manifest.json).
+- Unmodified installed captures without account identifiers or calendar events:
+  [PM browsing](../artifacts/day-clock/session3/local-app/screenshots/installed-pm-browsing.jpg),
+  [Following Now](../artifacts/day-clock/session3/local-app/screenshots/installed-following-now.jpg) and
+  [preserved Focus](../artifacts/day-clock/session3/local-app/screenshots/installed-focus-preserved.jpg).
+
+The installed form showed the existing account identifier, so its screenshot was
+not retained in the shareable evidence. Fictional-account form and Saved-result
+Flutter captures remain linked above. Publishing, actual notifications/tray,
+system DPI/sleep-resume and assistive-technology acceptance remain separate.
