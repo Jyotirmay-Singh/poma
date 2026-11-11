@@ -6,6 +6,7 @@ import '../domain/models.dart';
 import '../domain/alert_state.dart';
 import '../domain/desktop_preferences.dart';
 import '../domain/focus_sound_preferences.dart';
+import '../domain/planner.dart';
 import 'local_storage_policy.dart';
 import 'schema_migrations.dart';
 
@@ -53,7 +54,7 @@ class SqliteRepository implements LocalRepository {
       () => factory.openDatabase(
         location,
         options: OpenDatabaseOptions(
-          version: 3,
+          version: 4,
           onConfigure: (db) async {
             await _guard(
               () => db.execute('PRAGMA synchronous = FULL'),
@@ -151,6 +152,7 @@ class SqliteRepository implements LocalRepository {
                 storedObject(state['windowsDesktop']!),
               ),
         focusSounds: _focusSounds(state['focusSounds']),
+        planner: await _readPlanner(txn),
       );
     }, exclusive: false);
   }, StorageFailureKind.unreadable);
@@ -182,6 +184,9 @@ class SqliteRepository implements LocalRepository {
           await txn.delete('sessions');
           await txn.delete('app_state');
           await txn.delete('notification_receipts');
+          for (final table in _plannerTables) {
+            await txn.delete(table);
+          }
         } else if (change.clearHistory) {
           await txn.delete('sessions');
         }
@@ -237,6 +242,9 @@ class SqliteRepository implements LocalRepository {
               'ended_at_utc_micros': session.endedAt.microsecondsSinceEpoch,
             });
           }
+        }
+        if (change.planner case final planner?) {
+          await _writePlanner(txn, planner);
         }
         final state = change.state;
         if (state.focusSounds != null) {
@@ -306,6 +314,110 @@ class SqliteRepository implements LocalRepository {
     await commitObserver?.call('afterCommit');
     return result;
   }, StorageFailureKind.write);
+
+  static const _plannerTables = [
+    'planner_schedules',
+    'planner_operations',
+    'planner_preferences',
+    'planner_drafts',
+    'planner_occurrences',
+    'planner_imports',
+  ];
+
+  Future<PlannerData> _readPlanner(DatabaseExecutor db) async =>
+      PlannerData.fromJson({
+        'version': 1,
+        'schedules': {
+          for (final r in await db.query('planner_schedules'))
+            r['id'] as String: jsonDecode(r['document'] as String),
+        },
+        'operations': {
+          for (final r in await db.query('planner_operations'))
+            r['id'] as String: jsonDecode(r['document'] as String),
+        },
+        'preferences': {
+          for (final r in await db.query('planner_preferences'))
+            r['account_key'] as String: jsonDecode(r['document'] as String),
+        },
+        'drafts': {
+          for (final r in await db.query('planner_drafts'))
+            r['id'] as String: jsonDecode(r['document'] as String),
+        },
+        'completed': [
+          for (final r in await db.query('planner_occurrences')) r['identity'],
+        ],
+        'legacyImports': [
+          for (final r in await db.query('planner_imports')) r['identity'],
+        ],
+      });
+
+  Future<void> _writePlanner(DatabaseExecutor db, PlannerData data) async {
+    // Validate before touching rows. All planner writes share the task transaction.
+    final document = jsonEncode(data.toJson());
+    if (utf8.encode(document).length > 16 * 1024 * 1024) {
+      throw const StorageFailure(StorageFailureKind.full);
+    }
+    PlannerData.fromJson(jsonDecode(document) as Map);
+    final rows = <String, List<Map<String, Object?>>>{
+      'planner_schedules': [
+        for (final s in data.schedules.values)
+          {
+            'id': s.id,
+            'task_id': s.removed ? null : s.taskId,
+            'account_key': s.accountKey,
+            'calendar_id': s.calendarId,
+            'event_id': s.eventId,
+            'document': jsonEncode(s.toJson()),
+          },
+      ],
+      'planner_operations': [
+        for (final op in data.operations.values)
+          {
+            'id': op.id,
+            'schedule_id': op.scheduleId,
+            'document': jsonEncode(op.toJson()),
+          },
+      ],
+      'planner_preferences': [
+        for (final e in data.preferences.entries)
+          {'account_key': e.key, 'document': jsonEncode(e.value.toJson())},
+      ],
+      'planner_drafts': [
+        for (final e in data.drafts.entries)
+          {'id': e.key, 'document': jsonEncode(e.value)},
+      ],
+      'planner_occurrences': [
+        for (final key in data.completed) {'identity': key},
+      ],
+      'planner_imports': [
+        for (final key in data.legacyImports) {'identity': key},
+      ],
+    };
+    for (final entry in rows.entries) {
+      final key = switch (entry.key) {
+        'planner_preferences' => 'account_key',
+        'planner_occurrences' || 'planner_imports' => 'identity',
+        _ => 'id',
+      };
+      final old = {
+        for (final row in await db.query(entry.key)) row[key] as String: row,
+      };
+      for (final row in entry.value) {
+        final id = row[key] as String;
+        final previous = old.remove(id);
+        if (!plannerValueEquals(previous, row)) {
+          if (previous == null) {
+            await db.insert(entry.key, row);
+          } else {
+            await db.update(entry.key, row, where: '$key = ?', whereArgs: [id]);
+          }
+        }
+      }
+      for (final id in old.keys) {
+        await db.delete(entry.key, where: '$key = ?', whereArgs: [id]);
+      }
+    }
+  }
 
   @override
   Future<HistoryPage> readHistoryPage({

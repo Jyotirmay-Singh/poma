@@ -82,7 +82,7 @@ void main() {
           expect(app.focusSoundPreferences, saved);
           expect(app.tasks.length, taskCount);
           final db = await databaseFactoryFfi.openDatabase(file);
-          expect(await db.getVersion(), 3);
+          expect(await db.getVersion(), 4);
           await app.deleteAllLocalData();
           expect(app.focusSoundPreferences, const FocusSoundPreferences());
           expect(

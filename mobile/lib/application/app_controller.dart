@@ -13,6 +13,7 @@ import '../domain/alert_state.dart';
 import '../domain/models.dart';
 import '../domain/timer_engine.dart';
 import '../domain/desktop_preferences.dart';
+import '../domain/planner.dart';
 
 enum PersistenceOutcome { notRequired, saved, failed }
 
@@ -78,6 +79,7 @@ class AppController extends ChangeNotifier {
       selectedTaskId = state.selectedTaskId,
       _desktopPreferences = state.desktopPreferences,
       _focusSoundPreferences = state.focusSounds,
+      planner = state.planner,
       timer = TimerEngine(
         settings: state.settings,
         restored: state.timer,
@@ -126,6 +128,41 @@ class AppController extends ChangeNotifier {
   }
 
   final LocalRepository repository;
+  PlannerData planner;
+  PlannerTaskActions? plannerActions;
+
+  /// The planner shares the task commit queue. Network I/O never enters it.
+  Future<bool> commitPlanner(
+    PlannerData next, {
+    List<FocusTask> changedTasks = const [],
+    List<String> deletedTasks = const [],
+    String? clearSelectedTask,
+  }) async {
+    if (_disposed || _resetOperation != null || cleanupPending) return false;
+    for (final task in changedTasks) {
+      final index = tasks.indexWhere((t) => t.id == task.id);
+      if (index < 0) {
+        tasks.add(task);
+        if (!task.done) selectedTaskId ??= task.id;
+      } else {
+        tasks[index] = task;
+      }
+    }
+    tasks.removeWhere((t) => deletedTasks.contains(t.id));
+    if (deletedTasks.contains(selectedTaskId)) selectedTaskId = null;
+    if (clearSelectedTask != null && selectedTaskId == clearSelectedTask) {
+      selectedTaskId = null;
+    }
+    planner = next;
+    final saved = await _persist(
+      tasks: changedTasks,
+      deletedTasks: deletedTasks,
+      planner: next,
+    );
+    _notify();
+    return saved == PersistenceOutcome.saved;
+  }
+
   final LocalResetParticipant? _resetParticipant;
   final void Function(FocusAudioSessionEvent)? _onFocusAudioSession;
   final FocusAudioCoordinator? focusAudio;
@@ -627,6 +664,10 @@ class AppController extends ChangeNotifier {
 
   void editTask(String id, String title) {
     if (_deferUntilReset(() => editTask(id, title))) return;
+    if (plannerActions?.handlesTask(id) == true) {
+      unawaited(plannerActions!.renameTask(id, title));
+      return;
+    }
     final index = tasks.indexWhere((task) => task.id == id);
     final clean = title.trim();
     if (index < 0 || clean.isEmpty || clean.length > 160) return;
@@ -637,6 +678,10 @@ class AppController extends ChangeNotifier {
 
   void toggleTask(String id) {
     if (_deferUntilReset(() => toggleTask(id))) return;
+    if (plannerActions?.handlesTask(id) == true) {
+      unawaited(plannerActions!.completeTask(id));
+      return;
+    }
     final index = tasks.indexWhere((task) => task.id == id);
     if (index < 0) return;
     tasks[index] = tasks[index].copyWith(done: !tasks[index].done);
@@ -656,6 +701,10 @@ class AppController extends ChangeNotifier {
 
   void deleteTask(String id) {
     if (_deferUntilReset(() => deleteTask(id))) return;
+    if (plannerActions?.handlesTask(id) == true) {
+      unawaited(plannerActions!.deleteTask(id));
+      return;
+    }
     if (!tasks.any((task) => task.id == id)) return;
     tasks.removeWhere((task) => task.id == id);
     if (selectedTaskId == id) selectedTaskId = null;
@@ -722,6 +771,7 @@ class AppController extends ChangeNotifier {
     bool clearHistory = false,
     bool reset = false,
     bool refreshReads = true,
+    PlannerData? planner,
   }) {
     final state = SavedState(
       settings: settings,
@@ -741,6 +791,7 @@ class AppController extends ChangeNotifier {
         deletedSessions: deletedSessions,
         clearHistory: clearHistory,
         reset: reset,
+        planner: planner,
       ),
     );
     _readEpoch++;
@@ -936,6 +987,7 @@ class AppController extends ChangeNotifier {
 
   Future<bool> deleteAllLocalData() {
     if (_resetOperation != null) return _resetOperation!;
+    plannerActions?.stopForReset();
     _resetParticipant?.invalidateForReset();
     _actionEpoch++;
     final operation = _commands.then((_) async {
@@ -949,6 +1001,7 @@ class AppController extends ChangeNotifier {
       _desktopPreferences = null;
       _focusSoundPreferences = null;
       tasks.clear();
+      planner = PlannerData();
       sessions.clear();
       selectedTaskId = null;
       final old = _alerts?.state ?? _savedAlerts;

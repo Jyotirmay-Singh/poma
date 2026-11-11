@@ -1,5 +1,62 @@
 # Day Clock progress
 
+## Windows planner implementation, 11 November 2026
+
+Implementation builds on the uncommitted Day Clock repair. The current product
+contract is the owner's shared Windows planner request. SQLite v4 adds durable
+task schedules, operation identities, account preferences, raw editor drafts and
+occurrence completion. The ordinary writer supports owned-calendar creation,
+conditional updates, deletion and scoped recurrence. The new shared planner
+connects Tasks, Calendar and Day Clock through one Save workflow.
+
+Current acceptance, exact toolchain, rendered fictional examples, package
+identity and remaining installed/live checks are recorded in
+[WINDOWS_PLANNER_VERIFICATION.md](WINDOWS_PLANNER_VERIFICATION.md). Earlier
+Session 1–3 and repair results below retain their original scope and dates.
+
+The resumed source passes 879 Flutter regressions, clean analysis and all four
+native executables with 331 assertions. Installed 2032 completed live one-off
+creation, rename, completion, delayed deletion Undo, recurring occurrence/series
+edits, occurrence completion and cleanup. All temporary Google events and Tasks
+are cleared and scheduled-task syncing is Off again. The original task, history,
+settings and complete stored-timer fingerprints match after cleanup. Build
+1.0.0.2033 is installed with seven profile files preserved and 80 installed
+payloads verified. It includes fresh-version deletion recovery, clock DST gesture
+corrections and deadline-bound deletion Undo notices. Final installed/live and
+Narrator acceptance remain pending after the user stopped computer control.
+
+## Approved repair — 10 November 2026
+
+The owner approved the inspected repair plan. The Day Clock now provides a reviewed
+default-on save/show choice, one guarded account-scoped reveal action and a persistent
+saved-event receipt. The desktop layout uses available width and height, with a
+complete dial and a scrolling agenda; narrow/enlarged-text layouts remain readable.
+
+Fresh evidence: **809 Flutter tests passed**, including **100 new repair cases**;
+analysis is clean; affected-file formatting is clean; native checks passed **4/4
+executables / 331 assertions**. Matching five-event before/after captures cover the
+four requested window sizes; **307 current PNGs** and four controlled before PNGs
+passed integrity checks. The configured **1.0.0.2029** Release candidate compiled,
+has a **Valid** retained signature and passed its **76-payload** package audit.
+
+Source/package identity, screenshots and results are in
+[DAY_CLOCK_REPAIR_VERIFICATION.md](DAY_CLOCK_REPAIR_VERIFICATION.md). The owner then
+authorized installation and sync testing: **1.0.0.2029 is installed**, status Ok,
+with all 76 payloads verified and all 7 profile files unchanged before first launch.
+After testing, task/history/settings/full timer fingerprints still match the
+private backup; restart retains paused **24:59, 0/4 rounds**.
+
+Live Google read/reveal passed for **both existing saved events**, including their
+different dates, exact saved endpoints, highlighted sectors and selected agenda
+rows. Manual refresh preserved browsing/selection; the shared Calendar view showed
+both events. The full dial fits actual normal 1067×754 and maximized 1536×840
+windows. The owner chose **Test existing events only**: no Google event was created,
+edited or deleted, and new-event creation was not live-tested. No external
+publication was performed. Private-safe receipts are under
+`artifacts/day-clock/repair/installed/`.
+
+The entries below retain their original Session 1–3 evidence and dates.
+
 ## Committed source and authorized local update — 10 November 2026
 
 Sessions 1–3 were committed and pushed to `origin/main` as

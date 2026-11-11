@@ -28,11 +28,21 @@ class DayClockWallSpan {
 }
 
 class DayClockWindow {
-  const DayClockWindow(this.date, this.half, this.slices, this.transitions);
+  const DayClockWindow(
+    this.date,
+    this.half,
+    this.slices,
+    this.transitions, {
+    this.minutesPerElapsedMinute = 1,
+    this.startMinute = 0,
+    this.spanMinutes = 720,
+  });
   final CalendarDate date;
   final DayClockHalf half;
   final List<DayClockTimeSlice> slices;
   final List<DayClockWallSpan> transitions;
+  final double minutesPerElapsedMinute;
+  final int startMinute, spanMinutes;
 
   /// Boundary rules are supplied by the existing device calendar owner. Walking
   /// minute-resolution instants detects real gaps/folds without a fixed-length
@@ -42,7 +52,11 @@ class DayClockWindow {
     required DayClockHalf half,
     required CalendarWindow day,
     required DateTime Function(DateTime) localize,
+    int? startMinute,
+    int spanMinutes = 720,
   }) {
+    final begin = startMinute ?? (half == DayClockHalf.am ? 0 : 720);
+    final scale = 720 / spanMinutes;
     final slices = <DayClockTimeSlice>[];
     DateTime? first;
     var firstMinute = 0.0, lastMinute = 0.0;
@@ -59,11 +73,18 @@ class DayClockWindow {
     var cursor = day.startUtc;
     while (cursor.isBefore(day.endUtc)) {
       final local = localize(cursor);
-      final included =
-          local.year == date.year &&
-          local.month == date.month &&
-          local.day == date.day &&
-          (local.hour < 12) == (half == DayClockHalf.am);
+      final days = DateTime.utc(
+        local.year,
+        local.month,
+        local.day,
+      ).difference(DateTime.utc(date.year, date.month, date.day)).inDays;
+      final wallMinute =
+          days * 1440 +
+          local.hour * 60 +
+          local.minute +
+          local.second / 60 +
+          local.millisecond / 60000;
+      final included = wallMinute >= begin && wallMinute < begin + spanMinutes;
       final next = cursor.add(const Duration(minutes: 1));
       final until = next.isAfter(day.endUtc) ? day.endUtc : next;
       final currentOffset = local.timeZoneOffset.inMinutes;
@@ -71,18 +92,14 @@ class DayClockWindow {
         finish(cursor);
       }
       if (included) {
-        final minute =
-            (local.hour % 12) * 60 +
-            local.minute +
-            local.second / 60 +
-            local.millisecond / 60000;
+        final minute = (wallMinute - begin) * scale;
         if (first == null) {
           first = cursor;
           firstMinute = minute;
           offset = currentOffset;
         }
         lastMinute =
-            minute + until.difference(cursor).inMicroseconds / 60000000;
+            minute + until.difference(cursor).inMicroseconds / 60000000 * scale;
       }
       cursor = until;
     }
@@ -108,6 +125,9 @@ class DayClockWindow {
       half,
       List.unmodifiable(slices),
       List.unmodifiable(transitions),
+      minutesPerElapsedMinute: scale,
+      startMinute: begin,
+      spanMinutes: spanMinutes,
     );
   }
 
@@ -115,7 +135,9 @@ class DayClockWindow {
     for (final slice in slices) {
       if (!utc.isBefore(slice.startUtc) && utc.isBefore(slice.endUtc)) {
         return slice.startMinute +
-            utc.difference(slice.startUtc).inMicroseconds / 60000000;
+            utc.difference(slice.startUtc).inMicroseconds /
+                60000000 *
+                minutesPerElapsedMinute;
       }
     }
     return null;
@@ -205,10 +227,14 @@ class DayClockProjection {
             endUtc: b,
             startMinute:
                 slice.startMinute +
-                a.difference(slice.startUtc).inMicroseconds / 60000000,
+                a.difference(slice.startUtc).inMicroseconds /
+                    60000000 *
+                    window.minutesPerElapsedMinute,
             endMinute:
                 slice.startMinute +
-                b.difference(slice.startUtc).inMicroseconds / 60000000,
+                b.difference(slice.startUtc).inMicroseconds /
+                    60000000 *
+                    window.minutesPerElapsedMinute,
             offsetMinutes: slice.offsetMinutes,
           ),
         );

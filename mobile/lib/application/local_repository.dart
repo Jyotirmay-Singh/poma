@@ -1,4 +1,5 @@
 import '../domain/models.dart';
+import '../domain/planner.dart';
 
 enum StorageFailureKind { full, write, unreadable, migration, conflict }
 
@@ -32,6 +33,7 @@ class LocalChange {
     List<String> deletedSessions = const [],
     this.clearHistory = false,
     this.reset = false,
+    this.planner,
   }) : tasks = List.unmodifiable(tasks),
        deletedTasks = List.unmodifiable(deletedTasks),
        completions = List.unmodifiable(completions),
@@ -43,6 +45,7 @@ class LocalChange {
   final List<String> deletedSessions;
   final bool clearHistory;
   final bool reset;
+  final PlannerData? planner;
 }
 
 class LocalCommit {

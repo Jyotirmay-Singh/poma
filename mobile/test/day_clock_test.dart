@@ -41,13 +41,15 @@ Future<void> capture(WidgetTester tester, String name) async {
 Future<DayClockRig> mount(
   WidgetTester tester, {
   double width = 1440,
+  double height = 1100,
+  double pixelRatio = 1,
   double scale = 1,
   bool dark = false,
   bool highContrast = false,
   bool crowded = false,
 }) async {
-  tester.view.physicalSize = Size(width, 1100);
-  tester.view.devicePixelRatio = 1;
+  tester.view.physicalSize = Size(width, height) * pixelRatio;
+  tester.view.devicePixelRatio = pixelRatio;
   tester.platformDispatcher.textScaleFactorTestValue = scale;
   tester.platformDispatcher.accessibilityFeaturesTestValue =
       FakeAccessibilityFeatures(highContrast: highContrast);

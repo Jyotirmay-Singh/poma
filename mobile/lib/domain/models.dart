@@ -2,6 +2,7 @@ import 'dart:math';
 import 'alert_state.dart';
 import 'desktop_preferences.dart';
 import 'focus_sound_preferences.dart';
+import 'planner.dart';
 
 enum FocusPhase {
   focus('Focus'),
@@ -333,8 +334,10 @@ class SavedState {
     this.cleanupPending = false,
     this.desktopPreferences,
     this.focusSounds,
+    PlannerData? planner,
   }) : tasks = List.unmodifiable(tasks),
-       sessions = List.unmodifiable(sessions);
+       sessions = List.unmodifiable(sessions),
+       planner = planner ?? PlannerData();
 
   final TimerSettings settings;
   final TimerSnapshot? timer;
@@ -347,6 +350,7 @@ class SavedState {
   final bool cleanupPending;
   final DesktopPreferences? desktopPreferences;
   final FocusSoundPreferences? focusSounds;
+  final PlannerData planner;
 }
 
 DateTime storedTimestamp(Object? value) {

@@ -13,6 +13,18 @@ import 'focus_block_ports.dart';
 
 DateTime _deviceLocal(DateTime value) => value.toLocal();
 
+enum DayClockDisplayState {
+  unavailable,
+  hidden,
+  refreshing,
+  refreshNeeded,
+  outsideCoverage,
+  inaccessible,
+  missing,
+  available,
+  selected,
+}
+
 class DayClockController extends ChangeNotifier
     implements CalendarEventCreationController {
   DayClockController({
@@ -55,6 +67,199 @@ class DayClockController extends ChangeNotifier
   CalendarCreationController? creation;
   String? _restoredCreationAccount;
   String? _creationAuthority;
+  int _viewRevision = 0, _revealToken = 0;
+  int revealRevision = 0;
+  String? _receiptId, _revealingId;
+  Future<bool>? _revealing;
+  bool get revealing => _revealing != null;
+
+  CalendarCreateOperation? _savedOperation(CalendarCreateOperation op) {
+    final current = creation?.journal?.operations[op.operationId];
+    return !_disposed &&
+            unlocked &&
+            op.intent.accountKey == reader.connection.verifiedAccountKey &&
+            creation?.journal?.accountKey == op.intent.accountKey &&
+            current?.state == CalendarCreationState.saved &&
+            current?.event != null &&
+            current?.eventId == op.eventId &&
+            current?.intent.hash == op.intent.hash &&
+            current?.intent.calendarId == op.intent.calendarId
+        ? current
+        : null;
+  }
+
+  CalendarCreateOperation? get savedReceipt {
+    final journal = creation?.journal;
+    if (!unlocked ||
+        journal == null ||
+        journal.accountKey != reader.connection.verifiedAccountKey) {
+      return null;
+    }
+    final saved =
+        journal.operations.values
+            .where(
+              (op) =>
+                  op.state == CalendarCreationState.saved && op.event != null,
+            )
+            .toList()
+          ..sort((a, b) {
+            final time = (b.transitionAt ?? b.confirmedAt ?? DateTime.utc(1970))
+                .compareTo(
+                  a.transitionAt ?? a.confirmedAt ?? DateTime.utc(1970),
+                );
+            return time != 0 ? time : b.operationId.compareTo(a.operationId);
+          });
+    return saved.where((op) => op.operationId == _receiptId).firstOrNull ??
+        saved.firstOrNull;
+  }
+
+  CalendarEvent? savedReaderEvent(CalendarCreateOperation op) =>
+      _savedOperation(op) == null || reader.accountKey != op.intent.accountKey
+      ? null
+      : reader.events
+            .where(
+              (event) =>
+                  event.id == op.eventId &&
+                  event.calendarId == op.intent.calendarId,
+            )
+            .firstOrNull;
+
+  bool _startCovered(CalendarEvent event) {
+    final start = event.startUtc == null ? null : localize(event.startUtc!);
+    final date = start == null
+        ? event.startDate
+        : CalendarDate(start.year, start.month, start.day);
+    return date != null &&
+        date.compareTo(reader.window.first) >= 0 &&
+        date.compareTo(reader.window.until) < 0;
+  }
+
+  DayClockDisplayState savedDisplayState(CalendarCreateOperation op) {
+    if (_savedOperation(op) == null) return DayClockDisplayState.unavailable;
+    if (_revealingId == op.operationId) return DayClockDisplayState.refreshing;
+    if (!reader.connection.mayRead ||
+        reader.failure != null ||
+        reader.loading ||
+        reader.saving) {
+      return DayClockDisplayState.refreshNeeded;
+    }
+    if (!reader.sources.any(
+      (s) => s.id == op.intent.calendarId && s.readable,
+    )) {
+      return DayClockDisplayState.inaccessible;
+    }
+    final event = savedReaderEvent(op);
+    if (!_startCovered(event ?? op.event!)) {
+      return DayClockDisplayState.outsideCoverage;
+    }
+    if (!reader.selected.contains(op.intent.calendarId)) {
+      return DayClockDisplayState.hidden;
+    }
+    if (reader.sourceFailures.containsKey(op.intent.calendarId) ||
+        reader.snapshots[op.intent.calendarId]?.fresh(
+              reader.now,
+              reader.window,
+            ) !=
+            true) {
+      return DayClockDisplayState.refreshNeeded;
+    }
+    if (event == null) return DayClockDisplayState.missing;
+    return selectedIdentity == calendarEventIdentity(event) &&
+            selectedEvent != null
+        ? DayClockDisplayState.selected
+        : DayClockDisplayState.available;
+  }
+
+  String savedDisplayMessage(
+    CalendarCreateOperation op,
+  ) => switch (savedDisplayState(op)) {
+    DayClockDisplayState.unavailable =>
+      'Saved to Google Calendar. Restore its original account to show it.',
+    DayClockDisplayState.hidden =>
+      'Saved to Google Calendar. Its calendar is hidden. Show on Day Clock includes it in your selection.',
+    DayClockDisplayState.refreshing =>
+      'Saved to Google Calendar. Refreshing to show the event…',
+    DayClockDisplayState.refreshNeeded =>
+      'Saved to Google Calendar. Displaying it needs a refresh. Try Show on Day Clock again or open it in Google Calendar.',
+    DayClockDisplayState.outsideCoverage =>
+      'Saved to Google Calendar. This event is outside the retained seven-date clock coverage. Open it in Google Calendar.',
+    DayClockDisplayState.inaccessible =>
+      'Saved to Google Calendar. Its calendar is no longer accessible in this account. Open it in Google Calendar to check access.',
+    DayClockDisplayState.missing =>
+      'Saved to Google Calendar. The event is absent from the refreshed schedule; it may have moved or been removed. Open it in Google Calendar.',
+    DayClockDisplayState.available =>
+      'Saved to Google Calendar. Ready to show its date and time on Day Clock.',
+    DayClockDisplayState.selected =>
+      'Saved to Google Calendar. Highlighted on Day Clock and in the agenda.',
+  };
+
+  /// Reconciliation only. It can never submit or retry a Google insertion.
+  Future<bool> revealSaved(CalendarCreateOperation op) {
+    if (_savedOperation(op) == null) return Future.value(false);
+    if (_revealingId == op.operationId && _revealing != null) {
+      return _revealing!;
+    }
+    final token = ++_revealToken, view = _viewRevision;
+    final session = reader.connection.sessionGeneration;
+    _receiptId = op.operationId;
+    _revealingId = op.operationId;
+    bool current() =>
+        token == _revealToken &&
+        view == _viewRevision &&
+        session == reader.connection.sessionGeneration &&
+        _savedOperation(op) != null;
+    final result = () async {
+      try {
+        final included = await reader.includeForReveal(
+          op.intent.accountKey,
+          op.intent.calendarId,
+          current: current,
+        );
+        if (!included ||
+            !current() ||
+            reader.failure != null ||
+            reader.sourceFailures.containsKey(op.intent.calendarId)) {
+          return false;
+        }
+        final event = savedReaderEvent(op);
+        if (event == null ||
+            !_startCovered(event) ||
+            event.startUtc == null ||
+            reader.snapshots[op.intent.calendarId]?.fresh(
+                  reader.now,
+                  reader.window,
+                ) !=
+                true) {
+          return false;
+        }
+        final start = localize(event.startUtc!);
+        followingNow = false;
+        _date = CalendarDate(start.year, start.month, start.day);
+        _half = start.hour < 12 ? DayClockHalf.am : DayClockHalf.pm;
+        _sync();
+        selectedIdentity = calendarEventIdentity(event);
+        if (selectedEvent == null) {
+          selectedIdentity = null;
+          return false;
+        }
+        ++revealRevision;
+        return true;
+      } catch (_) {
+        // The durable Saved receipt is independent of read/display failure.
+        return false;
+      } finally {
+        if (token == _revealToken) {
+          _revealing = null;
+          _revealingId = null;
+          _notify();
+        }
+      }
+    }();
+    _revealing = result;
+    _notify();
+    return result;
+  }
+
   CalendarCreateOperation? get operation =>
       creation?.journal?.operations[draft?.id];
   bool get creationBusy => creation?.busy == true;
@@ -158,6 +363,7 @@ class DayClockController extends ChangeNotifier
   @override
   Future<CalendarCreateResult> submitReviewed() async {
     final intent = review, value = draft, owner = creation;
+    final view = _viewRevision, selection = reader.selectionRevision;
     if (intent == null ||
         value == null ||
         owner == null ||
@@ -197,6 +403,16 @@ class DayClockController extends ChangeNotifier
     }
     creationState = result.state;
     validationMessage = result.message;
+    if (result.state == CalendarCreationState.saved) {
+      _receiptId = value.id;
+      final saved = owner.journal?.operations[value.id];
+      if (value.showOnDayClock &&
+          saved != null &&
+          view == _viewRevision &&
+          selection == reader.selectionRevision) {
+        await revealSaved(saved);
+      }
+    }
     _notify();
     return result;
   }
@@ -206,6 +422,9 @@ class DayClockController extends ChangeNotifier
     CalendarCreateOperation operation,
   ) async {
     final value = draft, revision = _validation;
+    final view = _viewRevision, selection = reader.selectionRevision;
+    final previousState =
+        creation?.journal?.operations[operation.operationId]?.state;
     final account = reader.connection.verifiedAccountKey;
     final result =
         await creation?.check(operation) ??
@@ -223,6 +442,14 @@ class DayClockController extends ChangeNotifier
     }
     creationState = result.state;
     validationMessage = result.message;
+    if (result.state == CalendarCreationState.saved &&
+        previousState != CalendarCreationState.saved &&
+        value?.showOnDayClock == true &&
+        view == _viewRevision &&
+        selection == reader.selectionRevision) {
+      final saved = creation?.journal?.operations[operation.operationId];
+      if (saved != null) await revealSaved(saved);
+    }
     _notify();
     return result;
   }
@@ -313,12 +540,14 @@ class DayClockController extends ChangeNotifier
   void setUnlocked(bool value) {
     if (value == unlocked) return;
     unlocked = value;
+    ++_viewRevision;
     creation?.setUnlocked(value);
     touchDraft(notify: false);
     _changed();
   }
 
   void timeContextChanged() {
+    ++_viewRevision;
     unawaited(creation?.initialize());
     _windowKey = null;
     touchDraft(notify: false);
@@ -326,6 +555,7 @@ class DayClockController extends ChangeNotifier
   }
 
   void browse(CalendarDate value, DayClockHalf selectedHalf) {
+    ++_viewRevision;
     followingNow = false;
     _date = value;
     _half = selectedHalf;
@@ -334,11 +564,13 @@ class DayClockController extends ChangeNotifier
   }
 
   void now() {
+    ++_viewRevision;
     followingNow = true;
     _changed();
   }
 
   void select(CalendarEvent event) {
+    ++_viewRevision;
     selectedIdentity = calendarEventIdentity(event);
     _notify();
   }
@@ -599,6 +831,7 @@ class DayClockController extends ChangeNotifier
   @override
   void dispose() {
     _disposed = true;
+    ++_revealToken;
     _validation++;
     reader.removeListener(_changed);
     agenda.removeListener(_formatted);

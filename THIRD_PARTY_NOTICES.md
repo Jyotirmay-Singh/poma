@@ -1,5 +1,14 @@
 # Third-party notices
 
+## Unicode CLDR 48 timezone mapping
+
+Poma includes the territory-001 Windows-to-IANA mappings from Unicode CLDR 48.
+Legacy IANA link names are resolved for the pinned timezone 0.11.2 database.
+The pinned source URL and SHA-256 are retained in
+`mobile/assets/timezones/SOURCE.json`. The Unicode License v3 terms are bundled
+in `mobile/assets/licenses/unicode-cldr.txt`, the Windows license directory, and
+the app's About license view.
+
 ## Calendar presentation — MIT License
 
 The calendar presentation uses `kalender` 0.33.0. Its package license is also

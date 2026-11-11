@@ -110,6 +110,31 @@ Future<void> migrateSchema(Database db, int from, int to) async {
             'commit_id': null,
             'cleanup_pending': 0,
           });
+        case 4:
+          await db.execute(
+            'CREATE TABLE planner_schedules (id TEXT PRIMARY KEY, task_id TEXT UNIQUE, account_key TEXT, calendar_id TEXT, event_id TEXT, document TEXT NOT NULL)',
+          );
+          await db.execute(
+            'CREATE UNIQUE INDEX planner_remote_identity ON planner_schedules(account_key, calendar_id, event_id) WHERE event_id IS NOT NULL',
+          );
+          await db.execute(
+            'CREATE TABLE planner_operations (id TEXT PRIMARY KEY, schedule_id TEXT NOT NULL, document TEXT NOT NULL)',
+          );
+          await db.execute(
+            'CREATE INDEX planner_operations_schedule ON planner_operations(schedule_id)',
+          );
+          await db.execute(
+            'CREATE TABLE planner_preferences (account_key TEXT PRIMARY KEY, document TEXT NOT NULL)',
+          );
+          await db.execute(
+            'CREATE TABLE planner_drafts (id TEXT PRIMARY KEY, document TEXT NOT NULL)',
+          );
+          await db.execute(
+            'CREATE TABLE planner_occurrences (identity TEXT PRIMARY KEY)',
+          );
+          await db.execute(
+            'CREATE TABLE planner_imports (identity TEXT PRIMARY KEY)',
+          );
         default:
           throw const StorageFailure(StorageFailureKind.migration);
       }

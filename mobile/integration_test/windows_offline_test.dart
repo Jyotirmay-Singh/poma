@@ -66,6 +66,16 @@ void main() {
       }
 
       var widget = await load();
+      final media = MediaQuery.of(tester.element(find.byType(Scaffold).first));
+      evidence['flutterWindowMetrics'] = {
+        'physicalWidth': tester.view.physicalSize.width,
+        'physicalHeight': tester.view.physicalSize.height,
+        'devicePixelRatio': tester.view.devicePixelRatio,
+        'logicalWidth': media.size.width,
+        'logicalHeight': media.size.height,
+        'textScaleAt16': media.textScaler.scale(16) / 16,
+      };
+      debugPrint('Windows smoke: ${evidence['flutterWindowMetrics']}');
       var controller = widget.controller;
       final desktop = widget.desktop!;
       expect(controller.repository, isA<SqliteRepository>());
@@ -78,10 +88,10 @@ void main() {
       desktop.requestNewTask();
       await tester.pumpAndSettle();
       await tester.enterText(
-        find.byType(TextFormField),
+        find.byKey(const ValueKey('planner-title')),
         'Fictional Session 2 task',
       );
-      await tester.tap(find.text('Save task'));
+      await tester.tap(find.byKey(const ValueKey('planner-save')));
       await tester.pumpAndSettle();
       await controller.flush();
       final task = controller.tasks.single;

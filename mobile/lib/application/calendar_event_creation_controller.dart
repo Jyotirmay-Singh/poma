@@ -31,12 +31,20 @@ class CalendarCreationController extends ChangeNotifier {
   int _epoch = 0;
   String _signature = '';
   bool _disposed = false, _unlocked = false, _disabled = false, busy = false;
+  bool _plannerManaged = false;
+  void delegateToPlanner() {
+    if (_plannerManaged) return;
+    _plannerManaged = true;
+    _restart();
+  }
+
   String? message;
   String? activeId;
   CalendarCreateOperation? get active => journal?.operations[activeId];
   bool get unlocked => _unlocked;
   bool get ready =>
       !_disposed &&
+      !_plannerManaged &&
       unlocked &&
       !_disabled &&
       _lease != null &&
@@ -145,7 +153,8 @@ class CalendarCreationController extends ChangeNotifier {
                     op.transitionAt!.isAfter(op.intent.endUtc)
                 ? op.transitionAt!
                 : op.intent.endUtc;
-            if ((op.state == CalendarCreationState.saved ||
+            if (!_plannerManaged &&
+                (op.state == CalendarCreationState.saved ||
                     op.state == CalendarCreationState.failed) &&
                 now.difference(later) > const Duration(days: 30)) {
               next.operations.remove(entry.key);
@@ -153,6 +162,7 @@ class CalendarCreationController extends ChangeNotifier {
             }
           }
           next.drafts.removeWhere((id, d) {
+            if (_plannerManaged) return false;
             if (next.operations.containsKey(id)) return false;
             final end = DateTime.tryParse(d.endDate)?.toUtc();
             final later =
@@ -447,6 +457,7 @@ class CalendarCreationController extends ChangeNotifier {
     int e,
   ) => _commit((j) => j.operations[op.operationId] = op.result(result, now), e);
   Future<CalendarCreateResult> check(CalendarCreateOperation op) async {
+    if (_plannerManaged) return _result(active);
     if (busy) return _result(active);
     final e = _epoch;
     busy = true;
@@ -519,7 +530,7 @@ class CalendarCreationController extends ChangeNotifier {
       (v) => calendarEventIdentity(v) == calendarEventIdentity(event),
     );
     final notice = hidden
-        ? ' Its calendar is hidden. Choose Show calendar to display it.'
+        ? ' Its calendar is hidden. Choose Show on Day Clock to display it.'
         : outside
         ? ' This date is outside the retained clock coverage.'
         : refreshFailed ||
@@ -548,7 +559,7 @@ class CalendarCreationController extends ChangeNotifier {
       return op.message ?? op.state.name;
     }
     if (!reader.selected.contains(op.intent.calendarId)) {
-      return 'Saved. Its calendar is hidden; choose Show calendar to display it.';
+      return 'Saved. Its calendar is hidden; choose Show on Day Clock to display it.';
     }
     if (!op.event!.overlaps(reader.window)) {
       return 'Saved. This date is outside retained clock coverage. Open the Google event for details.';

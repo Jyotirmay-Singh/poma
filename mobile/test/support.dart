@@ -87,6 +87,9 @@ class MemoryRepository implements LocalRepository {
         cleanupPending: change.state.cleanupPending,
         desktopPreferences: change.state.desktopPreferences,
         focusSounds: change.state.focusSounds,
+        planner: change.reset
+            ? SavedState().planner
+            : change.planner ?? state.planner,
         tasks: tasks,
         sessions: sessions,
         revision: request.expectedRevision + 1,

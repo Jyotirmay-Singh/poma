@@ -139,8 +139,8 @@ class _DayClockTaskFormState extends State<DayClockTaskForm> {
     String endpoint(DateTime utc, int offset) =>
         '${DateFormat('yyyy-MM-dd, h:mm a').format(utc.add(Duration(minutes: offset)))} '
         '(${dayClockOffset(offset)})';
-    final notice = clock.creation!
-        .describe(op)
+    final notice = clock
+        .savedDisplayMessage(op)
         .replaceFirst(RegExp(r'^Saved(?: to Google Calendar)?\.\s*'), '');
     return AlertDialog(
       key: const ValueKey('day-clock-task-form'),
@@ -230,11 +230,19 @@ class _DayClockTaskFormState extends State<DayClockTaskForm> {
             onPressed: () => clock.openSaved(op),
             child: const Text('Open event in Google Calendar'),
           ),
-        if (!clock.reader.selected.contains(intent.calendarId))
-          TextButton(
-            onPressed: () => clock.creation!.showCalendar(op),
-            child: const Text('Show calendar'),
-          ),
+        TextButton(
+          key: const ValueKey('day-clock-saved-show'),
+          onPressed: clock.revealing || clock.creationBusy
+              ? null
+              : () async {
+                  final shown = await clock.revealSaved(op);
+                  if (!mounted) return;
+                  if (shown) {
+                    Navigator.pop(context);
+                  }
+                },
+          child: Text(clock.revealing ? 'Showing…' : 'Show on Day Clock'),
+        ),
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: const Text('Close'),
@@ -557,6 +565,21 @@ class _DayClockTaskFormState extends State<DayClockTaskForm> {
                       Text(clock.overlapMessage),
                     ],
                   ),
+                ),
+                const SizedBox(height: PomaSpace.sm),
+                CheckboxListTile(
+                  key: const ValueKey('day-clock-show-after-saving'),
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  title: const Text('Show on Day Clock after saving'),
+                  subtitle: const Text(
+                    'Include this calendar and open the event’s date and AM/PM half.',
+                  ),
+                  value: draft.showOnDayClock,
+                  onChanged: frozen
+                      ? null
+                      : (value) =>
+                            changed(() => draft.showOnDayClock = value == true),
                 ),
                 const SizedBox(height: PomaSpace.sm),
                 OutlinedButton(

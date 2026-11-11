@@ -17,11 +17,14 @@ class PomaScheduleEvent extends k.KalenderEvent {
     required this.sourceColor,
     required super.start,
     required super.end,
+    this.writable = false,
   }) : fingerprint = jsonEncode(event.toJson()),
        super(
          id: scheduleEventIdentity(event),
          isAllDay: event.allDay,
-         interaction: k.EventInteraction.allowNone(),
+         interaction: writable
+             ? k.EventInteraction.allowAll()
+             : k.EventInteraction.allowNone(),
        );
 
   factory PomaScheduleEvent.fromEvent(
@@ -29,10 +32,12 @@ class PomaScheduleEvent extends k.KalenderEvent {
     required CalendarClock clock,
     required String sourceLabel,
     String? sourceColor,
+    bool writable = false,
   }) => PomaScheduleEvent._(
     event: event,
     sourceLabel: sourceLabel,
     sourceColor: safeCalendarColor(sourceColor),
+    writable: writable,
     // Date-only values stay in their original model. The renderer alone gets
     // device-midnight instants, including the exclusive end across DST.
     start: event.allDay
@@ -46,6 +51,7 @@ class PomaScheduleEvent extends k.KalenderEvent {
   final CalendarEvent event;
   final String sourceLabel, fingerprint;
   final String? sourceColor;
+  final bool writable;
 
   @override
   PomaScheduleEvent copyWithData({
@@ -55,6 +61,7 @@ class PomaScheduleEvent extends k.KalenderEvent {
     event: event,
     sourceLabel: sourceLabel,
     sourceColor: sourceColor,
+    writable: writable,
     start: start,
     end: end,
   );
@@ -65,7 +72,8 @@ class PomaScheduleEvent extends k.KalenderEvent {
       other is PomaScheduleEvent &&
       fingerprint == other.fingerprint &&
       sourceLabel == other.sourceLabel &&
-      sourceColor == other.sourceColor;
+      sourceColor == other.sourceColor &&
+      writable == other.writable;
 
   @override
   bool operator ==(Object other) =>

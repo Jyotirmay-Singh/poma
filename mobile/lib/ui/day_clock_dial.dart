@@ -29,12 +29,12 @@ Color clockColor(String? hex, Color fallback) => hex == null
 
 /// One measured layout for painting and selection, including enlarged numerals.
 class DayClockGeometry {
-  DayClockGeometry(this.size, this.scaler) {
+  DayClockGeometry(this.size, this.scaler, {this.labels}) {
     radius = size.shortestSide / 2 - 4;
     final measurements = <Size>[];
     for (var hour = 1; hour <= 12; hour++) {
       final text = TextPainter(
-        text: TextSpan(text: '$hour', style: numeralStyle),
+        text: TextSpan(text: labels?[hour - 1] ?? '$hour', style: numeralStyle),
         textDirection: TextDirection.ltr,
         textScaler: scaler,
       )..layout();
@@ -73,13 +73,14 @@ class DayClockGeometry {
   }
   final Size size;
   final TextScaler scaler;
+  final List<String>? labels;
   late final double radius, outerRadius;
   late final List<Rect> numeralBoxes;
   Offset get center => size.center(Offset.zero);
-  double get hubRadius => radius * .22;
+  double get hubRadius => radius * .25;
   double get overflowRadius => outerRadius + 5;
   TextStyle get numeralStyle => PomaType.sectionTitle.copyWith(
-    fontSize: (size.width * .045).clamp(18, 28),
+    fontSize: (size.width * .06).clamp(20, 40),
   );
   static Offset direction(double angle) =>
       Offset(math.cos(angle), math.sin(angle));
@@ -91,6 +92,23 @@ class DayClockGeometry {
   }
 }
 
+double dayClockCaptionHeight(BuildContext context, String time, String label) {
+  final scaler = MediaQuery.textScalerOf(context);
+  if (scaler.scale(1) < 1.5) return 0;
+  final text = TextPainter(
+    text: TextSpan(
+      text: '$time $label',
+      style: Theme.of(context).textTheme.titleLarge,
+    ),
+    textScaler: scaler,
+    textDirection: Directionality.of(context),
+    maxLines: 1,
+  )..layout();
+  final height = PomaSpace.sm + text.height;
+  text.dispose();
+  return height;
+}
+
 class DayClockDial extends StatelessWidget {
   const DayClockDial({
     required this.projection,
@@ -100,6 +118,7 @@ class DayClockDial extends StatelessWidget {
     required this.onEmpty,
     required this.centerTime,
     required this.centerLabel,
+    this.numeralLabels,
     super.key,
   });
   final DayClockProjection projection;
@@ -108,14 +127,32 @@ class DayClockDial extends StatelessWidget {
   final ValueChanged<CalendarEvent> onEvent;
   final ValueChanged<double> onEmpty;
   final String centerTime, centerLabel;
+  final List<String>? numeralLabels;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
-      final size = math.min(620.0, constraints.maxWidth);
+      final captionHeight = dayClockCaptionHeight(
+        context,
+        centerTime,
+        centerLabel,
+      );
+      final size = math.min(
+        680.0,
+        math.min(
+          constraints.maxWidth,
+          constraints.hasBoundedHeight
+              ? math.max(0.0, constraints.maxHeight - captionHeight)
+              : double.infinity,
+        ),
+      );
       final theme = Theme.of(context), scale = MediaQuery.textScalerOf(context);
       final highContrast = MediaQuery.highContrastOf(context);
-      final geometry = DayClockGeometry(Size.square(size), scale);
+      final geometry = DayClockGeometry(
+        Size.square(size),
+        scale,
+        labels: numeralLabels,
+      );
       final painter = DayClockPainter(
         projection: projection,
         colors: colors,
@@ -282,6 +319,60 @@ class DayClockPainter extends CustomPainter {
     )
     ..close();
 
+  void paintSectorLabel(
+    Canvas canvas,
+    Path path,
+    DayClockSector sector,
+    (double, double) radii,
+    Color fill,
+    Size size,
+  ) {
+    final title = sector.event.title.trim();
+    if (title.length > 48 ||
+        sector.sweep <= .32 ||
+        radii.$2 - radii.$1 <= scaler.scale(25)) {
+      return;
+    }
+    final middle = sector.angle + sector.sweep / 2;
+    final candidates = [
+      title,
+      if (title.split(' ').length == 2) title.replaceFirst(' ', '\n'),
+    ];
+    for (final candidate in candidates) {
+      for (final fraction in [.62, .72, .5]) {
+        final distance = radii.$1 + (radii.$2 - radii.$1) * fraction;
+        final position =
+            geometry.center + DayClockGeometry.direction(middle) * distance;
+        final text = TextPainter(
+          text: TextSpan(
+            text: candidate,
+            style: PomaType.bodyStrong.copyWith(
+              color: clockInk(fill),
+              fontSize: (size.width * .032).clamp(14, 22),
+            ),
+          ),
+          textAlign: TextAlign.center,
+          textDirection: TextDirection.ltr,
+          textScaler: scaler,
+          maxLines: 2,
+        )..layout(maxWidth: math.min(radii.$2 - radii.$1, 140));
+        final top = position - Offset(text.width / 2, text.height / 2);
+        final box = top & text.size;
+        final fits =
+            !text.didExceedMaxLines &&
+            [
+              box.topLeft,
+              box.topRight,
+              box.bottomLeft,
+              box.bottomRight,
+            ].every(path.contains);
+        if (fits) text.paint(canvas, top);
+        text.dispose();
+        if (fits) return;
+      }
+    }
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = size.center(Offset.zero), radius = size.shortestSide / 2 - 4;
@@ -295,14 +386,16 @@ class DayClockPainter extends CustomPainter {
       center,
       radius,
       Paint()
-        ..color = scheme.outline
+        ..color = dark && !highContrast
+            ? const Color(0xff58698e)
+            : scheme.outline
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.5,
     );
     for (final transition in projection.window.transitions) {
       final path = sectorPath(
         center,
-        radius * .22,
+        geometry.hubRadius,
         geometry.outerRadius,
         dayClockAngle(transition.start),
         (transition.end - transition.start) * math.pi / 360,
@@ -340,14 +433,17 @@ class DayClockPainter extends CustomPainter {
       }
       final r = geometry.radii(sector);
       final path = sectorPath(center, r.$1, r.$2, sector.angle, sector.sweep);
-      final fill = colors[sector.identity] ?? scheme.outline;
+      final draft = sector.event.calendarId == 'poma-draft';
+      final fill = draft
+          ? scheme.primary.withValues(alpha: .12)
+          : colors[sector.identity] ?? scheme.outline;
       canvas.drawPath(path, Paint()..color = fill);
       canvas.drawPath(
         path,
         Paint()
-          ..color = face
+          ..color = draft ? scheme.primary : face
           ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.5,
+          ..strokeWidth = draft ? 2.5 : 1.5,
       );
       if (sector.identity == selected) {
         canvas.drawPath(
@@ -373,35 +469,7 @@ class DayClockPainter extends CustomPainter {
             ..strokeWidth = 1.5,
         );
       }
-      if (sector.sweep > .32 && r.$2 - r.$1 > scaler.scale(25)) {
-        final middle = sector.angle + sector.sweep / 2,
-            distance = (r.$1 + r.$2) / 2;
-        final position =
-            center + Offset(math.cos(middle), math.sin(middle)) * distance;
-        final text = TextPainter(
-          text: TextSpan(
-            text: sector.event.title,
-            style: PomaType.bodyStrong.copyWith(color: clockInk(fill)),
-          ),
-          textDirection: TextDirection.ltr,
-          textScaler: scaler,
-          maxLines: 2,
-        )..layout(maxWidth: math.min(r.$2 - r.$1, 140));
-        final top = position - Offset(text.width / 2, text.height / 2);
-        final box = top & Size(text.width, text.height);
-        if ([
-          box.topLeft,
-          box.topRight,
-          box.bottomLeft,
-          box.bottomRight,
-        ].every(path.contains)) {
-          canvas.save();
-          canvas.clipPath(path);
-          text.paint(canvas, top);
-          canvas.restore();
-        }
-        text.dispose();
-      }
+      paintSectorLabel(canvas, path, sector, r, fill, size);
     }
     for (var i = 0; i < 60; i++) {
       final angle = -math.pi / 2 + i * math.pi / 30;
@@ -417,7 +485,7 @@ class DayClockPainter extends CustomPainter {
     for (var hour = 1; hour <= 12; hour++) {
       final text = TextPainter(
         text: TextSpan(
-          text: '$hour',
+          text: geometry.labels?[hour - 1] ?? '$hour',
           style: geometry.numeralStyle.copyWith(color: scheme.onSurface),
         ),
         textScaler: scaler,
@@ -506,14 +574,18 @@ class DayClockHandPainter extends CustomPainter {
           ..strokeCap = StrokeCap.round,
       );
     }
-    canvas.drawCircle(center, radius * .22, Paint()..color = scheme.surface);
     canvas.drawCircle(
       center,
-      radius * .22,
+      geometry.hubRadius,
+      Paint()..color = scheme.surface,
+    );
+    canvas.drawCircle(
+      center,
+      geometry.hubRadius,
       Paint()
         ..color = highContrast ? scheme.onSurface : const Color(0xffb9a7ff)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2,
+        ..strokeWidth = 2.5,
     );
     if (scaler.scale(1) < 1.5) {
       void label(String value, double dy, TextStyle style) {
@@ -522,7 +594,16 @@ class DayClockHandPainter extends CustomPainter {
           textScaler: scaler,
           textDirection: TextDirection.ltr,
         )..layout();
-        if (text.width < radius * .39) {
+        if (text.width > radius * .46) {
+          text.text = TextSpan(
+            text: value,
+            style: style.copyWith(
+              fontSize: style.fontSize! * radius * .46 / text.width,
+            ),
+          );
+          text.layout();
+        }
+        if (text.width <= radius * .46 + .01) {
           text.paint(
             canvas,
             center + Offset(-text.width / 2, dy - text.height / 2),
@@ -533,16 +614,19 @@ class DayClockHandPainter extends CustomPainter {
 
       label(
         centerTime,
-        -radius * .035,
+        -radius * .055,
         PomaType.sectionTitle.copyWith(
-          fontSize: (size.width * .045).clamp(18, 28),
+          fontSize: (size.width * .065).clamp(22, 44),
           color: scheme.onSurface,
         ),
       );
       label(
         centerLabel,
-        radius * .075,
-        PomaType.secondary.copyWith(color: scheme.onSurfaceVariant),
+        radius * .10,
+        PomaType.secondary.copyWith(
+          fontSize: (size.width * .036).clamp(14, 22),
+          color: scheme.onSurfaceVariant,
+        ),
       );
     }
   }

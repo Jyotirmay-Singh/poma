@@ -72,7 +72,7 @@ void main() {
         expect(page.sessions.map((s) => s.id), ['legacy-b', 'legacy-a']);
         expect(page.sessions.last.taskTitle, 'Historic title');
         final db = await raw();
-        expect(await db.getVersion(), 3);
+        expect(await db.getVersion(), 4);
         expect(
           (await db.query(
             'tasks',

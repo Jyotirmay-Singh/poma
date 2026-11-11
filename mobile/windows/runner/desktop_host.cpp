@@ -775,7 +775,8 @@ void DesktopHost::Method(const flutter::MethodCall<V>& call, std::unique_ptr<Res
     if(method=="focusTimeResolve"||method=="focusTimeZone") {
       const auto zone=FocusDeviceZone();
       M resolved{{V("zone"),V(ToUtf8(zone.TimeZoneKeyName[0]?zone.TimeZoneKeyName:zone.StandardName))},
-        {V("fingerprint"),V(ToUtf8(FocusZoneFingerprint(zone)))}};
+        {V("fingerprint"),V(ToUtf8(FocusZoneFingerprint(zone)))},
+        {V("daylightDisabled"),V(zone.DynamicDaylightTimeDisabled != FALSE)}};
       if(method=="focusTimeResolve"){
         SYSTEMTIME wall{};wall.wYear=static_cast<WORD>(Number(args,"year"));wall.wMonth=static_cast<WORD>(Number(args,"month"));wall.wDay=static_cast<WORD>(Number(args,"day"));
         wall.wHour=static_cast<WORD>(Number(args,"hour"));wall.wMinute=static_cast<WORD>(Number(args,"minute"));wall.wSecond=static_cast<WORD>(Number(args,"second"));

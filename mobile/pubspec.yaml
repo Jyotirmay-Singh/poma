@@ -72,6 +72,9 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
+    - assets/timezones/windows-zones.json
+    - assets/timezones/SOURCE.json
+    - assets/licenses/unicode-cldr.txt
     - assets/licenses/pomatez.txt
     - assets/licenses/android-native.txt
     - assets/legal/privacy.txt

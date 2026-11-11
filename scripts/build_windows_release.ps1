@@ -125,6 +125,7 @@ $licenses = Join-Path $stage 'Licenses'
 New-Item -ItemType Directory -Path $licenses | Out-Null
 Copy-Item -LiteralPath (Join-Path $projectRoot 'THIRD_PARTY_NOTICES.md') -Destination $licenses
 Copy-Item -LiteralPath (Join-Path $projectRoot 'mobile/assets/licenses/windows-native.txt') -Destination $licenses
+Copy-Item -LiteralPath (Join-Path $projectRoot 'mobile/assets/licenses/unicode-cldr.txt') -Destination $licenses
 Copy-Item -LiteralPath (Join-Path $flutterSdk 'LICENSE') -Destination (Join-Path $licenses 'Flutter-LICENSE.txt')
 if (-not $RuntimeLicense) {
   # Extract the existing authorized redistributable, without executing/installing it.

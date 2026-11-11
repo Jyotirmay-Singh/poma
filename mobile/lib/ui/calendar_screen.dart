@@ -10,6 +10,7 @@ import 'app_shell.dart';
 import 'settings_screen.dart';
 import 'calendar_schedule.dart';
 import 'design_tokens.dart';
+import 'planner_screen.dart';
 
 String _status(FocusOperationStatus status) => switch (status) {
   FocusOperationStatus.needsReview => 'Needs review',
@@ -165,454 +166,511 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final desktop = widget.desktop,
         c = desktop.focusBlocks,
         connection = desktop.connection;
+    final plannerActive = desktop.planner != null;
+    final eventAccess = plannerActive ? 'calendar editing' : 'task creation';
     return AnimatedBuilder(
       animation: Listenable.merge([desktop, ?c, ?connection]),
-      builder: (context, _) => PomaPage(
-        controller: widget.controller,
-        maxContentWidth: desktop.calendarSection == CalendarPageSection.schedule
-            ? PomaLayout.workspaceWidth
-            : PomaLayout.readingWidth,
-        children: [
-          ScreenHeading(
-            title: 'Calendar',
-            subtitle:
-                'See your schedule, plan focused time and choose your calendars.',
-            action: OutlinedButton.icon(
-              onPressed: desktop.showPopup,
-              icon: const Icon(Icons.open_in_new),
-              label: const Text('Open calendar agenda'),
-            ),
-          ),
-          if (desktop.sessionState != 'unlocked')
-            const Padding(
-              padding: EdgeInsets.all(PomaSpace.lg),
-              child: Text(
-                'Calendar details are hidden while Windows is locked or its lock state is unknown.',
-              ),
+      builder: (context, _) =>
+          desktop.planner != null &&
+              desktop.calendarSection == CalendarPageSection.schedule
+          ? PlannerScreen(
+              desktop: desktop,
+              planner: desktop.planner!,
+              clock: false,
             )
-          else ...[
-            if (desktop.calendarSection != CalendarPageSection.schedule)
-              Container(
-                padding: const EdgeInsets.all(PomaSpace.lg),
-                decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: .06),
-                  borderRadius: BorderRadius.circular(PomaLayout.panelRadius),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      connection?.verifiedAccountLabel ?? 'Google Calendar',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: PomaSpace.xs),
-                    Wrap(
-                      spacing: PomaSpace.lg,
-                      runSpacing: PomaSpace.xs,
-                      children: [
-                        Text(
-                          'Viewing: ${connection?.operationsEnabled == true
-                              ? 'Connected'
-                              : connection?.mayRead == true
-                              ? 'Saved connection'
-                              : 'Not connected'}',
-                        ),
-                        Text('Focus scheduling: ${_capability(c?.capability)}'),
-                        if (c != null && !c.online)
-                          const Text('Offline · drafts only'),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            const SizedBox(height: PomaSpace.lg),
-            Wrap(
-              spacing: PomaSpace.xs,
-              runSpacing: PomaSpace.xs,
+          : PomaPage(
+              controller: widget.controller,
+              maxContentWidth:
+                  desktop.calendarSection == CalendarPageSection.schedule
+                  ? PomaLayout.workspaceWidth
+                  : PomaLayout.readingWidth,
               children: [
-                ChoiceChip(
-                  label: const Text('Schedule'),
-                  selected:
-                      desktop.calendarSection == CalendarPageSection.schedule,
-                  onSelected: (_) =>
-                      desktop.openCalendarSection(CalendarPageSection.schedule),
-                ),
-                ChoiceChip(
-                  label: const Text('Focus blocks'),
-                  selected:
-                      desktop.calendarSection ==
-                      CalendarPageSection.focusBlocks,
-                  onSelected: (_) => desktop.openCalendarSection(
-                    CalendarPageSection.focusBlocks,
+                ScreenHeading(
+                  title: 'Calendar',
+                  subtitle:
+                      'See your schedule, plan focused time and choose your calendars.',
+                  action: OutlinedButton.icon(
+                    onPressed: desktop.showPopup,
+                    icon: const Icon(Icons.open_in_new),
+                    label: const Text('Open calendar agenda'),
                   ),
                 ),
-                ChoiceChip(
-                  label: const Text('Calendar settings'),
-                  selected:
-                      desktop.calendarSection == CalendarPageSection.settings,
-                  onSelected: (_) =>
-                      desktop.openCalendarSection(CalendarPageSection.settings),
-                ),
-              ],
-            ),
-            const SizedBox(height: PomaSpace.lg),
-            if (error != null) Text(error!, semanticsLabel: error),
-            if (working) const LinearProgressIndicator(),
-            if (c?.message != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: PomaSpace.sm),
-                child: Semantics(liveRegion: true, child: Text(c!.message!)),
-              ),
-            if (c != null &&
-                c.journal == null &&
-                connection?.verifiedAccountKey != null)
-              TextButton(
-                onPressed: working
-                    ? null
-                    : () => _run(() async {
-                        await c.stop();
-                        await c.initialize();
-                      }),
-                child: const Text('Retry scheduling storage'),
-              ),
-            if (desktop.calendarSection == CalendarPageSection.settings) ...[
-              if (desktop.creation case final creation?) ...[
-                _Heading('Task creation'),
-                const Text(
-                  'Optional Google event access on calendars you own, including primary. Poma creates only ordinary events you review in Day Clock. Calendar viewing and focus scheduling remain separate.',
-                ),
-                if (connection?.creationMessage case final message?)
-                  Text(message),
-                if (creation.message case final message?) Text(message),
-                Wrap(
-                  spacing: PomaSpace.xs,
-                  runSpacing: PomaSpace.xs,
-                  children: [
-                    if (connection?.creationEnabled != true ||
-                        creation.disabled)
-                      FilledButton(
-                        onPressed:
-                            connection?.operationsEnabled == true &&
-                                connection?.creationUpgradeActive != true
-                            ? () => _run(() async {
-                                if (await _approve(
-                                  'Enable task creation?',
-                                  'Google grants event access on calendars you own. Poma only creates the ordinary event you review. Nothing is scheduled by enabling access.',
-                                  'Enable task creation',
-                                )) {
-                                  await creation.enable();
-                                }
-                              })
-                            : null,
-                        child: const Text('Enable task creation'),
-                      ),
-                    if (connection?.creationEnabled == true &&
-                        !creation.disabled)
-                      TextButton(
-                        onPressed: () => _run(creation.disable),
-                        child: const Text('Disable task creation'),
-                      ),
-                    if (connection?.creationUpgradeActive == true)
-                      TextButton(
-                        onPressed: connection?.cancelCreationConsent,
-                        child: const Text('Cancel task creation setup'),
-                      ),
-                    if (creation.journal == null &&
-                        connection?.verifiedAccountKey != null)
-                      TextButton(
-                        onPressed: creation.initialize,
-                        child: const Text('Retry task-save storage'),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: PomaSpace.lg),
-              ],
-              if (c != null && connection != null) ...[
-                _Heading('Focus scheduling'),
-                const Text(
-                  'Optional access to events on calendars this app creates. Poma uses its dedicated calendar and changes only verified focus blocks. Skipping keeps calendar viewing and offline Poma.',
-                ),
-                if (connection.writeMessage != null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: PomaSpace.xs),
-                    child: Text(connection.writeMessage!),
-                  ),
-                Wrap(
-                  spacing: PomaSpace.xs,
-                  runSpacing: PomaSpace.xs,
-                  children: [
-                    if (!connection.focusWriteEnabled || c.disabled)
-                      FilledButton(
-                        onPressed: !working && connection.operationsEnabled
-                            ? () => _run(() async {
-                                if (await _approve(
-                                  'Enable focus scheduling?',
-                                  'Google grants access to events on calendars this app creates. Poma will use its dedicated Poma Focus calendar and change only blocks it can verify. You review the title and timing before anything is scheduled.',
-                                  'Enable focus scheduling',
-                                )) {
-                                  if (!connection.focusWriteEnabled) {
-                                    await connection.enableFocusScheduling();
-                                  }
-                                  if (connection.focusWriteEnabled) {
-                                    await c.enable();
-                                  }
-                                }
-                              })
-                            : null,
-                        child: const Text('Enable focus scheduling'),
-                      ),
-                    if (const {
-                      CalendarWriteCapability.granting,
-                      CalendarWriteCapability.verifying,
-                    }.contains(connection.writeCapability))
-                      TextButton(
-                        onPressed: connection.cancelFocusConsent,
-                        child: const Text('Cancel setup'),
-                      ),
-                    if (connection.focusWriteEnabled && !c.disabled)
-                      TextButton(
-                        onPressed: working
-                            ? null
-                            : () => _run(() async {
-                                await c.disable();
-                                await connection.disableFocusScheduling();
-                              }),
-                        child: const Text('Disable focus scheduling'),
-                      ),
-                  ],
-                ),
-                if (connection.focusWriteEnabled && !c.disabled) ...[
-                  const SizedBox(height: PomaSpace.md),
-                  Text(
-                    c.journal?.binding?.name ??
-                        'Poma Focus calendar not set up',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  if (c.journal?.binding == null)
-                    Wrap(
-                      spacing: PomaSpace.xs,
-                      runSpacing: PomaSpace.xs,
-                      children: [
-                        FilledButton(
-                          onPressed: working
-                              ? null
-                              : () => _run(() async {
-                                  if (c.journal?.provisioning != null ||
-                                      await _approve(
-                                        'Create Poma Focus calendar?',
-                                        'Create one dedicated secondary calendar in this Google account. This does not schedule a block.',
-                                        'Create Poma Focus calendar',
-                                      )) {
-                                    await c.createCalendar();
-                                  }
-                                }),
-                          child: Text(
-                            c.journal?.provisioning == null
-                                ? 'Create Poma Focus calendar'
-                                : 'Check calendar setup',
-                          ),
+                if (desktop.sessionState != 'unlocked')
+                  const Padding(
+                    padding: EdgeInsets.all(PomaSpace.lg),
+                    child: Text(
+                      'Calendar details are hidden while Windows is locked or its lock state is unknown.',
+                    ),
+                  )
+                else ...[
+                  if (desktop.calendarSection != CalendarPageSection.schedule)
+                    Container(
+                      padding: const EdgeInsets.all(PomaSpace.lg),
+                      decoration: BoxDecoration(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: .06),
+                        borderRadius: BorderRadius.circular(
+                          PomaLayout.panelRadius,
                         ),
-                        TextButton(
-                          onPressed: working
-                              ? null
-                              : () => _run(_calendarRecovery),
-                          child: const Text('Recover Poma calendar'),
-                        ),
-                      ],
-                    ),
-                  if (c.journal?.binding != null)
-                    TextButton(
-                      onPressed: working
-                          ? null
-                          : () => _run(() async {
-                              await showDialog<void>(
-                                context: context,
-                                builder: (_) => _RecoverBlocks(controller: c),
-                              );
-                            }),
-                      child: const Text('Recover Poma blocks'),
-                    ),
-                ],
-                const SizedBox(height: PomaSpace.md),
-                const Divider(),
-              ],
-              CalendarPreferences(desktop: desktop),
-            ] else if (desktop.calendarSection ==
-                CalendarPageSection.focusBlocks) ...[
-              Wrap(
-                spacing: PomaSpace.xs,
-                runSpacing: PomaSpace.xs,
-                children: [
-                  FilledButton.icon(
-                    icon: const Icon(Icons.add),
-                    onPressed: () => widget.controller.selectedTask == null
-                        ? desktop.navigate(1)
-                        : showFocusBlockDialog(
-                            context,
-                            desktop,
-                            taskTitle: widget.controller.selectedTask!.title,
-                            taskId: widget.controller.selectedTask!.id,
-                          ),
-                    label: Text(
-                      widget.controller.selectedTask == null
-                          ? 'Choose a task'
-                          : 'Schedule focus block',
-                    ),
-                  ),
-                  if (c?.journal?.binding != null)
-                    TextButton(
-                      onPressed: () => _run(() async {
-                        await showDialog<void>(
-                          context: context,
-                          builder: (_) => _RecoverBlocks(controller: c!),
-                        );
-                      }),
-                      child: const Text('Recover Poma blocks'),
-                    ),
-                ],
-              ),
-              if (c == null || c.journal == null || c.journal!.binding == null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: PomaSpace.lg),
-                  child: Text(
-                    c?.journal == null
-                        ? 'Connect Google to save account-bound drafts.'
-                        : 'Complete focus scheduling in Calendar settings. Drafts remain local until you review and confirm them.',
-                  ),
-                ),
-              if (c?.journal != null) ...[
-                if (c!.journal!.drafts.isNotEmpty) ...[
-                  _Heading('Drafts'),
-                  for (final d in c.journal!.drafts.values)
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: const Icon(Icons.edit_note),
-                      title: Text(d.payload.title),
-                      subtitle: Text(
-                        '${d.payload.start.isAfter(c.now) ? 'Not scheduled' : 'Expired'}\n${_time(d.payload.start)} to ${_time(d.payload.end)}',
                       ),
-                      isThreeLine: true,
-                      trailing: TextButton(
-                        onPressed: () =>
-                            showFocusBlockDialog(context, desktop, draft: d),
-                        child: const Text('Review'),
-                      ),
-                    ),
-                ],
-                _Heading('Focus blocks'),
-                if (c.journal!.blocks.isEmpty)
-                  const Text(
-                    'No focus blocks saved here yet. Scheduling never starts or completes your timer.',
-                  ),
-                for (final b in c.journal!.blocks.values)
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Icon(
-                      b.busy ? Icons.event_busy : Icons.event_available,
-                    ),
-                    title: Text(b.title),
-                    subtitle: Text(
-                      '${_time(b.start)} to ${_time(b.end)}\n${b.busy ? 'Busy' : 'Free'}',
-                    ),
-                    isThreeLine: true,
-                    trailing: PopupMenuButton<FocusOperationKind>(
-                      tooltip: 'Manage focus block',
-                      onSelected: (kind) => _run(() => _manage(b, kind)),
-                      itemBuilder: (_) => [
-                        const PopupMenuItem(
-                          value: FocusOperationKind.edit,
-                          child: Text('Edit focus block'),
-                        ),
-                        const PopupMenuItem(
-                          value: FocusOperationKind.delete,
-                          child: Text('Delete focus block'),
-                        ),
-                      ],
-                    ),
-                  ),
-                if (c.journal!.operations.isNotEmpty) ...[
-                  _Heading('Operation status'),
-                  for (final op
-                      in c.journal!.operations.values.toList().reversed)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: PomaSpace.sm),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            op.payload.title,
-                            style: Theme.of(context).textTheme.titleSmall,
+                            connection?.verifiedAccountLabel ??
+                                'Google Calendar',
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
-                          Text('${op.kind.name} · ${_status(op.status)}'),
-                          if (op.error != null)
-                            Text(switch (op.error) {
-                              'foreign' =>
-                                'The event ID belongs to a different or unsupported block. It will not be overwritten.',
-                              'notFound' =>
-                                'No event found on the verified calendar. A future retry requires another preview.',
-                              'deleted' =>
-                                'The Google block was deleted. Poma will not recreate it.',
-                              'remoteChanged' =>
-                                'The Google block changed. Review its current version before another change.',
-                              _ =>
-                                'Review the connection and current Google block before another action.',
-                            }),
-                          if (op.unresolved ||
-                              op.status == FocusOperationStatus.failed)
-                            Wrap(
-                              spacing: PomaSpace.xs,
-                              children: [
-                                TextButton(
-                                  onPressed: working
-                                      ? null
-                                      : () => _run(() => c.reconcile(op.id)),
-                                  child: const Text('Check outcome'),
-                                ),
-                                if (op.kind == FocusOperationKind.create &&
-                                    op.error == 'notFound' &&
-                                    op.payload.start.isAfter(c.now))
-                                  TextButton(
-                                    onPressed: working
-                                        ? null
-                                        : () => _run(() async {
-                                            final preview = await c.retry(
-                                              op.id,
-                                            );
-                                            if (context.mounted) {
-                                              await showFocusBlockDialog(
-                                                context,
-                                                desktop,
-                                                preview: preview,
-                                              );
-                                            }
-                                          }),
-                                    child: const Text('Review same-ID retry'),
-                                  ),
-                              ],
-                            ),
+                          const SizedBox(height: PomaSpace.xs),
+                          Wrap(
+                            spacing: PomaSpace.lg,
+                            runSpacing: PomaSpace.xs,
+                            children: [
+                              Text(
+                                'Viewing: ${connection?.operationsEnabled == true
+                                    ? 'Connected'
+                                    : connection?.mayRead == true
+                                    ? 'Saved connection'
+                                    : 'Not connected'}',
+                              ),
+                              Text(
+                                'Focus scheduling: ${_capability(c?.capability)}',
+                              ),
+                              if (c != null && !c.online)
+                                const Text('Offline · drafts only'),
+                            ],
+                          ),
                         ],
                       ),
                     ),
+                  const SizedBox(height: PomaSpace.lg),
+                  Wrap(
+                    spacing: PomaSpace.xs,
+                    runSpacing: PomaSpace.xs,
+                    children: [
+                      ChoiceChip(
+                        label: const Text('Schedule'),
+                        selected:
+                            desktop.calendarSection ==
+                            CalendarPageSection.schedule,
+                        onSelected: (_) => desktop.openCalendarSection(
+                          CalendarPageSection.schedule,
+                        ),
+                      ),
+                      ChoiceChip(
+                        label: const Text('Focus blocks'),
+                        selected:
+                            desktop.calendarSection ==
+                            CalendarPageSection.focusBlocks,
+                        onSelected: (_) => desktop.openCalendarSection(
+                          CalendarPageSection.focusBlocks,
+                        ),
+                      ),
+                      ChoiceChip(
+                        label: const Text('Calendar settings'),
+                        selected:
+                            desktop.calendarSection ==
+                            CalendarPageSection.settings,
+                        onSelected: (_) => desktop.openCalendarSection(
+                          CalendarPageSection.settings,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: PomaSpace.lg),
+                  if (error != null) Text(error!, semanticsLabel: error),
+                  if (working) const LinearProgressIndicator(),
+                  if (c?.message != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: PomaSpace.sm,
+                      ),
+                      child: Semantics(
+                        liveRegion: true,
+                        child: Text(c!.message!),
+                      ),
+                    ),
+                  if (c != null &&
+                      c.journal == null &&
+                      connection?.verifiedAccountKey != null)
+                    TextButton(
+                      onPressed: working
+                          ? null
+                          : () => _run(() async {
+                              await c.stop();
+                              await c.initialize();
+                            }),
+                      child: const Text('Retry scheduling storage'),
+                    ),
+                  if (desktop.calendarSection ==
+                      CalendarPageSection.settings) ...[
+                    if (desktop.planner case final planner?) ...[
+                      PlannerPreferencesPanel(planner: planner),
+                      const SizedBox(height: PomaSpace.lg),
+                    ],
+                    if (desktop.creation case final creation?) ...[
+                      _Heading(
+                        plannerActive ? 'Calendar editing' : 'Task creation',
+                      ),
+                      Text(
+                        plannerActive
+                            ? 'Create, edit and delete ordinary events on calendars you own, including primary. Shared calendars remain viewable. Manage focus blocks with their dedicated controls.'
+                            : 'Optional Google event access on calendars you own, including primary. Poma creates only ordinary events you review in Day Clock. Calendar viewing and focus scheduling remain separate.',
+                      ),
+                      if (connection?.creationMessage case final message?)
+                        Text(message),
+                      if (creation.message case final message?) Text(message),
+                      Wrap(
+                        spacing: PomaSpace.xs,
+                        runSpacing: PomaSpace.xs,
+                        children: [
+                          if (connection?.creationEnabled != true ||
+                              creation.disabled)
+                            FilledButton(
+                              onPressed:
+                                  connection?.operationsEnabled == true &&
+                                      connection?.creationUpgradeActive != true
+                                  ? () => _run(() async {
+                                      if (await _approve(
+                                        'Enable $eventAccess?',
+                                        plannerActive
+                                            ? 'Google grants event access on calendars you own. Poma uses this access for ordinary event creation, editing and deletion. Enable scheduled-task syncing to deliver queued task changes.'
+                                            : 'Google grants event access on calendars you own. Poma only creates the ordinary event you review. Nothing is scheduled by enabling access.',
+                                        'Enable $eventAccess',
+                                      )) {
+                                        await creation.enable();
+                                      }
+                                    })
+                                  : null,
+                              child: Text('Enable $eventAccess'),
+                            ),
+                          if (connection?.creationEnabled == true &&
+                              !creation.disabled)
+                            TextButton(
+                              onPressed: () => _run(creation.disable),
+                              child: Text('Disable $eventAccess'),
+                            ),
+                          if (connection?.creationUpgradeActive == true)
+                            TextButton(
+                              onPressed: connection?.cancelCreationConsent,
+                              child: Text('Cancel $eventAccess setup'),
+                            ),
+                          if (creation.journal == null &&
+                              connection?.verifiedAccountKey != null)
+                            TextButton(
+                              onPressed: creation.initialize,
+                              child: const Text('Retry task-save storage'),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: PomaSpace.lg),
+                    ],
+                    if (c != null && connection != null) ...[
+                      _Heading('Focus scheduling'),
+                      const Text(
+                        'Optional access to events on calendars this app creates. Poma uses its dedicated calendar and changes only verified focus blocks. Skipping keeps calendar viewing and offline Poma.',
+                      ),
+                      if (connection.writeMessage != null)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: PomaSpace.xs,
+                          ),
+                          child: Text(connection.writeMessage!),
+                        ),
+                      Wrap(
+                        spacing: PomaSpace.xs,
+                        runSpacing: PomaSpace.xs,
+                        children: [
+                          if (!connection.focusWriteEnabled || c.disabled)
+                            FilledButton(
+                              onPressed:
+                                  !working && connection.operationsEnabled
+                                  ? () => _run(() async {
+                                      if (await _approve(
+                                        'Enable focus scheduling?',
+                                        'Google grants access to events on calendars this app creates. Poma will use its dedicated Poma Focus calendar and change only blocks it can verify. You review the title and timing before anything is scheduled.',
+                                        'Enable focus scheduling',
+                                      )) {
+                                        if (!connection.focusWriteEnabled) {
+                                          await connection
+                                              .enableFocusScheduling();
+                                        }
+                                        if (connection.focusWriteEnabled) {
+                                          await c.enable();
+                                        }
+                                      }
+                                    })
+                                  : null,
+                              child: const Text('Enable focus scheduling'),
+                            ),
+                          if (const {
+                            CalendarWriteCapability.granting,
+                            CalendarWriteCapability.verifying,
+                          }.contains(connection.writeCapability))
+                            TextButton(
+                              onPressed: connection.cancelFocusConsent,
+                              child: const Text('Cancel setup'),
+                            ),
+                          if (connection.focusWriteEnabled && !c.disabled)
+                            TextButton(
+                              onPressed: working
+                                  ? null
+                                  : () => _run(() async {
+                                      await c.disable();
+                                      await connection.disableFocusScheduling();
+                                    }),
+                              child: const Text('Disable focus scheduling'),
+                            ),
+                        ],
+                      ),
+                      if (connection.focusWriteEnabled && !c.disabled) ...[
+                        const SizedBox(height: PomaSpace.md),
+                        Text(
+                          c.journal?.binding?.name ??
+                              'Poma Focus calendar not set up',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        if (c.journal?.binding == null)
+                          Wrap(
+                            spacing: PomaSpace.xs,
+                            runSpacing: PomaSpace.xs,
+                            children: [
+                              FilledButton(
+                                onPressed: working
+                                    ? null
+                                    : () => _run(() async {
+                                        if (c.journal?.provisioning != null ||
+                                            await _approve(
+                                              'Create Poma Focus calendar?',
+                                              'Create one dedicated secondary calendar in this Google account. This does not schedule a block.',
+                                              'Create Poma Focus calendar',
+                                            )) {
+                                          await c.createCalendar();
+                                        }
+                                      }),
+                                child: Text(
+                                  c.journal?.provisioning == null
+                                      ? 'Create Poma Focus calendar'
+                                      : 'Check calendar setup',
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: working
+                                    ? null
+                                    : () => _run(_calendarRecovery),
+                                child: const Text('Recover Poma calendar'),
+                              ),
+                            ],
+                          ),
+                        if (c.journal?.binding != null)
+                          TextButton(
+                            onPressed: working
+                                ? null
+                                : () => _run(() async {
+                                    await showDialog<void>(
+                                      context: context,
+                                      builder: (_) =>
+                                          _RecoverBlocks(controller: c),
+                                    );
+                                  }),
+                            child: const Text('Recover Poma blocks'),
+                          ),
+                      ],
+                      const SizedBox(height: PomaSpace.md),
+                      const Divider(),
+                    ],
+                    CalendarPreferences(desktop: desktop),
+                  ] else if (desktop.calendarSection ==
+                      CalendarPageSection.focusBlocks) ...[
+                    Wrap(
+                      spacing: PomaSpace.xs,
+                      runSpacing: PomaSpace.xs,
+                      children: [
+                        FilledButton.icon(
+                          icon: const Icon(Icons.add),
+                          onPressed: () =>
+                              widget.controller.selectedTask == null
+                              ? desktop.navigate(1)
+                              : showFocusBlockDialog(
+                                  context,
+                                  desktop,
+                                  taskTitle:
+                                      widget.controller.selectedTask!.title,
+                                  taskId: widget.controller.selectedTask!.id,
+                                ),
+                          label: Text(
+                            widget.controller.selectedTask == null
+                                ? 'Choose a task'
+                                : 'Schedule focus block',
+                          ),
+                        ),
+                        if (c?.journal?.binding != null)
+                          TextButton(
+                            onPressed: () => _run(() async {
+                              await showDialog<void>(
+                                context: context,
+                                builder: (_) => _RecoverBlocks(controller: c!),
+                              );
+                            }),
+                            child: const Text('Recover Poma blocks'),
+                          ),
+                      ],
+                    ),
+                    if (c == null ||
+                        c.journal == null ||
+                        c.journal!.binding == null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: PomaSpace.lg,
+                        ),
+                        child: Text(
+                          c?.journal == null
+                              ? 'Connect Google to save account-bound drafts.'
+                              : 'Complete focus scheduling in Calendar settings. Drafts remain local until you review and confirm them.',
+                        ),
+                      ),
+                    if (c?.journal != null) ...[
+                      if (c!.journal!.drafts.isNotEmpty) ...[
+                        _Heading('Drafts'),
+                        for (final d in c.journal!.drafts.values)
+                          ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: const Icon(Icons.edit_note),
+                            title: Text(d.payload.title),
+                            subtitle: Text(
+                              '${d.payload.start.isAfter(c.now) ? 'Not scheduled' : 'Expired'}\n${_time(d.payload.start)} to ${_time(d.payload.end)}',
+                            ),
+                            isThreeLine: true,
+                            trailing: TextButton(
+                              onPressed: () => showFocusBlockDialog(
+                                context,
+                                desktop,
+                                draft: d,
+                              ),
+                              child: const Text('Review'),
+                            ),
+                          ),
+                      ],
+                      _Heading('Focus blocks'),
+                      if (c.journal!.blocks.isEmpty)
+                        const Text(
+                          'No focus blocks saved here yet. Scheduling never starts or completes your timer.',
+                        ),
+                      for (final b in c.journal!.blocks.values)
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: Icon(
+                            b.busy ? Icons.event_busy : Icons.event_available,
+                          ),
+                          title: Text(b.title),
+                          subtitle: Text(
+                            '${_time(b.start)} to ${_time(b.end)}\n${b.busy ? 'Busy' : 'Free'}',
+                          ),
+                          isThreeLine: true,
+                          trailing: PopupMenuButton<FocusOperationKind>(
+                            tooltip: 'Manage focus block',
+                            onSelected: (kind) => _run(() => _manage(b, kind)),
+                            itemBuilder: (_) => [
+                              const PopupMenuItem(
+                                value: FocusOperationKind.edit,
+                                child: Text('Edit focus block'),
+                              ),
+                              const PopupMenuItem(
+                                value: FocusOperationKind.delete,
+                                child: Text('Delete focus block'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (c.journal!.operations.isNotEmpty) ...[
+                        _Heading('Operation status'),
+                        for (final op
+                            in c.journal!.operations.values.toList().reversed)
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: PomaSpace.sm,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  op.payload.title,
+                                  style: Theme.of(context).textTheme.titleSmall,
+                                ),
+                                Text('${op.kind.name} · ${_status(op.status)}'),
+                                if (op.error != null)
+                                  Text(switch (op.error) {
+                                    'foreign' =>
+                                      'The event ID belongs to a different or unsupported block. It will not be overwritten.',
+                                    'notFound' =>
+                                      'No event found on the verified calendar. A future retry requires another preview.',
+                                    'deleted' =>
+                                      'The Google block was deleted. Poma will not recreate it.',
+                                    'remoteChanged' =>
+                                      'The Google block changed. Review its current version before another change.',
+                                    _ =>
+                                      'Review the connection and current Google block before another action.',
+                                  }),
+                                if (op.unresolved ||
+                                    op.status == FocusOperationStatus.failed)
+                                  Wrap(
+                                    spacing: PomaSpace.xs,
+                                    children: [
+                                      TextButton(
+                                        onPressed: working
+                                            ? null
+                                            : () => _run(
+                                                () => c.reconcile(op.id),
+                                              ),
+                                        child: const Text('Check outcome'),
+                                      ),
+                                      if (op.kind ==
+                                              FocusOperationKind.create &&
+                                          op.error == 'notFound' &&
+                                          op.payload.start.isAfter(c.now))
+                                        TextButton(
+                                          onPressed: working
+                                              ? null
+                                              : () => _run(() async {
+                                                  final preview = await c.retry(
+                                                    op.id,
+                                                  );
+                                                  if (context.mounted) {
+                                                    await showFocusBlockDialog(
+                                                      context,
+                                                      desktop,
+                                                      preview: preview,
+                                                    );
+                                                  }
+                                                }),
+                                          child: const Text(
+                                            'Review same-ID retry',
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ],
+                  ],
                 ],
+                Offstage(
+                  key: const ValueKey('calendar-schedule-section'),
+                  offstage:
+                      desktop.sessionState != 'unlocked' ||
+                      desktop.calendarSection != CalendarPageSection.schedule,
+                  child: TickerMode(
+                    enabled:
+                        desktop.sessionState == 'unlocked' &&
+                        desktop.calendarSection == CalendarPageSection.schedule,
+                    child: CalendarSchedule(desktop: desktop),
+                  ),
+                ),
               ],
-            ],
-          ],
-          Offstage(
-            key: const ValueKey('calendar-schedule-section'),
-            offstage:
-                desktop.sessionState != 'unlocked' ||
-                desktop.calendarSection != CalendarPageSection.schedule,
-            child: TickerMode(
-              enabled:
-                  desktop.sessionState == 'unlocked' &&
-                  desktop.calendarSection == CalendarPageSection.schedule,
-              child: CalendarSchedule(desktop: desktop),
             ),
-          ),
-        ],
-      ),
     );
   }
 }

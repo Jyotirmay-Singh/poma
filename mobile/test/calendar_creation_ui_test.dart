@@ -40,6 +40,8 @@ Future<void> capture(WidgetTester tester, String name) async {
 Future<(CreationRig, DesktopController)> mount(
   WidgetTester tester, {
   double width = 1440,
+  double height = 1100,
+  double pixelRatio = 1,
   double scale = 1,
   bool dark = true,
   bool highContrast = false,
@@ -47,8 +49,8 @@ Future<(CreationRig, DesktopController)> mount(
   bool creation = true,
   CapabilityAuth? authorization,
 }) async {
-  tester.view.physicalSize = Size(width, 1100);
-  tester.view.devicePixelRatio = 1;
+  tester.view.physicalSize = Size(width, height) * pixelRatio;
+  tester.view.devicePixelRatio = pixelRatio;
   tester.platformDispatcher.textScaleFactorTestValue = scale;
   tester.platformDispatcher.accessibilityFeaturesTestValue =
       FakeAccessibilityFeatures(
@@ -246,12 +248,7 @@ void main() {
       desktop.dayClock!.now();
       await tester.pumpAndSettle();
       expect(find.text('No timed event now'), findsNothing);
-      expect(
-        find.text(
-          'Availability unknown — schedule is incomplete or unverified',
-        ),
-        findsNWidgets(2),
-      );
+      expect(find.text('Availability unknown'), findsNWidgets(2));
       await capture(tester, 'stale-now-unknown');
     },
   );

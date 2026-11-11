@@ -28,13 +28,14 @@ class CalendarEventDraft {
     this.colorId,
     this.taskId,
     this.busy = true,
+    this.showOnDayClock = true,
     String? id,
   }) : id = id ?? focusUuid();
   final String id;
   DateTime? savedAt;
   String? accountKey;
   String title, startDate, endDate, startTime, endTime;
-  bool startPm, endPm, busy;
+  bool startPm, endPm, busy, showOnDayClock;
   String? calendarId, colorId, taskId;
   Map<String, Object?> toJson() => {
     'id': id,
@@ -48,6 +49,7 @@ class CalendarEventDraft {
     'startPm': startPm,
     'endPm': endPm,
     'busy': busy,
+    'showOnDayClock': showOnDayClock,
     'calendarId': calendarId,
     'colorId': colorId,
     'taskId': taskId,
@@ -64,6 +66,7 @@ class CalendarEventDraft {
           startPm: m['startPm'] as bool,
           endPm: m['endPm'] as bool,
           busy: m['busy'] as bool,
+          showOnDayClock: m['showOnDayClock'] != false,
           calendarId: m['calendarId'] as String?,
           colorId: m['colorId'] as String?,
           taskId: m['taskId'] as String?,

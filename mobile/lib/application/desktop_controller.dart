@@ -14,6 +14,7 @@ import 'calendar_reminder_controller.dart';
 import 'focus_block_controller.dart';
 import '../domain/calendar_data.dart';
 import 'day_clock_controller.dart';
+import 'planner_controller.dart';
 import 'calendar_event_creation_controller.dart';
 
 class FocusCalendarConflict {
@@ -91,8 +92,27 @@ class DesktopController extends ChangeNotifier {
   FocusBlockController? focusBlocks;
   DayClockController? dayClock;
   CalendarCreationController? creation;
+  PlannerController? planner;
+  void attachPlanner(PlannerController value) {
+    planner = value;
+    creation?.delegateToPlanner();
+    value.setUnlocked(sessionState == 'unlocked');
+    value.addListener(_calendarChanged);
+    creation?.addListener(_importPlannerLegacy);
+    unawaited(value.initialize().then((_) => _importPlannerLegacy()));
+    _calendarChanged();
+  }
+
+  void _importPlannerLegacy() {
+    final journal = creation?.journal;
+    if (journal != null && planner != null) {
+      unawaited(planner!.importLegacy(journal));
+    }
+  }
+
   void attachCreation(CalendarCreationController value) {
     creation = value;
+    if (planner != null) value.delegateToPlanner();
     dayClock?.attachCreation(value);
     value.addListener(_calendarChanged);
     unawaited(value.initialize());
@@ -142,6 +162,9 @@ class DesktopController extends ChangeNotifier {
   void _disposeCalendar() {
     if (_calendarDisposed) return;
     _calendarDisposed = true;
+    creation?.removeListener(_importPlannerLegacy);
+    planner?.removeListener(_calendarChanged);
+    planner?.dispose();
     dayClock?.dispose();
     creation?.removeListener(_calendarChanged);
     creation?.dispose();
@@ -231,7 +254,7 @@ class DesktopController extends ChangeNotifier {
   }
 
   void requestNewTask() {
-    navigate(1);
+    if (planner == null || (destination != 4 && destination != 5)) navigate(1);
     newTaskRevision++;
     notifyListeners();
   }
@@ -249,6 +272,7 @@ class DesktopController extends ChangeNotifier {
           _queuePublish();
         case 'resume':
         case 'timeChanged':
+          planner?.setUnlocked(sessionState == 'unlocked');
           calendarPresentationRevision++;
           dayClock?.timeContextChanged();
           unawaited(focusBlocks?.stop().then((_) => focusBlocks?.initialize()));
@@ -258,6 +282,7 @@ class DesktopController extends ChangeNotifier {
           await controller.reconcile(forceAlerts: true);
           await refreshStartup();
         case 'suspend':
+          planner?.setUnlocked(false);
           unawaited(focusBlocks?.stop());
           unawaited(creation?.stop());
           reminders?.lifecycle(suspended: true);
@@ -281,6 +306,7 @@ class DesktopController extends ChangeNotifier {
               ? 'locked'
               : 'unknown';
           if (sessionState != 'unlocked') ++_startEpoch;
+          planner?.setUnlocked(sessionState == 'unlocked');
           focusBlocks?.unlocked = sessionState == 'unlocked';
           dayClock?.setUnlocked(sessionState == 'unlocked');
           reminders?.unlocked = sessionState == 'unlocked';

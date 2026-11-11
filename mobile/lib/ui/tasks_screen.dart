@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../application/app_controller.dart';
 import '../domain/models.dart';
 import 'app_shell.dart';
@@ -6,6 +7,8 @@ import 'copy.dart';
 import 'desktop_scope.dart';
 import 'calendar_screen.dart';
 import 'design_tokens.dart';
+import 'planner_editor.dart';
+import 'planner_screen.dart';
 
 class TasksScreen extends StatelessWidget {
   const TasksScreen({required this.controller, super.key});
@@ -18,11 +21,14 @@ class TasksScreen extends StatelessWidget {
         title: context.copy.tasks,
         subtitle: context.copy.taskHelp,
         action: FilledButton.icon(
+          key: const ValueKey('tasks-add-task'),
           onPressed: () => _taskDialog(context),
           icon: const Icon(Icons.add_rounded),
           label: Text(context.copy.addTask),
         ),
       ),
+      if (DesktopScope.maybeOf(context)?.planner case final planner?)
+        PlannerOperations(planner: planner),
       if (controller.tasks.isEmpty)
         Padding(
           padding: const EdgeInsets.symmetric(vertical: PomaSpace.xxl),
@@ -45,14 +51,16 @@ class TasksScreen extends StatelessWidget {
           ),
         ),
       if (controller.tasks.isNotEmpty &&
-          controller.tasks.every((task) => task.done)) ...[
+          controller.tasks.every((task) => _done(context, task))) ...[
         Semantics(header: true, child: Text(context.copy.allDone)),
         const SizedBox(height: PomaSpace.xs),
         Text(context.copy.allDoneHelp),
       ],
-      for (final task in controller.tasks.where((task) => !task.done))
+      for (final task in controller.tasks.where(
+        (task) => !_done(context, task),
+      ))
         _taskRow(context, task),
-      if (controller.tasks.any((task) => task.done)) ...[
+      if (controller.tasks.any((task) => _done(context, task))) ...[
         const SizedBox(height: PomaSpace.lg),
         Semantics(
           header: true,
@@ -62,14 +70,25 @@ class TasksScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: PomaSpace.xs),
-        for (final task in controller.tasks.where((task) => task.done))
+        for (final task in controller.tasks.where(
+          (task) => _done(context, task),
+        ))
           _taskRow(context, task),
       ],
     ],
   );
 
+  bool _done(BuildContext context, FocusTask task) =>
+      DesktopScope.maybeOf(context)?.planner?.taskDone(task) ?? task.done;
+
   Widget _taskRow(BuildContext context, FocusTask task) {
-    final selected = task.id == controller.selectedTaskId && !task.done;
+    final planner = DesktopScope.maybeOf(context)?.planner;
+    final done = _done(context, task);
+    final occurrence = planner?.taskOccurrence(task.id);
+    final schedule = planner?.taskSchedule(task.id);
+    final recurring = schedule?.recurring == true;
+    final scheduledTime = occurrence?.startUtc ?? schedule?.startUtc;
+    final selected = task.id == controller.selectedTaskId && !done;
     return Padding(
       padding: const EdgeInsets.only(bottom: PomaSpace.xs),
       child: Material(
@@ -86,26 +105,34 @@ class TasksScreen extends StatelessWidget {
             ),
             titleAlignment: ListTileTitleAlignment.top,
             leading: Checkbox(
-              value: task.done,
-              semanticLabel: task.done
+              value: done,
+              semanticLabel: done
                   ? context.copy.markIncomplete(task.title)
                   : context.copy.markComplete(task.title),
-              onChanged: (_) => controller.toggleTask(task.id),
+              onChanged: recurring && occurrence == null
+                  ? null
+                  : (_) => controller.toggleTask(task.id),
             ),
             title: Text(
               task.title,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                decoration: task.done ? TextDecoration.lineThrough : null,
+                decoration: done ? TextDecoration.lineThrough : null,
               ),
             ),
-            subtitle: task.done
+            subtitle: scheduledTime != null
+                ? Text(
+                    '${DateFormat.yMMMd().add_jm().format(scheduledTime.toLocal())} · ${planner!.status(schedule!)}${done ? ' · Completed' : ''}',
+                  )
+                : recurring
+                ? const Text('No upcoming occurrence')
+                : done
                 ? null
                 : Text(
                     selected
                         ? context.copy.selectedTask
                         : context.copy.selectTask,
                   ),
-            onTap: task.done ? null : () => controller.selectTask(task.id),
+            onTap: done ? null : () => controller.selectTask(task.id),
             trailing: PopupMenuButton<String>(
               tooltip: context.copy.taskOptions(task.title),
               onSelected: (action) {
@@ -120,8 +147,11 @@ class TasksScreen extends StatelessWidget {
                     );
                   }
                 }
+                if (action == 'plan') {
+                  _taskDialog(context, task: task, scheduled: true);
+                }
                 if (action == 'edit') _taskDialog(context, task: task);
-                if (action == 'delete') controller.deleteTask(task.id);
+                if (action == 'delete') _deleteTask(context, task);
               },
               itemBuilder: (_) => [
                 if (DesktopScope.maybeOf(context) != null && !task.done)
@@ -129,10 +159,22 @@ class TasksScreen extends StatelessWidget {
                     value: 'schedule',
                     child: Text('Schedule focus block'),
                   ),
+                if (DesktopScope.maybeOf(context)?.planner != null)
+                  const PopupMenuItem(
+                    value: 'plan',
+                    child: Text('Schedule task'),
+                  ),
                 PopupMenuItem(value: 'edit', child: Text(context.copy.rename)),
                 PopupMenuItem(
                   value: 'delete',
-                  child: Text(context.copy.delete),
+                  child: Text(
+                    DesktopScope.maybeOf(
+                              context,
+                            )?.planner?.taskSchedule(task.id) !=
+                            null
+                        ? 'Delete task and calendar event'
+                        : context.copy.delete,
+                  ),
                 ),
               ],
             ),
@@ -142,7 +184,41 @@ class TasksScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _taskDialog(BuildContext context, {FocusTask? task}) async {
+  Future<void> _deleteTask(BuildContext context, FocusTask task) async {
+    final planner = DesktopScope.maybeOf(context)?.planner;
+    final schedule = planner?.taskSchedule(task.id);
+    if (planner == null || schedule == null) {
+      controller.deleteTask(task.id);
+      return;
+    }
+    await planner.deleteTask(task.id);
+    if (!context.mounted ||
+        controller.tasks.any((item) => item.id == task.id)) {
+      return;
+    }
+    showPlannerDeletionUndo(
+      context,
+      planner,
+      schedule.id,
+      'Task and schedule removed',
+    );
+  }
+
+  Future<void> _taskDialog(
+    BuildContext context, {
+    FocusTask? task,
+    bool scheduled = false,
+  }) async {
+    final planner = DesktopScope.maybeOf(context)?.planner;
+    if (planner != null) {
+      await showPlannerEditor(
+        context,
+        planner,
+        task: task,
+        scheduled: scheduled,
+      );
+      return;
+    }
     final title = await showDialog<String>(
       context: context,
       builder: (_) => _TaskDialog(initial: task?.title),

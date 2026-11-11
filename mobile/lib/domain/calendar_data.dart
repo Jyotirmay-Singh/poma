@@ -148,6 +148,15 @@ class CalendarEvent {
     this.eventUrl,
     this.colorId,
     this.eventLabelId,
+    this.etag,
+    this.updatedUtc,
+    this.transparency,
+    this.eventType = 'default',
+    this.locked = false,
+    this.organizerSelf = true,
+    this.guestsCanModify = false,
+    this.hasGuests = false,
+    this.focusOwned = false,
   });
   final String id, calendarId, title, status, selfResponse;
   final DateTime? startUtc, endUtc;
@@ -159,6 +168,15 @@ class CalendarEvent {
       meetingUrl,
       eventUrl;
   final String? colorId, eventLabelId;
+  final String? etag, transparency;
+  final DateTime? updatedUtc;
+  final String eventType;
+  final bool locked, organizerSelf, guestsCanModify, hasGuests, focusOwned;
+  bool get editable =>
+      eventType == 'default' &&
+      !locked &&
+      !focusOwned &&
+      (organizerSelf || guestsCanModify);
   bool get allDay => startDate != null;
   bool get eligible => status != 'cancelled' && selfResponse != 'declined';
   bool overlaps(CalendarWindow window) => allDay
@@ -183,6 +201,15 @@ class CalendarEvent {
     'eventUrl': eventUrl,
     'colorId': colorId,
     'eventLabelId': eventLabelId,
+    'etag': etag,
+    'updatedUtc': updatedUtc?.toIso8601String(),
+    'transparency': transparency,
+    'eventType': eventType,
+    'locked': locked,
+    'organizerSelf': organizerSelf,
+    'guestsCanModify': guestsCanModify,
+    'hasGuests': hasGuests,
+    'focusOwned': focusOwned,
   };
   factory CalendarEvent.fromJson(Map map) {
     final result = CalendarEvent(
@@ -211,6 +238,17 @@ class CalendarEvent {
       eventUrl: safeCalendarUrl(map['eventUrl'] as String?, meeting: false),
       colorId: map['colorId'] as String?,
       eventLabelId: map['eventLabelId'] as String?,
+      etag: map['etag'] as String?,
+      updatedUtc: map['updatedUtc'] == null
+          ? null
+          : DateTime.parse(map['updatedUtc'] as String).toUtc(),
+      transparency: map['transparency'] as String?,
+      eventType: map['eventType'] as String? ?? 'default',
+      locked: map['locked'] == true,
+      organizerSelf: map['organizerSelf'] == true,
+      guestsCanModify: map['guestsCanModify'] == true,
+      hasGuests: map['hasGuests'] == true,
+      focusOwned: map['focusOwned'] == true,
     );
     if (result.id.isEmpty ||
         (result.allDay
@@ -321,14 +359,17 @@ class CalendarSnapshot {
     required this.coverage,
     required this.succeededAt,
     required this.events,
+    this.availabilityKnown = false,
   });
   final CalendarWindow coverage;
   final DateTime succeededAt;
   final List<CalendarEvent> events;
+  final bool availabilityKnown;
   CalendarSnapshot trim(CalendarWindow window) => CalendarSnapshot(
     coverage: coverage.intersect(window),
     succeededAt: succeededAt,
     events: List.unmodifiable(events.where((e) => e.overlaps(window))),
+    availabilityKnown: availabilityKnown,
   );
   bool fresh(DateTime now, CalendarWindow window) =>
       coverage.covers(window) &&
@@ -338,6 +379,7 @@ class CalendarSnapshot {
     'coverage': coverage.toJson(),
     'succeededAt': succeededAt.toIso8601String(),
     'events': events.map((e) => e.toJson()).toList(),
+    'availabilityKnown': availabilityKnown,
   };
   factory CalendarSnapshot.fromJson(Map map, String calendarId) {
     final events = (map['events'] as List)
@@ -350,6 +392,7 @@ class CalendarSnapshot {
       coverage: CalendarWindow.fromJson(map['coverage'] as Map),
       succeededAt: DateTime.parse(map['succeededAt'] as String).toUtc(),
       events: List.unmodifiable(events),
+      availabilityKnown: map['availabilityKnown'] == true,
     );
   }
 }
@@ -361,27 +404,40 @@ class CalendarAccountData {
     Set<String> selected = const {},
     Map<String, CalendarSnapshot> snapshots = const {},
     this.palette,
+    Map<String, Map<String, CalendarSnapshot>> ranges = const {},
   }) : sources = List.unmodifiable(sources),
        selected = Set.unmodifiable(selected),
-       snapshots = Map.unmodifiable(snapshots);
+       snapshots = Map.unmodifiable(snapshots),
+       ranges = Map.unmodifiable(
+         ranges.map(
+           (k, v) => MapEntry(k, Map<String, CalendarSnapshot>.unmodifiable(v)),
+         ),
+       );
   final String accountKey;
   final List<CalendarSource> sources;
   final Set<String> selected;
   final Map<String, CalendarSnapshot> snapshots;
   final CalendarEventPalette? palette;
+  final Map<String, Map<String, CalendarSnapshot>> ranges;
   CalendarAccountData copyWith({
     List<CalendarSource>? sources,
     Set<String>? selected,
     Map<String, CalendarSnapshot>? snapshots,
     CalendarEventPalette? palette,
+    Map<String, Map<String, CalendarSnapshot>>? ranges,
   }) => CalendarAccountData(
     accountKey: accountKey,
     sources: sources ?? this.sources,
     selected: selected ?? this.selected,
     snapshots: snapshots ?? this.snapshots,
     palette: palette ?? this.palette,
+    ranges: ranges ?? this.ranges,
   );
   CalendarAccountData trim(CalendarWindow window) => copyWith(
+    ranges: {
+      for (final e in ranges.entries)
+        if (selected.contains(e.key)) e.key: e.value,
+    },
     snapshots: {
       for (final entry in snapshots.entries)
         if (selected.contains(entry.key)) entry.key: entry.value.trim(window),
@@ -394,6 +450,13 @@ class CalendarAccountData {
     'selected': selected.toList(),
     'snapshots': snapshots.map((k, v) => MapEntry(k, v.toJson())),
     if (palette != null) 'eventPalette': palette!.toJson(),
+    if (ranges.isNotEmpty)
+      'ranges': ranges.map(
+        (id, values) => MapEntry(
+          id,
+          values.map((key, snapshot) => MapEntry(key, snapshot.toJson())),
+        ),
+      ),
   };
   factory CalendarAccountData.fromJson(Map map, String key) {
     if (map['version'] != 1 || map['accountKey'] != key) {
@@ -407,6 +470,16 @@ class CalendarAccountData {
           .toList(),
       selected: selected,
       palette: CalendarEventPalette.cached(map['eventPalette']),
+      ranges: {
+        for (final e in (map['ranges'] as Map? ?? {}).entries)
+          if (selected.contains(e.key))
+            e.key as String: (e.value as Map).map(
+              (k, v) => MapEntry(
+                k as String,
+                CalendarSnapshot.fromJson(v as Map, e.key as String),
+              ),
+            ),
+      },
       snapshots: {
         for (final entry in (map['snapshots'] as Map).entries)
           if (selected.contains(entry.key))

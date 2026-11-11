@@ -1,5 +1,15 @@
 # Day Clock — Session 3 verification
 
+**Repair follow-up, 10 November 2026:** the approved repair is implemented and
+**1.0.0.2029 is installed** with verified profile preservation. The fresh full suite
+passed **809 tests**, including 100 new repair cases. Both existing saved-event
+live Google read/reveals, manual refresh, shared Calendar and installed
+normal/maximized layout checks passed. New-event creation was not live-tested:
+the owner chose **Test existing events only**. Matching before/after evidence,
+exact identities and installed/live results are recorded separately in
+[DAY_CLOCK_REPAIR_VERIFICATION.md](DAY_CLOCK_REPAIR_VERIFICATION.md).
+The Session 3 results below remain historical and are not relabelled as repair results.
+
 9–10 November 2026, Asia/Calcutta. The owner approved deterministic fictional
 providers only. This report distinguishes production-code tests and host Flutter
 renders from actual Google, installed-app and assistive-technology acceptance.

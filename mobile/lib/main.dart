@@ -42,10 +42,16 @@ import 'application/focus_audio_ports.dart';
 import 'application/local_reset_participant.dart';
 import 'data/soloud_focus_audio_playback.dart';
 import 'data/mobile_focus_audio_playback.dart';
+import 'application/planner_controller.dart';
+import 'data/google_planner_writer.dart';
+import 'data/planner_time.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   LicenseRegistry.addLicense(() async* {
+    yield LicenseEntryWithLineBreaks([
+      'Unicode CLDR timezone mapping',
+    ], await rootBundle.loadString('assets/licenses/unicode-cldr.txt'));
     yield LicenseEntryWithLineBreaks([
       'Poma focus sound recordings',
     ], await rootBundle.loadString('assets/licenses/focus-sounds.txt'));
@@ -215,6 +221,16 @@ class _PomaLoaderState extends State<PomaLoader> {
       eventWriter.mutationAllowed = () => creation.ready && creation.busy;
       eventWriter.verifyTime = creation.verifyTime;
       _desktop!.attachCreation(creation);
+      final plannerWriter = GooglePlannerWriter(_connection!);
+      final planner = PlannerController(
+        app: controller,
+        reader: calendarData,
+        writer: plannerWriter,
+        time: PlannerTime(channel: _windowsHost!.channel),
+      );
+      plannerWriter.mutationAllowed = () =>
+          planner.unlocked && !controller.cleanupPending;
+      _desktop!.attachPlanner(planner);
       final reminderAdapter = WindowsCalendarReminders(_windowsHost!.channel);
       _desktop!.attachReminders(
         CalendarReminderController(

@@ -1,5 +1,48 @@
 # Day Clock — Session 1 plan
 
+## Current Windows planner contract, 11 November 2026
+
+The owner's Windows planner implementation request is the current product
+contract. Tasks, Calendar and Day Clock share one editor, navigation state,
+transactional task links and an account-bound synchronization queue. One Save
+validates and durably records the intended operation before Google delivery.
+
+Owned Google calendars support ordinary event management with the existing
+`calendar.events.owned` permission. Shared calendars remain viewable. Recurrence
+supports occurrence and entire-series changes. The dedicated focus-block writer
+and its ownership, time and journal checks remain independent.
+
+The current request supersedes the historical repeated-review requirement,
+future-only ordinary event creation, and seven-date planner browsing limit below.
+The resident tray and reminder horizon retains its separate upcoming range.
+Scheduled-task synchronization requires the new account preference. Existing
+creation authorization does not enable it automatically. Explicit local saves
+and retained drafts keep their local policy.
+
+The existing uncommitted repair forms the implementation baseline. Its
+height-aware dial and scrolling agenda are retained. The planning baseline was
+158 passing focused checks. Current implementation and acceptance evidence is
+recorded in [WINDOWS_PLANNER_VERIFICATION.md](WINDOWS_PLANNER_VERIFICATION.md).
+
+Installed measurements must record the outer window, DWM visible frame, actual
+client rectangle, window DPI, engine pixel ratio and text scale separately.
+Measure the actual client area after controls lay out and compare it with the
+rendered dial. Title-bar estimates cannot establish installed acceptance.
+
+The remaining sections retain their original dates and historical evidence.
+
+## Approved repair follow-up — 10 November 2026
+
+The owner approved [DAY_CLOCK_REPAIR_PLAN.md](DAY_CLOCK_REPAIR_PLAN.md). Its source
+implementation, responsive visual review and deterministic verification are complete:
+809 passing Flutter tests, clean analysis, 331 native assertions and a configured,
+validly signed Windows **1.0.0.2029** package. The owner subsequently authorized
+installation and sync testing. The upgrade, profile preservation, installed layout,
+both existing-event live Google read/reveals and manual refresh passed. The owner
+chose **Test existing events only**; new-event creation was not live-tested and no
+Google event was created, edited or deleted. Fresh evidence and exact identities
+are in [DAY_CLOCK_REPAIR_VERIFICATION.md](DAY_CLOCK_REPAIR_VERIFICATION.md).
+
 ## Approved Session 3 completion — 9 November 2026
 
 Implement the owner-approved final refinement and deterministic verification

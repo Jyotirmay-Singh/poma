@@ -146,7 +146,7 @@ class GoogleCalendarReader
           'maxResults': '2500',
           'maxAttendees': '1',
           'fields':
-              'nextPageToken,items(id,status,summary,start,end,colorId,eventLabelId,recurringEventId,originalStartTime,attendees(self,responseStatus),hangoutLink,conferenceData(entryPoints(entryPointType,uri)),htmlLink,location,description)',
+              'nextPageToken,items(id,etag,updated,status,summary,start,end,colorId,eventLabelId,transparency,eventType,locked,organizer(self),guestsCanModify,attendeesOmitted,extendedProperties(private),recurringEventId,originalStartTime,attendees(self,responseStatus),hangoutLink,conferenceData(entryPoints(entryPointType,uri)),htmlLink,location,description)',
         },
         epoch,
         (item) {
@@ -212,6 +212,20 @@ class GoogleCalendarReader
       'eventUrl': map['htmlLink'],
       'colorId': map['colorId'],
       'eventLabelId': map['eventLabelId'],
+      'etag': map['etag'],
+      'updatedUtc': map['updated'],
+      'transparency': map['transparency'] ?? 'opaque',
+      'eventType': map['eventType'] ?? 'default',
+      'locked': map['locked'] == true,
+      'organizerSelf': (map['organizer'] as Map?)?['self'] == true,
+      'guestsCanModify': map['guestsCanModify'] == true,
+      'hasGuests':
+          map['attendeesOmitted'] == true ||
+          (map['attendees'] as List? ?? []).isNotEmpty,
+      'focusOwned':
+          ((map['extendedProperties'] as Map?)?['private']
+              as Map?)?['pomaOwner'] ==
+          'poma.windows',
     });
   }
 

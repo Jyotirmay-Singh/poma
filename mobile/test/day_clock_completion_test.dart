@@ -49,7 +49,24 @@ void main() {
       await tester.ensureVisible(dial);
       await tester.pumpAndSettle();
       final rect = tester.getRect(dial);
-      await tester.tapAt(rect.center + Offset(rect.width * .28, 0));
+      final paint =
+          tester
+                  .widgetList<CustomPaint>(
+                    find.descendant(
+                      of: dial,
+                      matching: find.byType(CustomPaint),
+                    ),
+                  )
+                  .firstWhere((w) => w.painter is DayClockPainter)
+                  .painter!
+              as DayClockPainter;
+      await tester.tapAt(
+        rect.center +
+            Offset(
+              (paint.geometry.hubRadius + paint.geometry.outerRadius) / 2,
+              0,
+            ),
+      );
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('day-clock-task-form')), findsOneWidget);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
@@ -295,17 +312,33 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Planning').last);
       await tester.pumpAndSettle();
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('day-clock-show-after-saving')),
+      );
+      await tester.tap(
+        find.byKey(const ValueKey('day-clock-show-after-saving')),
+      );
+      await tester.pumpAndSettle();
       await checkTask(tester);
       r.google.failList = true;
       await saveTask(tester);
       expect(find.text('Saved to Google Calendar'), findsOneWidget);
-      expect(find.textContaining('Its calendar is hidden'), findsOneWidget);
-      expect(find.text('Show calendar'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('day-clock-task-form')),
+          matching: find.textContaining('Its calendar is hidden'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('day-clock-saved-show')),
+        findsOneWidget,
+      );
       expect(r.reader.selected, {'synthetic-primary'});
       await creation.capture(tester, 'saved-hidden-refresh-failed');
       r.google.failList = false;
       await tester.runAsync(() async {
-        await tester.tap(find.text('Show calendar'));
+        await tester.tap(find.byKey(const ValueKey('day-clock-saved-show')));
         await reads.settleCalendar();
       });
       await tester.pumpAndSettle();

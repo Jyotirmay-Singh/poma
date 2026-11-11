@@ -155,6 +155,7 @@ class CreationGoogle {
   bool loseResponse = false, omitCommit = false, failList = false, deny = false;
   bool destinationOwned = true;
   bool destinationMissing = false;
+  String? missingCatalogCalendar;
   bool gone = false;
   Completer<void>? postGate, listGate, getGate;
   void Function()? afterCommit;
@@ -200,7 +201,7 @@ class CreationGoogle {
             'accessRole': 'writer',
             'timeZone': 'Asia/Kolkata',
           },
-        ],
+        ].where((item) => item['id'] != missingCatalogCalendar).toList(),
       });
     }
     if (parts.contains('calendarList')) {
@@ -325,6 +326,7 @@ class CreationRig {
 }
 
 Future<CreationRig> creationRig({
+  reads.TestCalendarClock? calendarClock,
   CreationMemory? store,
   CreationGoogle? google,
   bool focus = false,
@@ -332,10 +334,12 @@ Future<CreationRig> creationRig({
   GoogleCalendarAuthorization? writeAuthorization,
 }) async {
   tz_data.initializeTimeZones();
-  final clock = reads.TestCalendarClock(
-    time: DateTime.utc(2026, 11, 9, 12),
-    location: 'Asia/Kolkata',
-  );
+  final clock =
+      calendarClock ??
+      reads.TestCalendarClock(
+        time: DateTime.utc(2026, 11, 9, 12),
+        location: 'Asia/Kolkata',
+      );
   final disk = AtomicMemory()
     ..value = CalendarCredential(
       clientId: f.configured.clientId,

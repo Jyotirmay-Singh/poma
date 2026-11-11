@@ -12,6 +12,7 @@ import 'desktop_scope.dart';
 import 'calendar_screen.dart';
 import 'design_tokens.dart';
 import 'day_clock_screen.dart';
+import 'planner_editor.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({required this.controller, super.key});
@@ -32,6 +33,37 @@ class _AppShellState extends State<AppShell> {
     setState(() => _tab = tab);
   }
 
+  void _requestNewTask() {
+    if (ModalRoute.of(context)?.isCurrent == false ||
+        FocusManager.instance.primaryFocus?.context
+                ?.findAncestorStateOfType<EditableTextState>() !=
+            null) {
+      return;
+    }
+    DesktopScope.maybeOf(context)?.requestNewTask();
+  }
+
+  Widget _desktopShortcuts(Widget child) => CallbackShortcuts(
+    bindings: {
+      for (var i = 0; i < desktopDestinationOrder.length; i++)
+        SingleActivator(
+          [
+            LogicalKeyboardKey.digit1,
+            LogicalKeyboardKey.digit2,
+            LogicalKeyboardKey.digit3,
+            LogicalKeyboardKey.digit4,
+            LogicalKeyboardKey.digit5,
+            LogicalKeyboardKey.digit6,
+          ][i],
+          control: true,
+        ): () =>
+            _goTo(desktopDestinationOrder[i]),
+      const SingleActivator(LogicalKeyboardKey.keyN, control: true):
+          _requestNewTask,
+    },
+    child: child,
+  );
+
   @override
   Widget build(BuildContext context) {
     final controller = widget.controller;
@@ -44,7 +76,18 @@ class _AppShellState extends State<AppShell> {
     if (desktop != null && _seenNewTask != desktop.newTaskRevision) {
       _seenNewTask = desktop.newTaskRevision;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) showNewTaskDialog(context, controller);
+        if (mounted && ModalRoute.of(context)?.isCurrent != false) {
+          if (desktop.planner != null &&
+              (desktop.destination == 4 || desktop.destination == 5)) {
+            showPlannerEditor(
+              context,
+              desktop.planner!,
+              startUtc: desktop.planner!.inspectedUtc,
+            );
+          } else {
+            showNewTaskDialog(context, controller);
+          }
+        }
       });
     }
     if (_seenAlertOpenRevision != controller.alertOpenRevision) {
@@ -82,25 +125,8 @@ class _AppShellState extends State<AppShell> {
       final extended =
           MediaQuery.sizeOf(context).width >= PomaLayout.extendedRail &&
           MediaQuery.textScalerOf(context).scale(1) < 1.5;
-      return CallbackShortcuts(
-        bindings: {
-          for (var i = 0; i < desktopDestinationOrder.length; i++)
-            SingleActivator(
-              [
-                LogicalKeyboardKey.digit1,
-                LogicalKeyboardKey.digit2,
-                LogicalKeyboardKey.digit3,
-                LogicalKeyboardKey.digit4,
-                LogicalKeyboardKey.digit5,
-                LogicalKeyboardKey.digit6,
-              ][i],
-              control: true,
-            ): () =>
-                _goTo(desktopDestinationOrder[i]),
-          const SingleActivator(LogicalKeyboardKey.keyN, control: true):
-              desktop.requestNewTask,
-        },
-        child: Scaffold(
+      return _desktopShortcuts(
+        Scaffold(
           body: Row(
             children: [
               Material(
@@ -160,7 +186,7 @@ class _AppShellState extends State<AppShell> {
         ),
       );
     }
-    return Scaffold(
+    final compact = Scaffold(
       body: SafeArea(bottom: false, child: page),
       bottomNavigationBar: Material(
         color: Theme.of(context).colorScheme.surface,
@@ -251,6 +277,7 @@ class _AppShellState extends State<AppShell> {
         ),
       ),
     );
+    return desktop == null ? compact : _desktopShortcuts(compact);
   }
 }
 
