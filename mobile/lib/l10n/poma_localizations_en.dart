@@ -48,7 +48,7 @@ class PomaLocalizationsEn extends PomaLocalizations {
   String get soundRainDetail => 'Piano and rainfall';
 
   @override
-  String get soundOnlyFocus => 'Only during Focus';
+  String get soundOnlyFocus => 'Session audio plays during Focus';
 
   @override
   String get soundSelected => 'Selected';

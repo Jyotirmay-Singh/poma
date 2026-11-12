@@ -5,7 +5,6 @@ import '../application/app_controller.dart';
 import '../application/focus_audio_coordinator.dart';
 import '../application/focus_audio_ports.dart';
 import '../domain/focus_sound_preferences.dart';
-import '../domain/models.dart';
 import 'copy.dart';
 import 'design_tokens.dart';
 import 'desktop_scope.dart';
@@ -215,14 +214,12 @@ class _SoundChooserState extends State<_SoundChooser> {
           final timer = widget.controller.timer;
           final previewAllowed =
               state.availability == FocusAudioAvailability.available &&
-              !preferences.muted &&
               preferences.volume > 0 &&
               !state.routeBlocked &&
               !state.interrupted &&
               !state.suspended &&
               !state.canRetry &&
-              widget.controller.clockError == null &&
-              timer.phase == FocusPhase.focus;
+              widget.controller.clockError == null;
           final status = focusSoundStatus(
             copy,
             state,

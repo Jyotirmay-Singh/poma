@@ -35,14 +35,14 @@ String focusSoundStatus(
   if (state.availability == FocusAudioAvailability.unavailable) {
     return copy.soundUnavailable;
   }
-  if (p.muted) return copy.soundMuted;
-  if (p.volume == 0) return copy.soundZero;
   if (state.canRetry) return copy.soundFailed;
   if (state.previewSound case final sound?) {
     return state.transport == FocusAudioTransport.loading
         ? copy.soundLoadingPreview
         : copy.soundPreviewing(focusSoundName(copy, sound));
   }
+  if (p.volume == 0) return copy.soundZero;
+  if (p.muted) return copy.soundMuted;
   if (p.sound == FocusSoundId.off) return copy.soundOff;
   if (phase != FocusPhase.focus) return copy.soundBreak;
   if (state.routeBlocked) return copy.soundRoute;

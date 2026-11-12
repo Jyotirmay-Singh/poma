@@ -235,6 +235,51 @@ void main() {
       );
     },
   );
+  for (final desktop in [false, true]) {
+    testWidgets('explicit previews work on a muted break, desktop=$desktop', (
+      tester,
+    ) async {
+      const saved = FocusSoundPreferences(
+        sound: FocusSoundId.calmingRain,
+        volume: .23,
+        muted: true,
+      );
+      final f = await mount(tester, desktop: desktop, preferences: saved);
+      try {
+        await f.app.selectPhase(FocusPhase.shortBreak);
+        await frames(tester);
+        final revision = f.app.timer.revision;
+        await tap(tester, 'focus-sounds-open');
+        for (final sound in FocusSoundId.values.skip(1)) {
+          final key = 'sound-preview-${sound.name}';
+          expect(
+            tester.widget<TextButton>(find.byKey(Key(key))).onPressed,
+            isNotNull,
+          );
+          await tap(tester, key);
+          expect(f.player.active?.sound, sound);
+          expect(f.audio.preferences, saved);
+          expect(
+            tester
+                .widget<Text>(find.byKey(const Key('sound-chooser-status')))
+                .data,
+            startsWith('Previewing '),
+          );
+          await tap(tester, key);
+          expect(f.player.active, isNull);
+        }
+        await tap(tester, 'sound-close');
+        expect(f.app.timer.phase, FocusPhase.shortBreak);
+        expect(f.app.timer.status, RunStatus.ready);
+        expect(f.app.timer.revision, revision);
+        expect(f.app.sessions, isEmpty);
+        expect(f.audio.preferences, saved);
+      } finally {
+        mountedDesktop?.dispose();
+        mountedDesktop = null;
+      }
+    });
+  }
 
   testWidgets('preview retry replacement and close cancel playback', (
     tester,

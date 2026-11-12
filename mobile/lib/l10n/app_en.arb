@@ -13,7 +13,7 @@
   "soundOceanDetail": "Gentle waves",
   "soundBirdsDetail": "Birdsong",
   "soundRainDetail": "Piano and rainfall",
-  "soundOnlyFocus": "Only during Focus",
+  "soundOnlyFocus": "Session audio plays during Focus",
   "soundSelected": "Selected",
   "soundReady": "Selected for focus",
   "soundPlaying": "Playing",

@@ -355,8 +355,88 @@ void main() {
       expect(f.app.sessions, isEmpty);
     },
   );
+  for (final phase in FocusPhase.values) {
+    for (final muted in [false, true]) {
+      test(
+        'explicit previews audition every sound in ${phase.name}, muted=$muted',
+        () async {
+          final saved = FocusSoundPreferences(
+            sound: FocusSoundId.oceanWaves,
+            volume: .21,
+            muted: muted,
+          );
+          final f = await fixture(state: SavedState(focusSounds: saved));
+          await f.app.selectPhase(phase);
+          await f.settle();
+          final revision = f.app.timer.revision;
+          for (final sound in FocusSoundId.values.skip(1)) {
+            final token = await f.audio.preview(sound);
+            await f.settle();
+            expect(token, isNotNull);
+            expect(f.player.active?.sound, sound);
+            expect(f.player.gain, saved.volume);
+            expect(f.player.leases.last.preview, isTrue);
+            expect(
+              f.player.leases.last.deadlineMicros -
+                  f.clock.elapsed.inMicroseconds,
+              10000000,
+            );
+            expect(f.audio.preferences, saved);
+            expect(f.app.timer.phase, phase);
+            expect(f.app.timer.status, RunStatus.ready);
+            expect(f.app.timer.revision, revision);
+            expect(f.app.sessions, isEmpty);
+            await f.audio.dismissPreview(token!);
+            await f.settle();
+            expect(f.player.active, isNull);
+          }
+          await f.app.flush();
+          expect(f.repository.state.focusSounds, saved);
+        },
+      );
+    }
+  }
+
   test(
-    'ready and paused previews expire without starting a timer; breaks forbid preview',
+    'explicit previews follow volume changes and expire on a muted break',
+    () async {
+      final f = await fixture(
+        state: SavedState(
+          focusSounds: const FocusSoundPreferences(
+            sound: FocusSoundId.calmingRain,
+            muted: true,
+          ),
+        ),
+      );
+      await f.app.selectPhase(FocusPhase.shortBreak);
+      final token = await f.audio.preview(FocusSoundId.waterfall);
+      await f.settle();
+      expect(token, isNotNull);
+      f.audio.setVolume(.12);
+      expect(f.player.gain, .12);
+      f.audio.setVolume(0);
+      await f.settle();
+      expect(f.player.active, isNull);
+      expect(await f.audio.preview(FocusSoundId.waterfall), isNull);
+      f.audio.setVolume(.2);
+      await f.settle();
+      expect(f.player.active, isNull);
+      final replacement = await f.audio.preview(FocusSoundId.omChanting);
+      await f.settle();
+      expect(replacement, isNotNull);
+      f.scheduler.elapse(const Duration(seconds: 10));
+      await f.settle();
+      expect(f.player.active, isNull);
+      expect(f.audio.state.previewSound, isNull);
+      expect(f.audio.preferences.muted, isTrue);
+      expect(f.app.timer.phase, FocusPhase.shortBreak);
+      expect(f.app.timer.status, RunStatus.ready);
+      expect(f.app.sessions, isEmpty);
+    },
+  );
+
+  test(
+    'ready, paused and break previews expire without starting a timer',
     () async {
       final f = await fixture();
       final token = await f.audio.preview(FocusSoundId.waterfall);
@@ -375,8 +455,14 @@ void main() {
       expect(f.app.timer.status, RunStatus.paused);
       await f.app.skipTimer();
       await f.settle();
-      expect(await f.audio.preview(FocusSoundId.waterfall), isNull);
+      expect(await f.audio.preview(FocusSoundId.waterfall), isNotNull);
+      await f.settle();
+      expect(f.player.active?.sound, FocusSoundId.waterfall);
+      f.scheduler.elapse(const Duration(seconds: 10));
+      await f.settle();
       expect(f.player.active, isNull);
+      expect(f.app.timer.phase, FocusPhase.shortBreak);
+      expect(f.app.timer.status, RunStatus.ready);
     },
   );
   test(

@@ -175,7 +175,7 @@ abstract class PomaLocalizations {
   /// No description provided for @soundOnlyFocus.
   ///
   /// In en, this message translates to:
-  /// **'Only during Focus'**
+  /// **'Session audio plays during Focus'**
   String get soundOnlyFocus;
 
   /// No description provided for @soundSelected.

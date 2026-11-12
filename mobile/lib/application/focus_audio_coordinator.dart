@@ -95,16 +95,16 @@ class FocusAudioCoordinator extends ChangeNotifier
       _running &&
       _armedRun == _session!.snapshot.runId &&
       _armedSegment == _session!.snapshot.segment;
-  bool get _audible =>
+  bool get _canPreview =>
       playback.availability == FocusAudioAvailability.available &&
       !_closed &&
       !_quitting &&
       !_suspended &&
       !_interrupted &&
       !_routeBlocked &&
-      !_preferences.muted &&
       _preferences.volume > 0 &&
       _message == null;
+  bool get _audible => _canPreview && !_preferences.muted;
 
   void onSession(FocusAudioSessionEvent event) {
     if (_closed) return;
@@ -273,7 +273,7 @@ class FocusAudioCoordinator extends ChangeNotifier
       _request();
     } else if (wasZero) {
       unawaited(_refreshDesired());
-    } else if (_audible) {
+    } else if (_desired != null) {
       playback.setVolume(_preferences.volume);
     }
     _saveTimer?.cancel();
@@ -311,7 +311,7 @@ class FocusAudioCoordinator extends ChangeNotifier
   }
 
   Future<int?> preview(FocusSoundId sound) async {
-    if (_closed || _quitting || sound == FocusSoundId.off || !_audible) {
+    if (_closed || _quitting || sound == FocusSoundId.off || !_canPreview) {
       return null;
     }
     final restore = _previewSound != null
@@ -323,8 +323,7 @@ class FocusAudioCoordinator extends ChangeNotifier
     await _fresh();
     if (_closed ||
         generation != _generation ||
-        !_audible ||
-        _session?.snapshot.phase != FocusPhase.focus ||
+        !_canPreview ||
         _session?.reading == null) {
       return null;
     }
@@ -451,10 +450,10 @@ class FocusAudioCoordinator extends ChangeNotifier
     _notify();
   }
 
-  FocusSoundId? get _desired => !_audible
+  FocusSoundId? get _desired => !_canPreview
       ? null
       : _previewSound ??
-            (_armed && _preferences.sound != FocusSoundId.off
+            (_audible && _armed && _preferences.sound != FocusSoundId.off
                 ? _preferences.sound
                 : null);
   void _request() {
