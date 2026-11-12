@@ -63,16 +63,18 @@ def main():
          "bundled_notice_path": destination.relative_to(ROOT).as_posix(),
          "bundled_notice_sha256": hashlib.sha256(destination.read_bytes()).hexdigest()}, indent=2) + "\n")
     original = ROOT / "docs/focus-sounds/license-evidence/CC0-1.0-legalcode.txt"
-    credits = ["Poma focus sounds — prepared draft recordings (listening approval pending).",
-               "All recordings: CC0 1.0 Universal; https://creativecommons.org/publicdomain/zero/1.0/",
+    credits = ["Poma focus sounds",
+               "License information is listed with each recording.",
                "Edited for loop preparation and level; no endorsement is implied.", ""]
-    provenance = json.loads((ROOT / "docs/focus-sounds/ASSET_PROVENANCE.json").read_text())
-    selected = {a["candidate_id"] for a in provenance["prepared_assets"] if "final_asset_path" in a}
-    for candidate in provenance["candidates"]:
-        if candidate["candidate_id"] in selected:
-            credits += [candidate["category"] + " — " + candidate["creator"], candidate["source_url"], ""]
-    (ROOT / "mobile/assets/licenses/focus-sounds.txt").write_text("\n".join(credits) + "\n" + original.read_text(), encoding="utf-8")
-    print(f"Retained {len(records)} audio runtime notice sources and four CC0 recording credits")
+    provenance = json.loads((ROOT / "docs/focus-sounds/ASSET_PROVENANCE.json").read_text(encoding="utf-8"))
+    candidates = {candidate["candidate_id"]: candidate for candidate in provenance["candidates"]}
+    selected = [asset for asset in provenance["prepared_assets"] if "final_asset_path" in asset]
+    for asset in selected:
+        source = asset.get("source") or candidates[asset["candidate_id"]]
+        credits += [source["category"] + " — " + source["creator"], source["source_url"],
+                    source["license"], ""]
+    (ROOT / "mobile/assets/licenses/focus-sounds.txt").write_text("\n".join(credits) + "\n" + original.read_text(encoding="utf-8"), encoding="utf-8")
+    print(f"Retained {len(records)} audio runtime notice sources and {len(selected)} recording credits")
 
 
 if __name__ == "__main__":

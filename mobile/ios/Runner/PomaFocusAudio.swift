@@ -24,8 +24,14 @@ final class PomaFocusAudioBridge {
   private var title = "Focus sounds"
   private var preview = false
   private var route = ""
-  private static let assets = ["", "tibetan_bells.ogg", "waterfall.ogg", "ocean_waves.ogg", "forest_birds.ogg"]
-  private static let titles = ["", "Tibetan bells", "Waterfall", "Ocean waves", "Forest birds"]
+  private static let assets = [
+    "", "tibetan_bells.ogg", "waterfall.ogg", "ocean_waves.ogg",
+    "forest_birds.ogg", "calming_rain.ogg", "om_chanting.ogg"
+  ]
+  private static let titles = [
+    "", "Tibetan bells", "Waterfall", "Ocean waves",
+    "Forest birds", "Calming rain", "OM chanting"
+  ]
   private final class Preparation {
     let owner, generation, epoch, deadline: Int64
     let sound: Int
@@ -92,7 +98,7 @@ final class PomaFocusAudioBridge {
       updateMedia(); result(nil)
     case "prepare":
       let request = Preparation(args, result)
-      guard pending == nil, (1...4).contains(request.sound), request.current else {
+      guard pending == nil, (1..<Self.assets.count).contains(request.sound), request.current else {
         result(FlutterError(code: "cancelled", message: "Sound request expired.", details: nil)); return
       }
       pending = request

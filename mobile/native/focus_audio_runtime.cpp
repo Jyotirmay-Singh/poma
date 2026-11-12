@@ -189,7 +189,7 @@ int64_t pomaMobileOpen() {
 int64_t pomaMobilePrepare(int64_t owner, int64_t generation, int64_t epoch,
     int64_t startup_deadline, int sound, const unsigned char* bytes, int length) {
   auto& s = State(); std::lock_guard<std::mutex> lock(s.mutex);
-  if (!bytes || length < 1 || length > 4 * 1024 * 1024 || sound < 1 || sound > 4 ||
+  if (!bytes || length < 1 || length > 4 * 1024 * 1024 || sound < 1 || sound > 6 ||
       !s.Valid(owner, generation, epoch, startup_deadline)) return 0;
   s.Clear();
   s.Dispose();
@@ -206,7 +206,7 @@ int64_t pomaMobilePrepare(int64_t owner, int64_t generation, int64_t epoch,
   std::string name = "poma-focus-" + std::to_string(owner) + "-" + std::to_string(++s.serial);
   // The pinned stream-mode loadMem takes ownership of its caller's allocation.
   // Decode mode copies instead; never transfer a std::vector/JVM/Swift buffer.
-  // Only one bundled recording is decoded (largest draft: ~34 MiB PCM).
+  // One bundled recording is decoded at a time.
   if (s.api.load(&name[0], s.encoded.data(), length, 1, &s.hash) != 0 ||
       !s.Valid(owner, generation, epoch, startup_deadline)) { s.Clear(); return 0; }
   s.source = s.serial;

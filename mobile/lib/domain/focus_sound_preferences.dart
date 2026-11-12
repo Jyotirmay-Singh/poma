@@ -1,4 +1,12 @@
-enum FocusSoundId { off, tibetanBells, waterfall, oceanWaves, forestBirds }
+enum FocusSoundId {
+  off,
+  tibetanBells,
+  waterfall,
+  oceanWaves,
+  forestBirds,
+  calmingRain,
+  omChanting,
+}
 
 /// Saved choices only. Playback authorization is deliberately never serialized.
 class FocusSoundPreferences {

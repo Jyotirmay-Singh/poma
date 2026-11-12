@@ -134,12 +134,30 @@ About → View licenses. Both families are packaged offline; Windows loads its
 font resources privately in the Poma process.
 ## Focus sound recordings and native audio runtime
 
-The feature branch bundles four prepared CC0 1.0 recording drafts: Tibetan Bowl
-Struck #1 by Joseph SARDIN, Small Waterfall #2 by gamin, Beach: Small Waves by
-DenisChardonnet, and Forest #3 by Pierre SIBANARCO, acquired from BigSoundBank.
-Source URLs, exact license evidence, edits and file hashes are retained in
-`docs/focus-sounds/ASSET_PROVENANCE.json`. Listening approval remains pending.
-CC0 permits editing and redistribution in apps; creator credits are voluntary.
+Tibetan bells uses the user-selected 4–63 second excerpt from Aurabowls'
+Tibetan Singing Bowl Sound Bath, with a one-second wrap crossfade producing a
+58-second repeating cycle. Copyright is retained by Aurabowls. App redistribution
+permission is unverified. https://www.youtube.com/watch?v=6Kj-ye-aYBA
+
+Calming rain uses the user-selected 3–110 second excerpt of the piano and rain
+recording uploaded by Nhạc Thiền & Ngủ. A one-second wrap crossfade produces a
+106-second repeating cycle. The source license and app redistribution permission
+are unverified. https://www.youtube.com/watch?v=oYIQN6qvQOU
+
+OM chanting uses the user-selected 10–35 second excerpt of DailyDivine's
+15 Minutes OM Meditation. Music and singing are credited to Naren. A one-second
+wrap crossfade produces a 24-second repeating cycle. Copyright DailyDivine.
+App redistribution permission is unverified. https://www.youtube.com/watch?v=JEoxUG898qY
+
+Forest birds uses the user-selected 0–16 second excerpt of Scenic Scenes'
+Forest In 4K. A one-second wrap crossfade produces a 15-second repeating cycle.
+The audio reuse license and app redistribution permission are unverified.
+[Source recording](https://www.youtube.com/watch?v=eNUpTV9BGac)
+
+The waterfall and ocean waves recordings are CC0 1.0 and were acquired from
+BigSoundBank. They are Small Waterfall #2 by gamin and Beach: Small Waves by
+DenisChardonnet. Source URLs, license evidence, edits and file hashes are retained
+in `docs/focus-sounds/ASSET_PROVENANCE.json`.
 
 The selected playback dependency is flutter_soloud **4.1.7** (MIT wrapper), with
 the SoLoud engine (zlib/libpng), miniaudio/dr_libs, Signalsmith, PFFFT/FFTPACK and

@@ -9,6 +9,16 @@ import 'support.dart';
 
 void main() {
   setUpAll(sqfliteFfiInit);
+  test('added sounds retain native IDs and round trip saved preferences', () {
+    expect(FocusSoundId.calmingRain.index, 5);
+    expect(FocusSoundId.omChanting.index, 6);
+    for (final sound in [FocusSoundId.calmingRain, FocusSoundId.omChanting]) {
+      final preferences = FocusSoundPreferences(sound: sound, volume: .19);
+      expect(FocusSoundPreferences.fromJson(preferences.toJson()), preferences);
+    }
+    expect(FocusSoundId.forestBirds.index, 4);
+    expect(FocusSoundId.tibetanBells.index, 1);
+  });
   test(
     'audio preferences validate finite values and retain mute and exact zero',
     () {

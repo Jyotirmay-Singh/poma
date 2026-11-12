@@ -426,6 +426,8 @@ class _SoundChooserState extends State<_SoundChooser> {
       FocusSoundId.waterfall => copy.soundWaterfallDetail,
       FocusSoundId.oceanWaves => copy.soundOceanDetail,
       FocusSoundId.forestBirds => copy.soundBirdsDetail,
+      FocusSoundId.calmingRain => copy.soundRainDetail,
+      FocusSoundId.omChanting => null,
     };
     final icon = switch (sound) {
       FocusSoundId.off => Icons.volume_off_outlined,
@@ -433,6 +435,8 @@ class _SoundChooserState extends State<_SoundChooser> {
       FocusSoundId.waterfall => Icons.water_drop_outlined,
       FocusSoundId.oceanWaves => Icons.waves_outlined,
       FocusSoundId.forestBirds => Icons.forest_outlined,
+      FocusSoundId.calmingRain => Icons.grain,
+      FocusSoundId.omChanting => Icons.self_improvement,
     };
     return Material(
       key: _keys[sound],

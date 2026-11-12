@@ -103,7 +103,7 @@ class PomaAudioBridge(private val context: Context, messenger: BinaryMessenger) 
     private fun current(p: Pending) = !closed && PomaAudioPolicy.current(p.owner, p.generation, p.epoch,
         p.deadline, PomaAudioNative.owner(), PomaAudioNative.generation(), PomaAudioNative.epoch(), PomaAudioNative.now())
     private fun begin(p: Pending) {
-        if (closed || p.sound !in 1..4 || !current(p) || pending != null) {
+        if (closed || p.sound !in 1 until PomaAudioPolicy.assets.size || !current(p) || pending != null) {
             p.result.error("cancelled", "Sound request is no longer current.", null); return
         }
         pending = p

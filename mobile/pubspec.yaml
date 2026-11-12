@@ -89,6 +89,8 @@ flutter:
     - assets/audio/waterfall.ogg
     - assets/audio/ocean_waves.ogg
     - assets/audio/forest_birds.ogg
+    - assets/audio/calming_rain.ogg
+    - assets/audio/om_chanting.ogg
 
   fonts:
     - family: Sora

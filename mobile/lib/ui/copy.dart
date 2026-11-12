@@ -21,6 +21,8 @@ String focusSoundName(PomaLocalizations copy, FocusSoundId sound) =>
       FocusSoundId.waterfall => copy.soundWaterfall,
       FocusSoundId.oceanWaves => copy.soundOcean,
       FocusSoundId.forestBirds => copy.soundBirds,
+      FocusSoundId.calmingRain => copy.soundRain,
+      FocusSoundId.omChanting => copy.soundOm,
     };
 
 String focusSoundStatus(

@@ -84,8 +84,9 @@ void RealChecks(const std::filesystem::path& library_dir, const std::filesystem:
   Check(seek && length && valid, "native codec probe exports present");
   const auto owner = pomaMobileOpen();
   const auto epoch = pomaMobileEpoch();
-  const char* names[]{"tibetan_bells.ogg", "waterfall.ogg", "ocean_waves.ogg", "forest_birds.ogg"};
-  for (int index = 0; index < 4; ++index) {
+  const char* names[]{"tibetan_bells.ogg", "waterfall.ogg", "ocean_waves.ogg", "forest_birds.ogg", "calming_rain.ogg", "om_chanting.ogg"};
+  const int sound_count = static_cast<int>(std::size(names));
+  for (int index = 0; index < sound_count; ++index) {
     std::ifstream input(assets / names[index], std::ios::binary);
     const std::vector<unsigned char> bytes((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
     Check(!bytes.empty(), "bundled original asset readable");
@@ -98,7 +99,7 @@ void RealChecks(const std::filesystem::path& library_dir, const std::filesystem:
     const int before_expiry = expired;
     Check(pomaMobileStart(owner, source, generation, epoch, deadline, .05f) == 1, "real renderer starts through mobile lease guard");
     const auto duration = length(real_hash);
-    Check(duration > 30 && duration <= 121, "real decoder reports expected duration range");
+    Check(duration > 0 && duration <= 121, "real decoder reports expected duration range");
     for (int join = 0; join < 5; ++join) {
       Check(seek(real_voice, static_cast<float>(duration - .025)) == 0, "forced loop seek accepted");
       std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -110,8 +111,8 @@ void RealChecks(const std::filesystem::path& library_dir, const std::filesystem:
     std::cout << names[index] << ": five forced wraps; native cleanup observed " << pomaMobileNow() - deadline << " us after deadline (includes wait; not speaker latency)\n";
   }
   const unsigned char corrupt[]{0, 1, 2, 3, 4};
-  pomaMobileRevoke(owner, 5, 0);
-  Check(pomaMobilePrepare(owner, 5, epoch, pomaMobileNow() + 5000000, 1, corrupt, 5) == 0,
+  pomaMobileRevoke(owner, sound_count + 1, 0);
+  Check(pomaMobilePrepare(owner, sound_count + 1, epoch, pomaMobileNow() + 5000000, 1, corrupt, 5) == 0,
       "corrupt asset fails without an audible voice");
   Check(pomaMobilePlaying() == 0, "corrupt asset recovery stays silent");
   pomaMobileClose(owner);

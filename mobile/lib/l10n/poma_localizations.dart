@@ -130,6 +130,18 @@ abstract class PomaLocalizations {
   /// **'Forest birds'**
   String get soundBirds;
 
+  /// No description provided for @soundRain.
+  ///
+  /// In en, this message translates to:
+  /// **'Calming rain'**
+  String get soundRain;
+
+  /// No description provided for @soundOm.
+  ///
+  /// In en, this message translates to:
+  /// **'OM chanting'**
+  String get soundOm;
+
   /// No description provided for @soundBellsDetail.
   ///
   /// In en, this message translates to:
@@ -153,6 +165,12 @@ abstract class PomaLocalizations {
   /// In en, this message translates to:
   /// **'Birdsong'**
   String get soundBirdsDetail;
+
+  /// No description provided for @soundRainDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Piano and rainfall'**
+  String get soundRainDetail;
 
   /// No description provided for @soundOnlyFocus.
   ///

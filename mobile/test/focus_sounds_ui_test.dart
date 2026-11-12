@@ -182,6 +182,32 @@ void main() {
     },
   );
 
+  for (final sound in [FocusSoundId.calmingRain, FocusSoundId.omChanting]) {
+    testWidgets(
+      '${sound.name} can be selected and previewed from the chooser',
+      (tester) async {
+        final f = await mount(tester);
+        final revision = f.app.timer.revision;
+        await tap(tester, 'focus-sounds-open');
+        await tap(tester, 'sound-select-${sound.name}');
+        expect(f.audio.preferences.sound, sound);
+        expect(f.player.prepared, isEmpty);
+        await f.app.flush();
+        expect(f.repository.state.focusSounds!.sound, sound);
+        await tap(tester, 'sound-preview-${sound.name}');
+        expect(f.audio.state.previewSound, sound);
+        expect(f.player.active?.sound, sound);
+        expect(f.app.timer.revision, revision);
+        expect(f.repository.state.sessions, isEmpty);
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await frames(tester);
+        expect(f.audio.state.previewSound, isNull);
+        expect(f.player.active, isNull);
+        expect(f.audio.preferences.sound, sound);
+      },
+    );
+  }
+
   testWidgets(
     'strict timer stays locked while real sound mute and pause work',
     (tester) async {

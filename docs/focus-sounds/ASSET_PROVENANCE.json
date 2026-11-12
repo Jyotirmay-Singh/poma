@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "Eight prepared comparisons; four bundled draft candidates; listening pending",
+  "status": "Six bundled sounds including user-selected Tibetan bowls, Forest birds, Calming rain and OM chanting",
   "candidates": [
     {
       "candidate_id": "bells-1110",
@@ -379,8 +379,8 @@
       },
       "listening_acceptance": "Pending",
       "backend_acceptance": "Pending",
-      "final_asset_path": "mobile/assets/audio/tibetan_bells.ogg",
-      "selection_reason": "Provisional plan-first candidate; not a listening preference"
+      "selection_reason": "Provisional plan-first candidate; not a listening preference",
+      "superseded_by": "aurabowls-6Kj-ye-aYBA"
     },
     {
       "candidate_id": "bells-2553",
@@ -625,8 +625,8 @@
       },
       "listening_acceptance": "Pending",
       "backend_acceptance": "Pending",
-      "final_asset_path": "mobile/assets/audio/forest_birds.ogg",
-      "selection_reason": "Accessible original CC0 forest alternative; Freesound original requires login. Not a listening preference"
+      "selection_reason": "Accessible original CC0 forest alternative; Freesound original requires login. Not a listening preference",
+      "superseded_by": "forest-birds-eNUpTV9BGac"
     },
     {
       "candidate_id": "forest-2749",
@@ -667,6 +667,259 @@
       },
       "listening_acceptance": "Pending",
       "backend_acceptance": "Pending"
+    },
+    {
+      "candidate_id": "aurabowls-6Kj-ye-aYBA",
+      "status": "User-selected replacement; listening review pending",
+      "source": {
+        "category": "tibetanBells",
+        "creator": "Aurabowls",
+        "title": "PARASYMPATHETIC NERVOUS SYSTEM Activation | Tibetan Singing Bowl Sound Bath for Stress Relief",
+        "source_url": "https://www.youtube.com/watch?v=6Kj-ye-aYBA",
+        "creator_website": "https://www.aurabowls.com/",
+        "license": "Copyright retained by Aurabowls. App redistribution permission unverified.",
+        "original_path": "artifacts/focus-sounds/aurabowls-6Kj-ye-aYBA/source-0-65.webm",
+        "original_sha256": "585b409ffa0058e6172e62e30a111f5b63cf042cb3f3989cd45e5477bb13cdff",
+        "downloaded_range_seconds": {
+          "start": 0,
+          "end": 65
+        },
+        "excerpt_range_seconds": {
+          "start": 4,
+          "end": 63
+        },
+        "excerpt_duration_seconds": 59,
+        "excerpt_sha256": "1f3fa0cb1ca2883423811e912b690dc19c7c5f148a1957ec87cbb1c3eb1a5d65",
+        "selection": "User supplied the video and requested the 4–63 second section.",
+        "acquired_utc": "2026-11-12T05:34:51.900268+00:00"
+      },
+      "editing_steps": [
+        "Extract the source interval from 4 to 63 seconds; stereo 48 kHz.",
+        "Rotate the first second to the end and apply a one-second equal-power wrap crossfade; the repeating cycle is 58 seconds.",
+        "Apply constant gain toward -23 LUFS-I with a -3 dBTP ceiling, preserving bowl dynamics.",
+        "Encode Ogg Vorbis quality 4 and remove inherited metadata."
+      ],
+      "ffmpeg_filter_graph": "[0:a]asplit=2[a][b];[a]atrim=start=1,asetpts=PTS-STARTPTS[tail];[b]atrim=end=1,asetpts=PTS-STARTPTS[head];[tail][head]acrossfade=d=1:c1=qsin:c2=qsin[out]",
+      "normalization_filter": "volume=-9.120000dB",
+      "prepared_path": "artifacts/focus-sounds/aurabowls-6Kj-ye-aYBA/tibetan_bells.ogg",
+      "duration_seconds": 58.0,
+      "channels": 2,
+      "sample_rate_hz": 48000,
+      "codec": "vorbis",
+      "format": "ogg",
+      "bytes": 788446,
+      "sha256": "f8c4f489cdd065ea92811d6afb8d6240bb0d1c9758d4fa5280283baf6833ddeb",
+      "measured_loudness": {
+        "input_i": "-22.97",
+        "input_tp": "-12.67",
+        "input_lra": "7.20",
+        "input_thresh": "-33.01",
+        "output_i": "-21.89",
+        "output_tp": "-10.19",
+        "output_lra": "6.30",
+        "output_thresh": "-31.89",
+        "normalization_type": "dynamic",
+        "target_offset": "-1.11"
+      },
+      "seam_diagnostic": {
+        "max_boundary_sample_step": 0.0015204721130430698,
+        "sample_step_p99": 0.0065351203083992004,
+        "boundary_below_p99": true,
+        "interpretation": "Numeric click diagnostic only; listening is pending"
+      },
+      "listening_acceptance": "Pending",
+      "backend_acceptance": "Pending",
+      "final_asset_path": "mobile/assets/audio/tibetan_bells.ogg",
+      "selection_reason": "User requested this excerpt to replace the existing Tibetan bells recording."
+    },
+    {
+      "candidate_id": "calming-rain-oYIQN6qvQOU",
+      "status": "User-selected additional sound; listening review pending",
+      "source": {
+        "category": "calmingRain",
+        "creator": "Nhạc Thiền & Ngủ",
+        "title": "Nhạc Piano Nhẹ Nhàng Cùng Tiếng Mưa Rơi Sẽ Giúp Bạn Thư Giãn Giãm Stress Hiệu Quả",
+        "source_url": "https://www.youtube.com/watch?v=oYIQN6qvQOU",
+        "license": "License unspecified by the source. App redistribution permission unverified.",
+        "original_path": "artifacts/focus-sounds/calming-rain-oYIQN6qvQOU/source-0-112.webm",
+        "original_sha256": "a43ff53b77b71de5e874adb84d03b3cac7488849b827eb68b587e701cbf252e6",
+        "downloaded_range_seconds": {
+          "start": 0,
+          "end": 112
+        },
+        "excerpt_range_seconds": {
+          "start": 3,
+          "end": 110
+        },
+        "excerpt_duration_seconds": 107,
+        "excerpt_sha256": "76e45a91c26e3029f6c11bc49253568751df5226936ac7336ba87f2f693c9982",
+        "selection": "User requested this excerpt as an additional Calming rain sound.",
+        "acquired_utc": "2026-11-12T05:49:49.790559+00:00"
+      },
+      "editing_steps": [
+        "Extract the source interval from 3 to 110 seconds; stereo 48 kHz.",
+        "Rotate the first second to the end and apply a one-second equal-power wrap crossfade; the repeating cycle is 106 seconds.",
+        "Apply constant gain toward -23 LUFS-I with a -3 dBTP ceiling, preserving the source dynamics.",
+        "Encode Ogg Vorbis quality 4 and remove inherited metadata."
+      ],
+      "ffmpeg_filter_graph": "[0:a]asplit=2[a][b];[a]atrim=start=1,asetpts=PTS-STARTPTS[tail];[b]atrim=end=1,asetpts=PTS-STARTPTS[head];[tail][head]acrossfade=d=1:c1=qsin:c2=qsin[out]",
+      "normalization_filter": "volume=-2.860000dB",
+      "prepared_path": "artifacts/focus-sounds/calming-rain-oYIQN6qvQOU/calming_rain.ogg",
+      "duration_seconds": 106.0,
+      "channels": 2,
+      "sample_rate_hz": 48000,
+      "codec": "vorbis",
+      "format": "ogg",
+      "bytes": 1486717,
+      "sha256": "cdf5f7d6ddf07399cbaadb72e38cee7ca2f4530de1afc5fb0f2ef4aacdaccd4a",
+      "measured_loudness": {
+        "input_i": "-22.99",
+        "input_tp": "-8.69",
+        "input_lra": "4.00",
+        "input_thresh": "-33.17",
+        "output_i": "-22.36",
+        "output_tp": "-7.86",
+        "output_lra": "3.30",
+        "output_thresh": "-32.54",
+        "normalization_type": "dynamic",
+        "target_offset": "-0.64"
+      },
+      "seam_diagnostic": {
+        "max_boundary_sample_step": 0.0018411874771118164,
+        "sample_step_p99": 0.008598528802394867,
+        "boundary_below_p99": true,
+        "interpretation": "Numeric click diagnostic only; listening is pending"
+      },
+      "listening_acceptance": "Pending",
+      "backend_acceptance": "Windows real renderer decoded and played the packaged asset, completed five forced loop wraps, and retired playback at expiry",
+      "final_asset_path": "mobile/assets/audio/calming_rain.ogg",
+      "selection_reason": "User requested an additional Calming rain choice using this excerpt."
+    },
+    {
+      "candidate_id": "om-chanting-JEoxUG898qY",
+      "status": "User-selected additional sound; listening review pending",
+      "source": {
+        "category": "omChanting",
+        "creator": "DailyDivine",
+        "title": "15 Minutes OM Meditation",
+        "source_url": "https://www.youtube.com/watch?v=JEoxUG898qY",
+        "license": "Copyright DailyDivine. App redistribution permission unverified.",
+        "original_path": "artifacts/focus-sounds/om-chanting-JEoxUG898qY/source-0-37.webm",
+        "original_sha256": "fe25c1ce0e943a3acf055c4e384f503b6cad5304de3bba117677e14bc6e91287",
+        "downloaded_range_seconds": {
+          "start": 0,
+          "end": 37
+        },
+        "excerpt_range_seconds": {
+          "start": 10,
+          "end": 35
+        },
+        "excerpt_duration_seconds": 25,
+        "excerpt_sha256": "880e9549a88fbb9402c343b4a204ef07134c695f69f4142eb97dacb573b2365f",
+        "selection": "User requested this excerpt as an additional OM chanting sound.",
+        "acquired_utc": "2026-11-12T06:15:25.222890+00:00"
+      },
+      "editing_steps": [
+        "Extract the source interval from 10 to 35 seconds; 48 kHz; retain the source channel count.",
+        "Rotate the first second to the end and apply a one-second equal-power wrap crossfade; the repeating cycle is 24 seconds.",
+        "Apply constant gain toward -23 LUFS-I with a -3 dBTP ceiling, preserving the source dynamics.",
+        "Encode Ogg Vorbis quality 4 and remove inherited metadata."
+      ],
+      "ffmpeg_filter_graph": "[0:a]asplit=2[a][b];[a]atrim=start=1,asetpts=PTS-STARTPTS[tail];[b]atrim=end=1,asetpts=PTS-STARTPTS[head];[tail][head]acrossfade=d=1:c1=qsin:c2=qsin[out]",
+      "normalization_filter": "volume=-9.110000dB",
+      "prepared_path": "artifacts/focus-sounds/om-chanting-JEoxUG898qY/om_chanting.ogg",
+      "duration_seconds": 24.0,
+      "channels": 2,
+      "sample_rate_hz": 48000,
+      "codec": "vorbis",
+      "format": "ogg",
+      "bytes": 348506,
+      "sha256": "2b2c77ea8d0d2bfcb3000f8ed686dcdf36aab660f1caf91232fbb4d2d78b138a",
+      "measured_loudness": {
+        "input_i": "-22.98",
+        "input_tp": "-14.30",
+        "input_lra": "16.60",
+        "input_thresh": "-35.26",
+        "output_i": "-24.33",
+        "output_tp": "-13.74",
+        "output_lra": "11.50",
+        "output_thresh": "-34.90",
+        "normalization_type": "dynamic",
+        "target_offset": "1.33"
+      },
+      "seam_diagnostic": {
+        "max_boundary_sample_step": 0.0009857332333922386,
+        "sample_step_p99": 0.007387638092041016,
+        "boundary_below_p99": true,
+        "interpretation": "Numeric click diagnostic only; listening is pending"
+      },
+      "listening_acceptance": "Pending",
+      "backend_acceptance": "Windows real renderer decoded and played the packaged asset, completed five forced loop wraps, and retired playback at expiry",
+      "final_asset_path": "mobile/assets/audio/om_chanting.ogg",
+      "selection_reason": "User requested an additional OM chanting choice using this excerpt."
+    },
+    {
+      "candidate_id": "forest-birds-eNUpTV9BGac",
+      "status": "User-selected replacement; listening review pending",
+      "source": {
+        "category": "forestBirds",
+        "creator": "Scenic Scenes",
+        "title": "Forest In 4K - The Healing Power Of Nature Sounds | Forest Sounds | Scenic Relaxation Film",
+        "source_url": "https://www.youtube.com/watch?v=eNUpTV9BGac",
+        "license": "License unspecified by the source. App redistribution permission unverified.",
+        "original_path": "artifacts/focus-sounds/forest-birds-eNUpTV9BGac/source-0-18.webm",
+        "original_sha256": "d18275548018a64e48f6ff16a5233d060aec2b5228c99d7998645dbd67f97ab9",
+        "downloaded_range_seconds": {
+          "start": 0,
+          "end": 18
+        },
+        "excerpt_range_seconds": {
+          "start": 0,
+          "end": 16
+        },
+        "excerpt_duration_seconds": 16,
+        "excerpt_sha256": "6be6af7281fff6aeb690c178cfc903c09192c89f0400221f80f57f7919dff56d",
+        "selection": "User requested this excerpt to replace the Forest birds sound.",
+        "acquired_utc": "2026-11-12T06:31:18.413554+00:00"
+      },
+      "editing_steps": [
+        "Extract the source interval from 0 to 16 seconds; 48 kHz; retain the source channel count.",
+        "Rotate the first second to the end and apply a one-second equal-power wrap crossfade; the repeating cycle is 15 seconds.",
+        "Apply constant gain toward -23 LUFS-I with a -3 dBTP ceiling, preserving the source dynamics.",
+        "Encode Ogg Vorbis quality 4 and remove inherited metadata."
+      ],
+      "ffmpeg_filter_graph": "[0:a]asplit=2[a][b];[a]atrim=start=1,asetpts=PTS-STARTPTS[tail];[b]atrim=end=1,asetpts=PTS-STARTPTS[head];[tail][head]acrossfade=d=1:c1=qsin:c2=qsin[out]",
+      "normalization_filter": "volume=7.120000dB",
+      "prepared_path": "artifacts/focus-sounds/forest-birds-eNUpTV9BGac/forest_birds.ogg",
+      "duration_seconds": 15.0,
+      "channels": 2,
+      "sample_rate_hz": 48000,
+      "codec": "vorbis",
+      "format": "ogg",
+      "bytes": 239561,
+      "sha256": "df1dfdb870e26c57683ffd9669f03d7d4af720ef5ad301b861c0c93a98fa603e",
+      "measured_loudness": {
+        "input_i": "-23.28",
+        "input_tp": "-7.34",
+        "input_lra": "8.10",
+        "input_thresh": "-33.28",
+        "output_i": "-25.05",
+        "output_tp": "-10.27",
+        "output_lra": "5.90",
+        "output_thresh": "-35.05",
+        "normalization_type": "dynamic",
+        "target_offset": "2.05"
+      },
+      "seam_diagnostic": {
+        "max_boundary_sample_step": 0.008306649513542652,
+        "sample_step_p99": 0.04481792915612459,
+        "boundary_below_p99": true,
+        "interpretation": "Numeric click diagnostic only; listening is pending"
+      },
+      "listening_acceptance": "Pending",
+      "backend_acceptance": "Windows real renderer decoded and played the packaged asset, completed five forced loop wraps, and retired playback at expiry",
+      "final_asset_path": "mobile/assets/audio/forest_birds.ogg",
+      "selection_reason": "User requested this excerpt to replace the existing Forest birds recording."
     }
   ],
   "preparation_tool": "ffmpeg version 9.0.2-essentials_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers",

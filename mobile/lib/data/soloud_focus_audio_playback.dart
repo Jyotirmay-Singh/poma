@@ -34,6 +34,8 @@ class SoLoudFocusAudioPlayback implements FocusAudioPlaybackPort {
     FocusSoundId.waterfall: 'assets/audio/waterfall.ogg',
     FocusSoundId.oceanWaves: 'assets/audio/ocean_waves.ogg',
     FocusSoundId.forestBirds: 'assets/audio/forest_birds.ogg',
+    FocusSoundId.calmingRain: 'assets/audio/calming_rain.ogg',
+    FocusSoundId.omChanting: 'assets/audio/om_chanting.ogg',
   };
   Future<void> _initialize() async {
     await _teardown;

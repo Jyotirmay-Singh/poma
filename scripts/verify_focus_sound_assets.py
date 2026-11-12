@@ -16,13 +16,23 @@ def digest(path):
         return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
+def verify_retained_text(path, expected):
+    # Git uses LF here; acquisition on Windows may have hashed CRLF.
+    content = path.read_bytes().replace(b"\r\n", b"\n")
+    hashes = {
+        hashlib.sha256(content).hexdigest(),
+        hashlib.sha256(content.replace(b"\n", b"\r\n")).hexdigest(),
+    }
+    assert expected in hashes, path
+
+
 def versions(text):
     return {match[0]: re.search(r'^    version: "(.*?)"', match[1], re.M).group(1)
             for match in re.findall(r'^  (\w+):\n(.*?)(?=^  \w+:|^sdks:|\Z)', text, re.M | re.S)}
 
 
 def main():
-    data = json.loads((ROOT / "docs/focus-sounds/ASSET_PROVENANCE.json").read_text())
+    data = json.loads((ROOT / "docs/focus-sounds/ASSET_PROVENANCE.json").read_text(encoding="utf-8"))
     assert len(data["candidates"]) == 8
     categories = {}
     for candidate in data["candidates"]:
@@ -30,13 +40,21 @@ def main():
         assert candidate["license"] == "CC0-1.0"
         assert digest(ROOT / candidate["original_path"]) == candidate["original_sha256"]
         evidence = candidate["license_evidence"]
-        assert digest(ROOT / evidence["retained_text"]) == evidence["retained_text_sha256"]
+        verify_retained_text(ROOT / evidence["retained_text"], evidence["retained_text_sha256"])
         terms = candidate["provider_terms"]
-        assert digest(ROOT / terms["retained_text"]) == terms["retained_text_sha256"]
+        verify_retained_text(ROOT / terms["retained_text"], terms["retained_text_sha256"])
     assert all(count == 2 for count in categories.values()) and len(categories) == 4
     assets = [a for a in data["prepared_assets"] if "final_asset_path" in a]
-    assert len(assets) == 4
+    registered = {
+        "mobile/" + path for path in re.findall(
+            r"^\s*-\s+(assets/audio/\S+)", (ROOT / "mobile/pubspec.yaml").read_text(encoding="utf-8"), re.M)
+    }
+    assert {asset["final_asset_path"] for asset in assets} == registered
+    assert len(assets) == len(registered)
     for asset in assets:
+        if "source" in asset:
+            source = asset["source"]
+            assert digest(ROOT / source["original_path"]) == source["original_sha256"]
         path = ROOT / asset["final_asset_path"]
         assert digest(path) == asset["sha256"]
         assert path.stat().st_size == asset["bytes"]
@@ -50,7 +68,7 @@ def main():
     changed = {name: [version, current.get(name)] for name, version in old.items() if current.get(name) != version}
     assert not changed, changed
     result = {"original_candidates_verified": 8, "two_candidates_per_category": True,
-              "draft_asset_count": 4, "draft_asset_bytes": sum(a["bytes"] for a in assets),
+              "draft_asset_count": len(assets), "draft_asset_bytes": sum(a["bytes"] for a in assets),
               "preserved_existing_locked_packages": len(old), "changed_existing_packages": changed,
               "new_packages": {name: version for name, version in current.items() if name not in old},
               "listening": "Pending; numerical diagnostics do not certify audible quality"}
@@ -60,12 +78,12 @@ def main():
             target = bundle / "data/flutter_assets" / asset["final_asset_path"].removeprefix("mobile/")
             assert digest(target) == asset["sha256"], target
         audio_payload = list((bundle / "data/flutter_assets/assets/audio").iterdir())
-        assert len(audio_payload) == 4
+        assert len(audio_payload) == len(assets)
         for name in ("flutter_soloud_plugin", "ogg", "opus", "vorbis", "vorbisenc", "vorbisfile", "FLAC"):
             assert (bundle / (name + ".dll")).is_file(), name
         for name in ("focus-sounds.txt", "focus-audio-native.txt"):
             assert digest(bundle / "data/flutter_assets/assets/licenses" / name) == digest(ROOT / "mobile/assets/licenses" / name)
-        result["windows_release_payload"] = "Four exact draft hashes, both notices and seven audio DLLs verified"
+        result["windows_release_payload"] = f"{len(assets)} exact audio hashes, both notices and seven audio DLLs verified"
         apk = ROOT / "mobile/build/app/outputs/flutter-apk/app-debug.apk"
         if "--windows-only" not in sys.argv and apk.exists():
             assert apk.stat().st_mtime >= (ROOT / "mobile/pubspec.yaml").stat().st_mtime, "Build the current APK before claiming payload verification"
@@ -76,7 +94,7 @@ def main():
                 assert any("flutter_soloud" in name and name.endswith(".so") for name in archive.namelist())
                 for name in ("focus-sounds.txt", "focus-audio-native.txt"):
                     assert hashlib.sha256(archive.read("assets/flutter_assets/assets/licenses/" + name)).hexdigest() == digest(ROOT / "mobile/assets/licenses" / name)
-            result["android_debug_payload"] = {"result": "Four exact draft hashes, notices and audio native library verified", "bytes": apk.stat().st_size, "sha256": digest(apk)}
+            result["android_debug_payload"] = {"result": f"{len(assets)} exact audio hashes, notices and audio native library verified", "bytes": apk.stat().st_size, "sha256": digest(apk)}
     output = ROOT / "artifacts/focus-sounds/session-1/asset-verification.json"
     output.write_text(json.dumps(result, indent=2) + "\n")
     print(json.dumps(result, indent=2))

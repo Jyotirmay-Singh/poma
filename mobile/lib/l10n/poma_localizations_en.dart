@@ -27,6 +27,12 @@ class PomaLocalizationsEn extends PomaLocalizations {
   String get soundBirds => 'Forest birds';
 
   @override
+  String get soundRain => 'Calming rain';
+
+  @override
+  String get soundOm => 'OM chanting';
+
+  @override
   String get soundBellsDetail => 'Bowl tones';
 
   @override
@@ -37,6 +43,9 @@ class PomaLocalizationsEn extends PomaLocalizations {
 
   @override
   String get soundBirdsDetail => 'Birdsong';
+
+  @override
+  String get soundRainDetail => 'Piano and rainfall';
 
   @override
   String get soundOnlyFocus => 'Only during Focus';

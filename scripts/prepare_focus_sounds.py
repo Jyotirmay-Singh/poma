@@ -68,7 +68,12 @@ def main():
     comparison = WORK / "comparison"
     masters.mkdir(parents=True, exist_ok=True)
     comparison.mkdir(exist_ok=True)
-    prepared = []
+    prepared = [asset for asset in provenance.get("prepared_assets", []) if "source" in asset]
+    imported_paths = {asset["final_asset_path"] for asset in prepared if "final_asset_path" in asset}
+    choices = {
+        key: name for key, name in CHOICES.items()
+        if f"mobile/assets/audio/{name}.ogg" not in imported_paths
+    }
     for candidate in provenance["candidates"]:
         key = candidate["candidate_id"]
         original = ROOT / candidate["original_path"]
@@ -120,8 +125,8 @@ def main():
                   "prepared_path": encoded.relative_to(ROOT).as_posix(), **info,
                   "measured_loudness": measured, "seam_diagnostic": seam_measure(encoded),
                   "listening_acceptance": "Pending", "backend_acceptance": "Pending"}
-        if key in CHOICES:
-            output = ROOT / "mobile/assets/audio" / (CHOICES[key] + ".ogg")
+        if key in choices:
+            output = ROOT / "mobile/assets/audio" / (choices[key] + ".ogg")
             output.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(encoded, output)
             result["final_asset_path"] = output.relative_to(ROOT).as_posix()
@@ -129,7 +134,8 @@ def main():
                                           else "Accessible original CC0 forest alternative; Freesound original requires login. Not a listening preference")
         prepared.append(result)
         print(f"{key}: {info['duration_seconds']:.3f}s, {info['bytes']:,} bytes, {measured['input_i']} LUFS, {measured['input_tp']} dBTP", flush=True)
-    provenance["status"] = "Eight prepared comparisons; four bundled draft candidates; listening pending"
+    asset_count = sum("final_asset_path" in asset for asset in prepared)
+    provenance["status"] = f"Prepared comparisons and {asset_count} bundled sounds; listening pending"
     provenance["preparation_tool"] = run([FFMPEG, "-version"]).stdout.splitlines()[0]
     provenance["tool_archive"] = json.loads((TOOLS / "source.json").read_text())
     provenance["prepared_assets"] = prepared
