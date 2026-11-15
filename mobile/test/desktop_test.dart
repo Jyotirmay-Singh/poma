@@ -652,6 +652,8 @@ void main() {
     await tester.pumpWidget(PomaApp(controller: controller, desktop: desktop));
     desktop.navigate(2);
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('analytics-history-tab')));
+    await tester.pumpAndSettle();
     expect(find.byKey(const Key('desktop-history-table')), findsOneWidget);
     expect(tester.widget<DataTable>(find.byType(DataTable)).rows, hasLength(1));
     expect(tester.takeException(), isNull);

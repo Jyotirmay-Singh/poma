@@ -325,7 +325,7 @@ void main() {
     tester.platformDispatcher.textScaleFactorTestValue = 2;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     await mount(tester, size: const Size(320, 700));
-    for (final label in ['Tasks', 'Insights', 'Settings', 'Focus']) {
+    for (final label in ['Tasks', 'Analytics', 'Settings', 'Focus']) {
       await tester.tap(find.text(label).last);
       await tester.pumpAndSettle();
       expect(

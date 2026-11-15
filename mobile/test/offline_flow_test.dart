@@ -77,6 +77,11 @@ void main() {
       await tap(find.byKey(const Key('timer-toggle')));
       expect(app.timer.status, RunStatus.running);
       await tap(find.byKey(const Key('destination-2')));
+      await tester.runAsync(app.loadAnalytics);
+      await tester.pumpAndSettle();
+      expect(app.analytics!.today.count, 1);
+      expect(app.analytics!.thisWeek.count, 1);
+      await tap(find.byKey(const Key('analytics-history-tab')));
       await tester.runAsync(() => app.loadHistory());
       await tester.runAsync(app.loadSummaries);
       await tester.pumpAndSettle();
@@ -122,6 +127,21 @@ void main() {
       expect(app.timer.status, RunStatus.running);
       expect(app.lastPhaseCompletion, isNull);
       expect(alerts.permissionRequests, 0);
+      await tap(find.byKey(const Key('destination-2')));
+      await tester.runAsync(app.loadAnalytics);
+      await tester.pumpAndSettle();
+      expect(app.analytics!.today.count, 1);
+      await tap(find.byKey(const Key('analytics-history-tab')));
+      await tester.runAsync(app.loadHistory);
+      await tester.pumpAndSettle();
+      await tap(find.byKey(ValueKey('delete-session-$runId')));
+      await tap(find.widgetWithText(FilledButton, 'Delete'));
+      await tap(find.byKey(const Key('analytics-overview-tab')));
+      await tester.runAsync(app.loadAnalytics);
+      await tester.pumpAndSettle();
+      expect(app.analytics!.today.count, 0);
+      expect(app.analytics!.thisWeek.count, 0);
+      expect(app.timer.runId, breakId);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox());
     },

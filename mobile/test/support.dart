@@ -139,6 +139,21 @@ class MemoryRepository implements LocalRepository {
   }
 
   @override
+  Future<List<SessionTotals>> readSessionTotals(
+    List<SessionRange> ranges,
+  ) async => ranges.map((range) {
+    final sessions = state.sessions.where(
+      (session) =>
+          !session.endedAt.isBefore(range.startUtc) &&
+          session.endedAt.isBefore(range.endUtc),
+    );
+    return SessionTotals(
+      sessions.length,
+      sessions.fold(0, (sum, session) => sum + session.focusSeconds),
+    );
+  }).toList();
+
+  @override
   Future<List<DaySummary>> readDaySummaries(List<DayRange> days) async =>
       days.map((day) {
         final sessions = state.sessions.where(

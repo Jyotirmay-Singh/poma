@@ -14,6 +14,7 @@ import '../domain/models.dart';
 import '../domain/timer_engine.dart';
 import '../domain/desktop_preferences.dart';
 import '../domain/planner.dart';
+import '../domain/analytics.dart';
 
 enum PersistenceOutcome { notRequired, saved, failed }
 
@@ -283,6 +284,23 @@ class AppController extends ChangeNotifier {
   int _readEpoch = 0;
   int _summaryEpoch = 0;
   bool _insightsVisible = false;
+  bool _analyticsHistoryVisible = false;
+  bool get analyticsHistoryVisible => _analyticsHistoryVisible;
+  int _analyticsEpoch = 0;
+  bool _analyticsDirty = true;
+  AnalyticsPeriod _analyticsPeriod = AnalyticsPeriod.week;
+  AnalyticsPeriod get analyticsPeriod => _analyticsPeriod;
+  DateTime? _analyticsAnchor;
+  AnalyticsSnapshot? analytics;
+  bool analyticsLoading = false;
+  bool analyticsStale = false;
+  String? analyticsError;
+  AnalyticsQuery get analyticsQuery => AnalyticsQuery.forDate(
+    localNow,
+    period: _analyticsPeriod,
+    anchor: _analyticsAnchor,
+    boundaryUtc: (date) => _dayRange(date).startUtc,
+  );
   bool historyLoading = false;
   bool historyLoaded = false;
   String? historyError;
@@ -585,7 +603,7 @@ class AppController extends ChangeNotifier {
       if (forceAlerts ||
           dayChanged ||
           persistence == PersistenceOutcome.saved) {
-        _refreshReads();
+        _refreshReads(forceAnalytics: forceAlerts || dayChanged);
       }
       await _presentCommittedCompletions();
       return ReconciliationResult(
@@ -782,18 +800,23 @@ class AppController extends ChangeNotifier {
       desktopPreferences: _desktopPreferences,
       focusSounds: _focusSoundPreferences,
     );
-    _pending.add(
-      LocalChange(
-        state: state,
-        tasks: tasks,
-        deletedTasks: deletedTasks,
-        completions: completions,
-        deletedSessions: deletedSessions,
-        clearHistory: clearHistory,
-        reset: reset,
-        planner: planner,
-      ),
+    final change = LocalChange(
+      state: state,
+      tasks: tasks,
+      deletedTasks: deletedTasks,
+      completions: completions,
+      deletedSessions: deletedSessions,
+      clearHistory: clearHistory,
+      reset: reset,
+      planner: planner,
     );
+    _pending.add(change);
+    if (_changesHistory(change)) {
+      _analyticsDirty = true;
+      _analyticsEpoch++;
+      analyticsLoading = false;
+      analyticsStale = analytics != null;
+    }
     _readEpoch++;
     _summaryEpoch++;
     final result = _writes
@@ -858,13 +881,89 @@ class AppController extends ChangeNotifier {
     return result;
   }
 
-  void showInsights(bool visible) {
+  static bool _changesHistory(LocalChange change) =>
+      change.completions.isNotEmpty ||
+      change.deletedSessions.isNotEmpty ||
+      change.clearHistory ||
+      change.reset;
+
+  void showInsights(bool visible, {bool history = true}) {
     _insightsVisible = visible;
+    _analyticsHistoryVisible = visible && history;
     _readEpoch++;
+    _analyticsEpoch++;
     historyLoading = false;
+    analyticsLoading = false;
     if (visible) {
-      unawaited(loadHistory());
+      if (history) {
+        unawaited(loadHistory());
+      } else {
+        unawaited(loadAnalytics());
+      }
       unawaited(loadSummaries());
+    }
+  }
+
+  void showAnalyticsHistory(bool history) {
+    if (_analyticsHistoryVisible == history) return;
+    _analyticsHistoryVisible = history;
+    _readEpoch++;
+    _analyticsEpoch++;
+    historyLoading = false;
+    analyticsLoading = false;
+    if (history) {
+      unawaited(loadHistory());
+    } else {
+      unawaited(loadAnalytics());
+    }
+    _notify();
+  }
+
+  void setAnalyticsPeriod(AnalyticsPeriod period) {
+    if (_analyticsPeriod == period) return;
+    final date = _analyticsAnchor ?? localNow;
+    _analyticsPeriod = period;
+    final start = period.start(date);
+    _analyticsAnchor = start.isBefore(period.start(localNow)) ? start : null;
+    unawaited(loadAnalytics());
+  }
+
+  void moveAnalytics(int steps) {
+    final query = analyticsQuery;
+    final start = _analyticsPeriod.move(query.anchor, steps);
+    _analyticsAnchor = start.isBefore(_analyticsPeriod.start(localNow))
+        ? start
+        : null;
+    unawaited(loadAnalytics());
+  }
+
+  void resetAnalyticsPeriod() {
+    _analyticsAnchor = null;
+    unawaited(loadAnalytics());
+  }
+
+  Future<void> loadAnalytics() async {
+    if (_disposed) return;
+    final epoch = ++_analyticsEpoch;
+    final query = analyticsQuery;
+    analyticsLoading = true;
+    analyticsError = null;
+    _notify();
+    try {
+      final totals = await repository.readSessionTotals(query.ranges);
+      if (_disposed || epoch != _analyticsEpoch) return;
+      analytics = AnalyticsSnapshot(query, totals);
+      _analyticsDirty = _pending.any(_changesHistory);
+      analyticsStale = _analyticsDirty;
+    } catch (_) {
+      if (_disposed || epoch != _analyticsEpoch) return;
+      analyticsError = 'Analytics could not be read. Retry.';
+      analyticsStale = analytics != null;
+    } finally {
+      if (!_disposed && epoch == _analyticsEpoch) {
+        analyticsLoading = false;
+        _notify();
+      }
     }
   }
 
@@ -929,11 +1028,15 @@ class AppController extends ChangeNotifier {
     }
   }
 
-  void _refreshReads() {
+  void _refreshReads({bool forceAnalytics = false}) {
     if (_disposed) return;
     unawaited(loadSummaries());
     if (_insightsVisible) {
-      unawaited(loadHistory(before: _before, after: _after));
+      if (_analyticsHistoryVisible) {
+        unawaited(loadHistory(before: _before, after: _after));
+      } else if (_analyticsDirty || forceAnalytics) {
+        unawaited(loadAnalytics());
+      }
     }
   }
 
@@ -945,7 +1048,7 @@ class AppController extends ChangeNotifier {
       DateTime(now.year, now.month, now.day + 1).difference(now),
       () {
         _calendarUtc = DateTime.now().toUtc();
-        _refreshReads();
+        _refreshReads(forceAnalytics: true);
         _scheduleMidnight();
       },
     );
@@ -1014,6 +1117,13 @@ class AppController extends ChangeNotifier {
       historyPage = null;
       historyLoaded = false;
       summaries = null;
+      _analyticsEpoch++;
+      analytics = null;
+      analyticsError = null;
+      analyticsLoading = false;
+      analyticsStale = false;
+      _analyticsAnchor = null;
+      _analyticsPeriod = AnalyticsPeriod.week;
       _before = null;
       _after = null;
       _syncTicker();

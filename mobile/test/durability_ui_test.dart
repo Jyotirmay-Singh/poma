@@ -16,7 +16,9 @@ void main() {
     final app = await AppController.create(repository, clock: FakeClock());
     await tester.pumpWidget(PomaApp(controller: app));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Insights'));
+    await tester.tap(find.byKey(const Key('destination-2')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('analytics-history-tab')));
     await tester.pumpAndSettle();
     expect(
       find.text('History could not be read. Your data is kept. Retry.'),
@@ -62,7 +64,9 @@ void main() {
       final app = await AppController.create(repository, clock: FakeClock());
       await tester.pumpWidget(PomaApp(controller: app));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Insights'));
+      await tester.tap(find.byKey(const Key('destination-2')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('analytics-history-tab')));
       await tester.pumpAndSettle();
       expect(app.sessions.length, 50);
       expect(app.historyPage!.hasOlder, isTrue);

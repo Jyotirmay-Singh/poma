@@ -385,8 +385,218 @@ abstract class PomaLocalizations {
   /// No description provided for @insights.
   ///
   /// In en, this message translates to:
-  /// **'Insights'**
+  /// **'Analytics'**
   String get insights;
+
+  /// No description provided for @analyticsOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get analyticsOverview;
+
+  /// No description provided for @analyticsHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get analyticsHistory;
+
+  /// No description provided for @analyticsThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get analyticsThisWeek;
+
+  /// No description provided for @analyticsLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last month'**
+  String get analyticsLastMonth;
+
+  /// No description provided for @analyticsAverages.
+  ///
+  /// In en, this message translates to:
+  /// **'Averages'**
+  String get analyticsAverages;
+
+  /// No description provided for @analyticsDailyAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily average'**
+  String get analyticsDailyAverage;
+
+  /// No description provided for @analyticsWeeklyAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly average'**
+  String get analyticsWeeklyAverage;
+
+  /// No description provided for @analyticsMonthlyAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly average'**
+  String get analyticsMonthlyAverage;
+
+  /// No description provided for @analyticsPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'sessions/day'**
+  String get analyticsPerDay;
+
+  /// No description provided for @analyticsPerWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'sessions/week'**
+  String get analyticsPerWeek;
+
+  /// No description provided for @analyticsPerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'sessions/month'**
+  String get analyticsPerMonth;
+
+  /// No description provided for @analyticsDailyHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Total completed sessions over the previous 30 completed days, divided by 30. Zero-session days are included.'**
+  String get analyticsDailyHelp;
+
+  /// No description provided for @analyticsWeeklyHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Total completed sessions over the previous 12 completed Monday–Sunday weeks, divided by 12. Zero-session weeks are included.'**
+  String get analyticsWeeklyHelp;
+
+  /// No description provided for @analyticsMonthlyHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Total completed sessions over the previous 12 completed calendar months, divided by 12. Zero-session months are included.'**
+  String get analyticsMonthlyHelp;
+
+  /// No description provided for @analyticsSessionUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{session} other{sessions}}'**
+  String analyticsSessionUnit(int count);
+
+  /// No description provided for @analyticsActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get analyticsActivity;
+
+  /// No description provided for @analyticsWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get analyticsWeek;
+
+  /// No description provided for @analyticsMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get analyticsMonth;
+
+  /// No description provided for @analyticsYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get analyticsYear;
+
+  /// No description provided for @analyticsPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous period'**
+  String get analyticsPrevious;
+
+  /// No description provided for @analyticsNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next period'**
+  String get analyticsNext;
+
+  /// No description provided for @analyticsCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current period'**
+  String get analyticsCurrent;
+
+  /// No description provided for @analyticsShowData.
+  ///
+  /// In en, this message translates to:
+  /// **'Show data'**
+  String get analyticsShowData;
+
+  /// No description provided for @analyticsHideData.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide data'**
+  String get analyticsHideData;
+
+  /// No description provided for @analyticsUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get analyticsUpcoming;
+
+  /// No description provided for @analyticsLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading analytics…'**
+  String get analyticsLoading;
+
+  /// No description provided for @analyticsReadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics couldn’t be loaded. Retry to read your saved sessions.'**
+  String get analyticsReadError;
+
+  /// No description provided for @analyticsRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry analytics'**
+  String get analyticsRetry;
+
+  /// No description provided for @analyticsStale.
+  ///
+  /// In en, this message translates to:
+  /// **'These totals are out of date. Refresh to read the latest saved sessions.'**
+  String get analyticsStale;
+
+  /// No description provided for @analyticsRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh analytics'**
+  String get analyticsRefresh;
+
+  /// No description provided for @analyticsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Unavailable'**
+  String get analyticsUnavailable;
+
+  /// No description provided for @analyticsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No completed sessions in these periods yet.'**
+  String get analyticsEmpty;
+
+  /// No description provided for @analyticsGoToFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Focus'**
+  String get analyticsGoToFocus;
+
+  /// No description provided for @analyticsChartHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Session counts over time. Use Left and Right arrow keys to explore, or show the data list.'**
+  String get analyticsChartHelp;
+
+  /// No description provided for @analyticsBucketSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}, {count, plural, =0{0 sessions} =1{1 session} other{{count} sessions}}, {minutes} min focused'**
+  String analyticsBucketSummary(String date, int count, int minutes);
 
   /// No description provided for @settings.
   ///
@@ -907,7 +1117,7 @@ abstract class PomaLocalizations {
   /// No description provided for @desktopHistory.
   ///
   /// In en, this message translates to:
-  /// **'History / Insights'**
+  /// **'Analytics'**
   String get desktopHistory;
 
   /// No description provided for @windowsWeekHelp.

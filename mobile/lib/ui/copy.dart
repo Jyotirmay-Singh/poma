@@ -119,6 +119,29 @@ class DeviceFormats {
       DateFormat.yMMMd(_locale(context)).format(value);
   static String weekday(BuildContext context, DateTime value) =>
       DateFormat.E(_locale(context)).format(value);
+  static String month(BuildContext context, DateTime value) =>
+      DateFormat.yMMMM(_locale(context)).format(value);
+  static String shortMonth(BuildContext context, DateTime value) =>
+      DateFormat.MMM(_locale(context)).format(value);
+  static String year(BuildContext context, DateTime value) =>
+      DateFormat.y(_locale(context)).format(value);
+  static String day(BuildContext context, DateTime value) =>
+      DateFormat.d(_locale(context)).format(value);
+  static String number(
+    BuildContext context,
+    num value, {
+    int fractionDigits = 0,
+  }) => NumberFormat.decimalPatternDigits(
+    locale: _locale(context),
+    decimalDigits: fractionDigits,
+  ).format(value);
+  static String dateRange(
+    BuildContext context,
+    DateTime start,
+    DateTime last,
+  ) => start == last
+      ? date(context, start)
+      : '${date(context, start)} – ${date(context, last)}';
   static String time(BuildContext context, DateTime value) {
     final locale = _locale(context);
     if (MediaQuery.alwaysUse24HourFormatOf(context)) {

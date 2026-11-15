@@ -587,13 +587,17 @@ void main() {
       final semantics = tester.ensureSemantics();
       await tester.tap(find.byKey(const Key('destination-2')));
       await tester.pumpAndSettle();
-      final context = tester.element(find.text('Daily focus totals'));
+      final context = tester.element(
+        find.byKey(const Key('analytics-overview-tab')),
+      );
       expect(
         DeviceFormats.date(context, DateTime(2026, 10, 20)),
         DateFormat.yMMMd('de_DE').format(DateTime(2026, 10, 20)),
       );
+      expect(DeviceFormats.number(context, 1.5, fractionDigits: 1), '1,5');
+      await tapVisible(tester, find.byKey(const Key('analytics-show-data')));
       expect(
-        find.bySemanticsLabel(RegExp('.*1 session, 25 minutes focused')),
+        find.bySemanticsLabel(RegExp('.*1 session, 25 min focused')),
         findsWidgets,
       );
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);

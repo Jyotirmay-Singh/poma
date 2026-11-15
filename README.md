@@ -96,7 +96,12 @@ There is no automatic data recovery after uninstalling Poma or losing the phone.
 - Start, pause, resume, reset, skip, and app-level strict mode.
 - Sleep-inclusive native elapsed clocks, exact pause/resume, saved deadlines, and recovery after a process restart.
 - Tasks: add, rename, complete, select for focus, and delete.
-- Indexed focus history with 50-session Newer/Older pages, daily totals, and a seven-day view.
+- Analytics with session totals for today, the current Monday–Sunday week, and the
+  previous calendar month. Daily, weekly, and monthly averages use 30 completed
+  days, 12 completed weeks, and 12 completed months, including zero-session periods.
+- Interactive Week/Month/Year activity charts, exact-value lists, average
+  definitions, and responsive light/dark and enlarged-text layouts.
+- Indexed focus history with 50-session Newer/Older pages inside Analytics.
 - Incremental transactional SQLite persistence, v1/v2 migrations, duplicate completion protection, visible save failures, and retry.
 - Confirmed session/history deletion and full local data reset, with interrupted alert cleanup recovery.
 - Native completion alerts, permission/settings controls, cancellation, and Open timer / Dismiss actions. Mobile uses OS scheduling; Windows requires a resident process and installed MSIX identity for toasts. Android offers an inexact fallback when precise alarms are unavailable.

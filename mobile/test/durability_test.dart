@@ -6,6 +6,7 @@ import 'package:poma/application/app_controller.dart';
 import 'package:poma/application/local_repository.dart';
 import 'package:poma/data/local_repository.dart';
 import 'package:poma/domain/models.dart';
+import 'package:poma/domain/analytics.dart';
 import 'package:poma/domain/timer_engine.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'support.dart';
@@ -362,6 +363,30 @@ void main() {
           details.any((detail) => detail.contains('SCAN sessions')),
           isFalse,
         );
+      }
+      plans.clear();
+      final query = AnalyticsQuery.forDate(
+        DateTime(2026, 1, 2),
+        period: AnalyticsPeriod.month,
+        boundaryUtc: (date) => DateTime.utc(date.year, date.month, date.day),
+      );
+      final snapshot = AnalyticsSnapshot(
+        query,
+        await inspected.readSessionTotals(query.ranges),
+      );
+      expect(plans, hasLength(37));
+      expect(snapshot.today.count, 0);
+      expect(snapshot.thisWeek.count, 100000);
+      expect(snapshot.dailyAverage, 100000 / 30);
+      expect(snapshot.bucket(0).count, 100000);
+      expect(snapshot.bucket(0).focusSeconds, 150000000);
+      for (final plan in plans) {
+        final details = plan.map((row) => row['detail'] as String).join(' ');
+        expect(
+          details,
+          contains('SEARCH sessions USING INDEX sessions_end_id'),
+        );
+        expect(details, isNot(contains('SCAN sessions')));
       }
       final app = await AppController.create(repository, clock: FakeClock());
       expect(app.sessions, isEmpty); // No startup history fetch.

@@ -1,5 +1,8 @@
 import '../domain/models.dart';
 import '../domain/planner.dart';
+import '../domain/analytics.dart';
+
+export '../domain/analytics.dart' show SessionRange, SessionTotals;
 
 enum StorageFailureKind { full, write, unreadable, migration, conflict }
 
@@ -80,8 +83,8 @@ class HistoryPage {
   final bool hasNewer;
 }
 
-class DayRange {
-  const DayRange(this.date, this.startUtc, this.endUtc);
+class DayRange extends SessionRange {
+  const DayRange(this.date, super.startUtc, super.endUtc);
   factory DayRange.local(DateTime date) {
     final start = DateTime(date.year, date.month, date.day);
     return DayRange(
@@ -91,15 +94,11 @@ class DayRange {
     );
   }
   final DateTime date;
-  final DateTime startUtc;
-  final DateTime endUtc;
 }
 
-class DaySummary {
-  const DaySummary(this.date, this.count, this.focusSeconds);
+class DaySummary extends SessionTotals {
+  const DaySummary(this.date, super.count, super.focusSeconds);
   final DateTime date;
-  final int count;
-  final int focusSeconds;
 }
 
 abstract interface class LocalRepository {
@@ -110,6 +109,7 @@ abstract interface class LocalRepository {
     HistoryCursor? after,
   });
   Future<List<DaySummary>> readDaySummaries(List<DayRange> days);
+  Future<List<SessionTotals>> readSessionTotals(List<SessionRange> ranges);
   Future<void> close();
   Future<String?> notificationDatabasePath();
   Future<bool> recordAlertReceipt(String key);

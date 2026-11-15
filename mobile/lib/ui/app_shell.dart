@@ -29,7 +29,7 @@ class _AppShellState extends State<AppShell> {
   int _seenNewTask = 0;
   void _goTo(int tab) {
     DesktopScope.maybeOf(context)?.navigate(tab);
-    widget.controller.showInsights(tab == 2);
+    widget.controller.showInsights(tab == 2, history: false);
     setState(() => _tab = tab);
   }
 
@@ -71,7 +71,12 @@ class _AppShellState extends State<AppShell> {
     if (desktop != null &&
         _seenDesktopNavigation != desktop.navigationRevision) {
       _seenDesktopNavigation = desktop.navigationRevision;
-      _tab = desktop.destination;
+      if (_tab != desktop.destination) {
+        _tab = desktop.destination;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) controller.showInsights(_tab == 2, history: false);
+        });
+      }
     }
     if (desktop != null && _seenNewTask != desktop.newTaskRevision) {
       _seenNewTask = desktop.newTaskRevision;
@@ -107,7 +112,7 @@ class _AppShellState extends State<AppShell> {
         announceCompletion: announceCompletion,
       ),
       1 => TasksScreen(controller: controller),
-      2 => InsightsScreen(controller: controller),
+      2 => InsightsScreen(controller: controller, onFocus: () => _goTo(0)),
       5 when desktop != null => DayClockScreen(
         app: controller,
         desktop: desktop,

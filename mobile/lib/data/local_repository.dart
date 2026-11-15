@@ -477,29 +477,41 @@ class SqliteRepository implements LocalRepository {
   }, StorageFailureKind.unreadable);
 
   @override
-  Future<List<DaySummary>> readDaySummaries(
-    List<DayRange> days,
+  Future<List<DaySummary>> readDaySummaries(List<DayRange> days) =>
+      _guard(() async {
+        if (days.length > 7) throw ArgumentError('At most seven days.');
+        final totals = await readSessionTotals(days);
+        return List.generate(
+          days.length,
+          (i) =>
+              DaySummary(days[i].date, totals[i].count, totals[i].focusSeconds),
+        );
+      }, StorageFailureKind.unreadable);
+
+  @override
+  Future<List<SessionTotals>> readSessionTotals(
+    List<SessionRange> ranges,
   ) => _guard(() async {
-    if (days.length > 7) throw ArgumentError('At most seven days.');
+    final requested = List<SessionRange>.of(ranges);
+    for (final range in requested) {
+      if (!range.endUtc.isAfter(range.startUtc)) {
+        throw ArgumentError('Invalid session range.');
+      }
+    }
     final db = await _open();
     return db.transaction((txn) async {
-      final result = <DaySummary>[];
-      for (final day in days) {
-        if (!day.endUtc.isAfter(day.startUtc)) {
-          throw ArgumentError('Invalid day range.');
-        }
+      final result = <SessionTotals>[];
+      for (final range in requested) {
         final row = (await txn.rawQuery(
           'SELECT COUNT(*) AS n, COALESCE(SUM(focus_seconds),0) AS seconds FROM sessions WHERE ended_at_utc_micros >= ? AND ended_at_utc_micros < ?',
           [
-            day.startUtc.microsecondsSinceEpoch,
-            day.endUtc.microsecondsSinceEpoch,
+            range.startUtc.microsecondsSinceEpoch,
+            range.endUtc.microsecondsSinceEpoch,
           ],
         )).single;
-        result.add(
-          DaySummary(day.date, row['n'] as int, row['seconds'] as int),
-        );
+        result.add(SessionTotals(row['n'] as int, row['seconds'] as int));
       }
-      return result;
+      return List<SessionTotals>.unmodifiable(result);
     }, exclusive: false);
   }, StorageFailureKind.unreadable);
 

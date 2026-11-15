@@ -165,7 +165,135 @@ class PomaLocalizationsEn extends PomaLocalizations {
   String get tasks => 'Tasks';
 
   @override
-  String get insights => 'Insights';
+  String get insights => 'Analytics';
+
+  @override
+  String get analyticsOverview => 'Overview';
+
+  @override
+  String get analyticsHistory => 'History';
+
+  @override
+  String get analyticsThisWeek => 'This week';
+
+  @override
+  String get analyticsLastMonth => 'Last month';
+
+  @override
+  String get analyticsAverages => 'Averages';
+
+  @override
+  String get analyticsDailyAverage => 'Daily average';
+
+  @override
+  String get analyticsWeeklyAverage => 'Weekly average';
+
+  @override
+  String get analyticsMonthlyAverage => 'Monthly average';
+
+  @override
+  String get analyticsPerDay => 'sessions/day';
+
+  @override
+  String get analyticsPerWeek => 'sessions/week';
+
+  @override
+  String get analyticsPerMonth => 'sessions/month';
+
+  @override
+  String get analyticsDailyHelp =>
+      'Total completed sessions over the previous 30 completed days, divided by 30. Zero-session days are included.';
+
+  @override
+  String get analyticsWeeklyHelp =>
+      'Total completed sessions over the previous 12 completed Monday–Sunday weeks, divided by 12. Zero-session weeks are included.';
+
+  @override
+  String get analyticsMonthlyHelp =>
+      'Total completed sessions over the previous 12 completed calendar months, divided by 12. Zero-session months are included.';
+
+  @override
+  String analyticsSessionUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'sessions',
+      one: 'session',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get analyticsActivity => 'Activity';
+
+  @override
+  String get analyticsWeek => 'Week';
+
+  @override
+  String get analyticsMonth => 'Month';
+
+  @override
+  String get analyticsYear => 'Year';
+
+  @override
+  String get analyticsPrevious => 'Previous period';
+
+  @override
+  String get analyticsNext => 'Next period';
+
+  @override
+  String get analyticsCurrent => 'Current period';
+
+  @override
+  String get analyticsShowData => 'Show data';
+
+  @override
+  String get analyticsHideData => 'Hide data';
+
+  @override
+  String get analyticsUpcoming => 'Upcoming';
+
+  @override
+  String get analyticsLoading => 'Loading analytics…';
+
+  @override
+  String get analyticsReadError =>
+      'Analytics couldn’t be loaded. Retry to read your saved sessions.';
+
+  @override
+  String get analyticsRetry => 'Retry analytics';
+
+  @override
+  String get analyticsStale =>
+      'These totals are out of date. Refresh to read the latest saved sessions.';
+
+  @override
+  String get analyticsRefresh => 'Refresh analytics';
+
+  @override
+  String get analyticsUnavailable => 'Unavailable';
+
+  @override
+  String get analyticsEmpty => 'No completed sessions in these periods yet.';
+
+  @override
+  String get analyticsGoToFocus => 'Go to Focus';
+
+  @override
+  String get analyticsChartHelp =>
+      'Session counts over time. Use Left and Right arrow keys to explore, or show the data list.';
+
+  @override
+  String analyticsBucketSummary(String date, int count, int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sessions',
+      one: '1 session',
+      zero: '0 sessions',
+    );
+    return '$date, $_temp0, $minutes min focused';
+  }
 
   @override
   String get settings => 'Settings';
@@ -482,7 +610,7 @@ class PomaLocalizationsEn extends PomaLocalizations {
   String get completionAlerts => 'Completion alerts';
 
   @override
-  String get desktopHistory => 'History / Insights';
+  String get desktopHistory => 'Analytics';
 
   @override
   String get windowsWeekHelp =>
