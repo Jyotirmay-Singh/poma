@@ -61,7 +61,7 @@ abstract interface class DesktopShell {
 enum CalendarPageSection { schedule, focusBlocks, settings }
 
 /// Destination IDs are stable; their visual order differs from their IDs.
-const desktopDestinationOrder = [0, 1, 4, 5, 2, 3];
+const desktopDestinationOrder = [0, 4, 5, 2, 3];
 
 class DesktopController extends ChangeNotifier {
   DesktopController(
@@ -243,6 +243,7 @@ class DesktopController extends ChangeNotifier {
     int index, {
     CalendarPageSection section = CalendarPageSection.schedule,
   }) {
+    if (index == 1) index = 4;
     if (index == 4 || index == 5) {
       if (index == 4) calendarSection = section;
       unawaited(calendarData?.opened());
@@ -254,7 +255,7 @@ class DesktopController extends ChangeNotifier {
   }
 
   void requestNewTask() {
-    if (planner == null || (destination != 4 && destination != 5)) navigate(1);
+    if (destination != 4 && destination != 5) navigate(4);
     newTaskRevision++;
     notifyListeners();
   }

@@ -9,6 +9,7 @@ import 'package:poma/domain/models.dart';
 import 'package:poma/main.dart';
 import 'package:poma/ui/timer_dial.dart';
 import 'support.dart';
+import 'calendar_ui_support.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -40,8 +41,7 @@ void main() {
     await tester.tap(find.text('Try again'));
     await tester.pumpAndSettle();
     expect(find.text('25:00'), findsOneWidget);
-    await tester.tap(find.text('Tasks').last);
-    await tester.pumpAndSettle();
+    await openCalendarTasks(tester);
     expect(find.text('Saved task'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
@@ -78,16 +78,18 @@ void main() {
     await tester.tap(find.byKey(const Key('timer-toggle')));
     await tester.pump();
     expect(find.text('Resume'), findsOneWidget);
-    await tester.tap(find.text('Tasks').last);
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Add a task'));
-    await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextFormField), 'Read one chapter');
-    await tester.tap(find.text('Save task'));
+    await openCalendarTasks(tester);
+    await enterCalendarTask(tester, 'Read one chapter');
+    await tester.tap(find.byKey(const ValueKey('planner-save')));
     await tester.pumpAndSettle();
     expect(controller.tasks.single.title, 'Read one chapter');
     expect(find.text('Read one chapter'), findsOneWidget);
-    await tester.tap(find.byType(Checkbox));
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(ValueKey('calendar-task-${controller.tasks.single.id}')),
+        matching: find.byType(Checkbox),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(controller.tasks.single.done, isTrue);
   });
@@ -325,7 +327,7 @@ void main() {
     tester.platformDispatcher.textScaleFactorTestValue = 2;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     await mount(tester, size: const Size(320, 700));
-    for (final label in ['Tasks', 'Analytics', 'Settings', 'Focus']) {
+    for (final label in ['Calendar', 'Analytics', 'Settings', 'Focus']) {
       await tester.tap(find.text(label).last);
       await tester.pumpAndSettle();
       expect(

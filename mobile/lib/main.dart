@@ -16,6 +16,8 @@ import 'ui/app_shell.dart';
 import 'ui/theme.dart';
 import 'ui/space_backdrop.dart';
 import 'ui/copy.dart';
+import 'ui/planner_scope.dart';
+import 'domain/planner.dart';
 import 'l10n/poma_localizations.dart';
 import 'application/desktop_controller.dart';
 import 'data/windows_platform.dart';
@@ -340,13 +342,36 @@ class PomaApp extends StatefulWidget {
 
 class _PomaAppState extends State<PomaApp> with WidgetsBindingObserver {
   final _navigator = GlobalKey<NavigatorState>();
+  late final PlannerController _planner;
+  late final bool _ownsPlanner;
   @override
   void initState() {
     super.initState();
+    final existingPlanner =
+        widget.desktop?.planner ?? widget.controller.plannerActions;
+    _ownsPlanner = existingPlanner is! PlannerController;
+    final view = WidgetsBinding.instance.platformDispatcher.views.first;
+    _planner = existingPlanner is PlannerController
+        ? existingPlanner
+        : PlannerController.local(
+            app: widget.controller,
+            clock: const DeviceCalendarClock(),
+            scheduler: const TimerCalendarScheduler(),
+            time: PlannerTime(
+              channel: const MethodChannel('dev.poma.poma/timer_clock'),
+            ),
+            initialView: view.physicalSize.width / view.devicePixelRatio >= 720
+                ? PlannerCalendarView.week
+                : PlannerCalendarView.day,
+          );
+    if (_ownsPlanner) unawaited(_planner.initialize());
     unawaited(DeviceFormats.initialize());
     WidgetsBinding.instance.addObserver(this);
     if (widget.desktop == null) {
       widget.controller.setForeground(
+        WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed,
+      );
+      _planner.setActive(
         WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed,
       );
     }
@@ -440,6 +465,7 @@ class _PomaAppState extends State<PomaApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (widget.desktop == null) {
       widget.controller.setForeground(state == AppLifecycleState.resumed);
+      _planner.setActive(state == AppLifecycleState.resumed);
     }
   }
 
@@ -470,39 +496,44 @@ class _PomaAppState extends State<PomaApp> with WidgetsBindingObserver {
         'dark' => ThemeMode.dark,
         _ => ThemeMode.system,
       },
-      home: widget.desktop == null
-          ? AppShell(controller: widget.controller)
-          : DesktopScope(
-              controller: widget.desktop!,
-              child: CallbackShortcuts(
-                bindings: {
-                  for (var i = 0; i < desktopDestinationOrder.length; i++)
-                    SingleActivator(
-                      [
-                        LogicalKeyboardKey.digit1,
-                        LogicalKeyboardKey.digit2,
-                        LogicalKeyboardKey.digit3,
-                        LogicalKeyboardKey.digit4,
-                        LogicalKeyboardKey.digit5,
-                        LogicalKeyboardKey.digit6,
-                      ][i],
+      home: PlannerScope(
+        planner: _planner,
+        child: widget.desktop == null
+            ? AppShell(controller: widget.controller)
+            : DesktopScope(
+                controller: widget.desktop!,
+                child: CallbackShortcuts(
+                  bindings: {
+                    for (var i = 0; i < desktopDestinationOrder.length; i++)
+                      SingleActivator(
+                        [
+                          LogicalKeyboardKey.digit1,
+                          LogicalKeyboardKey.digit2,
+                          LogicalKeyboardKey.digit3,
+                          LogicalKeyboardKey.digit4,
+                          LogicalKeyboardKey.digit5,
+                        ][i],
+                        control: true,
+                      ): () =>
+                          widget.desktop!.navigate(desktopDestinationOrder[i]),
+                    const SingleActivator(
+                      LogicalKeyboardKey.keyN,
                       control: true,
-                    ): () =>
-                        widget.desktop!.navigate(desktopDestinationOrder[i]),
-                  const SingleActivator(LogicalKeyboardKey.keyN, control: true):
-                      widget.desktop!.requestNewTask,
-                },
-                child: Focus(
-                  autofocus: true,
-                  child: AppShell(controller: widget.controller),
+                    ): widget.desktop!.requestNewTask,
+                  },
+                  child: Focus(
+                    autofocus: true,
+                    child: AppShell(controller: widget.controller),
+                  ),
                 ),
               ),
-            ),
+      ),
     ),
   );
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    if (_ownsPlanner) _planner.dispose();
     widget.controller.setForeground(false);
     super.dispose();
   }

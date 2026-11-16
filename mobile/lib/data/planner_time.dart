@@ -8,13 +8,17 @@ class PlannerTime {
   PlannerTime({this.channel, this.fixedZone});
   final MethodChannel? channel;
   final String? fixedZone;
-  static Future<void>? _initializing;
+  static bool _initialized = false;
+  static Future<void>? _windowsLoading;
   static Map<String, String> _windowsZones = {};
 
-  Future<void> initialize() => _initializing ??= _initialize();
-
-  static Future<void> _initialize() async {
+  Future<void> initialize() async {
+    if (_initialized) return;
     tz_data.initializeTimeZones();
+    _initialized = true;
+  }
+
+  static Future<void> _loadWindowsZones() async {
     final value =
         jsonDecode(
               await rootBundle.loadString(
@@ -33,6 +37,10 @@ class PlannerTime {
         'focusTimeZone',
       );
       final name = value?['zone'] as String?;
+      if (name != null && tz.timeZoneDatabase.locations.containsKey(name)) {
+        return name;
+      }
+      if (name != null) await (_windowsLoading ??= _loadWindowsZones());
       if (name != null && _windowsZones.containsKey(name)) {
         final mapped = _windowsZones[name]!;
         final zone = tz.getLocation(mapped);

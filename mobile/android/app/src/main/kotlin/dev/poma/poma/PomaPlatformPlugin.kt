@@ -13,7 +13,10 @@ class PomaPlatformPlugin : FlutterPlugin {
         PomaAlerts.attach(context, binding.binaryMessenger)
         clock = MethodChannel(binding.binaryMessenger, "dev.poma.poma/timer_clock").also { channel ->
             channel.setMethodCallHandler { call, result ->
-                if (call.method != "sample") result.notImplemented()
+                if (call.method == "focusTimeZone") {
+                    result.success(mapOf("zone" to java.util.TimeZone.getDefault().id))
+                }
+                else if (call.method != "sample") result.notImplemented()
                 else result.success(mapOf("utcMicros" to System.currentTimeMillis() * 1000L,
                     "elapsedMicros" to SystemClock.elapsedRealtimeNanos() / 1000L,
                     "bootCount" to PomaAlerts.bootCount(context)))

@@ -12,6 +12,7 @@ import '../domain/models.dart';
 import '../domain/planner.dart';
 import 'design_tokens.dart';
 import 'desktop_scope.dart';
+import 'task_color_picker.dart';
 
 bool _usesPlannerPane(BuildContext context, {required bool allowed}) {
   final size = MediaQuery.sizeOf(context);
@@ -48,12 +49,9 @@ Future<void> showPlannerEditor(
     return;
   }
   planner.editorOpening = true;
-  final desktop = DesktopScope.maybeOf(context);
-  final originDestination = desktop?.destination;
   FocusNode? opener;
   final navigator = Navigator.of(context, rootNavigator: true);
   final themes = InheritedTheme.capture(from: context, to: navigator.context);
-  bool? savedSchedule;
   try {
     final value =
         initialDraft ??
@@ -91,17 +89,11 @@ Future<void> showPlannerEditor(
       builder: (context) =>
           PlannerEditor(planner: planner, initial: value, allowPane: allowPane),
     );
-    savedSchedule = await navigator.push(route);
+    await navigator.push(route);
     await route.completed;
   } finally {
     planner.editorOpening = false;
     planner.setEditorPresentation(open: false, pane: false);
-  }
-  if (savedSchedule == true &&
-      originDestination == 1 &&
-      desktop?.destination == 1) {
-    desktop!.navigate(5);
-    return;
   }
   if (context.mounted &&
       opener?.context?.mounted == true &&
@@ -327,7 +319,8 @@ class _PlannerEditorState extends State<PlannerEditor> {
   ];
 
   Widget _destination() {
-    final sources = planner.reader.sources
+    if (!planner.supportsGoogle) return const Text('On this device');
+    final sources = planner.sources
         .where((s) => s.accessRole == 'owner')
         .toList();
     final local = value['localOnly'] == true;
@@ -653,58 +646,6 @@ class _PlannerEditorState extends State<PlannerEditor> {
       ),
       const SizedBox(height: PomaSpace.sm),
       DropdownButtonFormField<String>(
-        key: ValueKey('planner-color-${value['colorId']}'),
-        initialValue: value['colorId'] as String? ?? '',
-        isExpanded: true,
-        decoration: InputDecoration(
-          labelText: 'Event color',
-          errorText: planner.errors['colorId'],
-        ),
-        items: [
-          const DropdownMenuItem(value: '', child: Text('Calendar default')),
-          if (value['colorId'] != null &&
-              planner.reader.palette?.colors.containsKey(value['colorId']) !=
-                  true)
-            DropdownMenuItem(
-              value: value['colorId'] as String,
-              child: const Text('Existing event color'),
-            ),
-          for (final e
-              in planner.reader.palette?.colors.entries ??
-                  const <MapEntry<String, CalendarEventColor>>[])
-            DropdownMenuItem(
-              value: e.key,
-              child: Row(
-                children: [
-                  Container(
-                    width: 18,
-                    height: 18,
-                    decoration: BoxDecoration(
-                      color: Color(
-                        0xff000000 |
-                            int.parse(
-                              e.value.background.substring(1),
-                              radix: 16,
-                            ),
-                      ),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  const SizedBox(width: PomaSpace.sm),
-                  Text('Google color ${e.key}'),
-                ],
-              ),
-            ),
-        ],
-        onChanged: _working
-            ? null
-            : (next) => changed('colorId', next == '' ? null : next),
-      ),
-      const SizedBox(height: PomaSpace.md),
-      DropdownButtonFormField<String>(
         key: ValueKey('planner-zone-${value['zone']}'),
         initialValue: value['zone'] as String?,
         decoration: InputDecoration(
@@ -822,6 +763,15 @@ class _PlannerEditorState extends State<PlannerEditor> {
                                       ? null
                                       : (next) => changed('scheduled', next),
                                 ),
+                              const SizedBox(height: PomaSpace.md),
+                              TaskColorPicker(
+                                value: value['colorId'] as String?,
+                                palette: planner.palette,
+                                error: planner.errors['colorId'],
+                                onChanged: _working
+                                    ? null
+                                    : (color) => changed('colorId', color),
+                              ),
                               if (scheduled) ...[
                                 const SizedBox(height: PomaSpace.md),
                                 field(

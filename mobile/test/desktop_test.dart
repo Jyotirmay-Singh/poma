@@ -604,7 +604,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
-      await tester.sendKeyEvent(LogicalKeyboardKey.digit6);
+      await tester.sendKeyEvent(LogicalKeyboardKey.digit5);
       await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
       await tester.pumpAndSettle();
       expect(desktop.destination, 3);
@@ -613,9 +613,17 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.keyN);
       await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
       await tester.pumpAndSettle();
-      expect(find.byType(AlertDialog), findsOneWidget);
-      await tester.enterText(find.byType(TextFormField), 'Keyboard task');
-      await tester.tap(find.text('Save task'));
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('planner-title')), findsOneWidget);
+      await tester.enterText(
+        find.byKey(const ValueKey('planner-title')),
+        'Keyboard task',
+      );
+      await tester.tap(find.byKey(const ValueKey('planner-scheduled')));
+      await tester.tap(find.byKey(const ValueKey('planner-save')));
       await tester.pumpAndSettle();
       expect(controller.tasks.single.title, 'Keyboard task');
       await tester.pumpWidget(const SizedBox());

@@ -289,57 +289,55 @@ void main() {
 
   for (final width in [640.0, 1080.0, 1440.0]) {
     for (final scale in [1.0, 1.5, 2.0]) {
-      testWidgets(
-        'Schedule fits $width pixels at ${scale * 100}% text',
-        (tester) async {
-          tester.view.physicalSize = Size(width, 1100);
-          tester.view.devicePixelRatio = 1;
-          tester.platformDispatcher.textScaleFactorTestValue = scale;
-          addTearDown(tester.view.resetPhysicalSize);
-          addTearDown(tester.view.resetDevicePixelRatio);
-          addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-          final r = await _desktop(tester);
-          await tester.pumpWidget(
-            RepaintBoundary(
-              key: const ValueKey('schedule-capture'),
-              child: PomaApp(controller: r.app, desktop: r.desktop),
-            ),
-          );
-          await tester.pumpAndSettle();
-          final timeline = scale == 1;
-          expect(
-            find.byKey(
-              ValueKey(timeline ? 'schedule-timeline' : 'schedule-agenda'),
-            ),
-            findsOneWidget,
-          );
-          expect(r.desktop.calendarSection, CalendarPageSection.schedule);
-          expect(find.text('Schedule verified'), findsOneWidget);
-          expect(r.rig.connection.focusWriteEnabled, isFalse);
-          if (timeline) {
-            final configuration =
-                tester
-                        .widget<k.KalenderView>(find.byType(k.KalenderView))
-                        .kalenderController
-                        .viewConfiguration
-                    as k.MultiDayViewConfiguration;
-            expect(configuration.numberOfDays, width == 640 ? 1 : 7);
-          }
-          await tester.ensureVisible(
-            find.byKey(
-              ValueKey(timeline ? 'schedule-timeline' : 'schedule-agenda'),
-            ),
-          );
-          await tester.pumpAndSettle();
-          await _capture(
-            tester,
-            'schedule-${width.toInt()}-${(scale * 100).toInt()}',
-          );
-          expect(tester.takeException(), isNull);
-          await _finish(tester, r.desktop, r.app);
-        },
-        variant: TargetPlatformVariant.only(TargetPlatform.windows),
-      );
+      testWidgets('Schedule fits $width pixels at ${scale * 100}% text', (
+        tester,
+      ) async {
+        tester.view.physicalSize = Size(width, 1100);
+        tester.view.devicePixelRatio = 1;
+        tester.platformDispatcher.textScaleFactorTestValue = scale;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        final r = await _desktop(tester);
+        await tester.pumpWidget(
+          RepaintBoundary(
+            key: const ValueKey('schedule-capture'),
+            child: PomaApp(controller: r.app, desktop: r.desktop),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final timeline = scale == 1;
+        expect(
+          find.byKey(
+            ValueKey(timeline ? 'schedule-timeline' : 'schedule-agenda'),
+          ),
+          findsOneWidget,
+        );
+        expect(r.desktop.calendarSection, CalendarPageSection.schedule);
+        expect(find.text('Schedule verified'), findsOneWidget);
+        expect(r.rig.connection.focusWriteEnabled, isFalse);
+        if (timeline) {
+          final configuration =
+              tester
+                      .widget<k.KalenderView>(find.byType(k.KalenderView))
+                      .kalenderController
+                      .viewConfiguration
+                  as k.MultiDayViewConfiguration;
+          expect(configuration.numberOfDays, width == 640 ? 1 : 7);
+        }
+        await tester.ensureVisible(
+          find.byKey(
+            ValueKey(timeline ? 'schedule-timeline' : 'schedule-agenda'),
+          ),
+        );
+        await tester.pumpAndSettle();
+        await _capture(
+          tester,
+          'schedule-${width.toInt()}-${(scale * 100).toInt()}',
+        );
+        expect(tester.takeException(), isNull);
+        await _finish(tester, r.desktop, r.app);
+      }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
     }
   }
 
@@ -504,52 +502,50 @@ void main() {
   );
 
   for (final highContrast in [false, true]) {
-    testWidgets(
-      'dark Schedule renders with high contrast $highContrast',
-      (tester) async {
-        tester.view.physicalSize = const Size(1440, 1100);
-        tester.view.devicePixelRatio = 1;
-        tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
-        tester.platformDispatcher.accessibilityFeaturesTestValue =
-            FakeAccessibilityFeatures(highContrast: highContrast);
-        addTearDown(tester.view.resetPhysicalSize);
-        addTearDown(tester.view.resetDevicePixelRatio);
-        addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
-        addTearDown(
-          tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+    testWidgets('dark Schedule renders with high contrast $highContrast', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1440, 1100);
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          FakeAccessibilityFeatures(highContrast: highContrast);
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      final r = await _desktop(tester);
+      await tester.pumpWidget(
+        RepaintBoundary(
+          key: const ValueKey('schedule-capture'),
+          child: PomaApp(controller: r.app, desktop: r.desktop),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('schedule-timeline')),
+      );
+      await tester.pumpAndSettle();
+      await _capture(
+        tester,
+        highContrast ? 'schedule-dark-high-contrast' : 'schedule-dark',
+      );
+      if (highContrast) {
+        final context = tester.element(find.byType(k.KalenderView));
+        expect(
+          k.KalenderTheme.of(context).hourLinesStyle!.color,
+          Theme.of(context).colorScheme.outline,
         );
-        final r = await _desktop(tester);
-        await tester.pumpWidget(
-          RepaintBoundary(
-            key: const ValueKey('schedule-capture'),
-            child: PomaApp(controller: r.app, desktop: r.desktop),
-          ),
+        expect(
+          k.KalenderTheme.of(context).daySeparatorStyle!.color,
+          Theme.of(context).colorScheme.outline,
         );
-        await tester.pumpAndSettle();
-        await tester.ensureVisible(
-          find.byKey(const ValueKey('schedule-timeline')),
-        );
-        await tester.pumpAndSettle();
-        await _capture(
-          tester,
-          highContrast ? 'schedule-dark-high-contrast' : 'schedule-dark',
-        );
-        if (highContrast) {
-          final context = tester.element(find.byType(k.KalenderView));
-          expect(
-            k.KalenderTheme.of(context).hourLinesStyle!.color,
-            Theme.of(context).colorScheme.outline,
-          );
-          expect(
-            k.KalenderTheme.of(context).daySeparatorStyle!.color,
-            Theme.of(context).colorScheme.outline,
-          );
-        }
-        expect(tester.takeException(), isNull);
-        await _finish(tester, r.desktop, r.app);
-      },
-      variant: TargetPlatformVariant.only(TargetPlatform.windows),
-    );
+      }
+      expect(tester.takeException(), isNull);
+      await _finish(tester, r.desktop, r.app);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
   }
 
   testWidgets(
@@ -648,10 +644,10 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('Choose a task'), findsOneWidget);
         for (final entry in [
-          (LogicalKeyboardKey.digit3, 4),
-          (LogicalKeyboardKey.digit4, 5),
-          (LogicalKeyboardKey.digit5, 2),
-          (LogicalKeyboardKey.digit6, 3),
+          (LogicalKeyboardKey.digit2, 4),
+          (LogicalKeyboardKey.digit3, 5),
+          (LogicalKeyboardKey.digit4, 2),
+          (LogicalKeyboardKey.digit5, 3),
         ]) {
           await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
           await tester.sendKeyEvent(entry.$1);

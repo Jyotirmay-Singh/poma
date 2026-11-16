@@ -176,12 +176,20 @@ ThemeData pomaTheme(Brightness brightness, {bool highContrast = false}) {
       backgroundColor: colors.surface,
       indicatorColor: highContrast
           ? colors.primary
-          : colors.primary.withValues(alpha: .10),
+          : dark
+          ? const Color(0xFF004A77)
+          : const Color(0xFFD3E3FD),
       selectedIconTheme: highContrast
           ? IconThemeData(color: colors.onPrimary)
-          : null,
+          : IconThemeData(
+              color: dark ? const Color(0xFFA8C7FA) : const Color(0xFF1A73E8),
+            ),
       selectedLabelTextStyle: textTheme.labelLarge?.copyWith(
-        color: colors.primary,
+        color: highContrast
+            ? colors.primary
+            : dark
+            ? const Color(0xFFA8C7FA)
+            : const Color(0xFF174EA6),
       ),
       unselectedLabelTextStyle: textTheme.labelLarge?.copyWith(
         color: colors.onSurfaceVariant,

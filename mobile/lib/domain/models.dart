@@ -93,19 +93,35 @@ class TimerSettings {
 }
 
 class FocusTask {
-  const FocusTask({required this.id, required this.title, this.done = false});
+  const FocusTask({
+    required this.id,
+    required this.title,
+    this.done = false,
+    this.colorId,
+  });
   final String id;
   final String title;
   final bool done;
+  final String? colorId;
 
-  FocusTask copyWith({String? title, bool? done}) =>
-      FocusTask(id: id, title: title ?? this.title, done: done ?? this.done);
+  FocusTask copyWith({
+    String? title,
+    bool? done,
+    String? colorId,
+    bool clearColor = false,
+  }) => FocusTask(
+    id: id,
+    title: title ?? this.title,
+    done: done ?? this.done,
+    colorId: clearColor ? null : colorId ?? this.colorId,
+  );
 
   Map<String, Object?> toRow(int position) => {
     'id': id,
     'title': title,
     'done': done ? 1 : 0,
     'position': position,
+    if (colorId != null) 'color_id': colorId,
   };
 
   factory FocusTask.fromRow(Map<String, Object?> row) {
@@ -115,6 +131,9 @@ class FocusTask {
         (row['title'] as String).trim().isEmpty ||
         (row['title'] as String).length > 160 ||
         ![0, 1].contains(row['done']) ||
+        (row['color_id'] != null &&
+            (row['color_id'] is! String ||
+                (row['color_id'] as String).isEmpty)) ||
         row['position'] is! int ||
         (row['position'] as int) < 0) {
       throw const FormatException('Invalid saved task.');
@@ -123,6 +142,7 @@ class FocusTask {
       id: row['id'] as String,
       title: row['title'] as String,
       done: row['done'] == 1,
+      colorId: row['color_id'] as String?,
     );
   }
 }

@@ -17,6 +17,7 @@ import 'package:poma/ui/theme.dart';
 import 'package:poma/ui/timer_dial.dart';
 import 'alert_support.dart';
 import 'support.dart';
+import 'calendar_ui_support.dart';
 import 'contrast_support.dart';
 
 const capture = bool.fromEnvironment('POMA_SCREENSHOTS');
@@ -61,7 +62,7 @@ Future<void> scanPage(WidgetTester tester) async {
   for (var i = 0; i < 45; i++) {
     expect(tester.takeException(), isNull);
     if (scroll.position.pixels >= scroll.position.maxScrollExtent) break;
-    await tester.drag(find.byType(ListView), const Offset(0, -450));
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -450));
     await tester.pumpAndSettle();
   }
   expect(tester.takeException(), isNull);
@@ -79,13 +80,22 @@ Finder fullyVisibleText(WidgetTester tester) => find.byElementPredicate((
     render.getTransformTo(null),
     render.paintBounds,
   );
-  final viewport = RenderAbstractViewport.maybeOf(render);
-  final clip = viewport == null
-      ? Offset.zero & (tester.view.physicalSize / tester.view.devicePixelRatio)
-      : MatrixUtils.transformRect(
-          viewport.getTransformTo(null),
-          viewport.paintBounds,
-        );
+  var clip =
+      Offset.zero & (tester.view.physicalSize / tester.view.devicePixelRatio);
+  RenderObject? ancestor = render.parent;
+  while (ancestor != null) {
+    if (ancestor is RenderAbstractViewport ||
+        ancestor is RenderClipRect ||
+        ancestor is RenderClipRRect) {
+      clip = clip.intersect(
+        MatrixUtils.transformRect(
+          ancestor.getTransformTo(null),
+          ancestor.paintBounds,
+        ),
+      );
+    }
+    ancestor = ancestor.parent;
+  }
   return clip.contains(bounds.topLeft) && clip.contains(bounds.bottomRight);
 });
 
@@ -180,7 +190,7 @@ void main() {
             addTearDown(app.dispose);
             try {
               await mount(tester, app, size: viewport.value, scale: scale);
-              for (var tab = 0; tab < 4; tab++) {
+              for (final tab in [0, 4, 2, 3]) {
                 await tester.tap(find.byKey(Key('destination-$tab')));
                 await tester.pumpAndSettle();
                 expect(tester.takeException(), isNull);
@@ -409,16 +419,20 @@ void main() {
       );
       addTearDown(app.dispose);
       await mount(tester, app, size: const Size(320, 700), scale: 2);
-      await tester.tap(find.byKey(const Key('destination-1')));
-      await tester.pumpAndSettle();
-      await tapVisible(tester, find.text('Add a task'));
+      await openCalendarTasks(tester);
+      await enterCalendarTask(tester, '   ');
       tester.view.viewInsets = const FakeViewPadding(bottom: 220);
       await tester.pumpAndSettle();
-      await tester.enterText(find.byType(TextFormField), '   ');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
-      expect(find.text('Enter a task name.'), findsOneWidget);
-      await tester.enterText(find.byType(TextFormField), longTitle);
+      expect(
+        find.text('Enter a task title of 1–160 characters.'),
+        findsOneWidget,
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('planner-title')),
+        longTitle,
+      );
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
       tester.view.resetViewInsets();
@@ -426,20 +440,17 @@ void main() {
       expect(app.tasks.single.title, longTitle);
       expect(longTitle.length, 160);
       final semantics = tester.ensureSemantics();
-      await tapVisible(tester, find.byType(Checkbox));
-      expect(app.tasks.single.done, isTrue);
-      await tester.scrollUntilVisible(find.text('All tasks completed'), -300);
-      await tester.pumpAndSettle();
-      expect(find.text('All tasks completed'), findsOneWidget);
-      await tester.scrollUntilVisible(find.byType(Checkbox), 300);
-      await tester.pumpAndSettle();
-      await tester.ensureVisible(find.byType(Checkbox));
-      await tester.pumpAndSettle();
-      expect(
-        tester.getSemantics(find.byType(Checkbox)).label,
-        contains('incomplete'),
+      Finder checkbox() => find.descendant(
+        of: find.byKey(ValueKey('calendar-task-${app.tasks.single.id}')),
+        matching: find.byType(Checkbox),
       );
-      await tapVisible(tester, find.byType(Checkbox));
+      await tapVisible(tester, checkbox());
+      expect(app.tasks.single.done, isTrue);
+      await tapVisible(tester, find.text('Completed (1)'));
+      await tester.ensureVisible(checkbox());
+      await tester.pumpAndSettle();
+      expect(tester.getSemantics(checkbox()).label, contains('incomplete'));
+      await tapVisible(tester, checkbox());
       expect(app.tasks.single.done, isFalse);
       semantics.dispose();
       await tester.pumpWidget(const SizedBox());
@@ -603,8 +614,8 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
       expect(FocusManager.instance.primaryFocus, isNotNull);
       final tasksLabel = find.descendant(
-        of: find.byKey(const Key('destination-1')),
-        matching: find.text('Tasks'),
+        of: find.byKey(const Key('destination-4')),
+        matching: find.text('Calendar'),
       );
       final node = Focus.of(tester.element(tasksLabel));
       node.requestFocus();
@@ -612,7 +623,7 @@ void main() {
       expect(node.hasFocus, isTrue);
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.pumpAndSettle();
-      expect(find.text('Add a task'), findsOneWidget);
+      expect(find.byKey(const ValueKey('planner-add-task')), findsOneWidget);
       // Set the actual inherited preference explicitly: changing the test
       // dispatcher's flag does not replace the FlutterView's MediaQuery data.
       for (final use24 in [true, false]) {
@@ -747,7 +758,7 @@ void main() {
       await app.reconcile();
       await tester.pumpAndSettle();
       expect(tester.widget<Semantics>(notice).properties.liveRegion, isTrue);
-      await tester.tap(find.byKey(const Key('destination-1')));
+      await tester.tap(find.byKey(const Key('destination-4')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('destination-0')));
       await tester.pumpAndSettle();

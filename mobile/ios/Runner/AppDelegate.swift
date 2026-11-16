@@ -23,6 +23,10 @@ import UserNotifications
       binaryMessenger: engineBridge.applicationRegistrar.messenger()
     )
     clockChannel.setMethodCallHandler { call, result in
+      if call.method == "focusTimeZone" {
+        result(["zone": TimeZone.current.identifier])
+        return
+      }
       guard call.method == "sample" else {
         result(FlutterMethodNotImplemented)
         return

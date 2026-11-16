@@ -8,6 +8,7 @@ import 'package:poma/main.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'alert_support.dart';
 import 'support.dart';
+import 'calendar_ui_support.dart';
 
 /// Host integration: real SQLite + real app widgets, injected elapsed clock
 /// and OS alerts. This does not establish airplane-mode delivery on a phone.
@@ -51,12 +52,11 @@ void main() {
       });
       await tester.pumpWidget(PomaApp(controller: app));
       await tester.pumpAndSettle();
-      await tap(find.byKey(const Key('destination-1')));
-      await tap(find.text('Add a task'));
-      await tester.enterText(find.byType(TextFormField), 'Read offline');
-      await tap(find.text('Save task'));
+      await openCalendarTasks(tester);
+      await enterCalendarTask(tester, 'Read offline');
+      await tap(find.byKey(const ValueKey('planner-save')));
+      await closeCalendarDrawer(tester);
       final taskId = app.tasks.single.id;
-      await tap(find.byKey(ValueKey('task-$taskId')));
       expect(app.selectedTaskId, taskId);
       await tap(find.byKey(const Key('destination-3')));
       await tester.runAsync(

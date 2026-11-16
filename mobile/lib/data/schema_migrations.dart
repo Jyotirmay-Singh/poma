@@ -135,6 +135,8 @@ Future<void> migrateSchema(Database db, int from, int to) async {
           await db.execute(
             'CREATE TABLE planner_imports (identity TEXT PRIMARY KEY)',
           );
+        case 5:
+          await db.execute('ALTER TABLE tasks ADD COLUMN color_id TEXT');
         default:
           throw const StorageFailure(StorageFailureKind.migration);
       }

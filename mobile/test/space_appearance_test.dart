@@ -9,7 +9,7 @@ import 'package:poma/main.dart';
 import 'package:poma/ui/design_tokens.dart';
 import 'package:poma/ui/space_backdrop.dart';
 import 'package:poma/ui/theme.dart';
-import 'package:poma/ui/tasks_screen.dart';
+import 'package:poma/ui/planner_screen.dart';
 import 'support.dart';
 
 void main() {
@@ -140,9 +140,9 @@ void main() {
       same(picture),
       reason: 'Countdown updates retain the painted sky',
     );
-    await tester.tap(find.byKey(const Key('destination-1')));
+    await tester.tap(find.byKey(const Key('destination-4')));
     await tester.pumpAndSettle();
-    expect(find.byType(TasksScreen), findsOneWidget);
+    expect(find.byType(PlannerScreen), findsOneWidget);
     expect(
       boundary.debugLayer!.firstChild,
       same(picture),

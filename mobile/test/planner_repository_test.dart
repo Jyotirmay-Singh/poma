@@ -10,9 +10,9 @@ import 'native_probe_support.dart';
 
 void main() {
   setUpAll(sqfliteFfiInit);
-  for (final version in [1, 2, 3]) {
+  for (final version in [1, 2, 3, 4]) {
     test(
-      'v$version to v4 retains existing tasks, selection and history',
+      'v$version to v5 retains existing tasks, selection and history',
       () async {
         final directory = await Directory.systemTemp.createTemp(
           'poma-planner-upgrade-',

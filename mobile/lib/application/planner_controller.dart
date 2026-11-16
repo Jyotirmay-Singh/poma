@@ -6,6 +6,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 import '../data/planner_time.dart';
 import '../domain/calendar_data.dart';
+import '../domain/calendar_colors.dart';
 import '../domain/calendar_event_creation.dart';
 import '../domain/models.dart';
 import '../domain/planner.dart';
@@ -29,41 +30,100 @@ const _repeatFields = [
 class PlannerController extends ChangeNotifier implements PlannerTaskActions {
   PlannerController({
     required this.app,
-    required this.reader,
-    required this.writer,
+    required CalendarReadController reader,
+    required PlannerEventWriter this._writer,
     required this.time,
     bool unlocked = true,
-  }) : _unlocked = unlocked && !app.cleanupPending {
-    final local = reader.now.toLocal();
+  }) : _reader = reader,
+       clock = reader.clock,
+       scheduler = reader.scheduler,
+       _initialView = PlannerCalendarView.week,
+       _unlocked = unlocked && !app.cleanupPending {
+    _attach();
+  }
+
+  PlannerController.local({
+    required this.app,
+    required this.clock,
+    required this.scheduler,
+    required this.time,
+    this._initialView = PlannerCalendarView.day,
+  }) : _reader = null,
+       _writer = null,
+       _unlocked = !app.cleanupPending {
+    _attach();
+  }
+
+  void _attach() {
+    final local = currentTime.toLocal();
     selectedDate = CalendarDate(local.year, local.month, local.day);
-    clockTick = ValueNotifier(reader.now);
+    clockTick = ValueNotifier(currentTime);
     app.plannerActions = this;
     app.addListener(_appChanged);
-    reader.addListener(_readerChanged);
-    connection.addListener(_connectionChanged);
+    _reader?.addListener(_readerChanged);
+    _reader?.connection.addListener(_connectionChanged);
     _authority = _session;
   }
 
   final AppController app;
-  final CalendarReadController reader;
-  final PlannerEventWriter writer;
+  final CalendarReadController? _reader;
+  final PlannerEventWriter? _writer;
+  final CalendarClock clock;
+  final CalendarScheduler scheduler;
+  final PlannerCalendarView _initialView;
+  CalendarReadController? get remoteReader => _reader;
+  bool get supportsGoogle => _reader != null;
+  // Connected-only operations retain the established reader/writer interfaces.
+  CalendarReadController get reader => _reader!;
+  PlannerEventWriter get writer => _writer!;
+  DateTime get currentTime => clock.nowUtc();
+  List<CalendarSource> get sources => _reader?.sources ?? const [];
+  CalendarEventPalette get palette {
+    final remote = _reader?.palette;
+    return remote == null
+        ? offlineTaskPalette
+        : CalendarEventPalette(
+            {...offlineTaskPalette.colors, ...remote.colors},
+            remote.fetchedAt,
+            updated: remote.updated,
+          );
+  }
+
+  bool rangeVerified(CalendarWindow window, {bool availability = false}) =>
+      _reader?.rangeVerified(window, availability: availability) ?? true;
   final PlannerTime time;
   late final ValueNotifier<DateTime> clockTick;
   CalendarConnectionController get connection => reader.connection;
   PlannerData get data => app.planner;
   PlannerPreferences get preferences =>
-      data.preferences[accountKey ?? 'device'] ?? const PlannerPreferences();
-  String? get accountKey => connection.verifiedAccountKey;
+      data.preferences[accountKey ?? 'device'] ??
+      PlannerPreferences(calendarView: _initialView);
+  String? get accountKey => _reader?.connection.verifiedAccountKey;
   bool get unlocked => _unlocked && !_disposed;
   bool _unlocked, _disposed = false, _resetting = false;
   int _epoch = 0, _viewRevision = 0;
   String _authority = '';
-  String get _session =>
-      '${connection.verifiedAccountKey}/${connection.sessionGeneration}/${connection.creationGeneration}/'
-      '${connection.creationEnabled}/${connection.creationUpgradeActive}/${connection.operationsEnabled}';
+  String get _session => !supportsGoogle
+      ? 'device'
+      : '${connection.verifiedAccountKey}/${connection.sessionGeneration}/${connection.creationGeneration}/'
+            '${connection.creationEnabled}/${connection.creationUpgradeActive}/${connection.operationsEnabled}';
   Future<void> _changes = Future.value();
   Future<void>? _draining;
   CalendarScheduledJob? _wake;
+  CalendarScheduledJob? _localCadence;
+  bool _active = true;
+
+  void setActive(bool active) {
+    _active = active;
+    _localCadence?.cancel();
+    _localCadence = null;
+    if (!active || _disposed || supportsGoogle) return;
+    _readerChanged();
+    _localCadence = scheduler.after(const Duration(minutes: 1), () {
+      setActive(_active);
+    });
+  }
+
   String? message;
   Map<String, String> errors = {};
   Map<String, List<DateTime>> ambiguousTimes = {};
@@ -103,23 +163,28 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
     await time.initialize();
     clockMode = preferences.clockMode;
     calendarView = preferences.calendarView;
-    final local = reader.now.toLocal();
+    final local = currentTime.toLocal();
     half = local.hour < 12 ? 0 : 1;
-    await _change(
-      (current) => current.copyWith(
-        operations: {
-          for (final e in current.operations.entries)
-            e.key: e.value.state == PlannerOperationState.sending
-                ? e.value.copyWith(
-                    state: PlannerOperationState.checking,
-                    message: 'Checking the original save after restart.',
-                  )
-                : e.value,
-        },
-      ),
-    );
+    if (data.operations.values.any(
+      (operation) => operation.state == PlannerOperationState.sending,
+    )) {
+      await _change(
+        (current) => current.copyWith(
+          operations: {
+            for (final e in current.operations.entries)
+              e.key: e.value.state == PlannerOperationState.sending
+                  ? e.value.copyWith(
+                      state: PlannerOperationState.checking,
+                      message: 'Checking the original save after restart.',
+                    )
+                  : e.value,
+          },
+        ),
+      );
+    }
     _initialized = true;
     ready = true;
+    if (!supportsGoogle) setActive(_active);
     _notify();
     unawaited(sync());
   }
@@ -134,16 +199,21 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
         data.schedules.isEmpty &&
         data.operations.isEmpty) {
       _resetting = false;
+      if (!supportsGoogle) setActive(_active);
     }
     _notify();
   }
 
   void _readerChanged() {
-    clockTick.value = reader.now;
+    clockTick.value = currentTime;
     if (followingNow) {
-      final local = reader.now.toLocal();
+      final local = currentTime.toLocal();
       selectedDate = CalendarDate(local.year, local.month, local.day);
       half = local.hour < 12 ? 0 : 1;
+    }
+    if (!supportsGoogle) {
+      _notify();
+      return;
     }
     if (!_reconciling &&
         reader.dataRevision != _seenReaderRevision &&
@@ -205,15 +275,13 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
         final start = schedule.startUtc?.toLocal();
         final coverage = start == null
             ? null
-            : reader.clock.dayWindow(
-                CalendarDate(start.year, start.month, start.day),
-              );
+            : clock.dayWindow(CalendarDate(start.year, start.month, start.day));
         final visible = observed.any((event) {
           final local = event.startUtc?.toLocal();
           return local != null &&
               reader.sourceRangeVerified(
                 schedule.calendarId!,
-                reader.clock.dayWindow(
+                clock.dayWindow(
                   CalendarDate(local.year, local.month, local.day),
                 ),
               );
@@ -270,8 +338,9 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
                       title != null &&
                       title.isNotEmpty &&
                       title.length <= 160 &&
-                      title != task.title
-                  ? [task.copyWith(title: title)]
+                      (title != task.title ||
+                          remote!.fields['colorId'] != task.colorId)
+                  ? [_taskWithFields(task, remote!.fields)]
                   : [];
             },
           );
@@ -288,7 +357,7 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
     if (_authority != _session) {
       _authority = _session;
       _epoch++;
-      writer.cancel();
+      _writer?.cancel();
       selectedIdentity = null;
       _saveViews.clear();
       clockMode = preferences.clockMode;
@@ -302,10 +371,17 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
     if (_unlocked == value) return;
     _unlocked = value;
     _epoch++;
-    writer.cancel();
+    _writer?.cancel();
     if (value) unawaited(sync());
     _notify();
   }
+
+  FocusTask _taskWithFields(FocusTask task, Map<String, dynamic> fields) =>
+      task.copyWith(
+        title: fields['summary'] as String?,
+        colorId: fields['colorId'] as String?,
+        clearColor: fields['colorId'] == null,
+      );
 
   Future<bool> _change(
     PlannerData Function(PlannerData current) change, {
@@ -328,7 +404,7 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
             .where((operation) => operation.pending)
             .map((operation) => operation.dependsOn)
             .toSet();
-        final cutoff = reader.now.subtract(const Duration(days: 30));
+        final cutoff = currentTime.subtract(const Duration(days: 30));
         final retained = next.copyWith(
           operations: {
             for (final operation in next.operations.values)
@@ -338,7 +414,7 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
                   dependencies.contains(operation.id))
                 operation.id:
                     operation.terminal && operation.completedAt == null
-                    ? operation.copyWith(completedAt: reader.now)
+                    ? operation.copyWith(completedAt: currentTime)
                     : operation,
           },
         );
@@ -366,8 +442,8 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
       CalendarWindow(
         first: first,
         until: until,
-        startUtc: reader.clock.dayWindow(first).startUtc,
-        endUtc: reader.clock.dayWindow(until).startUtc,
+        startUtc: clock.dayWindow(first).startUtc,
+        endUtc: clock.dayWindow(until).startUtc,
       );
   CalendarWindow get dayRange => range(selectedDate, selectedDate.plusDays(1));
   CalendarWindow weekRange({int firstWeekday = 1}) {
@@ -399,7 +475,7 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
   void now() {
     _viewRevision++;
     followingNow = true;
-    inspectedUtc = reader.now;
+    inspectedUtc = currentTime;
     _readerChanged();
   }
 
@@ -485,11 +561,12 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
       return 'Couldn’t save — Retry';
     }
     if (operation.kind == PlannerOperationKind.delete &&
-        operation.notBefore?.isAfter(reader.now) == true) {
+        operation.notBefore?.isAfter(currentTime) == true) {
       return 'Deleting — Undo';
     }
     if (operation.state == PlannerOperationState.sending) return 'Saving';
     if (operation.state == PlannerOperationState.checking &&
+        supportsGoogle &&
         connection.operationsEnabled) {
       return 'Checking save…';
     }
@@ -499,9 +576,10 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
   String? readOnlyReason(CalendarEvent event) {
     if (event.focusOwned) return 'Manage this focus block in Focus blocks.';
     if (scheduleForEvent(event)?.policy == PlannerSyncPolicy.local) return null;
-    if (!reader.sources.any(
-      (s) => s.id == event.calendarId && s.accessRole == 'owner',
-    )) {
+    if (!supportsGoogle ||
+        !sources.any(
+          (s) => s.id == event.calendarId && s.accessRole == 'owner',
+        )) {
       return 'This calendar is view-only in Poma. Editing is available on calendars you own.';
     }
     if (!event.editable) {
@@ -516,7 +594,7 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
   List<CalendarEvent> eventsFor(CalendarWindow window) {
     if (!unlocked) return const [];
     final events = <String, CalendarEvent>{};
-    if (reader.accountKey == accountKey && accountKey != null) {
+    if (accountKey != null && reader.accountKey == accountKey) {
       for (final event in reader.eventsFor(window)) {
         events[calendarEventIdentity(event)] = event;
       }
@@ -580,7 +658,7 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
   }
 
   List<PlannerGap> gaps(CalendarWindow window, {DateTime? after}) {
-    final intervals = [...reader.eventsFor(window), ...eventsFor(window)];
+    final intervals = [...?_reader?.eventsFor(window), ...eventsFor(window)];
     // Keep both sides of an unconfirmed move and the old interval of a deletion.
     for (final schedule in data.schedules.values.where(
       (s) => pendingFor(s.id) != null,
@@ -601,14 +679,14 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
     return plannerGaps(
       intervals,
       window,
-      verified: reader.rangeVerified(window, availability: true),
+      verified: rangeVerified(window, availability: true),
       after: after,
-      midnight: (day) => reader.clock.dayWindow(day).startUtc,
+      midnight: (day) => clock.dayWindow(day).startUtc,
     );
   }
 
   Future<void> enableSync() async {
-    if (!unlocked) return;
+    if (!unlocked || !supportsGoogle) return;
     if (!connection.creationEnabled) await connection.enableCreation();
     if (!connection.creationEnabled || !unlocked || accountKey == null) return;
     await setPreferences(preferences.copyWith(syncEnabled: true));
@@ -642,7 +720,7 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
     if (existing != null) return editSchedule(existing);
     final zoneName = await time.deviceZone();
     final zone = zoneName == null ? null : tz.getLocation(zoneName);
-    final current = reader.now.toLocal();
+    final current = currentTime.toLocal();
     final first =
         startUtc ??
         (selectedDate.toString() == plannerDate(current)
@@ -668,6 +746,7 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
     draft = {
       'id': newPlannerId(),
       'title': task?.title ?? '',
+      'colorId': task?.colorId,
       'taskId': task?.id,
       'scheduled': scheduled,
       'date': plannerDate(start),
@@ -680,11 +759,11 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
       'accountKey': accountKey,
       'calendarId':
           preferences.calendarId ??
-          reader.sources
+          sources
               .where((s) => s.accessRole == 'owner' && s.primary)
               .firstOrNull
               ?.id,
-      'localOnly': !preferences.syncEnabled,
+      'localOnly': !supportsGoogle || !preferences.syncEnabled,
       'makeDefault': false,
       'busy': true,
       'repeat': PlannerRepeat.none.name,
@@ -974,7 +1053,13 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
           : 'Enter a task title of 1–160 characters.';
     }
     if (value['scheduled'] != true) {
-      return errors.isEmpty ? {'summary': title} : null;
+      if (value['colorId'] != null &&
+          !palette.colors.containsKey(value['colorId'])) {
+        errors['colorId'] = 'Choose an available color.';
+      }
+      return errors.isEmpty
+          ? {'summary': title, 'colorId': value['colorId']}
+          : null;
     }
     tz.Location? zone;
     try {
@@ -1051,14 +1136,14 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
             'Use the original connected account for this task.';
       }
       if (!quarantined &&
-          !reader.sources.any(
+          !sources.any(
             (s) => s.id == value['calendarId'] && s.accessRole == 'owner',
           )) {
         errors['calendarId'] = 'Choose an owned Google calendar.';
       }
     }
     if (value['colorId'] != null &&
-        reader.palette?.colors.containsKey(value['colorId']) != true &&
+        palette.colors.containsKey(value['colorId']) != true &&
         value['colorId'] != (value['baseFields'] as Map?)?['colorId']) {
       errors['colorId'] = 'Choose an available Google color.';
     }
@@ -1135,13 +1220,14 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
         : FocusTask(
             id: taskId,
             title: fields['summary'] as String,
+            colorId: fields['colorId'] as String?,
             done:
                 app.tasks.where((t) => t.id == taskId).firstOrNull?.done ??
                 false,
           );
     if (!scheduled) {
       final previous = taskId == null ? null : taskSchedule(taskId);
-      if (previous != null) return removeSchedule(previous, title: task?.title);
+      if (previous != null) return removeSchedule(previous, updatedTask: task);
       final saved = await _change(
         (current) =>
             current.copyWith(drafts: {...current.drafts}..remove(value['id'])),
@@ -1241,7 +1327,7 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
         ),
       );
       _saveViews[id] = _viewRevision;
-      _saveSelections[id] = reader.selectionRevision;
+      _saveSelections[id] = _reader?.selectionRevision ?? 0;
     }
     message = policy == PlannerSyncPolicy.local
         ? 'Saved on this device.'
@@ -1330,7 +1416,8 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
     _wake?.cancel();
     _wake = null;
     await _changes;
-    if (!unlocked ||
+    if (!supportsGoogle ||
+        !unlocked ||
         _resetting ||
         app.saveError != null ||
         !connection.operationsEnabled ||
@@ -1343,12 +1430,12 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
         !app.cleanupPending &&
         app.saveError == null) {
       final pending = data.operations.values.where(_eligible).toList();
-      final now = reader.now;
+      final currentTime = this.currentTime;
       final operation = pending
           .where(
             (op) =>
-                (op.notBefore == null || !op.notBefore!.isAfter(now)) &&
-                (op.retryAt == null || !op.retryAt!.isAfter(now)),
+                (op.notBefore == null || !op.notBefore!.isAfter(currentTime)) &&
+                (op.retryAt == null || !op.retryAt!.isAfter(currentTime)),
           )
           .firstOrNull;
       if (operation == null) {
@@ -1356,12 +1443,12 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
             pending
                 .expand((op) => [op.notBefore, op.retryAt])
                 .whereType<DateTime>()
-                .where((t) => t.isAfter(now))
+                .where((t) => t.isAfter(currentTime))
                 .toList()
               ..sort();
         if (times.isNotEmpty) {
-          _wake = reader.scheduler.after(
-            times.first.difference(now),
+          _wake = scheduler.after(
+            times.first.difference(currentTime),
             () => unawaited(sync()),
           );
         }
@@ -1547,7 +1634,7 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
                     : PlannerOperationState.queued)
               : PlannerOperationState.failed,
           attempts: attempts,
-          retryAt: transient ? failure.retryAt ?? reader.now.add(delay) : null,
+          retryAt: transient ? failure.retryAt ?? currentTime.add(delay) : null,
           message: failure.message,
         ),
       );
@@ -1558,7 +1645,7 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
         await _record(
           (data.operations[operation.id] ?? operation).copyWith(
             state: PlannerOperationState.checking,
-            retryAt: reader.now.add(const Duration(seconds: 30)),
+            retryAt: currentTime.add(const Duration(seconds: 30)),
             message:
                 'Waiting to sync. The original event will be checked before retrying.',
           ),
@@ -1624,8 +1711,9 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
                 title != null &&
                 title.isNotEmpty &&
                 title.length <= 160 &&
-                task.title != title
-            ? [task.copyWith(title: title)]
+                (task.title != title ||
+                    remote!.fields['colorId'] != task.colorId)
+            ? [_taskWithFields(task, remote!.fields)]
             : [];
       },
     );
@@ -1754,11 +1842,12 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
         tasks:
             schedule.taskId != null && title.isNotEmpty && title.length <= 160
             ? [
-                task?.copyWith(title: title) ??
+                (task == null ? null : _taskWithFields(task, remote.fields)) ??
                     FocusTask(
                       id: schedule.taskId!,
                       title: title,
                       done: schedule.deletedTask?['done'] == true,
+                      colorId: remote.fields['colorId'] as String?,
                     ),
               ]
             : [],
@@ -1811,18 +1900,31 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
     final schedule = data.schedules[scheduleId];
     final local = _localUndo.remove(scheduleId);
     if (schedule?.policy == PlannerSyncPolicy.local && local != null) {
-      await _change((current) {
-        final latest = current.schedules[scheduleId];
-        if (latest == null || !plannerValueEquals(latest.fields, local.$2)) {
-          return current;
-        }
-        return current.copyWith(
-          schedules: {
-            ...current.schedules,
-            scheduleId: latest.copyWith(fields: local.$1),
-          },
-        );
-      });
+      await _change(
+        (current) {
+          final latest = current.schedules[scheduleId];
+          if (latest == null || !plannerValueEquals(latest.fields, local.$2)) {
+            return current;
+          }
+          return current.copyWith(
+            schedules: {
+              ...current.schedules,
+              scheduleId: latest.copyWith(fields: local.$1),
+            },
+          );
+        },
+        deriveTasks: (current) {
+          final latest = current.schedules[scheduleId];
+          final task = app.tasks
+              .where((task) => task.id == latest?.taskId)
+              .firstOrNull;
+          return task != null &&
+                  latest != null &&
+                  plannerValueEquals(latest.fields, local.$2)
+              ? [_taskWithFields(task, local.$1)]
+              : [];
+        },
+      );
       return;
     }
     final previous = operationsFor(scheduleId)
@@ -1867,7 +1969,7 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
         return next;
       },
       tasks: task != null && title != null && title.length <= 160
-          ? [task.copyWith(title: title)]
+          ? [_taskWithFields(task, previous.baseFields)]
           : [],
     );
     unawaited(sync());
@@ -1943,7 +2045,7 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
               .firstOrNull;
           final title = remote.fields['summary'] as String;
           return task != null && title.isNotEmpty && title.length <= 160
-              ? [task.copyWith(title: title)]
+              ? [_taskWithFields(task, remote.fields)]
               : [];
         },
       );
@@ -1958,6 +2060,7 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
   Future<bool> removeSchedule(
     PlannerSchedule schedule, {
     String? title,
+    FocusTask? updatedTask,
     bool deleteTask = false,
   }) async {
     final saved = await _change(
@@ -1968,9 +2071,14 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
             .firstOrNull;
         final removed = schedule.copyWith(
           removed: true,
-          undoUntil: reader.now.add(const Duration(seconds: 10)),
+          undoUntil: currentTime.add(const Duration(seconds: 10)),
           deletedTask: deleteTask && task != null
-              ? {'id': task.id, 'title': task.title, 'done': task.done}
+              ? {
+                  'id': task.id,
+                  'title': task.title,
+                  'done': task.done,
+                  'colorId': task.colorId,
+                }
               : null,
         );
         var next = current.copyWith(
@@ -1988,7 +2096,7 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
             removed,
             PlannerOperationKind.delete,
             automatic: schedule.taskId != null,
-            notBefore: reader.now.add(const Duration(seconds: 10)),
+            notBefore: currentTime.add(const Duration(seconds: 10)),
           );
         } else {
           next = next.copyWith(
@@ -2005,7 +2113,9 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
       deletedTasks: deleteTask && schedule.taskId != null
           ? [schedule.taskId!]
           : [],
-      tasks: !deleteTask && title != null && schedule.taskId != null
+      tasks: updatedTask != null
+          ? [updatedTask]
+          : !deleteTask && title != null && schedule.taskId != null
           ? [
               app.tasks
                   .firstWhere((t) => t.id == schedule.taskId)
@@ -2042,7 +2152,7 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
     final schedule = data.schedules[scheduleId];
     if (schedule == null ||
         !schedule.removed ||
-        schedule.undoUntil?.isAfter(reader.now) != true ||
+        schedule.undoUntil?.isAfter(currentTime) != true ||
         operationsFor(scheduleId).any(
           (operation) =>
               operation.kind == PlannerOperationKind.delete &&
@@ -2053,7 +2163,7 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
     if (schedule.taskId != null && taskSchedule(schedule.taskId!) != null) {
       return;
     }
-    if (op != null && op.notBefore?.isAfter(reader.now) != true) return;
+    if (op != null && op.notBefore?.isAfter(currentTime) != true) return;
     final task =
         schedule.taskId == null || app.tasks.any((t) => t.id == schedule.taskId)
         ? null
@@ -2061,6 +2171,9 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
             id: schedule.taskId!,
             title: schedule.deletedTask?['title'] as String? ?? schedule.title,
             done: schedule.deletedTask?['done'] == true,
+            colorId:
+                schedule.deletedTask?['colorId'] as String? ??
+                schedule.fields['colorId'] as String?,
           );
     await _change(
       (current) => current.copyWith(
@@ -2115,9 +2228,9 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
     final schedule = taskSchedule(id);
     if (schedule == null || !schedule.recurring) return null;
     final first = CalendarDate(
-      reader.now.toLocal().year,
-      reader.now.toLocal().month,
-      reader.now.toLocal().day,
+      currentTime.toLocal().year,
+      currentTime.toLocal().month,
+      currentTime.toLocal().day,
     );
     final window = range(first, first.plusDays(42));
     if (schedule.policy == PlannerSyncPolicy.local) {
@@ -2126,7 +2239,7 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
               .where(
                 (event) =>
                     event.recurringEventId == schedule.eventId &&
-                    event.endUtc!.isAfter(reader.now),
+                    event.endUtc!.isAfter(currentTime),
               )
               .toList()
             ..sort((a, b) => a.startUtc!.compareTo(b.startUtc!));
@@ -2154,9 +2267,7 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
       if (schedule.policy == PlannerSyncPolicy.google &&
           reader.sourceRangeVerified(
             schedule.calendarId!,
-            reader.clock.dayWindow(
-              CalendarDate(local.year, local.month, local.day),
-            ),
+            clock.dayWindow(CalendarDate(local.year, local.month, local.day)),
           )) {
         continue;
       }
@@ -2164,7 +2275,7 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
     }
     candidates.sort((a, b) => a.startUtc!.compareTo(b.startUtc!));
     return candidates
-        .where((event) => event.endUtc!.isAfter(reader.now))
+        .where((event) => event.endUtc!.isAfter(currentTime))
         .firstOrNull;
   }
 
@@ -2303,8 +2414,9 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
   void stopForReset() {
     _epoch++;
     _resetting = true;
-    writer.cancel();
+    _writer?.cancel();
     _wake?.cancel();
+    _localCadence?.cancel();
     draft = null;
     selectedIdentity = null;
     _saveViews.clear();
@@ -2316,12 +2428,13 @@ class PlannerController extends ChangeNotifier implements PlannerTaskActions {
   void dispose() {
     _disposed = true;
     _epoch++;
-    writer.cancel();
+    _writer?.cancel();
     _wake?.cancel();
     if (identical(app.plannerActions, this)) app.plannerActions = null;
     app.removeListener(_appChanged);
-    reader.removeListener(_readerChanged);
-    connection.removeListener(_connectionChanged);
+    _localCadence?.cancel();
+    _reader?.removeListener(_readerChanged);
+    _reader?.connection.removeListener(_connectionChanged);
     clockTick.dispose();
     super.dispose();
   }

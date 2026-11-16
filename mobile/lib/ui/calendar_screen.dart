@@ -11,6 +11,8 @@ import 'settings_screen.dart';
 import 'calendar_schedule.dart';
 import 'design_tokens.dart';
 import 'planner_screen.dart';
+import 'planner_scope.dart';
+import 'calendar_tasks.dart';
 
 String _status(FocusOperationStatus status) => switch (status) {
   FocusOperationStatus.needsReview => 'Needs review',
@@ -166,18 +168,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final desktop = widget.desktop,
         c = desktop.focusBlocks,
         connection = desktop.connection;
-    final plannerActive = desktop.planner != null;
+    final planner =
+        desktop.planner ??
+        (desktop.calendarData == null ? PlannerScope.maybeOf(context) : null);
+    final plannerActive = planner != null;
     final eventAccess = plannerActive ? 'calendar editing' : 'task creation';
     return AnimatedBuilder(
       animation: Listenable.merge([desktop, ?c, ?connection]),
       builder: (context, _) =>
-          desktop.planner != null &&
+          planner != null &&
               desktop.calendarSection == CalendarPageSection.schedule
-          ? PlannerScreen(
-              desktop: desktop,
-              planner: desktop.planner!,
-              clock: false,
-            )
+          ? PlannerScreen(desktop: desktop, planner: planner, clock: false)
           : PomaPage(
               controller: widget.controller,
               maxContentWidth:
@@ -489,16 +490,28 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       children: [
                         FilledButton.icon(
                           icon: const Icon(Icons.add),
-                          onPressed: () =>
-                              widget.controller.selectedTask == null
-                              ? desktop.navigate(1)
-                              : showFocusBlockDialog(
-                                  context,
-                                  desktop,
-                                  taskTitle:
-                                      widget.controller.selectedTask!.title,
-                                  taskId: widget.controller.selectedTask!.id,
+                          onPressed: () {
+                            final task = widget.controller.selectedTask;
+                            if (task != null) {
+                              showFocusBlockDialog(
+                                context,
+                                desktop,
+                                taskTitle: task.title,
+                                taskId: task.id,
+                              );
+                            } else if (planner != null) {
+                              showFocusTaskPicker(
+                                context,
+                                widget.controller,
+                                planner,
+                                onManage: () => desktop.openCalendarSection(
+                                  CalendarPageSection.schedule,
                                 ),
+                              );
+                            } else {
+                              desktop.navigate(4);
+                            }
+                          },
                           label: Text(
                             widget.controller.selectedTask == null
                                 ? 'Choose a task'

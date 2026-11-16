@@ -18,6 +18,7 @@ import 'calendar_read_test.dart' show settleCalendar;
 import 'desktop_test.dart' show FakeShell;
 import 'day_clock_support.dart' show FictionalDayClock;
 import 'planner_support.dart';
+import 'calendar_ui_support.dart';
 
 const captures = String.fromEnvironment('POMA_PLANNER_SCREENSHOTS');
 
@@ -156,7 +157,11 @@ void main() {
           disableAnimations: true,
         );
     await settlePlanner(tester);
-    await tester.tap(find.byTooltip('Options for Fictional deletion'));
+    rig.planner.setCalendarView(PlannerCalendarView.agenda);
+    await settlePlanner(tester);
+    await tester.ensureVisible(find.text('Fictional deletion').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Fictional deletion').first);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete task and calendar event'));
     await settlePlanner(tester);
@@ -175,7 +180,7 @@ void main() {
   });
 
   testWidgets(
-    'compact Tasks scheduling saves once and reveals the selected planner item',
+    'compact Calendar scheduling saves once and reveals the selected planner item',
     (tester) async {
       final (rig, desktop) = await mount(tester, width: 640, height: 724);
       desktop.navigate(1);
@@ -188,10 +193,8 @@ void main() {
       expect(rig.google.inserts, 0);
       await tester.enterText(
         find.byKey(const ValueKey('planner-title')),
-        'Fictional scheduled Tasks journey',
+        'Fictional scheduled Calendar journey',
       );
-      await tester.tap(find.byKey(const ValueKey('planner-scheduled')));
-      await tester.pumpAndSettle();
       await tester.enterText(
         find.byKey(const ValueKey('planner-start')),
         '22:00',
@@ -202,7 +205,7 @@ void main() {
       );
       await tester.tap(find.byKey(const ValueKey('planner-save')));
       await settlePlanner(tester);
-      expect(desktop.destination, 5);
+      expect(desktop.destination, 4);
       expect(rig.google.inserts, 1);
       expect(rig.planner.selectedDate.toString(), '2026-11-10');
       expect(rig.planner.selectedIdentity, isNotNull);
@@ -214,7 +217,7 @@ void main() {
             .widget<TextField>(find.byKey(const ValueKey('planner-title')))
             .controller!
             .text,
-        'Fictional scheduled Tasks journey',
+        'Fictional scheduled Calendar journey',
       );
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await settlePlanner(tester);
@@ -562,12 +565,13 @@ void main() {
   });
 
   testWidgets(
-    'unscheduled Tasks use the shared editor and keep calendar requests empty',
+    'unscheduled Calendar tasks use the shared editor and keep calendar requests empty',
     (tester) async {
       final (r, desktop) = await mount(tester);
       desktop.navigate(1);
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const ValueKey('tasks-add-task')));
+      await openCalendarTasks(tester);
+      await tester.tap(find.byKey(const ValueKey('calendar-add-unscheduled')));
       await tester.runAsync(settleCalendar);
       await tester.pumpAndSettle();
       expect(find.byType(PlannerEditor), findsOneWidget);

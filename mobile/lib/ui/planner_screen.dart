@@ -13,11 +13,15 @@ import '../application/planner_controller.dart';
 import '../domain/calendar_data.dart';
 import '../domain/day_clock.dart';
 import '../domain/planner.dart';
+import '../domain/models.dart';
 import 'calendar_schedule_adapter.dart';
 import 'day_clock_dial.dart';
 import 'design_tokens.dart';
 import 'planner_dial.dart';
 import 'planner_editor.dart';
+import 'calendar_sidebar.dart';
+import 'app_shell.dart';
+import 'calendar_theme.dart';
 
 void showPlannerDeletionUndo(
   BuildContext context,
@@ -26,8 +30,8 @@ void showPlannerDeletionUndo(
   String message,
 ) {
   final deadline = planner.data.schedules[scheduleId]?.undoUntil;
-  if (deadline == null || !deadline.isAfter(planner.reader.now)) return;
-  final remaining = deadline.difference(planner.reader.now);
+  if (deadline == null || !deadline.isAfter(planner.currentTime)) return;
+  final remaining = deadline.difference(planner.currentTime);
   final messenger = ScaffoldMessenger.of(context);
   messenger.clearSnackBars();
   messenger.removeCurrentSnackBar();
@@ -49,21 +53,57 @@ void showPlannerDeletionUndo(
   unawaited(notice.closed.then((_) => expiry.cancel()));
 }
 
-class PlannerScreen extends StatefulWidget {
+class PlannerScreen extends StatelessWidget {
   const PlannerScreen({
-    required this.desktop,
+    this.desktop,
+    this.onOpenSettings,
+    this.onOpenFocusBlocks,
+    this.onOpenEvent,
     required this.planner,
     required this.clock,
     super.key,
   });
-  final DesktopController desktop;
+  final DesktopController? desktop;
+  final VoidCallback? onOpenSettings, onOpenFocusBlocks;
+  final Future<void> Function(CalendarEvent event, String kind)? onOpenEvent;
   final PlannerController planner;
   final bool clock;
+
   @override
-  State<PlannerScreen> createState() => _PlannerScreenState();
+  Widget build(BuildContext context) {
+    final workspace = _PlannerWorkspace(
+      desktop: desktop,
+      planner: planner,
+      clock: clock,
+      onOpenSettings: onOpenSettings,
+      onOpenFocusBlocks: onOpenFocusBlocks,
+      onOpenEvent: onOpenEvent,
+    );
+    return clock
+        ? workspace
+        : Theme(data: calendarWorkspaceTheme(context), child: workspace);
+  }
 }
 
-class _PlannerScreenState extends State<PlannerScreen> {
+class _PlannerWorkspace extends StatefulWidget {
+  const _PlannerWorkspace({
+    required this.planner,
+    required this.clock,
+    this.desktop,
+    this.onOpenSettings,
+    this.onOpenFocusBlocks,
+    this.onOpenEvent,
+  });
+  final PlannerController planner;
+  final bool clock;
+  final DesktopController? desktop;
+  final VoidCallback? onOpenSettings, onOpenFocusBlocks;
+  final Future<void> Function(CalendarEvent event, String kind)? onOpenEvent;
+  @override
+  State<_PlannerWorkspace> createState() => _PlannerScreenState();
+}
+
+class _PlannerScreenState extends State<_PlannerWorkspace> {
   PlannerController get planner => widget.planner;
   final _agendaScroll = ScrollController();
   final _eventKeys = <String, GlobalKey>{};
@@ -76,6 +116,45 @@ class _PlannerScreenState extends State<PlannerScreen> {
   DayClockProjection? _cachedClock;
   DateTime? _gridHover, _keyboardTime;
   bool _editorOpening = false;
+  bool _showDeviceTasks = true;
+  final _workspace = GlobalKey<ScaffoldState>();
+
+  List<CalendarEvent> _visibleEvents(CalendarWindow range) => planner
+      .eventsFor(range)
+      .where(
+        (event) =>
+            _showDeviceTasks ||
+            planner.scheduleForEvent(event)?.policy != PlannerSyncPolicy.local,
+      )
+      .toList();
+
+  VoidCallback? get _openSettings =>
+      widget.onOpenSettings ??
+      (widget.desktop == null
+          ? null
+          : () => widget.desktop!.openCalendarSection(
+              CalendarPageSection.settings,
+            ));
+  VoidCallback? get _openFocusBlocks =>
+      widget.onOpenFocusBlocks ??
+      (widget.desktop == null
+          ? null
+          : () => widget.desktop!.openCalendarSection(
+              CalendarPageSection.focusBlocks,
+            ));
+
+  Future<void> _openEvent(CalendarEvent event, String kind) async {
+    if (widget.onOpenEvent != null) {
+      await widget.onOpenEvent!(event, kind);
+    } else {
+      await widget.desktop?.agenda?.openEvent(
+        event,
+        kind: kind,
+        unlocked: planner.unlocked,
+      );
+    }
+  }
+
   bool _gridGestureCancelled = false, _gridGestureActive = false;
   final _gridHoverTime = ValueNotifier<DateTime?>(null);
   final _gridDragText = ValueNotifier<String?>(null);
@@ -110,7 +189,10 @@ class _PlannerScreenState extends State<PlannerScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || planner.editorOpen) return;
       final target = _eventKeys[planner.selectedIdentity]?.currentContext;
-      if (target == null) return;
+      if (target == null) {
+        if (focus && !widget.clock) _timeCursor.requestFocus();
+        return;
+      }
       Scrollable.ensureVisible(target, duration: Duration.zero);
       if (focus) _eventFocus[planner.selectedIdentity]?.requestFocus();
     });
@@ -196,6 +278,20 @@ class _PlannerScreenState extends State<PlannerScreen> {
     }
   }
 
+  Future<void> _deleteTask(FocusTask task) async {
+    final schedule = planner.taskSchedule(task.id);
+    if (schedule == null) return;
+    await planner.deleteTask(task.id);
+    if (mounted && !planner.app.tasks.any((item) => item.id == task.id)) {
+      showPlannerDeletionUndo(
+        context,
+        planner,
+        schedule.id,
+        'Task and schedule removed',
+      );
+    }
+  }
+
   Future<void> _context(
     CalendarEvent? event,
     DateTime at,
@@ -240,42 +336,107 @@ class _PlannerScreenState extends State<PlannerScreen> {
       case 'add':
         await _add(start: at);
       case 'open':
-        await widget.desktop.agenda?.openEvent(
-          event!,
-          kind: 'event',
-          unlocked: planner.unlocked,
-        );
+        await _openEvent(event!, 'event');
     }
   }
 
   Future<void> _select(CalendarEvent event, {DateTime? at}) async {
     _keyboardTime = null;
     planner.select(event, at: at);
-    await showDialog<void>(
-      context: context,
-      builder: (context) => AnimatedBuilder(
-        animation: planner,
-        builder: (context, _) => AlertDialog(
-          scrollable: true,
-          title: Text(event.title),
-          content: _details(event),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Close'),
-            ),
-            if (planner.readOnlyReason(event) == null)
-              FilledButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _edit(event);
-                },
-                child: const Text('Edit'),
+    final content = AnimatedBuilder(
+      animation: planner,
+      builder: (context, _) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.circle, color: color(event), size: 16),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      event.title,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Close',
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close_rounded),
+                  ),
+                ],
               ),
-          ],
+              const SizedBox(height: 20),
+              _details(event),
+              const SizedBox(height: 24),
+              Wrap(
+                alignment: WrapAlignment.end,
+                spacing: 8,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Close'),
+                  ),
+                  if (planner.readOnlyReason(event) == null)
+                    FilledButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _edit(event);
+                      },
+                      child: const Text('Edit'),
+                    ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
+    if (MediaQuery.sizeOf(context).width >= 1000 &&
+        MediaQuery.textScalerOf(context).scale(1) < 1.5) {
+      await showGeneralDialog<void>(
+        context: context,
+        barrierDismissible: true,
+        barrierLabel: MaterialLocalizations.of(
+          context,
+        ).modalBarrierDismissLabel,
+        transitionDuration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : const Duration(milliseconds: 180),
+        pageBuilder: (context, _, _) => SafeArea(
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Material(
+              borderRadius: const BorderRadius.horizontal(
+                left: Radius.circular(24),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: SizedBox(
+                width: 424,
+                height: double.infinity,
+                child: content,
+              ),
+            ),
+          ),
+        ),
+      );
+    } else {
+      await showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        showDragHandle: true,
+        builder: (context) => ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(context).height * .85,
+          ),
+          child: content,
+        ),
+      );
+    }
   }
 
   Future<void> _atTime(DateTime at) async {
@@ -329,12 +490,12 @@ class _PlannerScreenState extends State<PlannerScreen> {
   }
 
   Color color(CalendarEvent event) {
-    final source = planner.reader.sources
+    final source = planner.sources
         .where((s) => s.id == event.calendarId)
         .firstOrNull;
     return clockColor(
-      calendarEventFill(event, source, planner.reader.palette),
-      Theme.of(context).colorScheme.primaryContainer,
+      calendarEventFill(event, source, planner.palette),
+      const Color(0xFF3F51B5),
     );
   }
 
@@ -348,7 +509,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
       event.calendarId == 'poma-local' ||
           planner.scheduleForEvent(event)?.policy == PlannerSyncPolicy.local
       ? 'On this device'
-      : planner.reader.sources
+      : planner.sources
                 .where((s) => s.id == event.calendarId)
                 .firstOrNull
                 ?.name ??
@@ -357,6 +518,9 @@ class _PlannerScreenState extends State<PlannerScreen> {
   Widget _details(CalendarEvent event) {
     final schedule = planner.scheduleForEvent(event),
         reason = planner.readOnlyReason(event);
+    final task = planner.app.tasks
+        .where((task) => task.id == schedule?.taskId)
+        .firstOrNull;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -380,6 +544,14 @@ class _PlannerScreenState extends State<PlannerScreen> {
             padding: const EdgeInsets.only(top: PomaSpace.sm),
             child: Text(planner.status(schedule)),
           ),
+        if (task != null)
+          CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            title: const Text('Completed'),
+            value: planner.taskDone(task),
+            onChanged: (_) => planner.app.toggleTask(task.id),
+          ),
         if (reason != null)
           Padding(
             padding: const EdgeInsets.only(top: PomaSpace.sm),
@@ -402,37 +574,33 @@ class _PlannerScreenState extends State<PlannerScreen> {
               TextButton.icon(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  _delete(event);
+                  if (task != null) {
+                    _deleteTask(task);
+                  } else {
+                    _delete(event);
+                  }
                 },
                 icon: const Icon(Icons.delete_outline),
-                label: const Text('Delete'),
+                label: Text(
+                  task == null ? 'Delete' : 'Delete task and calendar event',
+                ),
               ),
-            if (event.focusOwned)
+            if (event.focusOwned && _openFocusBlocks != null)
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  widget.desktop.openCalendarSection(
-                    CalendarPageSection.focusBlocks,
-                  );
+                  _openFocusBlocks!();
                 },
                 child: const Text('Manage focus block'),
               ),
             if (event.eventUrl != null)
               TextButton(
-                onPressed: () => widget.desktop.agenda?.openEvent(
-                  event,
-                  kind: 'event',
-                  unlocked: planner.unlocked,
-                ),
+                onPressed: () => _openEvent(event, 'event'),
                 child: const Text('Open in Google Calendar'),
               ),
             if (event.meetingUrl != null)
               TextButton(
-                onPressed: () => widget.desktop.agenda?.openEvent(
-                  event,
-                  kind: 'join',
-                  unlocked: planner.unlocked,
-                ),
+                onPressed: () => _openEvent(event, 'join'),
                 child: const Text('Join'),
               ),
           ],
@@ -638,7 +806,310 @@ class _PlannerScreenState extends State<PlannerScreen> {
     PlannerCalendarView.agenda => 'Agenda',
   };
 
+  Widget _calendarToolbar(double width, bool sidebar) {
+    final view = planner.calendarView;
+    final unit = view == PlannerCalendarView.month
+        ? 'month'
+        : view == PlannerCalendarView.week
+        ? 'week'
+        : 'day';
+    final date = DateTime(
+      planner.selectedDate.year,
+      planner.selectedDate.month,
+      planner.selectedDate.day,
+    );
+    final title = TextButton(
+      key: const ValueKey('planner-selected-date'),
+      onPressed: _pickDate,
+      child: Text(
+        view == PlannerCalendarView.day || view == PlannerCalendarView.agenda
+            ? DateFormat.yMMMMd().format(date)
+            : DateFormat.yMMMM().format(date),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: Theme.of(
+          context,
+        ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w500),
+      ),
+    );
+    final browse = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          tooltip: 'Previous $unit',
+          onPressed: () => _step(-1),
+          icon: const Icon(Icons.chevron_left_rounded),
+        ),
+        IconButton(
+          tooltip: 'Next $unit',
+          onPressed: () => _step(1),
+          icon: const Icon(Icons.chevron_right_rounded),
+        ),
+      ],
+    );
+    final views = PopupMenuButton<PlannerCalendarView>(
+      tooltip: 'View',
+      onSelected: planner.setCalendarView,
+      itemBuilder: (_) => [
+        for (final option in PlannerCalendarView.values)
+          CheckedPopupMenuItem(
+            value: option,
+            checked: option == view,
+            child: Text(_viewName(option)),
+          ),
+      ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(_viewName(view)),
+            const Icon(Icons.arrow_drop_down_rounded),
+          ],
+        ),
+      ),
+    );
+    final today = OutlinedButton(
+      onPressed: planner.now,
+      child: const Text('Today'),
+    );
+    final menu = IconButton(
+      key: const ValueKey('calendar-drawer'),
+      tooltip: 'Calendars and unscheduled tasks',
+      onPressed: () => _workspace.currentState?.openDrawer(),
+      icon: const Icon(Icons.menu_rounded),
+    );
+    final create = FilledButton(
+      key: const ValueKey('planner-add-task'),
+      onPressed: () => _add(),
+      child: const Icon(Icons.add_rounded, semanticLabel: 'Create task'),
+    );
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: width >= 900 && MediaQuery.textScalerOf(context).scale(1) < 1.5
+          ? Row(
+              children: [
+                if (!sidebar) menu,
+                today,
+                const SizedBox(width: 8),
+                browse,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Align(alignment: Alignment.centerLeft, child: title),
+                ),
+                views,
+                if (!sidebar) create,
+              ],
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    menu,
+                    Expanded(child: title),
+                    create,
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Wrap(
+                  spacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [today, browse, views],
+                ),
+              ],
+            ),
+    );
+  }
+
+  Widget _calendarWorkspace(BoxConstraints viewport) {
+    final scale = MediaQuery.textScalerOf(context).scale(1);
+    final sidebar =
+        viewport.maxWidth >= 1100 && scale < 1.5 && viewport.maxHeight >= 400;
+    final range = _visibleRange(viewport.maxWidth);
+    planner.remoteReader?.watchRange('planner-calendar', range);
+    Widget sideContent() => CalendarSidebar(
+      planner: planner,
+      showDeviceTasks: _showDeviceTasks,
+      onDeviceTasksChanged: (value) => setState(() => _showDeviceTasks = value),
+      onCreate: () {
+        _workspace.currentState?.closeDrawer();
+        _add();
+      },
+    );
+    final agenda =
+        planner.calendarView == PlannerCalendarView.agenda ||
+        scale >= 1.5 ||
+        viewport.maxHeight < 460;
+    return Scaffold(
+      key: _workspace,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
+      drawer: sidebar
+          ? null
+          : Drawer(
+              width: math.min(360, viewport.maxWidth * .92),
+              child: SafeArea(child: sideContent()),
+            ),
+      body: SafeArea(
+        bottom: false,
+        child: LayoutBuilder(
+          builder: (context, body) {
+            if (body.maxHeight < 400) {
+              return PomaPage(
+                controller: planner.app,
+                readingSurface: false,
+                maxContentWidth: PomaLayout.workspaceWidth,
+                children: [
+                  _calendarToolbar(viewport.maxWidth, false),
+                  _status(range),
+                  _agenda(range),
+                  if (planner.message case final message?) Text(message),
+                  if (planner.data.drafts.isNotEmpty)
+                    TextButton.icon(
+                      onPressed: () =>
+                          _add(restoreId: planner.data.drafts.keys.last),
+                      icon: const Icon(Icons.edit_note_rounded),
+                      label: const Text('Continue saved draft'),
+                    ),
+                  _recovery(),
+                ],
+              );
+            }
+            final content = Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _calendarToolbar(viewport.maxWidth, sidebar),
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (sidebar) SizedBox(width: 240, child: sideContent()),
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            sidebar ? 0 : 12,
+                            0,
+                            12,
+                            12,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _status(range),
+                              if (planner.app.saveError case final error?)
+                                MaterialBanner(
+                                  content: Text(error),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () async {
+                                        await planner.app.retrySave();
+                                        await planner.sync();
+                                      },
+                                      child: const Text('Retry'),
+                                    ),
+                                  ],
+                                ),
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Material(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.surface,
+                                    child: agenda
+                                        ? SingleChildScrollView(
+                                            child: _agenda(range),
+                                          )
+                                        : LayoutBuilder(
+                                            builder: (context, body) {
+                                              if (planner.calendarView ==
+                                                      PlannerCalendarView
+                                                          .week &&
+                                                  body.maxWidth < 720) {
+                                                return SingleChildScrollView(
+                                                  scrollDirection:
+                                                      Axis.horizontal,
+                                                  child: SizedBox(
+                                                    width: 840,
+                                                    height: body.maxHeight,
+                                                    child: _grid(range),
+                                                  ),
+                                                );
+                                              }
+                                              return _grid(range);
+                                            },
+                                          ),
+                                  ),
+                                ),
+                              ),
+                              if (planner.message != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: Text(
+                                    planner.message!,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall,
+                                  ),
+                                ),
+                              if (planner.data.drafts.isNotEmpty)
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: TextButton.icon(
+                                    onPressed: () => _add(
+                                      restoreId: planner.data.drafts.keys.last,
+                                    ),
+                                    icon: const Icon(Icons.edit_note_rounded),
+                                    label: const Text('Continue saved draft'),
+                                  ),
+                                ),
+                              if (planner.data.operations.values.any(
+                                (operation) => operation.pending,
+                              ))
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxHeight: viewport.maxHeight * .25,
+                                  ),
+                                  child: SingleChildScrollView(
+                                    child: _recovery(),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+            return content;
+          },
+        ),
+      ),
+    );
+  }
+
   Widget _status(CalendarWindow window) {
+    if (!planner.supportsGoogle) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            Icon(
+              Icons.check_circle_outline_rounded,
+              size: 16,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'On this device',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+      );
+    }
     final read = planner.reader;
     final verified = read.rangeVerified(window);
     final pending = planner.data.operations.values
@@ -675,19 +1146,21 @@ class _PlannerScreenState extends State<PlannerScreen> {
                 },
           icon: const Icon(Icons.refresh, size: 20),
         ),
-        PopupMenuButton<String>(
-          tooltip: 'Calendar settings',
-          onSelected: (value) => widget.desktop.openCalendarSection(
-            value == 'focus'
-                ? CalendarPageSection.focusBlocks
-                : CalendarPageSection.settings,
+        if (_openSettings != null)
+          PopupMenuButton<String>(
+            tooltip: 'Calendar settings',
+            onSelected: (value) => value == 'focus'
+                ? _openFocusBlocks?.call()
+                : _openSettings?.call(),
+            itemBuilder: (_) => const [
+              PopupMenuItem(
+                value: 'settings',
+                child: Text('Calendar settings'),
+              ),
+              PopupMenuItem(value: 'focus', child: Text('Focus blocks')),
+            ],
+            icon: const Icon(Icons.tune, size: 20),
           ),
-          itemBuilder: (_) => const [
-            PopupMenuItem(value: 'settings', child: Text('Calendar settings')),
-            PopupMenuItem(value: 'focus', child: Text('Focus blocks')),
-          ],
-          icon: const Icon(Icons.tune, size: 20),
-        ),
       ],
     );
   }
@@ -702,7 +1175,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
   );
 
   Widget _agenda(CalendarWindow window) {
-    final events = planner.eventsFor(window);
+    final events = _visibleEvents(window);
     return _panel(
       Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -711,7 +1184,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
           const SizedBox(height: PomaSpace.sm),
           if (events.isEmpty) ...[
             Text(
-              planner.reader.rangeVerified(window)
+              planner.rangeVerified(window)
                   ? 'No events for this date.'
                   : 'No loaded events for this date.',
             ),
@@ -749,7 +1222,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
           onInvoke: (_) {
             _context(
               event,
-              event.startUtc ?? planner.reader.now,
+              event.startUtc ?? planner.currentTime,
               const Offset(500, 300),
             );
             return null;
@@ -767,7 +1240,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
           onTap: () => _select(event),
           onSecondaryTapUp: (details) => _context(
             event,
-            event.startUtc ?? planner.reader.now,
+            event.startUtc ?? planner.currentTime,
             details.globalPosition,
           ),
           borderRadius: BorderRadius.circular(PomaLayout.controlRadius),
@@ -866,7 +1339,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
   );
 
   Widget _nowNextContent(CalendarWindow window) {
-    final now = planner.reader.now;
+    final now = planner.currentTime;
     final nowNext = CalendarNowNext(planner.eventsFor(window), now);
     final active = nowNext.active.firstOrNull, next = nowNext.next;
     final gaps = planner.gaps(window, after: now);
@@ -890,7 +1363,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
             )
           else
             Text(
-              planner.reader.rangeVerified(window, availability: true)
+              planner.rangeVerified(window, availability: true)
                   ? 'No current timed event'
                   : 'Availability unknown',
             ),
@@ -910,10 +1383,10 @@ class _PlannerScreenState extends State<PlannerScreen> {
   Widget _gaps(CalendarWindow window) {
     final isToday =
         planner.selectedDate.toString() ==
-        plannerDate(planner.reader.now.toLocal());
+        plannerDate(planner.currentTime.toLocal());
     final gaps = planner.gaps(
       window,
-      after: isToday ? planner.reader.now : null,
+      after: isToday ? planner.currentTime : null,
     );
     if (gaps.isEmpty) return const SizedBox.shrink();
     return _panel(
@@ -985,7 +1458,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
       PlannerClockMode.sixHours => 360,
       _ => 720,
     };
-    final anchor = (planner.inspectedUtc ?? planner.reader.now).toLocal();
+    final anchor = (planner.inspectedUtc ?? planner.currentTime).toLocal();
     final start = planner.clockMode == PlannerClockMode.twelveHours
         ? planner.half * 720
         : planner.clockMode == PlannerClockMode.fullDay
@@ -998,7 +1471,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
     final preview = !planner.editorOpen || planner.draft == null
         ? null
         : planner.preview(planner.draft!);
-    final events = [...planner.eventsFor(range), ?preview];
+    final events = [..._visibleEvents(range), ?preview];
     final key = jsonEncode([
       range.key,
       start,
@@ -1017,13 +1490,13 @@ class _PlannerScreenState extends State<PlannerScreen> {
       _cachedClock = DayClockProjection.project(
         window: window,
         events: events,
-        nowUtc: planner.reader.now,
+        nowUtc: planner.currentTime,
         previousLanes: _cachedClock?.lanes ?? {},
       );
       _clockFingerprint = key;
     }
     final value = _cachedClock!;
-    final minute = value.window.minuteAt(planner.reader.now);
+    final minute = value.window.minuteAt(planner.currentTime);
     return DayClockProjection(
       window: value.window,
       sectors: value.sectors,
@@ -1118,7 +1591,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
     );
     final configuration = view == PlannerCalendarView.month
         ? k.MonthViewConfiguration.singleMonth(
-            initialDateTime: planner.reader.clock
+            initialDateTime: planner.clock
                 .dayWindow(planner.selectedDate)
                 .startUtc,
             displayRange: display,
@@ -1129,7 +1602,8 @@ class _PlannerScreenState extends State<PlannerScreen> {
             numberOfDays: view == PlannerCalendarView.week ? 7 : 1,
             displayRange: display,
             initialDateTime: range.startUtc,
-            initialTimeOfDay: const k.KalenderTime(hour: 8, minute: 0),
+            initialTimeOfDay: const k.KalenderTime(hour: 7, minute: 45),
+            initialHeightPerMinute: widget.clock ? .7 : 1.0,
           );
     if (_calendar == null) {
       _calendar = k.KalenderController(viewConfiguration: configuration);
@@ -1154,7 +1628,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
         ? null
         : planner.preview(planner.draft!);
     final events = [
-      ...planner.eventsFor(range),
+      ..._visibleEvents(range),
       if (preview != null && preview.overlaps(range)) preview,
     ];
     final key = jsonEncode([
@@ -1171,7 +1645,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
       for (final event in events)
         PomaScheduleEvent.fromEvent(
           event,
-          clock: planner.reader.clock,
+          clock: planner.clock,
           sourceLabel: sourceLabel(event),
           sourceColor:
               '#${color(event).toARGB32().toRadixString(16).substring(2)}',
@@ -1237,7 +1711,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
         HardwareKeyboard.instance.isShiftPressed) {
       _context(
         selected,
-        planner.inspectedUtc ?? selected?.startUtc ?? planner.reader.now,
+        planner.inspectedUtc ?? selected?.startUtc ?? planner.currentTime,
         const Offset(300, 250),
       );
       return KeyEventResult.handled;
@@ -1315,14 +1789,80 @@ class _PlannerScreenState extends State<PlannerScreen> {
           ),
           borderRadius: BorderRadius.circular(6),
         ),
-        child: Text(
-          event?.title ?? 'Draft',
-          maxLines: 3,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: draft
+        clipBehavior: Clip.hardEdge,
+        child: LayoutBuilder(
+          builder: (context, box) {
+            final ink = draft
                 ? Theme.of(context).colorScheme.onSurface
-                : clockInk(fill),
+                : clockInk(fill);
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Flexible(
+                  child: Text(
+                    event?.title ?? 'Draft',
+                    maxLines: box.maxHeight >= 64 ? 2 : 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.labelLarge?.copyWith(color: ink),
+                  ),
+                ),
+                if (event != null && !event.allDay && box.maxHeight >= 44)
+                  Text(
+                    eventTime(event),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.labelSmall?.copyWith(color: ink),
+                  ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _dayHeader(DateTime date) {
+    final colors = Theme.of(context).colorScheme;
+    final today = DateUtils.isSameDay(date, planner.currentTime.toLocal());
+    return Semantics(
+      label: DateFormat.yMMMMEEEEd().format(date),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: 48),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                DateFormat.E().format(date),
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: today ? colors.primary : colors.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Container(
+                width: 42,
+                height: 42,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: today ? colors.primary : null,
+                ),
+                child: Text(
+                  '${date.day}',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w500,
+                    color: today ? colors.onPrimary : colors.onSurface,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1337,9 +1877,13 @@ class _PlannerScreenState extends State<PlannerScreen> {
       allowEventCreation: true,
       allowRescheduling: true,
       allowResizing: true,
-      inputMode: k.InputMode.precise,
-      createEventGesture: k.EventInteractionGesture.tap,
-      modifyEventGesture: k.EventInteractionGesture.tap,
+      inputMode: k.InputMode.auto,
+      createEventGesture: widget.desktop == null
+          ? null
+          : k.EventInteractionGesture.tap,
+      modifyEventGesture: widget.desktop == null
+          ? null
+          : k.EventInteractionGesture.tap,
     );
     final readOnly = k.KalenderInteraction(
       allowEventCreation: false,
@@ -1349,251 +1893,310 @@ class _PlannerScreenState extends State<PlannerScreen> {
     final tiles = k.TileComponents(
       tileBuilder: (context, event, _) => _tile(event),
     );
-    return Focus(
-      focusNode: _timeCursor,
-      onKeyEvent: _gridKeyEvent,
-      child: Column(
-        children: [
-          SizedBox(
-            height: 28,
-            child: ValueListenableBuilder<String?>(
-              valueListenable: _gridDragText,
-              builder: (context, drag, _) => ValueListenableBuilder<DateTime?>(
-                valueListenable: _gridHoverTime,
-                builder: (context, at, _) => Text(
-                  drag ??
-                      (at == null
-                          ? ' '
-                          : '${DateFormat.MMMd().add_jm().format(at.toLocal())} · 5-minute snap'),
-                  style: Theme.of(context).textTheme.bodySmall,
+    return Semantics(
+      key: const ValueKey('calendar-accessible-agenda'),
+      button: true,
+      label: 'Calendar schedule',
+      hint: 'Open Agenda to read events and manage tasks.',
+      onTap: () => planner.setCalendarView(PlannerCalendarView.agenda),
+      excludeSemantics: true,
+      child: Focus(
+        focusNode: _timeCursor,
+        onKeyEvent: _gridKeyEvent,
+        child: Column(
+          children: [
+            SizedBox(
+              height: 28,
+              child: ValueListenableBuilder<String?>(
+                valueListenable: _gridDragText,
+                builder: (context, drag, _) => ValueListenableBuilder<DateTime?>(
+                  valueListenable: _gridHoverTime,
+                  builder: (context, at, _) => Text(
+                    drag ??
+                        (at == null
+                            ? ' '
+                            : '${DateFormat.MMMd().add_jm().format(at.toLocal())} · 5-minute snap'),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, box) {
-                final gutter =
-                    72.0 *
-                    MediaQuery.textScalerOf(context).scale(1).clamp(1, 1.7);
-                return MouseRegion(
-                  onHover: view == PlannerCalendarView.month
-                      ? null
-                      : (event) =>
-                            _hoverGrid(event, range, box.maxWidth, gutter),
-                  onExit: (_) => _gridHoverTime.value = null,
-                  child: ClipRRect(
-                    key: _gridKey,
-                    borderRadius: BorderRadius.circular(PomaLayout.panelRadius),
-                    child: Material(
-                      color: Theme.of(context).colorScheme.surface,
-                      child: k.KalenderView(
-                        eventsController: _events,
-                        kalenderController: _calendar!,
-                        locale:
-                            WidgetsBinding.instance.platformDispatcher.locale,
-                        interaction: view == PlannerCalendarView.month
-                            ? readOnly
-                            : writable,
-                        callbacks: k.KalenderCallbacks(
-                          onPageChanged: (page) {
-                            if (view != PlannerCalendarView.month) return;
-                            final middle = page.start
-                                .add(page.duration ~/ 2)
-                                .toLocal();
-                            if (middle.year == planner.selectedDate.year &&
-                                middle.month == planner.selectedDate.month) {
-                              return;
-                            }
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              if (mounted) {
-                                planner.browse(
-                                  CalendarDate(middle.year, middle.month, 1),
-                                );
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, box) {
+                  final gutter =
+                      72.0 *
+                      MediaQuery.textScalerOf(context).scale(1).clamp(1, 1.7);
+                  return MouseRegion(
+                    onHover: view == PlannerCalendarView.month
+                        ? null
+                        : (event) =>
+                              _hoverGrid(event, range, box.maxWidth, gutter),
+                    onExit: (_) => _gridHoverTime.value = null,
+                    child: ClipRRect(
+                      key: _gridKey,
+                      borderRadius: BorderRadius.circular(
+                        PomaLayout.panelRadius,
+                      ),
+                      child: Material(
+                        color: Theme.of(context).colorScheme.surface,
+                        child: k.KalenderView(
+                          eventsController: _events,
+                          kalenderController: _calendar!,
+                          locale:
+                              WidgetsBinding.instance.platformDispatcher.locale,
+                          interaction: view == PlannerCalendarView.month
+                              ? readOnly
+                              : writable,
+                          callbacks: k.KalenderCallbacks(
+                            onPageChanged: (page) {
+                              if (view != PlannerCalendarView.month) return;
+                              final middle = page.start
+                                  .add(page.duration ~/ 2)
+                                  .toLocal();
+                              if (middle.year == planner.selectedDate.year &&
+                                  middle.month == planner.selectedDate.month) {
+                                return;
                               }
-                            });
-                          },
-                          onTapped: (at) {
-                            if (view == PlannerCalendarView.month) {
-                              final local = at.toLocal();
-                              planner.browse(
-                                CalendarDate(
-                                  local.year,
-                                  local.month,
-                                  local.day,
-                                ),
-                              );
-                              planner.setCalendarView(PlannerCalendarView.day);
-                            } else {
-                              _timeCursor.requestFocus();
-                              _atTime(_snapInstant(at));
-                            }
-                          },
-                          onSecondaryTappedWithDetail: (detail) {
-                            if (detail is k.DayDetail) {
-                              _context(
-                                null,
-                                _snapInstant(detail.date),
-                                detail.renderBox.localToGlobal(
-                                  detail.localOffset,
-                                ),
-                              );
-                            }
-                          },
-                          onEventTappedWithDetail: (event, detail) {
-                            if (event is PomaScheduleEvent) {
-                              _timeCursor.requestFocus();
-                              _select(
-                                event.event,
-                                at: detail is k.DayDetail
-                                    ? _snapInstant(detail.date)
-                                    : event.start,
-                              );
-                            }
-                          },
-                          onEventSecondaryTappedWithDetail: (event, detail) {
-                            if (event is PomaScheduleEvent) {
-                              _context(
-                                event.event,
-                                _gridHover ?? event.start,
-                                detail.renderBox.localToGlobal(
-                                  detail.localOffset,
-                                ),
-                              );
-                            }
-                          },
-                          onEventCreate: (event) {
-                            _gridGestureCancelled = false;
-                            _gridGestureActive = true;
-                            _timeCursor.requestFocus();
-                            _gridDragText.value = 'Choose the end of the task';
-                            return event;
-                          },
-                          onEventCreated: (event) {
-                            _gridGestureActive = false;
-                            _gridDragText.value = null;
-                            _calendar?.clearNewEvent();
-                            if (_gridGestureCancelled) return;
-                            _add(
-                              start: event.start.toUtc(),
-                              end: event.end.toUtc(),
-                            );
-                          },
-                          onEventChange: (event) {
-                            _gridGestureCancelled = false;
-                            _gridGestureActive = true;
-                            _timeCursor.requestFocus();
-                            _gridDragText.value =
-                                '${timeLabel(event.start)} – ${timeLabel(event.end)} · ${event.duration.inMinutes} min';
-                          },
-                          onEventChanged: (before, after) async {
-                            _gridGestureActive = false;
-                            _gridDragText.value = null;
-                            if (_gridGestureCancelled) {
-                              _eventsFingerprint = null;
-                              setState(() {});
-                              return;
-                            }
-                            if (before is! PomaScheduleEvent) return;
-                            final success = await _move(
-                              before.event,
-                              after.start.toUtc(),
-                              after.end.toUtc(),
-                            );
-                            _eventsFingerprint = null;
-                            if (mounted && context.mounted) {
-                              setState(() {});
-                              if (success) {
-                                final schedule = planner.scheduleForEvent(
-                                  before.event,
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                if (mounted) {
+                                  planner.browse(
+                                    CalendarDate(middle.year, middle.month, 1),
+                                  );
+                                }
+                              });
+                            },
+                            onTapped: (at) {
+                              if (view == PlannerCalendarView.month) {
+                                final local = at.toLocal();
+                                planner.browse(
+                                  CalendarDate(
+                                    local.year,
+                                    local.month,
+                                    local.day,
+                                  ),
                                 );
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: const Text('Time updated'),
-                                    action: schedule == null
-                                        ? null
-                                        : SnackBarAction(
-                                            label: 'Undo',
-                                            onPressed: () =>
-                                                planner.undoChange(schedule.id),
-                                          ),
+                                planner.setCalendarView(
+                                  PlannerCalendarView.day,
+                                );
+                              } else {
+                                _timeCursor.requestFocus();
+                                _atTime(_snapInstant(at));
+                              }
+                            },
+                            onSecondaryTappedWithDetail: (detail) {
+                              if (detail is k.DayDetail) {
+                                _context(
+                                  null,
+                                  _snapInstant(detail.date),
+                                  detail.renderBox.localToGlobal(
+                                    detail.localOffset,
                                   ),
                                 );
                               }
-                            }
-                          },
-                          dateLabel: k.GestureCallbacks<k.DayDetail>(
-                            onTap: (detail) {
-                              final date = detail.date.toLocal();
-                              planner.browse(
-                                CalendarDate(date.year, date.month, date.day),
-                              );
-                              planner.setCalendarView(PlannerCalendarView.day);
                             },
-                          ),
-                        ),
-                        views: [
-                          k.MonthViewParts(
-                            body: k.MonthBody(
-                              interaction: readOnly,
-                              tileComponents: tiles,
+                            onEventTappedWithDetail: (event, detail) {
+                              if (event is PomaScheduleEvent) {
+                                _timeCursor.requestFocus();
+                                _select(
+                                  event.event,
+                                  at: detail is k.DayDetail
+                                      ? _snapInstant(detail.date)
+                                      : event.start,
+                                );
+                              }
+                            },
+                            onEventSecondaryTappedWithDetail: (event, detail) {
+                              if (event is PomaScheduleEvent) {
+                                _context(
+                                  event.event,
+                                  _gridHover ?? event.start,
+                                  detail.renderBox.localToGlobal(
+                                    detail.localOffset,
+                                  ),
+                                );
+                              }
+                            },
+                            onEventCreate: (event) {
+                              _gridGestureCancelled = false;
+                              _gridGestureActive = true;
+                              _timeCursor.requestFocus();
+                              _gridDragText.value =
+                                  'Choose the end of the task';
+                              return event;
+                            },
+                            onEventCreated: (event) {
+                              _gridGestureActive = false;
+                              _gridDragText.value = null;
+                              _calendar?.clearNewEvent();
+                              if (_gridGestureCancelled) return;
+                              _add(
+                                start: event.start.toUtc(),
+                                end: event.end.toUtc(),
+                              );
+                            },
+                            onEventChange: (event) {
+                              _gridGestureCancelled = false;
+                              _gridGestureActive = true;
+                              _timeCursor.requestFocus();
+                              _gridDragText.value =
+                                  '${timeLabel(event.start)} – ${timeLabel(event.end)} · ${event.duration.inMinutes} min';
+                            },
+                            onEventChanged: (before, after) async {
+                              _gridGestureActive = false;
+                              _gridDragText.value = null;
+                              if (_gridGestureCancelled) {
+                                _eventsFingerprint = null;
+                                setState(() {});
+                                return;
+                              }
+                              if (before is! PomaScheduleEvent) return;
+                              final success = await _move(
+                                before.event,
+                                after.start.toUtc(),
+                                after.end.toUtc(),
+                              );
+                              _eventsFingerprint = null;
+                              if (mounted && context.mounted) {
+                                setState(() {});
+                                if (success) {
+                                  final schedule = planner.scheduleForEvent(
+                                    before.event,
+                                  );
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: const Text('Time updated'),
+                                      action: schedule == null
+                                          ? null
+                                          : SnackBarAction(
+                                              label: 'Undo',
+                                              onPressed: () => planner
+                                                  .undoChange(schedule.id),
+                                            ),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                            dateLabel: k.GestureCallbacks<k.DayDetail>(
+                              onTap: (detail) {
+                                final date = detail.date.toLocal();
+                                planner.browse(
+                                  CalendarDate(date.year, date.month, date.day),
+                                );
+                                planner.setCalendarView(
+                                  PlannerCalendarView.day,
+                                );
+                              },
                             ),
                           ),
-                          k.MultiDayViewParts(
-                            header: Container(
-                              key: _gridHeaderKey,
-                              child: k.MultiDayHeader(
+                          views: [
+                            k.MonthViewParts(
+                              body: k.MonthBody(
                                 interaction: readOnly,
                                 tileComponents: tiles,
                               ),
                             ),
-                            body: k.MultiDayBody(
-                              interaction: writable,
-                              tileComponents: tiles,
-                              snapping: const k.KalenderSnapping(
-                                snapIntervalMinutes: 5,
-                                snapToTimeIndicator: false,
-                                snapToOtherEvents: false,
-                              ),
-                              configuration: const k.MultiDayBodyConfiguration(
-                                eventLayoutStrategy:
-                                    k.EventLayoutStrategy.sideBySide(),
-                                minimumTileHeight: 32,
-                                pageScrollPhysics:
-                                    NeverScrollableScrollPhysics(),
-                              ),
-                            ),
-                          ),
-                        ],
-                        components: k.KalenderComponents(
-                          multiDayComponents: k.MultiDayComponents(
-                            headerComponents: k.MultiDayHeaderComponents(
-                              weekNumberBuilder: (_, _) =>
-                                  const SizedBox.shrink(),
-                            ),
-                            bodyComponents: k.MultiDayBodyComponents(
-                              timelineWidth: (_, _) => gutter,
-                              timelineStringBuilder: (_, time) =>
-                                  DateFormat.jm().format(
-                                    DateTime(
-                                      2026,
-                                      1,
-                                      1,
-                                      time.hour,
-                                      time.minute,
+                            k.MultiDayViewParts(
+                              header: Container(
+                                key: _gridHeaderKey,
+                                child: k.MultiDayHeader(
+                                  configuration: k.MultiDayHeaderConfiguration(
+                                    tileHeight: 48,
+                                    showTiles: _visibleEvents(
+                                      range,
+                                    ).any((event) => event.allDay),
+                                  ),
+                                  interaction: readOnly,
+                                  tileComponents: tiles,
+                                  callbacks: k.KalenderCallbacks(
+                                    onEventTappedWithDetail: (event, detail) {
+                                      if (event is PomaScheduleEvent) {
+                                        _select(event.event);
+                                      }
+                                    },
+                                    dateLabel: k.GestureCallbacks<k.DayDetail>(
+                                      onTap: (detail) {
+                                        final date = detail.date.toLocal();
+                                        planner.browse(
+                                          CalendarDate(
+                                            date.year,
+                                            date.month,
+                                            date.day,
+                                          ),
+                                        );
+                                        planner.setCalendarView(
+                                          PlannerCalendarView.day,
+                                        );
+                                      },
                                     ),
                                   ),
+                                ),
+                              ),
+                              body: Semantics(
+                                label:
+                                    'Calendar time grid. Select a time to add a task.',
+                                child: k.MultiDayBody(
+                                  interaction: writable,
+                                  tileComponents: tiles,
+                                  snapping: const k.KalenderSnapping(
+                                    snapIntervalMinutes: 5,
+                                    snapToTimeIndicator: false,
+                                    snapToOtherEvents: false,
+                                  ),
+                                  configuration: k.MultiDayBodyConfiguration(
+                                    eventLayoutStrategy:
+                                        k.EventLayoutStrategy.sideBySide(),
+                                    minimumTileHeight: widget.desktop == null
+                                        ? 48
+                                        : 32,
+                                    pageScrollPhysics:
+                                        const NeverScrollableScrollPhysics(),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                          components: k.KalenderComponents(
+                            multiDayComponents: k.MultiDayComponents(
+                              headerComponents: k.MultiDayHeaderComponents(
+                                dayHeaderBuilder: (_, date) => _dayHeader(date),
+                                weekNumberBuilder: (_, _) =>
+                                    const SizedBox.shrink(),
+                              ),
+                              bodyComponents: k.MultiDayBodyComponents(
+                                timelineWidth: (_, _) => gutter,
+                                timeIndicator:
+                                    (context, times, height, location) =>
+                                        k.TimeIndicator(
+                                          timeOfDayRange: times,
+                                          heightPerMinute: height,
+                                          location: location,
+                                          nowCallback: () =>
+                                              planner.currentTime.toLocal(),
+                                        ),
+                                timelineStringBuilder: (_, time) =>
+                                    DateFormat.jm().format(
+                                      DateTime(
+                                        2026,
+                                        1,
+                                        1,
+                                        time.hour,
+                                        time.minute,
+                                      ),
+                                    ),
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1604,6 +2207,11 @@ class _PlannerScreenState extends State<PlannerScreen> {
       return const Center(child: Text('Unlock Windows to view your schedule.'));
     }
     if (!planner.ready) return const Center(child: CircularProgressIndicator());
+    if (!widget.clock) {
+      return LayoutBuilder(
+        builder: (context, viewport) => _calendarWorkspace(viewport),
+      );
+    }
     return LayoutBuilder(
       builder: (context, viewport) {
         final inset = PomaLayout.pageInset(
@@ -1621,7 +2229,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
                 planner.selectedDate.plusDays(2),
               )
             : range;
-        planner.reader.watchRange(
+        planner.remoteReader?.watchRange(
           widget.clock ? 'planner-clock' : 'planner-calendar',
           requested,
         );
@@ -1717,7 +2325,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
   @override
   void dispose() {
     planner.removeListener(_changed);
-    planner.reader.releaseRange(
+    planner.remoteReader?.releaseRange(
       widget.clock ? 'planner-clock' : 'planner-calendar',
     );
     _calendar?.dispose();
@@ -1786,7 +2394,7 @@ class PlannerOperations extends StatelessWidget {
                         else if (operation.kind ==
                                 PlannerOperationKind.delete &&
                             !operation.attempted &&
-                            operation.notBefore?.isAfter(planner.reader.now) ==
+                            operation.notBefore?.isAfter(planner.currentTime) ==
                                 true)
                           TextButton(
                             onPressed: () =>
@@ -1848,7 +2456,7 @@ class PlannerPreferencesPanel extends StatelessWidget {
     animation: planner,
     builder: (context, _) {
       final preferences = planner.preferences;
-      final sources = planner.reader.sources
+      final sources = planner.sources
           .where((s) => s.accessRole == 'owner')
           .toList();
       return Column(

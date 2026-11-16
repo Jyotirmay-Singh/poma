@@ -7,7 +7,9 @@ import 'copy.dart';
 import 'focus_screen.dart';
 import 'insights_screen.dart';
 import 'settings_screen.dart';
-import 'tasks_screen.dart';
+import 'planner_scope.dart';
+import 'planner_screen.dart';
+import 'calendar_tasks.dart';
 import 'desktop_scope.dart';
 import 'calendar_screen.dart';
 import 'design_tokens.dart';
@@ -28,6 +30,7 @@ class _AppShellState extends State<AppShell> {
   int _seenDesktopNavigation = 0;
   int _seenNewTask = 0;
   void _goTo(int tab) {
+    if (tab == 1) tab = 4;
     DesktopScope.maybeOf(context)?.navigate(tab);
     widget.controller.showInsights(tab == 2, history: false);
     setState(() => _tab = tab);
@@ -53,7 +56,6 @@ class _AppShellState extends State<AppShell> {
             LogicalKeyboardKey.digit3,
             LogicalKeyboardKey.digit4,
             LogicalKeyboardKey.digit5,
-            LogicalKeyboardKey.digit6,
           ][i],
           control: true,
         ): () =>
@@ -68,6 +70,18 @@ class _AppShellState extends State<AppShell> {
   Widget build(BuildContext context) {
     final controller = widget.controller;
     final desktop = DesktopScope.maybeOf(context);
+    final highContrast = MediaQuery.highContrastOf(context);
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final navigationBackground = highContrast
+        ? Theme.of(context).colorScheme.surface
+        : dark
+        ? const Color(0xFF1E1F20)
+        : const Color(0xFFF8FAFD);
+    final navigationAccent = highContrast
+        ? Theme.of(context).colorScheme.primary
+        : dark
+        ? const Color(0xFFA8C7FA)
+        : const Color(0xFF174EA6);
     if (desktop != null &&
         _seenDesktopNavigation != desktop.navigationRevision) {
       _seenDesktopNavigation = desktop.navigationRevision;
@@ -82,15 +96,9 @@ class _AppShellState extends State<AppShell> {
       _seenNewTask = desktop.newTaskRevision;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && ModalRoute.of(context)?.isCurrent != false) {
-          if (desktop.planner != null &&
-              (desktop.destination == 4 || desktop.destination == 5)) {
-            showPlannerEditor(
-              context,
-              desktop.planner!,
-              startUtc: desktop.planner!.inspectedUtc,
-            );
-          } else {
-            showNewTaskDialog(context, controller);
+          final planner = PlannerScope.maybeOf(context) ?? desktop.planner;
+          if (planner != null) {
+            showPlannerEditor(context, planner, startUtc: planner.inspectedUtc);
           }
         }
       });
@@ -101,6 +109,7 @@ class _AppShellState extends State<AppShell> {
       controller.showInsights(false);
     }
     final copy = context.copy;
+    final planner = PlannerScope.maybeOf(context) ?? desktop?.planner;
     final notice = controller.lastPhaseCompletion;
     final announceCompletion =
         _tab == 0 && notice != null && _announcedRun != notice.runId;
@@ -108,10 +117,18 @@ class _AppShellState extends State<AppShell> {
     final page = switch (_tab) {
       0 => FocusScreen(
         controller: controller,
-        onTasks: () => _goTo(1),
+        onTasks: () {
+          if (planner != null) {
+            showFocusTaskPicker(
+              context,
+              controller,
+              planner,
+              onManage: () => _goTo(4),
+            );
+          }
+        },
         announceCompletion: announceCompletion,
       ),
-      1 => TasksScreen(controller: controller),
       2 => InsightsScreen(controller: controller, onFocus: () => _goTo(0)),
       5 when desktop != null => DayClockScreen(
         app: controller,
@@ -123,6 +140,7 @@ class _AppShellState extends State<AppShell> {
         desktop: desktop,
         key: const ValueKey('calendar-page'),
       ),
+      4 when planner != null => PlannerScreen(planner: planner, clock: false),
       _ => SettingsScreen(controller: controller),
     };
     if (desktop != null &&
@@ -135,7 +153,7 @@ class _AppShellState extends State<AppShell> {
           body: Row(
             children: [
               Material(
-                color: Theme.of(context).colorScheme.surface,
+                color: navigationBackground,
                 child: SafeArea(
                   child: Column(
                     children: [
@@ -162,7 +180,6 @@ class _AppShellState extends State<AppShell> {
                               destinations: [
                                 for (final entry in [
                                   (Icons.timelapse, copy.focus),
-                                  (Icons.checklist, copy.tasks),
                                   (Icons.calendar_month_outlined, 'Calendar'),
                                   (Icons.schedule_outlined, 'Day Clock'),
                                   (Icons.bar_chart, copy.desktopHistory),
@@ -194,26 +211,24 @@ class _AppShellState extends State<AppShell> {
     final compact = Scaffold(
       body: SafeArea(bottom: false, child: page),
       bottomNavigationBar: Material(
-        color: Theme.of(context).colorScheme.surface,
+        color: navigationBackground,
         child: SafeArea(
           top: false,
           child: LayoutBuilder(
             builder: (context, constraints) {
               final labels = [
                 copy.focus,
-                copy.tasks,
-                if (desktop != null) 'Calendar',
+                'Calendar',
                 if (desktop != null) 'Day Clock',
                 copy.insights,
                 copy.settings,
               ];
               final ids = desktop == null
-                  ? const [0, 1, 2, 3]
+                  ? const [0, 4, 2, 3]
                   : desktopDestinationOrder;
               final icons = [
                 Icons.timelapse,
-                Icons.checklist,
-                if (desktop != null) Icons.calendar_month_outlined,
+                Icons.calendar_month_outlined,
                 if (desktop != null) Icons.schedule_outlined,
                 Icons.bar_chart,
                 Icons.tune,
@@ -252,14 +267,12 @@ class _AppShellState extends State<AppShell> {
                             style: TextButton.styleFrom(
                               minimumSize: const Size(48, 56),
                               foregroundColor: _tab == ids[i]
-                                  ? Theme.of(context).colorScheme.primary
+                                  ? navigationAccent
                                   : Theme.of(
                                       context,
                                     ).colorScheme.onSurfaceVariant,
                               backgroundColor: _tab == ids[i]
-                                  ? Theme.of(
-                                      context,
-                                    ).colorScheme.primary.withValues(alpha: .10)
+                                  ? navigationAccent.withValues(alpha: .12)
                                   : null,
                             ),
                             onPressed: () => _goTo(ids[i]),

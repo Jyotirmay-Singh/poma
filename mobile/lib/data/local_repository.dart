@@ -54,7 +54,7 @@ class SqliteRepository implements LocalRepository {
       () => factory.openDatabase(
         location,
         options: OpenDatabaseOptions(
-          version: 4,
+          version: 5,
           onConfigure: (db) async {
             await _guard(
               () => db.execute('PRAGMA synchronous = FULL'),
@@ -217,7 +217,11 @@ class SqliteRepository implements LocalRepository {
             FocusTask.fromRow(task.toRow(existing.single['position'] as int));
             await txn.update(
               'tasks',
-              {'title': task.title, 'done': task.done ? 1 : 0},
+              {
+                'title': task.title,
+                'done': task.done ? 1 : 0,
+                'color_id': task.colorId,
+              },
               where: 'id = ?',
               whereArgs: [task.id],
             );
