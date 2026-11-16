@@ -46,7 +46,7 @@ class DesktopHost {
   void Activate(const std::wstring& arguments);
   void ClearAlerts();
   void ClearCalendarReminders();
-  void RunAsync(std::function<Value()> action, std::unique_ptr<Result> result, bool notify = false);
+  void RunAsync(std::function<Value()> action, std::unique_ptr<Result> result);
   static LRESULT CALLBACK PopupProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
   HWND window_;
   HWND popup_ = nullptr;
@@ -88,8 +88,6 @@ class DesktopHost {
   bool closing_ = false;
   bool configured_ = false;
   bool menu_open_ = false;
-  bool close_to_tray_ = true;
-  bool close_explained_ = false;
   bool alerts_initialized_ = false;
   bool alerts_enabled_ = true;
   int64_t reminder_generation_ = 0;

@@ -37,24 +37,43 @@ void main() {
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.text('About Poma'), 300);
     await tester.pumpAndSettle();
+    final footer = find.byKey(const ValueKey('settings-footer'));
+    expect(
+      find.descendant(of: footer, matching: find.byType(TextButton)),
+      findsNWidgets(3),
+    );
+    final footerTop = tester
+        .getTopLeft(find.widgetWithText(TextButton, 'About Poma'))
+        .dy;
+    for (final title in ['Privacy policy', 'Third-party notices']) {
+      expect(
+        tester.getTopLeft(find.widgetWithText(TextButton, title)).dy,
+        closeTo(footerTop, .01),
+        reason: 'Settings links share a row when space allows',
+      );
+    }
     await tester.tap(find.text('About Poma'));
     await tester.pumpAndSettle();
     expect(find.text('$pomaVersion ($pomaBuild)'), findsOneWidget);
     expect(find.text('$pomaOwner\n$pomaSupport'), findsOneWidget);
     await tester.tap(find.text('Close'));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Privacy policy'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Privacy policy'));
-    // Build the pushed route before allowing real asset I/O to complete.
-    await tester.pump();
-    await tester.runAsync(
-      () async => Future<void>.delayed(const Duration(milliseconds: 50)),
-    );
-    await tester.pumpAndSettle();
-    expect(find.byType(LegalScreen), findsOneWidget);
-    expect(find.byType(SelectableText), findsOneWidget);
-    expect(tester.takeException(), isNull);
+    for (final title in ['Privacy policy', 'Third-party notices']) {
+      await tester.ensureVisible(find.text(title));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(title));
+      // Build the pushed route before allowing real asset I/O to complete.
+      await tester.pump();
+      await tester.runAsync(
+        () async => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(LegalScreen), findsOneWidget);
+      expect(find.byType(SelectableText), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+    }
     await tester.pumpWidget(const SizedBox.shrink());
     controller.dispose();
     await controller.flush();

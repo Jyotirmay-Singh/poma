@@ -78,8 +78,8 @@ def audit(candidate: Path, version: str, kit: Path | None, focus_scheduling: boo
         if identity != expected:
             raise ValueError("Package identity mismatch")
         startup = [e.attrib for e in manifest.iter() if e.tag.endswith("}StartupTask")]
-        if len(startup) != 1 or startup[0].get("TaskId") != "PomaStartup" or startup[0].get("Enabled") != "false":
-            raise ValueError("Startup must retain its identity and default off")
+        if startup:
+            raise ValueError("Package declares a background startup task")
         activators = [e.attrib.get("ToastActivatorCLSID") for e in manifest.iter()
                       if e.tag.endswith("}ToastNotificationActivation")]
         if activators != ["970A3EE4-5721-4FC9-8AB1-FA8994C723D7"]:

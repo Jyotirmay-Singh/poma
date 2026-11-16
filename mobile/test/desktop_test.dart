@@ -13,6 +13,7 @@ import 'package:poma/domain/alert_state.dart';
 import 'package:poma/domain/desktop_preferences.dart';
 import 'package:poma/domain/models.dart';
 import 'package:poma/main.dart';
+import 'package:poma/ui/settings_screen.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'alert_support.dart';
 import 'support.dart';
@@ -35,7 +36,6 @@ class FakeShell implements DesktopShell {
   int exits = 0, opens = 0;
   int popupOpens = 0;
   int armCalls = 0;
-  String startup = 'disabled';
   @override
   Future<void> armDeadline(TimerSnapshot? value) async {
     armCalls++;
@@ -61,11 +61,6 @@ class FakeShell implements DesktopShell {
     popupOpens++;
   }
 
-  @override
-  Future<String> startupState() async => startup;
-  @override
-  Future<String> setStartup(bool enabled) async =>
-      startup = enabled ? 'enabled' : 'disabled';
   Future<void> send(
     String event, [
     Map<String, Object?> values = const {},
@@ -404,7 +399,7 @@ void main() {
       addTearDown(controller.dispose);
       await controller.setForeground(false);
       await controller.updateDesktopPreferences(
-        const DesktopPreferences(closeToTray: false, closeExplained: true),
+        const DesktopPreferences(tooltipTitles: false),
       );
       await controller.toggleTimer();
       repository.failWrites = true;
@@ -414,7 +409,7 @@ void main() {
       expect(await controller.deleteAllLocalData(), isTrue);
       await controller.reconcile();
       expect(presenter.requests, isEmpty);
-      expect(controller.desktopPreferences.closeToTray, isTrue);
+      expect(controller.desktopPreferences.tooltipTitles, isTrue);
       expect(repository.state.sessions, isEmpty);
     },
   );
@@ -438,14 +433,41 @@ void main() {
       controller.addTask('Unsaved');
       await controller.flush();
       desktop.confirmDiscard = () async => false;
-      await desktop.quit();
+      await shell.send('quit');
       expect(shell.exits, 0);
       expect(shell.opens, greaterThan(0));
       desktop.confirmDiscard = () async => true;
-      await desktop.quit();
+      await shell.send('quit');
       expect(shell.exits, 1);
     },
   );
+
+  test('window close saves the active timer and exits once', () async {
+    final repository = MemoryRepository();
+    final controller = await AppController.create(
+      repository,
+      clock: FakeClock(),
+    );
+    final shell = FakeShell();
+    final desktop = DesktopController(controller, shell, environment);
+    addTearDown(() {
+      desktop.dispose();
+      controller.dispose();
+    });
+    await desktop.initialize();
+    controller.addTask('Saved on close');
+    await controller.toggleTimer();
+    final runId = controller.timer.runId;
+
+    await shell.send('quit');
+    expect(shell.exits, 1);
+    expect(shell.armed, isNull);
+    expect(repository.state.tasks.single.title, 'Saved on close');
+    expect(repository.state.timer?.runId, runId);
+
+    await shell.send('quit');
+    expect(shell.exits, 1);
+  });
 
   test(
     'real SQLite preserves namespaced desktop preferences without a schema upgrade',
@@ -460,8 +482,7 @@ void main() {
       await controller.setForeground(false);
       await controller.updateDesktopPreferences(
         const DesktopPreferences(
-          closeToTray: false,
-          closeExplained: true,
+          tooltipTitles: false,
           bounds: DesktopBounds(-1800, 40, 1080, 760),
         ),
       );
@@ -475,7 +496,7 @@ void main() {
       );
       controller = await AppController.create(second, clock: FakeClock());
       try {
-        expect(controller.desktopPreferences.closeToTray, isFalse);
+        expect(controller.desktopPreferences.tooltipTitles, isFalse);
         expect(controller.desktopPreferences.bounds?.x, -1800);
         expect(controller.tasks.single.title, 'Local Windows task');
         await controller.deleteAllLocalData();
@@ -562,6 +583,9 @@ void main() {
           const ValueKey('desktop-number-Focus duration'),
         );
         expect(tester.getSemantics(field).label, contains('Focus duration'));
+        final decoration = tester.widget<TextField>(field).decoration!;
+        expect(decoration.suffixText, 'min');
+        expect(decoration.helperText, isNull);
         await tester.enterText(field, '0');
         await tester.testTextInput.receiveAction(TextInputAction.done);
         await tester.pumpAndSettle();
@@ -716,24 +740,57 @@ void main() {
             for (var i = 0; i < 4; i++) {
               desktop.navigate(i);
               await tester.pumpAndSettle();
-              expect(tester.takeException(), isNull);
-              const captures = String.fromEnvironment('POMA_UI_SCREENSHOTS');
-              if (captures.isNotEmpty) {
-                final boundary = tester.renderObject<RenderRepaintBoundary>(
-                  find.byKey(const Key('desktop-ui-capture')),
-                );
-                await tester.runAsync(() async {
-                  final image = await boundary.toImage();
-                  final bytes = await image.toByteData(
-                    format: ui.ImageByteFormat.png,
+              for (final position in ['top', if (i == 3) 'bottom']) {
+                if (position == 'bottom') {
+                  await tester.scrollUntilVisible(
+                    find.text('About Poma'),
+                    300,
+                    scrollable: find
+                        .descendant(
+                          of: find.byType(SettingsScreen),
+                          matching: find.byType(Scrollable),
+                        )
+                        .first,
                   );
-                  final file = File(
-                    '$captures/desktop-${width.toInt()}-${(scale * 100).round()}-$appearance-$i.png',
+                  await tester.pumpAndSettle();
+                }
+                expect(tester.takeException(), isNull);
+                if (i == 3) {
+                  for (final label in [
+                    'Startup and closing',
+                    'Keep running after closing the window',
+                    'Open Poma when I sign in',
+                    'Quit Poma',
+                    'Show mini timer',
+                  ]) {
+                    expect(find.text(label), findsNothing);
+                  }
+                  expect(
+                    find.descendant(
+                      of: find.byType(SettingsScreen),
+                      matching: find.widgetWithText(ListTile, 'Calendar'),
+                    ),
+                    findsNothing,
                   );
-                  await file.parent.create(recursive: true);
-                  await file.writeAsBytes(bytes!.buffer.asUint8List());
-                  image.dispose();
-                });
+                }
+                const captures = String.fromEnvironment('POMA_UI_SCREENSHOTS');
+                if (captures.isNotEmpty) {
+                  final boundary = tester.renderObject<RenderRepaintBoundary>(
+                    find.byKey(const Key('desktop-ui-capture')),
+                  );
+                  await tester.runAsync(() async {
+                    final image = await boundary.toImage();
+                    final bytes = await image.toByteData(
+                      format: ui.ImageByteFormat.png,
+                    );
+                    final file = File(
+                      '$captures/desktop-${width.toInt()}-${(scale * 100).round()}-$appearance-$i${position == 'bottom' ? '-bottom' : ''}.png',
+                    );
+                    await file.parent.create(recursive: true);
+                    await file.writeAsBytes(bytes!.buffer.asUint8List());
+                    image.dispose();
+                  });
+                }
               }
             }
             await tester.pumpWidget(const SizedBox());

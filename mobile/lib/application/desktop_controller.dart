@@ -53,8 +53,6 @@ abstract interface class DesktopShell {
   Future<void> armDeadline(TimerSnapshot? snapshot);
   Future<void> showMain();
   Future<void> showPopup({bool preview = false});
-  Future<String> startupState();
-  Future<String> setStartup(bool enabled);
   Future<void> exit();
 }
 
@@ -149,7 +147,6 @@ class DesktopController extends ChangeNotifier {
 
   Future<bool> Function()? confirmDiscard;
   Future<bool?> Function()? chooseAlerts;
-  String startup = 'unavailable';
   String? error;
   int navigationRevision = 0;
   int destination = 0;
@@ -188,7 +185,6 @@ class DesktopController extends ChangeNotifier {
   Future<void> initialize() async {
     await controller.setForeground(environment.visible);
     await shell.configure(controller.desktopPreferences);
-    await refreshStartup();
     calendarData?.initialize();
     if (calendarData != null && calendarPlatform != null) {
       agenda = CalendarAgendaController(
@@ -208,25 +204,6 @@ class DesktopController extends ChangeNotifier {
     }
     _queuePublish();
     unawaited(connection?.initialize());
-  }
-
-  Future<void> refreshStartup() async {
-    try {
-      startup = await shell.startupState();
-    } catch (_) {
-      startup = 'unavailable';
-    }
-    if (!_disposed) notifyListeners();
-  }
-
-  Future<void> changeStartup(bool enabled) async {
-    try {
-      startup = await shell.setStartup(enabled);
-      error = null;
-    } catch (_) {
-      error = 'Startup could not be changed. Check Windows startup settings.';
-    }
-    if (!_disposed) notifyListeners();
   }
 
   Future<void> showPopup({bool preview = false}) {
@@ -281,7 +258,6 @@ class DesktopController extends ChangeNotifier {
           agenda?.preferencesChanged();
           unawaited(calendarData?.lifecycleChanged());
           await controller.reconcile(forceAlerts: true);
-          await refreshStartup();
         case 'suspend':
           planner?.setUnlocked(false);
           unawaited(focusBlocks?.stop());
@@ -351,12 +327,6 @@ class DesktopController extends ChangeNotifier {
           } on FormatException {
             // A transient minimized/invalid rectangle is not a saved position.
           }
-        case 'closeExplained':
-          await controller.updateDesktopPreferences(
-            controller.desktopPreferences.copyWith(closeExplained: true),
-          );
-        case 'startupChanged':
-          await refreshStartup();
         case 'quit':
           await quit();
       }
@@ -555,8 +525,6 @@ class DesktopController extends ChangeNotifier {
               : controller.cleanupPending
               ? 'Data cleanup needs attention.'
               : '',
-          'closeToTray': controller.desktopPreferences.closeToTray,
-          'closeExplained': controller.desktopPreferences.closeExplained,
           ...?agenda?.display(
             unlocked: sessionState == 'unlocked',
             tooltipTitles: controller.desktopPreferences.tooltipTitles,

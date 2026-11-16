@@ -1,43 +1,23 @@
 /// Desktop-only presentation preferences. These never control timer time.
 class DesktopPreferences {
-  const DesktopPreferences({
-    this.closeToTray = true,
-    this.closeExplained = false,
-    this.tooltipTitles = true,
-    this.bounds,
-  });
+  const DesktopPreferences({this.tooltipTitles = true, this.bounds});
 
-  final bool closeToTray;
-  final bool closeExplained;
   final bool tooltipTitles;
   final DesktopBounds? bounds;
 
-  DesktopPreferences copyWith({
-    bool? closeToTray,
-    bool? closeExplained,
-    bool? tooltipTitles,
-    DesktopBounds? bounds,
-  }) => DesktopPreferences(
-    closeToTray: closeToTray ?? this.closeToTray,
-    closeExplained: closeExplained ?? this.closeExplained,
-    tooltipTitles: tooltipTitles ?? this.tooltipTitles,
-    bounds: bounds ?? this.bounds,
-  );
+  DesktopPreferences copyWith({bool? tooltipTitles, DesktopBounds? bounds}) =>
+      DesktopPreferences(
+        tooltipTitles: tooltipTitles ?? this.tooltipTitles,
+        bounds: bounds ?? this.bounds,
+      );
 
   Map<String, Object?> toJson() => {
-    'closeToTray': closeToTray,
-    'closeExplained': closeExplained,
     'tooltipTitles': tooltipTitles,
     'bounds': bounds?.toJson(),
   };
 
   factory DesktopPreferences.fromJson(Map<String, dynamic> json) {
-    if (json['closeToTray'] is! bool || json['closeExplained'] is! bool) {
-      throw const FormatException('Invalid desktop preferences.');
-    }
     return DesktopPreferences(
-      closeToTray: json['closeToTray'] as bool,
-      closeExplained: json['closeExplained'] as bool,
       tooltipTitles: json['tooltipTitles'] is bool
           ? json['tooltipTitles'] as bool
           : true,

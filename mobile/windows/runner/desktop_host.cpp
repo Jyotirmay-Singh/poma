@@ -59,23 +59,10 @@ RECT WorkArea(HMONITOR monitor) {
   }
   return info.rcWork;
 }
-std::wstring StartupStatus() {
-  if (!IsPackaged()) return L"unavailable";
-  using namespace winrt::Windows::ApplicationModel;
-  const auto state = StartupTask::GetAsync(L"PomaStartup").get().State();
-  switch (state) {
-    case StartupTaskState::Enabled: return L"enabled";
-    case StartupTaskState::DisabledByUser: return L"disabledByUser";
-    case StartupTaskState::DisabledByPolicy: return L"disabledByPolicy";
-    case StartupTaskState::EnabledByPolicy: return L"enabledByPolicy";
-    default: return L"disabled";
-  }
-}
 struct AsyncResponse {
   std::unique_ptr<flutter::MethodResult<V>> result;
   V value;
   bool failed = false;
-  bool notify = false;
   std::thread::id worker;
 };
 // Windows filenames forbid '|'; use a delimiter forbidden by ValidRun instead.
@@ -754,13 +741,12 @@ void DesktopHost::Activate(const std::wstring& arguments) {
   }
   Event("alertsChanged");
 }
-void DesktopHost::RunAsync(std::function<V()> action, std::unique_ptr<Result> result, bool notify) {
+void DesktopHost::RunAsync(std::function<V()> action, std::unique_ptr<Result> result) {
   HWND target = window_;
-  workers_.emplace_back([target, notify, action = std::move(action), result = std::move(result)]() mutable {
+  workers_.emplace_back([target, action = std::move(action), result = std::move(result)]() mutable {
     CoInitializeEx(nullptr, COINIT_MULTITHREADED);
     auto response = std::make_unique<AsyncResponse>(); response->result = std::move(result);
     response->worker = std::this_thread::get_id();
-    response->notify = notify;
     try { response->value = action(); } catch (...) { response->failed = true; }
     if (PostMessageW(target, kAsyncMessage, 0, reinterpret_cast<LPARAM>(response.get()))) response.release();
     CoUninitialize();
@@ -936,7 +922,6 @@ void DesktopHost::Method(const flutter::MethodCall<V>& call, std::unique_ptr<Res
           {V("sessionState"), V(session_state_)}, {V("calendarReview"), V(kCalendarReview)}})); return;
     }
     if (method == "configure") {
-      close_to_tray_ = Flag(args, "closeToTray", true); close_explained_ = Flag(args, "closeExplained");
       const V* bounds = Field(args, "bounds");
       if (bounds && std::holds_alternative<M>(*bounds)) {
         const auto& map = std::get<M>(*bounds);
@@ -961,7 +946,7 @@ void DesktopHost::Method(const flutter::MethodCall<V>& call, std::unique_ptr<Res
           (preview_mode_ && (!previous_preview || !next_preview || !(*previous_preview == *next_preview))) ||
           Text(snapshot_, "appearance") != Text(args, "appearance") || Text(snapshot_, "error") != Text(args, "error") ||
           Text(snapshot_, "task") != Text(args, "task") || Flag(snapshot_, "locked") != Flag(args, "locked");
-      snapshot_ = args; close_to_tray_ = Flag(args, "closeToTray", true); close_explained_ = Flag(args, "closeExplained");
+      snapshot_ = args;
       if (session_state_ != "unlocked") {
         snapshot_[V("secondarySections")] = V(flutter::EncodableList{});
         snapshot_[V("calendarTooltip")] = V("");
@@ -982,18 +967,6 @@ void DesktopHost::Method(const flutter::MethodCall<V>& call, std::unique_ptr<Res
       try { ClearAlerts(); } catch (...) { /* No future OS requests exist. */ }
       KillTimer(window_, kDeadline); RemoveTray();
       result->Success(); closing_ = true; PostMessageW(window_, WM_CLOSE, 0, 0); return;
-    }
-    if (method == "startupState" || method == "setStartup") {
-      const bool change = method == "setStartup";
-      const bool enabled = value && std::holds_alternative<bool>(*value) && std::get<bool>(*value);
-      RunAsync([change, enabled]() -> V {
-        if (!IsPackaged()) return V("unavailable");
-        if (change) {
-          auto task = winrt::Windows::ApplicationModel::StartupTask::GetAsync(L"PomaStartup").get();
-          if (enabled) task.RequestEnableAsync().get(); else task.Disable();
-        }
-        return V(ToUtf8(StartupStatus()));
-      }, std::move(result), change); return;
     }
     if (method == "initializeAlerts") { InitializeAlerts(); result->Success(); return; }
     if (method == "calendarReminderAvailability") {
@@ -1135,9 +1108,8 @@ void DesktopHost::Method(const flutter::MethodCall<V>& call, std::unique_ptr<Res
       ClearCalendarReminders();
       ClearAlerts(); const auto directory = directory_;
       RunAsync([directory]() -> V {
-        if (IsPackaged()) winrt::Windows::ApplicationModel::StartupTask::GetAsync(L"PomaStartup").get().Disable();
         ClearJournal(directory); return V();
-      }, std::move(result), true); return;
+      }, std::move(result)); return;
     }
     result->NotImplemented();
   } catch (...) {
@@ -1168,17 +1140,15 @@ std::optional<LRESULT> DesktopHost::HandleMessage(UINT message, WPARAM wparam, L
     if (worker != workers_.end()) { worker->join(); workers_.erase(worker); }
     if (response->failed) response->result->Error("windows", "Windows service operation failed.");
     else response->result->Success(response->value);
-    if (response->notify) Event("startupChanged"); return 0;
+    return 0;
   }
   if (message == WM_CLOSE && !closing_) {
-    if (configured_ && close_to_tray_ && tray_added_) {
-      SaveBounds();
-      if (!close_explained_) {
-        MessageBoxW(window_, L"Poma keeps running in the system tray when you close this window. Use the tray menu's Quit action to stop Poma and its alerts.", L"Poma is still running", MB_OK | MB_ICONINFORMATION);
-        close_explained_ = true; Event("closeExplained");
-      }
-      HidePopup(); ShowWindow(window_, SW_HIDE); Visibility();
-    } else Event("quit");
+    if (!configured_) {
+      closing_ = true;
+      return std::nullopt;
+    }
+    SaveBounds();
+    Event("quit");
     return 0;
   }
   if (message == WM_TIMER && wparam == kReminderDeadline) {

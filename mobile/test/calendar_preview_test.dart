@@ -206,7 +206,7 @@ void main() {
         desktop.navigate(3);
         await tester.pumpAndSettle();
         await tester.scrollUntilVisible(
-          find.text('Quit Poma'),
+          find.text('About Poma'),
           400,
           scrollable: find
               .descendant(
@@ -243,21 +243,24 @@ void main() {
     );
   }
   test(
-    'old desktop preferences gain the title default without resetting existing choices',
+    'legacy background preferences are retired while window preferences survive',
     () {
-      final preferences = DesktopPreferences.fromJson({
-        'closeToTray': false,
-        'closeExplained': true,
-        'bounds': null,
-      });
-      expect(preferences.tooltipTitles, isTrue);
-      expect(preferences.closeToTray, isFalse);
-      expect(
-        DesktopPreferences.fromJson(
+      for (final closeToTray in [false, true]) {
+        final preferences = DesktopPreferences.fromJson({
+          'closeToTray': closeToTray,
+          'closeExplained': true,
+          'bounds': const DesktopBounds(-1800, 40, 1080, 760).toJson(),
+        });
+        expect(preferences.tooltipTitles, isTrue);
+        expect(preferences.bounds?.x, -1800);
+        expect(preferences.toJson(), isNot(contains('closeToTray')));
+        expect(preferences.toJson(), isNot(contains('closeExplained')));
+        final restored = DesktopPreferences.fromJson(
           preferences.copyWith(tooltipTitles: false).toJson(),
-        ).tooltipTitles,
-        isFalse,
-      );
+        );
+        expect(restored.tooltipTitles, isFalse);
+        expect(restored.bounds?.width, 1080);
+      }
     },
   );
 }

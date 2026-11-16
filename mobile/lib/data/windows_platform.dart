@@ -132,13 +132,6 @@ class NativeWindowsHost implements DesktopShell, CalendarPresentationPlatform {
         'generation': generation,
       });
   @override
-  Future<String> startupState() async =>
-      await channel.invokeMethod<String>('startupState') ?? 'unavailable';
-  @override
-  Future<String> setStartup(bool enabled) async =>
-      await channel.invokeMethod<String>('setStartup', enabled) ??
-      'unavailable';
-  @override
   Future<void> exit() => channel.invokeMethod<void>('exit');
 }
 

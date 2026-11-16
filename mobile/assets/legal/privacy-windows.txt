@@ -146,13 +146,12 @@ captured by a focus session remain in history after the task is renamed or
 deleted. Deletion is logical SQLite deletion, not forensic erasure.
 Clear history does not abandon a running phase. Delete all local data abandons
 the active phase, clears calendar credentials/data, preferences/history/tasks and native notification
-responses, and disables Poma's optional startup task. Windows notification
-permission is controlled by Windows.
+responses. Windows notification permission is controlled by Windows.
 
 Notifications contain only generic completion or meeting text and opaque local
 action identities, never task or event titles. Windows controls presentation, sound and Do Not
-Disturb. Closing to the tray keeps Poma resident. Quit stops resident alerts;
-sleep may delay reconciliation until resume. No service or wake task is used.
+Disturb. Closing Poma exits the application and stops resident alerts.
+Sleep may delay reconciliation until resume. No service or wake task is used.
 Reopening recovers saved timers without replaying old completion alerts. Cold
 restart recovery uses the saved UTC deadline; changing the clock while Poma is
 stopped can affect that fallback.

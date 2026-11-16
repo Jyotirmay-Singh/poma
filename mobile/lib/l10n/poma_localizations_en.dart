@@ -578,18 +578,17 @@ class PomaLocalizationsEn extends PomaLocalizations {
   String get longDuration => 'Long break duration';
 
   @override
-  String get cycleRounds => 'Focus rounds before a long break';
+  String get cycleRounds => 'Long break every';
 
   @override
-  String get durationHelp =>
-      'Duration changes apply immediately to a ready timer. A running or paused phase keeps its original duration.';
+  String get durationHelp => 'New durations apply when the timer is ready.';
 
   @override
   String get strictMode => 'Strict mode';
 
   @override
   String get strictHelp =>
-      'Locks pause, reset, skip, phase changes, and timing settings while a phase runs. It cannot lock your phone or block other apps.';
+      'Lock timer controls and timing settings while running.';
 
   @override
   String get appearance => 'Appearance';
@@ -622,11 +621,11 @@ class PomaLocalizationsEn extends PomaLocalizations {
 
   @override
   String get windowsStrictHelp =>
-      'Locks pause, reset, skip, phase changes, and timing settings while a phase runs. You can still quit Poma or use other apps.';
+      'Lock timer controls and timing settings while running.';
 
   @override
   String get windowsDeleteAllHelp =>
-      'Stop the current timer, disconnect Google Calendar and clear its local credentials/data, clear Poma alerts, disable Poma startup, delete all tasks and history, and restore defaults? This also stops a strict session. Google revocation cannot be confirmed while offline.';
+      'Stop the current timer, disconnect Google Calendar and clear its local credentials/data, clear Poma alerts, delete all tasks and history, and restore defaults? This also stops a strict session. Google revocation cannot be confirmed while offline.';
 
   @override
   String get windowsDeletionSaveError =>
@@ -641,33 +640,8 @@ class PomaLocalizationsEn extends PomaLocalizations {
   String get historyDuration => 'Focus time';
 
   @override
-  String get desktopBehavior => 'Desktop behavior';
-
-  @override
-  String get closeToTray => 'Close to system tray';
-
-  @override
-  String get closeToTrayHelp =>
-      'Closing the window keeps Poma running. Choose Quit from the tray menu to stop Poma and its alerts.';
-
-  @override
-  String get startWithWindows => 'Start with Windows';
-
-  @override
-  String get startupHelp =>
-      'Optional. Poma can run in the tray after you sign in to Windows.';
-
-  @override
-  String get startupBlocked =>
-      'Windows has disabled this startup task. Change it in Windows Settings → Apps → Startup.';
-
-  @override
-  String get startupUnavailable =>
-      'Startup integration is available in the installed Windows package.';
-
-  @override
   String get windowsAlertsHelp =>
-      'Alerts work while Poma is running, including in the tray. Sleep may delay them until resume. Quit stops alerts. Every next phase starts manually.';
+      'Alerts work while Poma is open. Sleep may delay them until resume. Every next phase starts manually.';
 
   @override
   String get windowsAlertsReady =>
@@ -682,21 +656,11 @@ class PomaLocalizationsEn extends PomaLocalizations {
 
   @override
   String get windowsPrivacyHelp =>
-      'Tasks, settings, and history stay in this Windows user\'s local Poma storage and work offline. Optional Google Calendar authorization makes direct requests to Google; no Poma backend or tracking is used. Refresh credentials use Windows user protection; the Pomodoro database is unencrypted. Disconnect preserves tasks/history. Package updates retain data; uninstall removes package-local data but cannot revoke Google access. Poma provides no automatic recovery.';
+      'Tasks and focus history are stored on this PC.';
 
   @override
   String get windowsAboutHelp =>
       'An offline Pomodoro companion for Windows. Inspired by the MIT-licensed Pomatez project.';
-
-  @override
-  String get quitPoma => 'Quit Poma';
-
-  @override
-  String get showCompactTimer => 'Open compact timer';
-
-  @override
-  String get quitHelp =>
-      'Quit stops alerts. A running phase is recovered from its saved deadline next time you open Poma.';
 
   @override
   String get alertHelp =>
@@ -757,11 +721,10 @@ class PomaLocalizationsEn extends PomaLocalizations {
 
   @override
   String get privacyHelp =>
-      'Tasks, settings, and history are stored on this phone. Poma requests that they be left out of automatic backups. System backup and phone-transfer behavior can vary, and older backups may retain data. There is no automatic recovery if you uninstall Poma or lose the phone. No account, ads, or tracking.';
+      'Tasks and focus history are stored on this device.';
 
   @override
-  String get deletionHelp =>
-      'History is kept until you delete it. Deleting data cannot be undone.';
+  String get deletionHelp => 'This cannot be undone.';
 
   @override
   String get clearHistory => 'Clear focus history';
@@ -823,6 +786,20 @@ class PomaLocalizationsEn extends PomaLocalizations {
       locale: localeName,
       other: '$count rounds',
       one: '1 round',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get minutesUnit => 'min';
+
+  @override
+  String roundsUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'rounds',
+      one: 'round',
     );
     return '$_temp0';
   }

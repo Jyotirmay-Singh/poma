@@ -103,6 +103,7 @@ void main() {
       await tester.scrollUntilVisible(find.text('Clear focus history'), 400);
       await tester.tap(find.text('Clear focus history'));
       await tester.pumpAndSettle();
+      expect(find.textContaining('This cannot be undone.'), findsOneWidget);
       await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
       await tester.pumpAndSettle();
       expect(repository.state.sessions, isEmpty);
@@ -130,6 +131,7 @@ void main() {
       await tester.scrollUntilVisible(find.text('Delete all local data'), 400);
       await tester.tap(find.text('Delete all local data'));
       await tester.pumpAndSettle();
+      expect(find.textContaining('This cannot be undone.'), findsOneWidget);
       await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
       expect(repository.state.tasks.length, 1);

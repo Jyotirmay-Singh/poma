@@ -22,16 +22,21 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE,
   int code = EXIT_SUCCESS;
   try {
     const auto arguments = GetCommandLineArguments();
-    bool hidden = false, toast = false;
+    bool startup = false, toast = false;
     for (const auto& argument : arguments) {
-      if (argument == "--startup" || argument.rfind("-StartupTask:", 0) == 0) hidden = true;
+      if (argument == "--startup" || argument.rfind("-StartupTask:", 0) == 0) startup = true;
       if (argument == "--toast-activation" || argument == "-Embedding") toast = true;
     }
     if (poma::IsPackaged()) {
       try {
-        hidden = hidden || winrt::Windows::ApplicationModel::AppInstance::GetActivatedEventArgs().Kind() ==
+        startup = startup || winrt::Windows::ApplicationModel::AppInstance::GetActivatedEventArgs().Kind() ==
             winrt::Windows::ApplicationModel::Activation::ActivationKind::StartupTask;
       } catch (...) {}
+    }
+    if (startup) {
+      // Ignore legacy startup activations from earlier installed versions.
+      ::CoUninitialize();
+      return EXIT_SUCCESS;
     }
 #ifdef POMA_FOCUS_AUDIO_REVIEW
     poma::SingleInstance instance(poma::DataDirectory(), L"Poma.FocusAudioReview.Session2");
@@ -45,7 +50,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE,
     } else {
       flutter::DartProject project(L"data");
       project.set_dart_entrypoint_arguments(arguments);
-      FlutterWindow window(project, hidden || toast);
+      FlutterWindow window(project, false);
       if (!window.Create(L"Poma", Win32Window::Point(80, 60), Win32Window::Size(1080, 760))) {
         code = EXIT_FAILURE;
       } else {

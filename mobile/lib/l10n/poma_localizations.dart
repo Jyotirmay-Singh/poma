@@ -1057,13 +1057,13 @@ abstract class PomaLocalizations {
   /// No description provided for @cycleRounds.
   ///
   /// In en, this message translates to:
-  /// **'Focus rounds before a long break'**
+  /// **'Long break every'**
   String get cycleRounds;
 
   /// No description provided for @durationHelp.
   ///
   /// In en, this message translates to:
-  /// **'Duration changes apply immediately to a ready timer. A running or paused phase keeps its original duration.'**
+  /// **'New durations apply when the timer is ready.'**
   String get durationHelp;
 
   /// No description provided for @strictMode.
@@ -1075,7 +1075,7 @@ abstract class PomaLocalizations {
   /// No description provided for @strictHelp.
   ///
   /// In en, this message translates to:
-  /// **'Locks pause, reset, skip, phase changes, and timing settings while a phase runs. It cannot lock your phone or block other apps.'**
+  /// **'Lock timer controls and timing settings while running.'**
   String get strictHelp;
 
   /// No description provided for @appearance.
@@ -1135,13 +1135,13 @@ abstract class PomaLocalizations {
   /// No description provided for @windowsStrictHelp.
   ///
   /// In en, this message translates to:
-  /// **'Locks pause, reset, skip, phase changes, and timing settings while a phase runs. You can still quit Poma or use other apps.'**
+  /// **'Lock timer controls and timing settings while running.'**
   String get windowsStrictHelp;
 
   /// No description provided for @windowsDeleteAllHelp.
   ///
   /// In en, this message translates to:
-  /// **'Stop the current timer, disconnect Google Calendar and clear its local credentials/data, clear Poma alerts, disable Poma startup, delete all tasks and history, and restore defaults? This also stops a strict session. Google revocation cannot be confirmed while offline.'**
+  /// **'Stop the current timer, disconnect Google Calendar and clear its local credentials/data, clear Poma alerts, delete all tasks and history, and restore defaults? This also stops a strict session. Google revocation cannot be confirmed while offline.'**
   String get windowsDeleteAllHelp;
 
   /// No description provided for @windowsDeletionSaveError.
@@ -1162,52 +1162,10 @@ abstract class PomaLocalizations {
   /// **'Focus time'**
   String get historyDuration;
 
-  /// No description provided for @desktopBehavior.
-  ///
-  /// In en, this message translates to:
-  /// **'Desktop behavior'**
-  String get desktopBehavior;
-
-  /// No description provided for @closeToTray.
-  ///
-  /// In en, this message translates to:
-  /// **'Close to system tray'**
-  String get closeToTray;
-
-  /// No description provided for @closeToTrayHelp.
-  ///
-  /// In en, this message translates to:
-  /// **'Closing the window keeps Poma running. Choose Quit from the tray menu to stop Poma and its alerts.'**
-  String get closeToTrayHelp;
-
-  /// No description provided for @startWithWindows.
-  ///
-  /// In en, this message translates to:
-  /// **'Start with Windows'**
-  String get startWithWindows;
-
-  /// No description provided for @startupHelp.
-  ///
-  /// In en, this message translates to:
-  /// **'Optional. Poma can run in the tray after you sign in to Windows.'**
-  String get startupHelp;
-
-  /// No description provided for @startupBlocked.
-  ///
-  /// In en, this message translates to:
-  /// **'Windows has disabled this startup task. Change it in Windows Settings → Apps → Startup.'**
-  String get startupBlocked;
-
-  /// No description provided for @startupUnavailable.
-  ///
-  /// In en, this message translates to:
-  /// **'Startup integration is available in the installed Windows package.'**
-  String get startupUnavailable;
-
   /// No description provided for @windowsAlertsHelp.
   ///
   /// In en, this message translates to:
-  /// **'Alerts work while Poma is running, including in the tray. Sleep may delay them until resume. Quit stops alerts. Every next phase starts manually.'**
+  /// **'Alerts work while Poma is open. Sleep may delay them until resume. Every next phase starts manually.'**
   String get windowsAlertsHelp;
 
   /// No description provided for @windowsAlertsReady.
@@ -1231,7 +1189,7 @@ abstract class PomaLocalizations {
   /// No description provided for @windowsPrivacyHelp.
   ///
   /// In en, this message translates to:
-  /// **'Tasks, settings, and history stay in this Windows user\'s local Poma storage and work offline. Optional Google Calendar authorization makes direct requests to Google; no Poma backend or tracking is used. Refresh credentials use Windows user protection; the Pomodoro database is unencrypted. Disconnect preserves tasks/history. Package updates retain data; uninstall removes package-local data but cannot revoke Google access. Poma provides no automatic recovery.'**
+  /// **'Tasks and focus history are stored on this PC.'**
   String get windowsPrivacyHelp;
 
   /// No description provided for @windowsAboutHelp.
@@ -1239,24 +1197,6 @@ abstract class PomaLocalizations {
   /// In en, this message translates to:
   /// **'An offline Pomodoro companion for Windows. Inspired by the MIT-licensed Pomatez project.'**
   String get windowsAboutHelp;
-
-  /// No description provided for @quitPoma.
-  ///
-  /// In en, this message translates to:
-  /// **'Quit Poma'**
-  String get quitPoma;
-
-  /// No description provided for @showCompactTimer.
-  ///
-  /// In en, this message translates to:
-  /// **'Open compact timer'**
-  String get showCompactTimer;
-
-  /// No description provided for @quitHelp.
-  ///
-  /// In en, this message translates to:
-  /// **'Quit stops alerts. A running phase is recovered from its saved deadline next time you open Poma.'**
-  String get quitHelp;
 
   /// No description provided for @alertHelp.
   ///
@@ -1357,13 +1297,13 @@ abstract class PomaLocalizations {
   /// No description provided for @privacyHelp.
   ///
   /// In en, this message translates to:
-  /// **'Tasks, settings, and history are stored on this phone. Poma requests that they be left out of automatic backups. System backup and phone-transfer behavior can vary, and older backups may retain data. There is no automatic recovery if you uninstall Poma or lose the phone. No account, ads, or tracking.'**
+  /// **'Tasks and focus history are stored on this device.'**
   String get privacyHelp;
 
   /// No description provided for @deletionHelp.
   ///
   /// In en, this message translates to:
-  /// **'History is kept until you delete it. Deleting data cannot be undone.'**
+  /// **'This cannot be undone.'**
   String get deletionHelp;
 
   /// No description provided for @clearHistory.
@@ -1461,6 +1401,18 @@ abstract class PomaLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 round} other{{count} rounds}}'**
   String rounds(int count);
+
+  /// No description provided for @minutesUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get minutesUnit;
+
+  /// No description provided for @roundsUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{round} other{rounds}}'**
+  String roundsUnit(int count);
 
   /// No description provided for @retry.
   ///

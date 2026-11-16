@@ -248,6 +248,21 @@ void main() {
                   );
                 }
                 await scanPage(tester);
+                if (tab == 3) {
+                  await expectLater(
+                    tester,
+                    meetsGuideline(
+                      RenderedTextContrastGuideline(
+                        finder: fullyVisibleText(tester),
+                      ),
+                    ),
+                  );
+                  await screenshot(
+                    tester,
+                    '${viewport.key}-$appearance-${scale.toString().replaceAll('.0', '')}x-settings-bottom',
+                    {...settings, 'position': 'bottom'},
+                  );
+                }
                 await expectLater(
                   tester,
                   meetsGuideline(androidTapTargetGuideline),

@@ -25,26 +25,17 @@ class SettingsScreen extends StatelessWidget {
     final settings = controller.settings;
     final locked = controller.timer.controlsLocked;
     final desktop = DesktopScope.maybeOf(context);
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     return PomaPage(
       key: ValueKey(
         'settings-calendar-${desktop?.calendarSettingsRevision ?? 0}',
       ),
       controller: controller,
       children: [
-        ScreenHeading(title: copy.settings, subtitle: copy.settingsHelp),
-        if (desktop != null)
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.calendar_month_outlined),
-            title: const Text('Calendar'),
-            subtitle: const Text(
-              'Google connection, calendars, focus blocks and reminders',
-            ),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () =>
-                desktop.openCalendarSection(CalendarPageSection.settings),
-          ),
-        _Section(copy.timing),
+        ScreenHeading(title: copy.settings),
+        if (desktop?.error != null) Text(desktop!.error!),
+        _SettingsSection(copy.timing, divided: false),
         _DurationControl(
           label: copy.focusDuration,
           value: settings.focusMinutes,
@@ -79,8 +70,13 @@ class SettingsScreen extends StatelessWidget {
           onChanged: (v) =>
               controller.updateSettings(settings.copyWith(rounds: v)),
         ),
-        Text(copy.durationHelp),
-        const SizedBox(height: PomaSpace.md),
+        Text(
+          copy.durationHelp,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: colors.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: PomaSpace.xs),
         SwitchListTile.adaptive(
           contentPadding: EdgeInsets.zero,
           title: Text(copy.strictMode),
@@ -93,83 +89,50 @@ class SettingsScreen extends StatelessWidget {
               : (v) =>
                     controller.updateSettings(settings.copyWith(strictMode: v)),
         ),
-        _Section(copy.appearance),
+        _SettingsSection(copy.appearance),
         Wrap(
           spacing: PomaSpace.xs,
           runSpacing: PomaSpace.xs,
           children: [
-            for (final entry in {
-              'system': copy.system,
-              'light': copy.light,
-              'dark': copy.dark,
-            }.entries)
+            for (final (value, label, icon) in [
+              ('system', copy.system, Icons.brightness_auto_outlined),
+              ('light', copy.light, Icons.light_mode_outlined),
+              ('dark', copy.dark, Icons.dark_mode_outlined),
+            ])
               ChoiceChip(
-                label: Text(entry.value),
-                selected: settings.appearance == entry.key,
+                avatar: Icon(icon, size: 18),
+                label: Text(label),
+                showCheckmark: false,
+                selected: settings.appearance == value,
+                side: BorderSide(
+                  color: settings.appearance == value
+                      ? colors.primary
+                      : colors.outlineVariant,
+                ),
                 onSelected: (_) => controller.updateSettings(
-                  settings.copyWith(appearance: entry.key),
+                  settings.copyWith(appearance: value),
                 ),
               ),
           ],
         ),
-        if (desktop != null) ...[
-          _Section(copy.desktopBehavior),
-          SwitchListTile.adaptive(
-            contentPadding: EdgeInsets.zero,
-            title: Text(copy.closeToTray),
-            subtitle: Text(copy.closeToTrayHelp),
-            value: controller.desktopPreferences.closeToTray,
-            onChanged: (value) => controller.updateDesktopPreferences(
-              controller.desktopPreferences.copyWith(closeToTray: value),
-            ),
-          ),
-          SwitchListTile.adaptive(
-            contentPadding: EdgeInsets.zero,
-            title: Text(copy.startWithWindows),
-            subtitle: Text(
-              desktop.startup == 'disabledByUser' ||
-                      desktop.startup == 'disabledByPolicy'
-                  ? copy.startupBlocked
-                  : desktop.startup == 'unavailable'
-                  ? copy.startupUnavailable
-                  : copy.startupHelp,
-            ),
-            value:
-                desktop.startup == 'enabled' ||
-                desktop.startup == 'enabledByPolicy',
-            onChanged:
-                const [
-                  'unavailable',
-                  'disabledByUser',
-                  'disabledByPolicy',
-                  'enabledByPolicy',
-                ].contains(desktop.startup)
-                ? null
-                : desktop.changeStartup,
-          ),
-          if (desktop.error != null) Text(desktop.error!),
-          Text(copy.quitHelp),
-          TextButton(
-            onPressed: desktop.showPopup,
-            child: Text(copy.showCompactTimer),
-          ),
-          TextButton(onPressed: desktop.quit, child: Text(copy.quitPoma)),
-        ],
-        _Section(copy.alerts),
+        _SettingsSection(copy.alerts),
         SwitchListTile.adaptive(
           contentPadding: EdgeInsets.zero,
-          title: Text(copy.completionAlerts),
+          title: Text(copy.completionAlerts, style: theme.textTheme.bodyMedium),
           subtitle: Text(
-            desktop == null ? copy.alertHelp : copy.windowsAlertsHelp,
+            alertStatus(copy, controller),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: colors.onSurfaceVariant,
+            ),
           ),
           value: controller.alertsEnabled,
           onChanged: controller.alertAvailability == null
               ? null
               : controller.setCompletionAlerts,
         ),
-        Text(alertStatus(copy, controller)),
         Wrap(
           spacing: PomaSpace.xs,
+          runSpacing: PomaSpace.xxs,
           children: [
             if (controller.needsAlertPermission)
               TextButton(
@@ -194,62 +157,72 @@ class SettingsScreen extends StatelessWidget {
               ),
           ],
         ),
-        _Section(copy.localData),
+        _SettingsSection(copy.localData),
         Text(
           desktop == null ? copy.privacyHelp : copy.windowsPrivacyHelp,
-          style: Theme.of(context).textTheme.bodyMedium,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: colors.onSurfaceVariant,
+          ),
         ),
-        const SizedBox(height: PomaSpace.md),
-        Text(copy.deletionHelp),
-        TextButton.icon(
-          icon: const Icon(Icons.delete_outline),
-          label: Text(copy.clearHistory),
-          onPressed: () async {
-            if (await confirmDeletion(
-                  context,
-                  title: copy.clearHistoryTitle,
-                  message: copy.clearHistoryHelp,
-                ) &&
-                context.mounted) {
-              final success = await controller.deleteHistory();
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      success ? copy.historyDeleted : copy.deletionSaveError,
-                    ),
-                  ),
-                );
-              }
-            }
-          },
-        ),
-        TextButton.icon(
-          icon: const Icon(Icons.delete_forever_outlined),
-          label: Text(copy.deleteAll),
-          onPressed: () async {
-            if (await confirmDeletion(
-                  context,
-                  title: copy.deleteAllTitle,
-                  message: desktop == null
-                      ? copy.deleteAllHelp
-                      : copy.windowsDeleteAllHelp,
-                ) &&
-                context.mounted) {
-              final success = await controller.deleteAllLocalData();
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      success
-                          ? copy.localDataDeleted
-                          : copy.deletionCleanupError,
-                    ),
-                  ),
-                );
-              }
-            }
-          },
+        const SizedBox(height: PomaSpace.sm),
+        Wrap(
+          spacing: PomaSpace.xs,
+          runSpacing: PomaSpace.xs,
+          children: [
+            OutlinedButton.icon(
+              icon: const Icon(Icons.delete_outline),
+              label: Text(copy.clearHistory),
+              onPressed: () async {
+                if (await confirmDeletion(
+                      context,
+                      title: copy.clearHistoryTitle,
+                      message:
+                          '${copy.clearHistoryHelp}\n\n${copy.deletionHelp}',
+                    ) &&
+                    context.mounted) {
+                  final success = await controller.deleteHistory();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          success
+                              ? copy.historyDeleted
+                              : copy.deletionSaveError,
+                        ),
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+            TextButton.icon(
+              style: TextButton.styleFrom(foregroundColor: colors.error),
+              icon: const Icon(Icons.delete_forever_outlined),
+              label: Text(copy.deleteAll),
+              onPressed: () async {
+                if (await confirmDeletion(
+                      context,
+                      title: copy.deleteAllTitle,
+                      message:
+                          '${desktop == null ? copy.deleteAllHelp : copy.windowsDeleteAllHelp}\n\n${copy.deletionHelp}',
+                    ) &&
+                    context.mounted) {
+                  final success = await controller.deleteAllLocalData();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          success
+                              ? copy.localDataDeleted
+                              : copy.deletionCleanupError,
+                        ),
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+          ],
         ),
         if (controller.deletionError != null || controller.cleanupPending) ...[
           Text(
@@ -262,39 +235,47 @@ class SettingsScreen extends StatelessWidget {
             child: Text(copy.retryDeletion),
           ),
         ],
-        const SizedBox(height: PomaSpace.lg),
-        TextButton.icon(
-          icon: const Icon(Icons.info_outline),
-          label: Text(copy.about),
-          onPressed: () => showAboutDialog(
-            context: context,
-            applicationName: 'Poma',
-            applicationVersion:
-                desktop?.environment.version ?? '$pomaVersion ($pomaBuild)',
-            children: [
-              Text(desktop == null ? copy.aboutHelp : copy.windowsAboutHelp),
-              const SizedBox(height: PomaSpace.sm),
-              Text(copy.attribution),
-              const SizedBox(height: PomaSpace.sm),
-              const SelectableText('$pomaOwner\n$pomaSupport'),
-            ],
-          ),
-        ),
-        for (final document in {
-          'Privacy policy': desktop == null
-              ? 'assets/legal/privacy.txt'
-              : 'assets/legal/privacy-windows.txt',
-          'Third-party notices': 'assets/legal/notices.txt',
-        }.entries)
-          TextButton(
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) =>
-                    LegalScreen(title: document.key, asset: document.value),
+        const Divider(height: PomaSpace.xl),
+        Wrap(
+          key: const ValueKey('settings-footer'),
+          spacing: PomaSpace.xxs,
+          runSpacing: PomaSpace.xxs,
+          children: [
+            TextButton(
+              child: Text(copy.about),
+              onPressed: () => showAboutDialog(
+                context: context,
+                applicationName: 'Poma',
+                applicationVersion:
+                    desktop?.environment.version ?? '$pomaVersion ($pomaBuild)',
+                children: [
+                  Text(
+                    desktop == null ? copy.aboutHelp : copy.windowsAboutHelp,
+                  ),
+                  const SizedBox(height: PomaSpace.sm),
+                  Text(copy.attribution),
+                  const SizedBox(height: PomaSpace.sm),
+                  const SelectableText('$pomaOwner\n$pomaSupport'),
+                ],
               ),
             ),
-            child: Text(document.key),
-          ),
+            for (final document in {
+              'Privacy policy': desktop == null
+                  ? 'assets/legal/privacy.txt'
+                  : 'assets/legal/privacy-windows.txt',
+              'Third-party notices': 'assets/legal/notices.txt',
+            }.entries)
+              TextButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) =>
+                        LegalScreen(title: document.key, asset: document.value),
+                  ),
+                ),
+                child: Text(document.key),
+              ),
+          ],
+        ),
       ],
     );
   }
@@ -741,6 +722,25 @@ class _CalendarPreviewSettings extends StatelessWidget {
   }
 }
 
+class _SettingsSection extends StatelessWidget {
+  const _SettingsSection(this.title, {this.divided = true});
+  final String title;
+  final bool divided;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      if (divided) const Divider(height: PomaSpace.xl),
+      Semantics(
+        header: true,
+        child: Text(title, style: Theme.of(context).textTheme.titleSmall),
+      ),
+      const SizedBox(height: PomaSpace.xs),
+    ],
+  );
+}
+
 class _Section extends StatelessWidget {
   const _Section(this.title);
   final String title;
@@ -915,14 +915,15 @@ class _DesktopNumberState extends State<_DesktopNumber> {
         focusNode: _focus,
         enabled: widget.enabled,
         keyboardType: TextInputType.number,
+        textAlign: TextAlign.end,
         inputFormatters: [
           FilteringTextInputFormatter.digitsOnly,
           LengthLimitingTextInputFormatter(3),
         ],
         decoration: InputDecoration(
-          helperText: widget.rounds
-              ? context.copy.rounds(widget.value)
-              : context.copy.minutes(widget.value),
+          suffixText: widget.rounds
+              ? context.copy.roundsUnit(widget.value)
+              : context.copy.minutesUnit,
           errorText: _invalid
               ? context.copy.desktopNumberRange(widget.max)
               : null,
