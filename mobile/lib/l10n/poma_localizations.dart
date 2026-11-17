@@ -1030,6 +1030,144 @@ abstract class PomaLocalizations {
   /// **'Timing, appearance, alerts, and your local data.'**
   String get settingsHelp;
 
+  /// No description provided for @googleAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Google account'**
+  String get googleAccount;
+
+  /// No description provided for @googleAccountWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect your Google account'**
+  String get googleAccountWelcome;
+
+  /// No description provided for @googleAccountInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'See your schedule in Calendar and Day Clock.'**
+  String get googleAccountInvite;
+
+  /// No description provided for @googleAccountShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Used by Calendar and Day Clock.'**
+  String get googleAccountShared;
+
+  /// No description provided for @googleSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google'**
+  String get googleSignIn;
+
+  /// No description provided for @googleManageCalendars.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage calendars'**
+  String get googleManageCalendars;
+
+  /// No description provided for @googleAccountOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Google account options'**
+  String get googleAccountOptions;
+
+  /// No description provided for @googleSwitchAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch account'**
+  String get googleSwitchAccount;
+
+  /// No description provided for @googleSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get googleSignOut;
+
+  /// No description provided for @googleRetrySignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry sign out'**
+  String get googleRetrySignOut;
+
+  /// No description provided for @googleAccountConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get googleAccountConnected;
+
+  /// No description provided for @googleAccountSignedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed out'**
+  String get googleAccountSignedOut;
+
+  /// No description provided for @googleSigningIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing in…'**
+  String get googleSigningIn;
+
+  /// No description provided for @googleSigningOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing out…'**
+  String get googleSigningOut;
+
+  /// No description provided for @googleAccountChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking account…'**
+  String get googleAccountChecking;
+
+  /// No description provided for @googleAccountOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get googleAccountOffline;
+
+  /// No description provided for @googleAccountReconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in required'**
+  String get googleAccountReconnect;
+
+  /// No description provided for @googleAccountPermissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission needed'**
+  String get googleAccountPermissions;
+
+  /// No description provided for @googleAccountAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs attention'**
+  String get googleAccountAttention;
+
+  /// No description provided for @googleAccountSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup required'**
+  String get googleAccountSetup;
+
+  /// No description provided for @googleAccountSetupHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Google sign-in needs setup in this build.'**
+  String get googleAccountSetupHelp;
+
+  /// No description provided for @googleAccountHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Account hidden'**
+  String get googleAccountHidden;
+
+  /// No description provided for @googleAccountUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Windows to manage your Google account.'**
+  String get googleAccountUnlock;
+
   /// No description provided for @timing.
   ///
   /// In en, this message translates to:

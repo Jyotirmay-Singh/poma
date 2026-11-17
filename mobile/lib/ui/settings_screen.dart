@@ -15,6 +15,7 @@ import 'insights_screen.dart';
 import 'legal_screen.dart';
 import 'desktop_scope.dart';
 import 'design_tokens.dart';
+import 'google_account_section.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({required this.controller, super.key});
@@ -25,6 +26,7 @@ class SettingsScreen extends StatelessWidget {
     final settings = controller.settings;
     final locked = controller.timer.controlsLocked;
     final desktop = DesktopScope.maybeOf(context);
+    final googleConnection = desktop?.connection;
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     return PomaPage(
@@ -35,7 +37,14 @@ class SettingsScreen extends StatelessWidget {
       children: [
         ScreenHeading(title: copy.settings),
         if (desktop?.error != null) Text(desktop!.error!),
-        _SettingsSection(copy.timing, divided: false),
+        if (desktop != null && googleConnection != null)
+          GoogleAccountSection(
+            connection: googleConnection,
+            unlocked: desktop.sessionState == 'unlocked',
+            onManageCalendars: () =>
+                desktop.openCalendarSection(CalendarPageSection.settings),
+          ),
+        _SettingsSection(copy.timing, divided: googleConnection != null),
         _DurationControl(
           label: copy.focusDuration,
           value: settings.focusMinutes,

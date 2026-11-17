@@ -566,6 +566,78 @@ class PomaLocalizationsEn extends PomaLocalizations {
   String get settingsHelp => 'Timing, appearance, alerts, and your local data.';
 
   @override
+  String get googleAccount => 'Google account';
+
+  @override
+  String get googleAccountWelcome => 'Connect your Google account';
+
+  @override
+  String get googleAccountInvite =>
+      'See your schedule in Calendar and Day Clock.';
+
+  @override
+  String get googleAccountShared => 'Used by Calendar and Day Clock.';
+
+  @override
+  String get googleSignIn => 'Sign in with Google';
+
+  @override
+  String get googleManageCalendars => 'Manage calendars';
+
+  @override
+  String get googleAccountOptions => 'Google account options';
+
+  @override
+  String get googleSwitchAccount => 'Switch account';
+
+  @override
+  String get googleSignOut => 'Sign out';
+
+  @override
+  String get googleRetrySignOut => 'Retry sign out';
+
+  @override
+  String get googleAccountConnected => 'Connected';
+
+  @override
+  String get googleAccountSignedOut => 'Signed out';
+
+  @override
+  String get googleSigningIn => 'Signing in…';
+
+  @override
+  String get googleSigningOut => 'Signing out…';
+
+  @override
+  String get googleAccountChecking => 'Checking account…';
+
+  @override
+  String get googleAccountOffline => 'Offline';
+
+  @override
+  String get googleAccountReconnect => 'Sign-in required';
+
+  @override
+  String get googleAccountPermissions => 'Permission needed';
+
+  @override
+  String get googleAccountAttention => 'Needs attention';
+
+  @override
+  String get googleAccountSetup => 'Setup required';
+
+  @override
+  String get googleAccountSetupHelp =>
+      'Google sign-in needs setup in this build.';
+
+  @override
+  String get googleAccountHidden => 'Account hidden';
+
+  @override
+  String get googleAccountUnlock =>
+      'Unlock Windows to manage your Google account.';
+
+  @override
   String get timing => 'Timing';
 
   @override

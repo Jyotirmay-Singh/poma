@@ -1,5 +1,12 @@
 # Third-party notices
 
+## Google sign-in branding
+
+Google and the Google 'G' logo are trademarks of Google LLC.
+The sign-in mark is supplied by Google.
+https://developers.google.com/identity/images/g-logo.png
+https://developers.google.com/identity/branding-guidelines
+
 ## Focus sound recordings
 
 Tibetan bells uses the 4–63 second excerpt of Aurabowls' Tibetan Singing Bowl
