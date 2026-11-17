@@ -1180,10 +1180,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(r.reader.selected, {work.id});
       expect(r.provider.requests, [work.id]);
-      expect(
-        find.textContaining('updated less than a minute ago'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('Updated just now'), findsOneWidget);
       await shell.onEvent!('sessionState', {'state': 'locked'});
       await tester.pumpAndSettle();
       expect(find.text(work.name), findsNothing);

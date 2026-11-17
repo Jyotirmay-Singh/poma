@@ -945,7 +945,7 @@ void main() {
   );
 
   testWidgets(
-    'real settings unconfigured state stays separate from demo; timer survives disconnect',
+    'Calendar settings delegates account setup to Settings and preserves the timer',
     (tester) async {
       final repository = MemoryRepository();
       final app = await AppController.create(repository, clock: FakeClock());
@@ -973,31 +973,24 @@ void main() {
         find.byKey(const ValueKey('google-calendar-status')),
         findsOneWidget,
       );
+      expect(find.text('Setup required'), findsOneWidget);
       expect(
-        tester
-            .widget<FilledButton>(
-              find.byKey(const ValueKey('google-calendar-connect')),
-            )
-            .onPressed,
-        isNull,
+        find.byKey(const ValueKey('google-calendar-connect')),
+        findsNothing,
       );
-      await tester.scrollUntilVisible(
-        find.text('Calendar preview'),
-        250,
-        scrollable: find.byType(Scrollable).last,
+      expect(
+        find.byKey(const ValueKey('google-calendar-disconnect')),
+        findsNothing,
       );
-      expect(find.text('Calendar preview'), findsOneWidget);
+      expect(find.byKey(const ValueKey('calendar-fixture')), findsNothing);
       final run = app.timer.runId;
-      await tester.scrollUntilVisible(
-        find.byKey(const ValueKey('google-calendar-disconnect')),
-        -250,
-        scrollable: find.byType(Scrollable).last,
-      );
+      await tester.tap(find.byKey(const ValueKey('calendar-account-settings')));
       await tester.pumpAndSettle();
-      await tester.tap(
-        find.byKey(const ValueKey('google-calendar-disconnect')),
+      expect(desktop.destination, 3);
+      expect(
+        find.text('Google sign-in needs setup in this build.'),
+        findsOneWidget,
       );
-      await tester.pump();
       expect(app.timer.runId, run);
       await tester.pumpWidget(const SizedBox());
       desktop.dispose();

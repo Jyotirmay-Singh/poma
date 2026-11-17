@@ -22,6 +22,7 @@ import 'planner_editor.dart';
 import 'calendar_sidebar.dart';
 import 'app_shell.dart';
 import 'calendar_theme.dart';
+import 'calendar_settings_heading.dart';
 
 void showPlannerDeletionUndo(
   BuildContext context,
@@ -2459,19 +2460,55 @@ class PlannerPreferencesPanel extends StatelessWidget {
       final sources = planner.sources
           .where((s) => s.accessRole == 'owner')
           .toList();
+      final calendar = DropdownButtonFormField<String>(
+        key: ValueKey('planner-default-${preferences.calendarId}'),
+        initialValue: sources.any((s) => s.id == preferences.calendarId)
+            ? preferences.calendarId
+            : null,
+        isExpanded: true,
+        style: Theme.of(context).textTheme.bodyMedium,
+        decoration: const InputDecoration(labelText: 'Default calendar'),
+        items: [
+          for (final source in sources)
+            DropdownMenuItem(
+              value: source.id,
+              child: Text(source.name, maxLines: 2),
+            ),
+        ],
+        onChanged: sources.isEmpty || !planner.unlocked
+            ? null
+            : (value) => planner.setPreferences(
+                preferences.copyWith(calendarId: value),
+              ),
+      );
+      final duration = TextFormField(
+        key: ValueKey('planner-duration-${preferences.durationMinutes}'),
+        initialValue: '${preferences.durationMinutes}',
+        enabled: planner.unlocked,
+        style: Theme.of(context).textTheme.bodyMedium,
+        keyboardType: TextInputType.number,
+        decoration: const InputDecoration(
+          labelText: 'Default duration',
+          suffixText: 'min',
+        ),
+        onFieldSubmitted: (value) {
+          final minutes = int.tryParse(value);
+          if (minutes != null && minutes > 0 && minutes <= 527040) {
+            planner.setPreferences(
+              preferences.copyWith(durationMinutes: minutes),
+            );
+          }
+        },
+      );
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            'Scheduled tasks',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          const CalendarSettingsHeading('Scheduled tasks'),
           SwitchListTile(
+            key: const ValueKey('planner-sync-enabled'),
             contentPadding: EdgeInsets.zero,
-            title: const Text('Sync scheduled tasks to Google Calendar'),
-            subtitle: const Text(
-              'Queued changes resume for their original account when syncing is enabled.',
-            ),
+            title: const Text('Sync to Google Calendar'),
+            subtitle: const Text('Sync scheduled tasks and queued changes.'),
             value: preferences.syncEnabled,
             onChanged: !planner.unlocked
                 ? null
@@ -2485,45 +2522,36 @@ class PlannerPreferencesPanel extends StatelessWidget {
                     }
                   },
           ),
-          DropdownButtonFormField<String>(
-            key: ValueKey('planner-default-${preferences.calendarId}'),
-            initialValue: sources.any((s) => s.id == preferences.calendarId)
-                ? preferences.calendarId
-                : null,
-            isExpanded: true,
-            decoration: const InputDecoration(labelText: 'Default calendar'),
-            items: [
-              for (final source in sources)
-                DropdownMenuItem(
-                  value: source.id,
-                  child: Text(source.name, maxLines: 2),
-                ),
-            ],
-            onChanged: sources.isEmpty
-                ? null
-                : (value) => planner.setPreferences(
-                    preferences.copyWith(calendarId: value),
-                  ),
-          ),
-          const SizedBox(height: PomaSpace.md),
-          TextFormField(
-            key: ValueKey('planner-duration-${preferences.durationMinutes}'),
-            initialValue: '${preferences.durationMinutes}',
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Default duration',
-              suffixText: 'minutes',
-            ),
-            onFieldSubmitted: (value) {
-              final minutes = int.tryParse(value);
-              if (minutes != null && minutes > 0 && minutes <= 527040) {
-                planner.setPreferences(
-                  preferences.copyWith(durationMinutes: minutes),
+          const SizedBox(height: PomaSpace.xs),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (preferences.syncEnabled &&
+                  constraints.maxWidth >= 600 &&
+                  MediaQuery.textScalerOf(context).scale(1) <= 1.4) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: calendar),
+                    const SizedBox(width: PomaSpace.md),
+                    SizedBox(width: 200, child: duration),
+                  ],
                 );
               }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (preferences.syncEnabled) ...[
+                    calendar,
+                    const SizedBox(height: PomaSpace.md),
+                  ],
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: SizedBox(width: 240, child: duration),
+                  ),
+                ],
+              );
             },
           ),
-          const SizedBox(height: PomaSpace.md),
           PlannerOperations(planner: planner),
         ],
       );

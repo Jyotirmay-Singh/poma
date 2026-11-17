@@ -13,6 +13,7 @@ import 'design_tokens.dart';
 import 'planner_screen.dart';
 import 'planner_scope.dart';
 import 'calendar_tasks.dart';
+import 'calendar_settings_heading.dart';
 
 String _status(FocusOperationStatus status) => switch (status) {
   FocusOperationStatus.needsReview => 'Needs review',
@@ -187,14 +188,24 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   : PomaLayout.readingWidth,
               children: [
                 ScreenHeading(
-                  title: 'Calendar',
-                  subtitle:
-                      'See your schedule, plan focused time and choose your calendars.',
-                  action: OutlinedButton.icon(
-                    onPressed: desktop.showPopup,
-                    icon: const Icon(Icons.open_in_new),
-                    label: const Text('Open calendar agenda'),
-                  ),
+                  title: desktop.calendarSection == CalendarPageSection.settings
+                      ? 'Calendar settings'
+                      : 'Calendar',
+                  action:
+                      desktop.calendarSection == CalendarPageSection.settings
+                      ? OutlinedButton.icon(
+                          key: const ValueKey('calendar-settings-back'),
+                          onPressed: () => desktop.openCalendarSection(
+                            CalendarPageSection.schedule,
+                          ),
+                          icon: const Icon(Icons.arrow_back, size: 18),
+                          label: const Text('Calendar'),
+                        )
+                      : OutlinedButton.icon(
+                          onPressed: desktop.showPopup,
+                          icon: const Icon(Icons.open_in_new),
+                          label: const Text('Open calendar agenda'),
+                        ),
                 ),
                 if (desktop.sessionState != 'unlocked')
                   const Padding(
@@ -204,82 +215,85 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     ),
                   )
                 else ...[
-                  if (desktop.calendarSection != CalendarPageSection.schedule)
-                    Container(
-                      padding: const EdgeInsets.all(PomaSpace.lg),
-                      decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: .06),
-                        borderRadius: BorderRadius.circular(
-                          PomaLayout.panelRadius,
+                  if (desktop.calendarSection !=
+                      CalendarPageSection.settings) ...[
+                    if (desktop.calendarSection != CalendarPageSection.schedule)
+                      Container(
+                        padding: const EdgeInsets.all(PomaSpace.lg),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: .06),
+                          borderRadius: BorderRadius.circular(
+                            PomaLayout.panelRadius,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              connection?.verifiedAccountLabel ??
+                                  'Google Calendar',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: PomaSpace.xs),
+                            Wrap(
+                              spacing: PomaSpace.lg,
+                              runSpacing: PomaSpace.xs,
+                              children: [
+                                Text(
+                                  'Viewing: ${connection?.operationsEnabled == true
+                                      ? 'Connected'
+                                      : connection?.mayRead == true
+                                      ? 'Saved connection'
+                                      : 'Not connected'}',
+                                ),
+                                Text(
+                                  'Focus scheduling: ${_capability(c?.capability)}',
+                                ),
+                                if (c != null && !c.online)
+                                  const Text('Offline · drafts only'),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            connection?.verifiedAccountLabel ??
-                                'Google Calendar',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          const SizedBox(height: PomaSpace.xs),
-                          Wrap(
-                            spacing: PomaSpace.lg,
-                            runSpacing: PomaSpace.xs,
-                            children: [
-                              Text(
-                                'Viewing: ${connection?.operationsEnabled == true
-                                    ? 'Connected'
-                                    : connection?.mayRead == true
-                                    ? 'Saved connection'
-                                    : 'Not connected'}',
-                              ),
-                              Text(
-                                'Focus scheduling: ${_capability(c?.capability)}',
-                              ),
-                              if (c != null && !c.online)
-                                const Text('Offline · drafts only'),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  const SizedBox(height: PomaSpace.lg),
-                  Wrap(
-                    spacing: PomaSpace.xs,
-                    runSpacing: PomaSpace.xs,
-                    children: [
-                      ChoiceChip(
-                        label: const Text('Schedule'),
-                        selected:
-                            desktop.calendarSection ==
+                    const SizedBox(height: PomaSpace.lg),
+                    Wrap(
+                      spacing: PomaSpace.xs,
+                      runSpacing: PomaSpace.xs,
+                      children: [
+                        ChoiceChip(
+                          label: const Text('Schedule'),
+                          selected:
+                              desktop.calendarSection ==
+                              CalendarPageSection.schedule,
+                          onSelected: (_) => desktop.openCalendarSection(
                             CalendarPageSection.schedule,
-                        onSelected: (_) => desktop.openCalendarSection(
-                          CalendarPageSection.schedule,
+                          ),
                         ),
-                      ),
-                      ChoiceChip(
-                        label: const Text('Focus blocks'),
-                        selected:
-                            desktop.calendarSection ==
+                        ChoiceChip(
+                          label: const Text('Focus blocks'),
+                          selected:
+                              desktop.calendarSection ==
+                              CalendarPageSection.focusBlocks,
+                          onSelected: (_) => desktop.openCalendarSection(
                             CalendarPageSection.focusBlocks,
-                        onSelected: (_) => desktop.openCalendarSection(
-                          CalendarPageSection.focusBlocks,
+                          ),
                         ),
-                      ),
-                      ChoiceChip(
-                        label: const Text('Calendar settings'),
-                        selected:
-                            desktop.calendarSection ==
+                        ChoiceChip(
+                          label: const Text('Calendar settings'),
+                          selected:
+                              desktop.calendarSection ==
+                              CalendarPageSection.settings,
+                          onSelected: (_) => desktop.openCalendarSection(
                             CalendarPageSection.settings,
-                        onSelected: (_) => desktop.openCalendarSection(
-                          CalendarPageSection.settings,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: PomaSpace.lg),
+                      ],
+                    ),
+                    const SizedBox(height: PomaSpace.lg),
+                  ],
                   if (error != null) Text(error!, semanticsLabel: error),
                   if (working) const LinearProgressIndicator(),
                   if (c?.message != null)
@@ -306,182 +320,216 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     ),
                   if (desktop.calendarSection ==
                       CalendarPageSection.settings) ...[
+                    CalendarPreferences(desktop: desktop),
                     if (desktop.planner case final planner?) ...[
                       PlannerPreferencesPanel(planner: planner),
-                      const SizedBox(height: PomaSpace.lg),
                     ],
-                    if (desktop.creation case final creation?) ...[
-                      _Heading(
-                        plannerActive ? 'Calendar editing' : 'Task creation',
+                    CalendarNotificationPreferences(desktop: desktop),
+                    const Divider(height: PomaSpace.xl),
+                    ExpansionTile(
+                      key: const ValueKey('calendar-more-options'),
+                      tilePadding: EdgeInsets.zero,
+                      childrenPadding: EdgeInsets.zero,
+                      expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
+                      shape: const Border(),
+                      collapsedShape: const Border(),
+                      title: Text(
+                        'More calendar options',
+                        style: Theme.of(context).textTheme.titleSmall,
                       ),
-                      Text(
-                        plannerActive
-                            ? 'Create, edit and delete ordinary events on calendars you own, including primary. Shared calendars remain viewable. Manage focus blocks with their dedicated controls.'
-                            : 'Optional Google event access on calendars you own, including primary. Poma creates only ordinary events you review in Day Clock. Calendar viewing and focus scheduling remain separate.',
-                      ),
-                      if (connection?.creationMessage case final message?)
-                        Text(message),
-                      if (creation.message case final message?) Text(message),
-                      Wrap(
-                        spacing: PomaSpace.xs,
-                        runSpacing: PomaSpace.xs,
-                        children: [
-                          if (connection?.creationEnabled != true ||
-                              creation.disabled)
-                            FilledButton(
-                              onPressed:
-                                  connection?.operationsEnabled == true &&
-                                      connection?.creationUpgradeActive != true
-                                  ? () => _run(() async {
-                                      if (await _approve(
-                                        'Enable $eventAccess?',
-                                        plannerActive
-                                            ? 'Google grants event access on calendars you own. Poma uses this access for ordinary event creation, editing and deletion. Enable scheduled-task syncing to deliver queued task changes.'
-                                            : 'Google grants event access on calendars you own. Poma only creates the ordinary event you review. Nothing is scheduled by enabling access.',
-                                        'Enable $eventAccess',
-                                      )) {
-                                        await creation.enable();
-                                      }
-                                    })
-                                  : null,
-                              child: Text('Enable $eventAccess'),
-                            ),
-                          if (connection?.creationEnabled == true &&
-                              !creation.disabled)
-                            TextButton(
-                              onPressed: () => _run(creation.disable),
-                              child: Text('Disable $eventAccess'),
-                            ),
-                          if (connection?.creationUpgradeActive == true)
-                            TextButton(
-                              onPressed: connection?.cancelCreationConsent,
-                              child: Text('Cancel $eventAccess setup'),
-                            ),
-                          if (creation.journal == null &&
-                              connection?.verifiedAccountKey != null)
-                            TextButton(
-                              onPressed: creation.initialize,
-                              child: const Text('Retry task-save storage'),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: PomaSpace.lg),
-                    ],
-                    if (c != null && connection != null) ...[
-                      _Heading('Focus scheduling'),
-                      const Text(
-                        'Optional access to events on calendars this app creates. Poma uses its dedicated calendar and changes only verified focus blocks. Skipping keeps calendar viewing and offline Poma.',
-                      ),
-                      if (connection.writeMessage != null)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: PomaSpace.xs,
+                      children: [
+                        if (desktop.creation case final creation?) ...[
+                          CalendarSettingsHeading(
+                            plannerActive ? 'Event editing' : 'Task creation',
+                            divided: false,
                           ),
-                          child: Text(connection.writeMessage!),
-                        ),
-                      Wrap(
-                        spacing: PomaSpace.xs,
-                        runSpacing: PomaSpace.xs,
-                        children: [
-                          if (!connection.focusWriteEnabled || c.disabled)
-                            FilledButton(
-                              onPressed:
-                                  !working && connection.operationsEnabled
-                                  ? () => _run(() async {
-                                      if (await _approve(
-                                        'Enable focus scheduling?',
-                                        'Google grants access to events on calendars this app creates. Poma will use its dedicated Poma Focus calendar and change only blocks it can verify. You review the title and timing before anything is scheduled.',
-                                        'Enable focus scheduling',
-                                      )) {
-                                        if (!connection.focusWriteEnabled) {
-                                          await connection
-                                              .enableFocusScheduling();
-                                        }
-                                        if (connection.focusWriteEnabled) {
-                                          await c.enable();
-                                        }
-                                      }
-                                    })
-                                  : null,
-                              child: const Text('Enable focus scheduling'),
-                            ),
-                          if (const {
-                            CalendarWriteCapability.granting,
-                            CalendarWriteCapability.verifying,
-                          }.contains(connection.writeCapability))
-                            TextButton(
-                              onPressed: connection.cancelFocusConsent,
-                              child: const Text('Cancel setup'),
-                            ),
-                          if (connection.focusWriteEnabled && !c.disabled)
-                            TextButton(
-                              onPressed: working
-                                  ? null
-                                  : () => _run(() async {
-                                      await c.disable();
-                                      await connection.disableFocusScheduling();
-                                    }),
-                              child: const Text('Disable focus scheduling'),
-                            ),
-                        ],
-                      ),
-                      if (connection.focusWriteEnabled && !c.disabled) ...[
-                        const SizedBox(height: PomaSpace.md),
-                        Text(
-                          c.journal?.binding?.name ??
-                              'Poma Focus calendar not set up',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        if (c.journal?.binding == null)
+                          Text(
+                            plannerActive
+                                ? 'Create, edit and delete events on calendars you own.'
+                                : 'Add events to your Google calendars from Day Clock.',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          if (connection?.creationMessage case final message?)
+                            Text(message),
+                          if (creation.message case final message?)
+                            Text(message),
                           Wrap(
                             spacing: PomaSpace.xs,
                             runSpacing: PomaSpace.xs,
                             children: [
-                              FilledButton(
-                                onPressed: working
-                                    ? null
-                                    : () => _run(() async {
-                                        if (c.journal?.provisioning != null ||
-                                            await _approve(
-                                              'Create Poma Focus calendar?',
-                                              'Create one dedicated secondary calendar in this Google account. This does not schedule a block.',
-                                              'Create Poma Focus calendar',
-                                            )) {
-                                          await c.createCalendar();
-                                        }
-                                      }),
-                                child: Text(
-                                  c.journal?.provisioning == null
-                                      ? 'Create Poma Focus calendar'
-                                      : 'Check calendar setup',
+                              if (connection?.creationEnabled != true ||
+                                  creation.disabled)
+                                FilledButton(
+                                  onPressed:
+                                      connection?.operationsEnabled == true &&
+                                          connection?.creationUpgradeActive !=
+                                              true
+                                      ? () => _run(() async {
+                                          if (await _approve(
+                                            'Enable $eventAccess?',
+                                            plannerActive
+                                                ? 'Google grants event access on calendars you own. Poma uses this access for ordinary event creation, editing and deletion. Enable scheduled-task syncing to deliver queued task changes.'
+                                                : 'Google grants event access on calendars you own. Poma only creates the ordinary event you review. Nothing is scheduled by enabling access.',
+                                            'Enable $eventAccess',
+                                          )) {
+                                            await creation.enable();
+                                          }
+                                        })
+                                      : null,
+                                  child: Text('Enable $eventAccess'),
                                 ),
+                              if (connection?.creationEnabled == true &&
+                                  !creation.disabled)
+                                TextButton(
+                                  onPressed: () => _run(creation.disable),
+                                  child: Text('Disable $eventAccess'),
+                                ),
+                              if (connection?.creationUpgradeActive == true)
+                                TextButton(
+                                  onPressed: connection?.cancelCreationConsent,
+                                  child: Text('Cancel $eventAccess setup'),
+                                ),
+                              if (creation.journal == null &&
+                                  connection?.verifiedAccountKey != null)
+                                TextButton(
+                                  onPressed: creation.initialize,
+                                  child: const Text('Retry task-save storage'),
+                                ),
+                            ],
+                          ),
+                        ],
+                        if (c != null && connection != null) ...[
+                          const CalendarSettingsHeading('Focus scheduling'),
+                          Text(
+                            'Schedule focus blocks in a dedicated Poma calendar.',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          if (connection.writeMessage != null)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: PomaSpace.xs,
                               ),
+                              child: Text(connection.writeMessage!),
+                            ),
+                          Wrap(
+                            spacing: PomaSpace.xs,
+                            runSpacing: PomaSpace.xs,
+                            children: [
+                              if (!connection.focusWriteEnabled || c.disabled)
+                                FilledButton(
+                                  onPressed:
+                                      !working && connection.operationsEnabled
+                                      ? () => _run(() async {
+                                          if (await _approve(
+                                            'Enable focus scheduling?',
+                                            'Google grants access to events on calendars this app creates. Poma will use its dedicated Poma Focus calendar and change only blocks it can verify. You review the title and timing before anything is scheduled.',
+                                            'Enable focus scheduling',
+                                          )) {
+                                            if (!connection.focusWriteEnabled) {
+                                              await connection
+                                                  .enableFocusScheduling();
+                                            }
+                                            if (connection.focusWriteEnabled) {
+                                              await c.enable();
+                                            }
+                                          }
+                                        })
+                                      : null,
+                                  child: const Text('Enable focus scheduling'),
+                                ),
+                              if (const {
+                                CalendarWriteCapability.granting,
+                                CalendarWriteCapability.verifying,
+                              }.contains(connection.writeCapability))
+                                TextButton(
+                                  onPressed: connection.cancelFocusConsent,
+                                  child: const Text('Cancel setup'),
+                                ),
+                              if (connection.focusWriteEnabled && !c.disabled)
+                                TextButton(
+                                  onPressed: working
+                                      ? null
+                                      : () => _run(() async {
+                                          await c.disable();
+                                          await connection
+                                              .disableFocusScheduling();
+                                        }),
+                                  child: const Text('Disable focus scheduling'),
+                                ),
+                            ],
+                          ),
+                          if (connection.focusWriteEnabled && !c.disabled) ...[
+                            const SizedBox(height: PomaSpace.md),
+                            Text(
+                              c.journal?.binding?.name ??
+                                  'Poma Focus calendar not set up',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            if (c.journal?.binding == null)
+                              Wrap(
+                                spacing: PomaSpace.xs,
+                                runSpacing: PomaSpace.xs,
+                                children: [
+                                  FilledButton(
+                                    onPressed: working
+                                        ? null
+                                        : () => _run(() async {
+                                            if (c.journal?.provisioning !=
+                                                    null ||
+                                                await _approve(
+                                                  'Create Poma Focus calendar?',
+                                                  'Create one dedicated secondary calendar in this Google account. This does not schedule a block.',
+                                                  'Create Poma Focus calendar',
+                                                )) {
+                                              await c.createCalendar();
+                                            }
+                                          }),
+                                    child: Text(
+                                      c.journal?.provisioning == null
+                                          ? 'Create Poma Focus calendar'
+                                          : 'Check calendar setup',
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: working
+                                        ? null
+                                        : () => _run(_calendarRecovery),
+                                    child: const Text('Recover Poma calendar'),
+                                  ),
+                                ],
+                              ),
+                            if (c.journal?.binding != null)
                               TextButton(
                                 onPressed: working
                                     ? null
-                                    : () => _run(_calendarRecovery),
-                                child: const Text('Recover Poma calendar'),
+                                    : () => _run(() async {
+                                        await showDialog<void>(
+                                          context: context,
+                                          builder: (_) =>
+                                              _RecoverBlocks(controller: c),
+                                        );
+                                      }),
+                                child: const Text('Recover Poma blocks'),
                               ),
-                            ],
-                          ),
-                        if (c.journal?.binding != null)
-                          TextButton(
-                            onPressed: working
-                                ? null
-                                : () => _run(() async {
-                                    await showDialog<void>(
-                                      context: context,
-                                      builder: (_) =>
-                                          _RecoverBlocks(controller: c),
-                                    );
-                                  }),
-                            child: const Text('Recover Poma blocks'),
-                          ),
+                          ],
+                        ],
+                        const CalendarSettingsHeading('Tray tooltip'),
+                        SwitchListTile.adaptive(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('Show event titles'),
+                          value: widget
+                              .controller
+                              .desktopPreferences
+                              .tooltipTitles,
+                          onChanged: (value) =>
+                              widget.controller.updateDesktopPreferences(
+                                widget.controller.desktopPreferences.copyWith(
+                                  tooltipTitles: value,
+                                ),
+                              ),
+                        ),
                       ],
-                      const SizedBox(height: PomaSpace.md),
-                      const Divider(),
-                    ],
-                    CalendarPreferences(desktop: desktop),
+                    ),
                   ] else if (desktop.calendarSection ==
                       CalendarPageSection.focusBlocks) ...[
                     Wrap(

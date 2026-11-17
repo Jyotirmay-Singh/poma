@@ -170,7 +170,7 @@ void main() {
   );
   for (final appearance in ['light', 'dark']) {
     testWidgets(
-      'calendar settings return exposes real agenda entry with 200% text and high contrast $appearance',
+      'Calendar settings returns to Calendar at 200% text and high contrast $appearance',
       (tester) async {
         tester.view.physicalSize = const Size(640, 1000);
         tester.view.devicePixelRatio = 1;
@@ -224,17 +224,23 @@ void main() {
         final opening = shell.onEvent!('settings', const {});
         await tester.pumpAndSettle();
         await opening;
-        expect(find.text('Open calendar agenda').hitTestable(), findsOneWidget);
+        expect(
+          find.byKey(const ValueKey('calendar-settings-back')).hitTestable(),
+          findsOneWidget,
+        );
         await tester.scrollUntilVisible(
-          find.byKey(const ValueKey('calendar-fixture')),
+          find.byKey(const ValueKey('calendar-more-options')),
           250,
           scrollable: find.byType(Scrollable).last,
         );
         await tester.pumpAndSettle();
-        expect(
-          find.byKey(const ValueKey('calendar-fixture')).hitTestable(),
-          findsOneWidget,
+        expect(find.byKey(const ValueKey('calendar-fixture')), findsNothing);
+        await tester.ensureVisible(
+          find.byKey(const ValueKey('calendar-settings-back')),
         );
+        await tester.tap(find.byKey(const ValueKey('calendar-settings-back')));
+        await tester.pumpAndSettle();
+        expect(desktop.calendarSection, CalendarPageSection.schedule);
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox());
         desktop.dispose();

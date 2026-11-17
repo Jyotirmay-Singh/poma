@@ -6,7 +6,6 @@ import '../application/calendar_connection_controller.dart';
 import '../application/calendar_read_controller.dart';
 import '../application/calendar_read_ports.dart';
 import '../domain/calendar_reminders.dart';
-import '../domain/calendar_preview.dart';
 import '../application/local_alerts.dart';
 import '../release_metadata.dart';
 import 'app_shell.dart';
@@ -16,6 +15,7 @@ import 'legal_screen.dart';
 import 'desktop_scope.dart';
 import 'design_tokens.dart';
 import 'google_account_section.dart';
+import 'calendar_settings_heading.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({required this.controller, super.key});
@@ -298,38 +298,23 @@ class CalendarPreferences extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      if (desktop.connection != null)
-        _GoogleCalendarSettings(connection: desktop.connection!),
+      if (desktop.connection != null) _GoogleCalendarSettings(desktop: desktop),
       if (desktop.calendarData != null)
         _CalendarSelectionSettings(
           calendar: desktop.calendarData!,
           unlocked: desktop.sessionState == 'unlocked',
         ),
-      if (desktop.reminders != null)
-        _CalendarReminderSettings(desktop: desktop),
-      const _Section('Tray privacy'),
-      SwitchListTile.adaptive(
-        contentPadding: EdgeInsets.zero,
-        title: const Text('Event titles in tray tooltip'),
-        subtitle: const Text(
-          'Calendar details stay hidden while Windows is locked or its lock state is unknown.',
-        ),
-        value: desktop.controller.desktopPreferences.tooltipTitles,
-        onChanged: (value) => desktop.controller.updateDesktopPreferences(
-          desktop.controller.desktopPreferences.copyWith(tooltipTitles: value),
-        ),
-      ),
-      _CalendarPreviewSettings(desktop: desktop),
     ],
   );
 }
 
-class _CalendarReminderSettings extends StatelessWidget {
-  const _CalendarReminderSettings({required this.desktop});
+class CalendarNotificationPreferences extends StatelessWidget {
+  const CalendarNotificationPreferences({required this.desktop, super.key});
   final DesktopController desktop;
   @override
   Widget build(BuildContext context) {
-    final reminders = desktop.reminders!;
+    final reminders = desktop.reminders;
+    if (reminders == null) return const SizedBox.shrink();
     return AnimatedBuilder(
       animation: reminders,
       builder: (context, _) {
@@ -342,91 +327,102 @@ class _CalendarReminderSettings extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const _Section('Meeting reminders'),
-            const Text(
-              'Optional, generic Windows notifications while Poma is running. Missed reminders are skipped after sleep or restart. Windows notification settings and Do Not Disturb apply.',
-            ),
+            const CalendarSettingsHeading('Notifications'),
             SwitchListTile(
               key: const ValueKey('calendar-reminder-enabled'),
               contentPadding: EdgeInsets.zero,
-              title: const Text('Enable meeting reminders'),
+              title: const Text('Meeting reminders'),
+              subtitle: const Text('Notify me while Poma is open.'),
               value: preferences.enabled,
               onChanged: enabled
                   ? (v) => reminders.update(preferences.copyWith(enabled: v))
                   : null,
             ),
-            DropdownButtonFormField<int>(
-              initialValue: preferences.leadMinutes,
-              key: ValueKey('reminder-lead-${preferences.leadMinutes}'),
-              decoration: const InputDecoration(
-                labelText: 'Remind before meeting',
-              ),
-              items: [
-                for (final minutes in CalendarReminderPreferences.leads)
-                  DropdownMenuItem(
-                    value: minutes,
-                    child: Text('$minutes minutes'),
-                  ),
-              ],
-              onChanged: enabled
-                  ? (v) {
-                      if (v != null) {
-                        reminders.update(preferences.copyWith(leadMinutes: v));
-                      }
-                    }
-                  : null,
-            ),
-            if (desktop.sessionState == 'unlocked')
-              for (final source in desktop.calendarData!.sources.where(
-                (s) => desktop.calendarData!.selected.contains(s.id),
-              ))
-                CheckboxListTile(
-                  key: ValueKey('calendar-reminder-source-${source.id}'),
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(source.name),
-                  subtitle: const Text('Include in meeting reminders'),
-                  value: preferences.calendars.contains(source.id),
-                  onChanged: enabled
-                      ? (v) {
-                          final ids = {...preferences.calendars};
-                          if (v == true) {
-                            ids.add(source.id);
-                          } else {
-                            ids.remove(source.id);
-                          }
+            if (preferences.enabled) ...[
+              const SizedBox(height: PomaSpace.xs),
+              DropdownButtonFormField<int>(
+                isExpanded: true,
+                style: Theme.of(context).textTheme.bodyMedium,
+                initialValue: preferences.leadMinutes,
+                key: ValueKey('reminder-lead-${preferences.leadMinutes}'),
+                decoration: const InputDecoration(
+                  labelText: 'Remind before meeting',
+                ),
+                items: [
+                  for (final minutes in CalendarReminderPreferences.leads)
+                    DropdownMenuItem(
+                      value: minutes,
+                      child: Text('$minutes minutes'),
+                    ),
+                ],
+                onChanged: enabled
+                    ? (v) {
+                        if (v != null) {
                           reminders.update(
-                            preferences.copyWith(calendars: ids),
+                            preferences.copyWith(leadMinutes: v),
                           );
                         }
-                      : null,
-                ),
-            Text(switch (reminders.availability) {
-              'ready' =>
-                'Windows allows notification submission; delivery is not guaranteed.',
-              'denied' =>
-                'Windows notifications are blocked. Check Windows notification settings.',
-              'unavailable' =>
-                'Notifications require an installed Poma MSIX package.',
-              'failed' => 'Calendar reminders need attention.',
-              _ => 'Meeting reminders are off.',
-            }),
-            if (reminders.error != null) Text(reminders.error!),
-            Wrap(
-              spacing: PomaSpace.xs,
-              children: [
-                TextButton(
-                  onPressed: reminders.retry,
-                  child: const Text('Retry reminders'),
-                ),
-                TextButton(
-                  onPressed: desktop.controller.openNotificationSettings,
-                  child: const Text('Windows notification settings'),
-                ),
-              ],
-            ),
-            const Text(
-              'Quit stops reminders. Poma does not wake Windows or guarantee exact delivery while asleep. Saved calendar data must be fresh; Google reminders may also notify you.',
-            ),
+                      }
+                    : null,
+              ),
+              if (desktop.sessionState == 'unlocked')
+                for (final source in desktop.calendarData!.sources.where(
+                  (s) => desktop.calendarData!.selected.contains(s.id),
+                ))
+                  CheckboxListTile(
+                    key: ValueKey('calendar-reminder-source-${source.id}'),
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(source.name),
+                    value: preferences.calendars.contains(source.id),
+                    onChanged: enabled
+                        ? (v) {
+                            final ids = {...preferences.calendars};
+                            if (v == true) {
+                              ids.add(source.id);
+                            } else {
+                              ids.remove(source.id);
+                            }
+                            reminders.update(
+                              preferences.copyWith(calendars: ids),
+                            );
+                          }
+                        : null,
+                  ),
+              if (desktop.calendarData?.selected.isEmpty == true)
+                const Text('Select a calendar above to receive reminders.'),
+              if (const {
+                'denied',
+                'unavailable',
+                'failed',
+              }.contains(reminders.availability))
+                Text(switch (reminders.availability) {
+                  'denied' => 'Windows notifications are blocked.',
+                  'unavailable' => 'Install Poma to use meeting reminders.',
+                  _ => 'Meeting reminders need attention.',
+                }, style: Theme.of(context).textTheme.bodySmall),
+            ],
+            if (reminders.error != null)
+              Text(
+                reminders.error!,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            if (preferences.enabled || reminders.error != null)
+              Wrap(
+                spacing: PomaSpace.xs,
+                runSpacing: PomaSpace.xs,
+                children: [
+                  if (reminders.error != null ||
+                      reminders.availability == 'failed')
+                    TextButton(
+                      onPressed: reminders.retry,
+                      child: const Text('Retry reminders'),
+                    ),
+                  TextButton(
+                    onPressed: desktop.controller.openNotificationSettings,
+                    child: const Text('Notification settings'),
+                  ),
+                ],
+              ),
           ],
         );
       },
@@ -435,79 +431,82 @@ class _CalendarReminderSettings extends StatelessWidget {
 }
 
 class _GoogleCalendarSettings extends StatelessWidget {
-  const _GoogleCalendarSettings({required this.connection});
-  final CalendarConnectionController connection;
+  const _GoogleCalendarSettings({required this.desktop});
+  final DesktopController desktop;
   @override
   Widget build(BuildContext context) {
-    final status = switch (connection.status) {
-      CalendarConnectionStatus.unconfigured =>
-        'Google Calendar is not configured in this build. Timers, tasks and history still work offline.',
-      CalendarConnectionStatus.restoring => 'Checking saved Google connection…',
-      CalendarConnectionStatus.disconnected => 'Disconnected',
-      CalendarConnectionStatus.connecting =>
-        'Connecting in your default browser…',
-      CalendarConnectionStatus.connected => 'Connected to Google Calendar',
-      CalendarConnectionStatus.offline => 'Google connection offline',
-      CalendarConnectionStatus.incompletePermissions =>
-        'Read permissions incomplete',
-      CalendarConnectionStatus.reconnectRequired => 'Reconnect required',
-      CalendarConnectionStatus.storageError =>
-        'Protected storage needs attention',
-      CalendarConnectionStatus.unavailable => 'Google connection unavailable',
-    };
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final connection = desktop.connection!;
+    final copy = context.copy;
+    final status = connection.revoking
+        ? copy.googleSigningOut
+        : connection.cleanupPending
+        ? copy.googleAccountAttention
+        : switch (connection.status) {
+            CalendarConnectionStatus.unconfigured => copy.googleAccountSetup,
+            CalendarConnectionStatus.restoring => copy.googleAccountChecking,
+            CalendarConnectionStatus.disconnected =>
+              copy.googleAccountSignedOut,
+            CalendarConnectionStatus.connecting => copy.googleSigningIn,
+            CalendarConnectionStatus.connected => copy.googleAccountConnected,
+            CalendarConnectionStatus.offline => copy.googleAccountOffline,
+            CalendarConnectionStatus.incompletePermissions =>
+              copy.googleAccountPermissions,
+            CalendarConnectionStatus.reconnectRequired =>
+              copy.googleAccountReconnect,
+            CalendarConnectionStatus.storageError ||
+            CalendarConnectionStatus.unavailable => copy.googleAccountAttention,
+          };
+    final identity = Row(
       children: [
-        const _Section('Google Calendar'),
-        Text(status, key: const ValueKey('google-calendar-status')),
-        if (connection.status == CalendarConnectionStatus.unconfigured)
-          const Text(
-            'Setup requires a Google Cloud project with Calendar API enabled, the two read permissions, a Desktop OAuth client and your tester account. Use the Windows Calendar setup guide to prepare a configured private build; connecting Google in another app does not configure Poma.',
+        ExcludeSemantics(
+          child: Image.asset(
+            'assets/branding/google-g.png',
+            width: 24,
+            height: 24,
           ),
-        if (connection.message != null) Text(connection.message!),
-        const SizedBox(height: PomaSpace.xs),
-        const Text(
-          'Calendar viewing uses read access. Choose and save calendars before event contents are loaded. Focus scheduling requires separate optional setup. Refresh credentials are protected for this Windows user; saved calendar data is unencrypted. Disconnect preserves tasks, focus history and existing Google events.',
         ),
-        if (connection.configuration.audience == 'external_testing')
-          const Text(
-            'Private Testing: Google Calendar authorization may expire seven days after consent. Reconnect is explicit; Poma will not repeatedly open your browser.',
+        const SizedBox(width: PomaSpace.sm),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                connection.verifiedAccountLabel ?? copy.googleAccount,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              Text(
+                status,
+                key: const ValueKey('google-calendar-status'),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
           ),
-        Wrap(
-          spacing: PomaSpace.xs,
-          children: [
-            FilledButton(
-              key: const ValueKey('google-calendar-connect'),
-              onPressed: connection.canConnect ? connection.connect : null,
-              child: Text(
-                connection.status == CalendarConnectionStatus.disconnected ||
-                        connection.status ==
-                            CalendarConnectionStatus.unconfigured
-                    ? 'Connect Google'
-                    : 'Reconnect',
-              ),
-            ),
-            if (connection.status == CalendarConnectionStatus.connecting)
-              TextButton(
-                onPressed: connection.cancel,
-                child: const Text('Cancel connection'),
-              ),
-            TextButton(
-              key: const ValueKey('google-calendar-disconnect'),
-              onPressed: connection.revoking ? null : connection.disconnect,
-              child: Text(
-                connection.cleanupPending && !connection.revoking
-                    ? 'Retry disconnect cleanup'
-                    : 'Disconnect',
-              ),
-            ),
-          ],
         ),
-        if (connection.revoking)
-          const Text(
-            'Disconnected locally. Finishing cleanup and a bounded Google revocation attempt…',
-          ),
       ],
+    );
+    final action = TextButton(
+      key: const ValueKey('calendar-account-settings'),
+      onPressed: () => desktop.navigate(3),
+      child: const Text('Account settings'),
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 520 ||
+            MediaQuery.textScalerOf(context).scale(1) > 1.4) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [identity, action],
+          );
+        }
+        return Row(
+          children: [
+            Expanded(child: identity),
+            action,
+          ],
+        );
+      },
     );
   }
 }
@@ -533,7 +532,7 @@ class _CalendarSelectionSettingsState
     CalendarReadFailureKind.network =>
       'Google could not be reached. Saved data may have changed.',
     CalendarReadFailureKind.authorization =>
-      'Calendar authorization needs attention. Use Reconnect above.',
+      'Review your Google connection in Account settings.',
     CalendarReadFailureKind.forbidden =>
       'This calendar is restricted. Check access, then refresh manually.',
     CalendarReadFailureKind.throttled =>
@@ -543,6 +542,37 @@ class _CalendarSelectionSettingsState
     CalendarReadFailureKind.storage =>
       'Calendar data could not be saved or read. Repair storage and retry; changes are not confirmed.',
   };
+
+  String _sourceDetails(String id, String accessRole) {
+    final calendar = widget.calendar;
+    final access = switch (accessRole) {
+      'owner' => 'Owner',
+      'writer' => 'Shared calendar',
+      'reader' => 'Read only',
+      _ => 'Availability only',
+    };
+    if (!calendar.selected.contains(id)) return access;
+    final snapshot = calendar.snapshots[id];
+    final problem = calendar.sourceFailures[id];
+    if (snapshot == null) {
+      return '$access · ${problem == null ? 'Waiting for data' : _message(problem)}';
+    }
+    final difference = calendar.now.difference(snapshot.succeededAt);
+    final age = difference.isNegative
+        ? 'Update time unavailable'
+        : difference.inMinutes == 0
+        ? 'Updated just now'
+        : 'Updated ${difference.inMinutes} min ago';
+    final fresh =
+        snapshot.fresh(calendar.now, calendar.window) &&
+        calendar.failure == null &&
+        problem == null &&
+        calendar.connection.mayRead;
+    return '$access · ${fresh ? '' : 'Refresh needed · '}$age'
+        '${snapshot.coverage.covers(calendar.window) ? '' : '\nSome dates are unavailable.'}'
+        '${problem == null ? '' : '\n${_message(problem)}'}';
+  }
+
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: widget.calendar,
@@ -566,8 +596,13 @@ class _CalendarSelectionSettingsState
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: PomaSpace.md),
-          const _Section('Selected calendars'),
+          const CalendarSettingsHeading('Selected calendars'),
+          Text(
+            'Show in Calendar and Day Clock.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
           if (calendar.loading) const Text('Loading saved calendar selection…'),
           if (calendar.refreshing) const Text('Refreshing calendar data…'),
           if (calendar.failure != null)
@@ -576,13 +611,9 @@ class _CalendarSelectionSettingsState
               key: const ValueKey('calendar-read-error'),
             ),
           if (calendar.accountKey == null && !calendar.loading)
-            const Text(
-              'Connect Google to choose calendars. No calendars are selected by default.',
-            ),
+            const Text('Sign in from Account settings to choose calendars.'),
           if (calendar.accountKey != null && calendar.selected.isEmpty)
-            const Text(
-              'No calendars selected. Choose calendars and save to load event contents.',
-            ),
+            const Text('Choose calendars, then save your selection.'),
           for (final source in calendar.sources) ...[
             CheckboxListTile(
               key: ValueKey('calendar-source-${source.id}'),
@@ -606,11 +637,21 @@ class _CalendarSelectionSettingsState
                     ),
                     const SizedBox(width: PomaSpace.xs),
                   ],
-                  Expanded(child: Text(source.name)),
+                  Expanded(
+                    child: Tooltip(
+                      message: source.timeZone.isEmpty
+                          ? 'Timezone unavailable'
+                          : source.timeZone,
+                      child: Text(source.name),
+                    ),
+                  ),
                 ],
               ),
               subtitle: Text(
-                '${source.accessRole} access · ${source.timeZone.isEmpty ? 'Timezone unavailable' : source.timeZone}',
+                _sourceDetails(source.id, source.accessRole),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
               value: _draft.contains(source.id),
               onChanged: calendar.canSelect && source.readable
@@ -623,41 +664,6 @@ class _CalendarSelectionSettingsState
                     })
                   : null,
             ),
-            if (calendar.selected.contains(source.id))
-              Padding(
-                padding: const EdgeInsets.only(bottom: PomaSpace.xs),
-                child: Builder(
-                  builder: (_) {
-                    final snapshot = calendar.snapshots[source.id];
-                    final problem = calendar.sourceFailures[source.id];
-                    if (snapshot == null) {
-                      return Text(
-                        problem == null
-                            ? 'No verified event snapshot yet.'
-                            : 'No verified event snapshot. ${_message(problem)}',
-                      );
-                    }
-                    final difference = calendar.now.difference(
-                      snapshot.succeededAt,
-                    );
-                    final age = difference.isNegative
-                        ? 'age unavailable after a clock change'
-                        : difference.inMinutes == 0
-                        ? 'updated less than a minute ago'
-                        : 'updated ${difference.inMinutes} min ago';
-                    final fresh =
-                        snapshot.fresh(calendar.now, calendar.window) &&
-                        calendar.failure == null &&
-                        problem == null &&
-                        calendar.connection.mayRead;
-                    return Text(
-                      '${fresh ? 'Saved snapshot' : 'Stale saved data'} · $age\n'
-                      '${snapshot.coverage.covers(calendar.window) ? 'Covers the upcoming seven dates' : 'Partial coverage; some dates or times are unavailable'}'
-                      '${problem == null ? '' : '\n${_message(problem)}'}',
-                    );
-                  },
-                ),
-              ),
           ],
           if (calendar.accountKey != null)
             Wrap(
@@ -685,50 +691,10 @@ class _CalendarSelectionSettingsState
                 ),
               ],
             ),
-          const SizedBox(height: PomaSpace.md),
         ],
       );
     },
   );
-}
-
-class _CalendarPreviewSettings extends StatelessWidget {
-  const _CalendarPreviewSettings({required this.desktop});
-  final DesktopController desktop;
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const _Section('Calendar preview'),
-        const Text(
-          'Fictional demo data only. This separate preview never uses your Google connection or opens a browser. It resets to disconnected after Quit.',
-        ),
-        const SizedBox(height: PomaSpace.sm),
-        InputDecorator(
-          decoration: const InputDecoration(labelText: 'Fictional scenario'),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<CalendarFixture>(
-              key: const ValueKey('calendar-fixture'),
-              isExpanded: true,
-              value: desktop.calendar.fixture,
-              items: [
-                for (final fixture in CalendarFixture.values)
-                  DropdownMenuItem(value: fixture, child: Text(fixture.label)),
-              ],
-              onChanged: (value) {
-                if (value != null) desktop.calendar.select(value);
-              },
-            ),
-          ),
-        ),
-        TextButton(
-          onPressed: () => desktop.showPopup(preview: true),
-          child: const Text('Open calendar preview'),
-        ),
-      ],
-    );
-  }
 }
 
 class _SettingsSection extends StatelessWidget {
@@ -747,19 +713,6 @@ class _SettingsSection extends StatelessWidget {
       ),
       const SizedBox(height: PomaSpace.xs),
     ],
-  );
-}
-
-class _Section extends StatelessWidget {
-  const _Section(this.title);
-  final String title;
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: PomaSpace.lg, bottom: PomaSpace.sm),
-    child: Semantics(
-      header: true,
-      child: Text(title, style: Theme.of(context).textTheme.titleMedium),
-    ),
   );
 }
 
