@@ -124,6 +124,36 @@ class SettingsScreen extends StatelessWidget {
               ),
           ],
         ),
+        const SizedBox(height: PomaSpace.md),
+        Text(copy.darkBackground, style: theme.textTheme.titleSmall),
+        const SizedBox(height: PomaSpace.xs),
+        Wrap(
+          spacing: PomaSpace.xs,
+          runSpacing: PomaSpace.xs,
+          children: [
+            for (final (value, label) in [
+              ('nebula', copy.nebulaBackground),
+              ('classic', copy.classicBackground),
+            ])
+              ChoiceChip(
+                key: ValueKey('dark-background-$value'),
+                label: Text(label),
+                selected: settings.darkBackground == value,
+                onSelected: (_) => controller.updateSettings(
+                  settings.copyWith(darkBackground: value),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: PomaSpace.xs),
+        Text(
+          desktop == null
+              ? copy.focusBackgroundHelp
+              : copy.desktopBackgroundHelp,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: colors.onSurfaceVariant,
+          ),
+        ),
         _SettingsSection(copy.alerts),
         SwitchListTile.adaptive(
           contentPadding: EdgeInsets.zero,

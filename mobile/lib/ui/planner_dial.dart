@@ -12,6 +12,7 @@ import '../domain/calendar_data.dart';
 import '../domain/day_clock.dart';
 import '../domain/planner.dart';
 import 'day_clock_dial.dart';
+import 'design_tokens.dart';
 
 class PlannerDial extends StatefulWidget {
   const PlannerDial({
@@ -495,12 +496,23 @@ class _PlannerDialState extends State<PlannerDial> {
       final centerLabel = projection.handAngle == null
           ? 'Browsing'
           : DateFormat('a').format(localNow);
-      final caption = dayClockCaptionHeight(context, centerTime, centerLabel);
+      final caption = dayClockCaptionHeight(
+        context,
+        centerTime,
+        centerLabel,
+        maxWidth: constraints.maxWidth,
+      );
+      final previewStyle = Theme.of(context).textTheme.bodySmall!;
+      final previewHeight = math.max(
+        32.0,
+        MediaQuery.textScalerOf(context).scale(previewStyle.fontSize!) *
+            (previewStyle.height ?? 1),
+      );
       final diameter = math.min(
         680.0,
         math.min(
           constraints.maxWidth,
-          math.max(180.0, constraints.maxHeight - caption - 32),
+          math.max(180.0, constraints.maxHeight - caption - previewHeight),
         ),
       );
       final size = Size.square(diameter);
@@ -532,7 +544,7 @@ class _PlannerDialState extends State<PlannerDial> {
             children: [
               SizedBox(
                 width: diameter,
-                height: diameter + caption,
+                height: diameter,
                 child: MouseRegion(
                   cursor: SystemMouseCursors.click,
                   onHover: (event) {
@@ -588,6 +600,7 @@ class _PlannerDialState extends State<PlannerDial> {
                             numeralLabels: widget.labels,
                             centerTime: centerTime,
                             centerLabel: centerLabel,
+                            showCaption: false,
                           ),
                         ),
                         Positioned(
@@ -628,15 +641,26 @@ class _PlannerDialState extends State<PlannerDial> {
                   ),
                 ),
               ),
+              if (caption > 0) ...[
+                const SizedBox(height: PomaSpace.sm),
+                SizedBox(
+                  width: constraints.maxWidth,
+                  child: Text(
+                    '$centerTime $centerLabel',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+              ],
               SizedBox(
-                height: 32,
+                height: previewHeight,
                 child: Text(
                   preview == null
                       ? ' '
                       : '$preview${_dragEvent == null ? ' · 5-minute snap' : ''}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall,
+                  style: previewStyle,
                 ),
               ),
             ],

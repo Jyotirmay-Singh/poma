@@ -23,6 +23,7 @@ class TimerSettings {
     this.rounds = 4,
     this.strictMode = false,
     this.appearance = 'system',
+    this.darkBackground = 'nebula',
   });
 
   final int focusMinutes;
@@ -31,6 +32,7 @@ class TimerSettings {
   final int rounds;
   final bool strictMode;
   final String appearance;
+  final String darkBackground;
 
   int secondsFor(FocusPhase phase) =>
       60 *
@@ -47,6 +49,7 @@ class TimerSettings {
     int? rounds,
     bool? strictMode,
     String? appearance,
+    String? darkBackground,
   }) => TimerSettings(
     focusMinutes: focusMinutes ?? this.focusMinutes,
     shortBreakMinutes: shortBreakMinutes ?? this.shortBreakMinutes,
@@ -54,6 +57,7 @@ class TimerSettings {
     rounds: rounds ?? this.rounds,
     strictMode: strictMode ?? this.strictMode,
     appearance: appearance ?? this.appearance,
+    darkBackground: darkBackground ?? this.darkBackground,
   );
 
   Map<String, Object?> toJson() => {
@@ -63,6 +67,7 @@ class TimerSettings {
     'rounds': rounds,
     'strictMode': strictMode,
     'appearance': appearance,
+    'darkBackground': darkBackground,
   };
 
   factory TimerSettings.fromJson(Map<String, dynamic> json) {
@@ -76,7 +81,9 @@ class TimerSettings {
 
     if ((json.containsKey('strictMode') && json['strictMode'] is! bool) ||
         (json.containsKey('appearance') &&
-            !['system', 'light', 'dark'].contains(json['appearance']))) {
+            !['system', 'light', 'dark'].contains(json['appearance'])) ||
+        (json.containsKey('darkBackground') &&
+            !['nebula', 'classic'].contains(json['darkBackground']))) {
       throw const FormatException('Invalid saved settings.');
     }
     return TimerSettings(
@@ -88,6 +95,7 @@ class TimerSettings {
       appearance: ['system', 'light', 'dark'].contains(json['appearance'])
           ? json['appearance'] as String
           : 'system',
+      darkBackground: json['darkBackground'] as String? ?? 'nebula',
     );
   }
 }

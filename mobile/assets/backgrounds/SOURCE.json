@@ -1,0 +1,25 @@
+{
+  "created": "2026-11-18",
+  "generator": "OpenAI built-in image generation",
+  "reference": "Original artwork inspired by the user's violet-nebula reference",
+  "encoding": {
+    "format": "WebP",
+    "quality": 92,
+    "compressionLevel": 6,
+    "resized": false
+  },
+  "artworks": [
+    {
+      "file": "nebula-landscape.webp",
+      "width": 1672,
+      "height": 941,
+      "prompt": "Create a premium, photorealistic astronomical violet nebula background for a calm offline focus timer application. Asset only, landscape 16:9, target 2560 by 1440 pixels or higher native resolution. Deep aubergine and near-black plum space with soft, luminous violet and purple interstellar dust clouds, inspired by a natural purple emission nebula with dark dust channels. The clouds should be clearly visible and richly textured, yet peaceful and diffuse. Composition for UI: keep the center-left and middle lower area very dark and spacious for a large clock, with the richer violet cloud formations sweeping along the upper edge and right third, and a quieter center-right region for task panels. Use a sparse fine starfield, with dim, tiny stars and no large bright points. The far edges can fade gently into plum darkness. Organic realistic cosmic gas, subtle depth, sophisticated natural detail. A calm scene suitable for long focus sessions. Color family near-black plum #100B1B through deep violet and soft purple, with restrained magenta. No planets, no moons, no galaxies with obvious spirals, no lens flares, no neon streaks, no sharp rays, no text, no numerals, no interface, no borders, no logos, no watermark. The finished image should be an edge-to-edge photographic nebula texture."
+    },
+    {
+      "file": "nebula-portrait.webp",
+      "width": 941,
+      "height": 1672,
+      "prompt": "Create a premium photorealistic astronomical violet nebula background for the portrait mobile screen of a calm focus timer app. Asset only, portrait 9:16, target 1440 by 2560 pixels or higher native resolution. Deep aubergine and near-black plum space with soft, luminous violet and purple interstellar dust clouds and organic dark dust channels. The violet clouds should be clearly visible and richly textured yet peaceful and diffuse, with a restrained lilac rim. Composition for mobile UI: leave a large continuous dark quiet region in the upper-middle and center, roughly the middle 65 percent of the width, for a clock and supporting text. Arrange a thin diffuse cloud arc near the top edge and more visible violet cloud formations down the far right edge and bottom corners. Keep the center lower region comparatively dark for controls. Use a sparse fine starfield with dim tiny stars only, no bright white points. The edges fade gently into plum darkness. Sophisticated natural cosmic gas, subtle depth, photographic texture, calm and spacious for long focus sessions. Color family near-black plum #100B1B, deep aubergine, dark violet, and soft purple with restrained magenta. No planets, no moons, no galaxies with obvious spirals, no lens flares, no neon streaks, no sharp rays, no text, no numerals, no interface, no borders, no logos, no watermark. Edge-to-edge nebula texture."
+    }
+  ]
+}

@@ -12,6 +12,7 @@ class PomaBackdropTheme extends ThemeExtension<PomaBackdropTheme> {
     required this.stars,
     required this.decorated,
     required this.dark,
+    this.nebula = false,
   });
 
   factory PomaBackdropTheme.fromColors(
@@ -38,6 +39,7 @@ class PomaBackdropTheme extends ThemeExtension<PomaBackdropTheme> {
   final Color stars;
   final bool decorated;
   final bool dark;
+  final bool nebula;
 
   @override
   PomaBackdropTheme copyWith({
@@ -47,6 +49,7 @@ class PomaBackdropTheme extends ThemeExtension<PomaBackdropTheme> {
     Color? stars,
     bool? decorated,
     bool? dark,
+    bool? nebula,
   }) => PomaBackdropTheme(
     canvas: canvas ?? this.canvas,
     purple: purple ?? this.purple,
@@ -54,6 +57,7 @@ class PomaBackdropTheme extends ThemeExtension<PomaBackdropTheme> {
     stars: stars ?? this.stars,
     decorated: decorated ?? this.decorated,
     dark: dark ?? this.dark,
+    nebula: nebula ?? this.nebula,
   );
 
   @override
@@ -66,6 +70,7 @@ class PomaBackdropTheme extends ThemeExtension<PomaBackdropTheme> {
           stars: Color.lerp(stars, other.stars, t)!,
           decorated: t < .5 ? decorated : other.decorated,
           dark: t < .5 ? dark : other.dark,
+          nebula: t < .5 ? nebula : other.nebula,
         );
 
   @override
@@ -76,10 +81,12 @@ class PomaBackdropTheme extends ThemeExtension<PomaBackdropTheme> {
       teal == other.teal &&
       stars == other.stars &&
       decorated == other.decorated &&
-      dark == other.dark;
+      dark == other.dark &&
+      nebula == other.nebula;
 
   @override
-  int get hashCode => Object.hash(canvas, purple, teal, stars, decorated, dark);
+  int get hashCode =>
+      Object.hash(canvas, purple, teal, stars, decorated, dark, nebula);
 }
 
 /// One stationary scene behind the Navigator, including pushed legal routes.

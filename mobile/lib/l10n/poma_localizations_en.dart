@@ -675,6 +675,22 @@ class PomaLocalizationsEn extends PomaLocalizations {
   String get dark => 'Dark';
 
   @override
+  String get darkBackground => 'Dark background';
+
+  @override
+  String get nebulaBackground => 'Nebula';
+
+  @override
+  String get classicBackground => 'Classic';
+
+  @override
+  String get focusBackgroundHelp => 'Used on Focus in dark mode.';
+
+  @override
+  String get desktopBackgroundHelp =>
+      'Used on Focus and Day Clock in dark mode.';
+
+  @override
   String get alerts => 'Alerts';
 
   @override

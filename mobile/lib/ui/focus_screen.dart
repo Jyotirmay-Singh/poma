@@ -10,6 +10,7 @@ import 'theme.dart';
 import 'timer_dial.dart';
 import 'design_tokens.dart';
 import 'focus_sounds_control.dart';
+import 'nebula_appearance.dart';
 
 class FocusScreen extends StatefulWidget {
   const FocusScreen({
@@ -43,6 +44,8 @@ class _FocusScreenState extends State<FocusScreen> {
     final copy = context.copy;
     final accent = timer.phase == FocusPhase.focus
         ? colors.primary
+        : usesNebulaAppearance(context)
+        ? NebulaColors.breakAccent
         : (Theme.of(context).brightness == Brightness.dark
               ? const Color(0xFF81D4CF)
               : pomaTeal);
@@ -103,10 +106,12 @@ class _FocusScreenState extends State<FocusScreen> {
         container: true,
         button: true,
         child: Material(
-          color: Color.alphaBlend(
-            colors.primary.withValues(alpha: .06),
-            colors.surface,
-          ),
+          color: usesNebulaAppearance(context)
+              ? NebulaColors.panel
+              : Color.alphaBlend(
+                  colors.primary.withValues(alpha: .06),
+                  colors.surface,
+                ),
           borderRadius: BorderRadius.circular(PomaLayout.panelRadius),
           child: InkWell(
             onTap: onTasks,

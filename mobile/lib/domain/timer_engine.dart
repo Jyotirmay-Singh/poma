@@ -266,7 +266,10 @@ class TimerEngine {
     if (action == TimerAction.updateSettings) {
       var next = TimerSettings.fromJson(nextSettings!.toJson());
       if (controlsLocked) {
-        next = _settings.copyWith(appearance: next.appearance);
+        next = _settings.copyWith(
+          appearance: next.appearance,
+          darkBackground: next.darkBackground,
+        );
       }
       if (_sameSettings(_settings, next)) {
         return result(
@@ -407,5 +410,6 @@ class TimerEngine {
       a.longBreakMinutes == b.longBreakMinutes &&
       a.rounds == b.rounds &&
       a.strictMode == b.strictMode &&
-      a.appearance == b.appearance;
+      a.appearance == b.appearance &&
+      a.darkBackground == b.darkBackground;
 }

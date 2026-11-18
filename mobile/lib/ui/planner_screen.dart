@@ -16,6 +16,7 @@ import '../domain/planner.dart';
 import '../domain/models.dart';
 import 'calendar_schedule_adapter.dart';
 import 'day_clock_dial.dart';
+import 'nebula_appearance.dart';
 import 'design_tokens.dart';
 import 'planner_dial.dart';
 import 'planner_editor.dart';
@@ -1167,7 +1168,9 @@ class _PlannerScreenState extends State<_PlannerWorkspace> {
   }
 
   Widget _panel(Widget child) => Material(
-    color: Theme.of(context).colorScheme.surface,
+    color: usesNebulaAppearance(context)
+        ? NebulaColors.panel
+        : Theme.of(context).colorScheme.surface,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(PomaLayout.panelRadius),
       side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),

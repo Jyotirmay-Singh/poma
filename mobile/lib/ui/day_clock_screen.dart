@@ -13,6 +13,7 @@ import '../domain/day_clock.dart';
 import 'app_shell.dart';
 import 'copy.dart';
 import 'day_clock_dial.dart';
+import 'nebula_appearance.dart';
 import 'day_clock_task_form.dart';
 import 'design_tokens.dart';
 import 'planner_screen.dart';
@@ -184,7 +185,9 @@ class _DayClockScreenState extends State<DayClockScreen> {
   }
 
   Widget panel(Widget child) => Material(
-    color: Theme.of(context).colorScheme.surface,
+    color: usesNebulaAppearance(context)
+        ? NebulaColors.panel
+        : Theme.of(context).colorScheme.surface,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(PomaLayout.panelRadius),
       side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),

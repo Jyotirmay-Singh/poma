@@ -1240,6 +1240,36 @@ abstract class PomaLocalizations {
   /// **'Dark'**
   String get dark;
 
+  /// No description provided for @darkBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark background'**
+  String get darkBackground;
+
+  /// No description provided for @nebulaBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'Nebula'**
+  String get nebulaBackground;
+
+  /// No description provided for @classicBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic'**
+  String get classicBackground;
+
+  /// No description provided for @focusBackgroundHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Used on Focus in dark mode.'**
+  String get focusBackgroundHelp;
+
+  /// No description provided for @desktopBackgroundHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Used on Focus and Day Clock in dark mode.'**
+  String get desktopBackgroundHelp;
+
   /// No description provided for @alerts.
   ///
   /// In en, this message translates to:

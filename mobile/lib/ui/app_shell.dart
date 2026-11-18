@@ -15,6 +15,7 @@ import 'calendar_screen.dart';
 import 'design_tokens.dart';
 import 'day_clock_screen.dart';
 import 'planner_editor.dart';
+import 'nebula_appearance.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({required this.controller, super.key});
@@ -70,18 +71,6 @@ class _AppShellState extends State<AppShell> {
   Widget build(BuildContext context) {
     final controller = widget.controller;
     final desktop = DesktopScope.maybeOf(context);
-    final highContrast = MediaQuery.highContrastOf(context);
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    final navigationBackground = highContrast
-        ? Theme.of(context).colorScheme.surface
-        : dark
-        ? const Color(0xFF1E1F20)
-        : const Color(0xFFF8FAFD);
-    final navigationAccent = highContrast
-        ? Theme.of(context).colorScheme.primary
-        : dark
-        ? const Color(0xFFA8C7FA)
-        : const Color(0xFF174EA6);
     if (desktop != null &&
         _seenDesktopNavigation != desktop.navigationRevision) {
       _seenDesktopNavigation = desktop.navigationRevision;
@@ -108,6 +97,33 @@ class _AppShellState extends State<AppShell> {
       _tab = 0;
       controller.showInsights(false);
     }
+    return PomaNebulaScene(
+      enabled:
+          controller.settings.darkBackground == 'nebula' &&
+          (_tab == 0 || (_tab == 5 && desktop != null)),
+      child: Builder(builder: _buildShell),
+    );
+  }
+
+  Widget _buildShell(BuildContext context) {
+    final controller = widget.controller;
+    final desktop = DesktopScope.maybeOf(context);
+    final theme = Theme.of(context);
+    final highContrast = MediaQuery.highContrastOf(context);
+    final dark = theme.brightness == Brightness.dark;
+    final nebula = usesNebulaAppearance(context);
+    final navigationBackground = nebula
+        ? NebulaColors.canvas
+        : highContrast
+        ? theme.colorScheme.surface
+        : dark
+        ? const Color(0xFF1E1F20)
+        : const Color(0xFFF8FAFD);
+    final navigationAccent = nebula || highContrast
+        ? theme.colorScheme.primary
+        : dark
+        ? const Color(0xFFA8C7FA)
+        : const Color(0xFF174EA6);
     final copy = context.copy;
     final planner = PlannerScope.maybeOf(context) ?? desktop?.planner;
     final notice = controller.lastPhaseCompletion;

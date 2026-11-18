@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import '../domain/calendar_data.dart';
 import '../domain/day_clock.dart';
 import 'design_tokens.dart';
+import 'nebula_appearance.dart';
 
 Color clockInk(Color fill) =>
     fill.computeLuminance() > .179 ? Colors.black : Colors.white;
@@ -92,7 +93,12 @@ class DayClockGeometry {
   }
 }
 
-double dayClockCaptionHeight(BuildContext context, String time, String label) {
+double dayClockCaptionHeight(
+  BuildContext context,
+  String time,
+  String label, {
+  double maxWidth = double.infinity,
+}) {
   final scaler = MediaQuery.textScalerOf(context);
   if (scaler.scale(1) < 1.5) return 0;
   final text = TextPainter(
@@ -102,8 +108,7 @@ double dayClockCaptionHeight(BuildContext context, String time, String label) {
     ),
     textScaler: scaler,
     textDirection: Directionality.of(context),
-    maxLines: 1,
-  )..layout();
+  )..layout(maxWidth: maxWidth);
   final height = PomaSpace.sm + text.height;
   text.dispose();
   return height;
@@ -119,6 +124,7 @@ class DayClockDial extends StatelessWidget {
     required this.centerTime,
     required this.centerLabel,
     this.numeralLabels,
+    this.showCaption = true,
     super.key,
   });
   final DayClockProjection projection;
@@ -128,15 +134,19 @@ class DayClockDial extends StatelessWidget {
   final ValueChanged<double> onEmpty;
   final String centerTime, centerLabel;
   final List<String>? numeralLabels;
+  final bool showCaption;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
-      final captionHeight = dayClockCaptionHeight(
-        context,
-        centerTime,
-        centerLabel,
-      );
+      final captionHeight = showCaption
+          ? dayClockCaptionHeight(
+              context,
+              centerTime,
+              centerLabel,
+              maxWidth: constraints.maxWidth,
+            )
+          : 0.0;
       final size = math.min(
         680.0,
         math.min(
@@ -160,6 +170,7 @@ class DayClockDial extends StatelessWidget {
         scheme: theme.colorScheme,
         dark: theme.brightness == Brightness.dark,
         highContrast: highContrast,
+        nebula: usesNebulaAppearance(context),
         scaler: scale,
         geometry: geometry,
       );
@@ -241,6 +252,7 @@ class DayClockDial extends StatelessWidget {
                               angle: projection.handAngle,
                               scheme: theme.colorScheme,
                               highContrast: highContrast,
+                              nebula: usesNebulaAppearance(context),
                               centerTime: centerTime,
                               centerLabel: centerLabel,
                             ),
@@ -252,7 +264,7 @@ class DayClockDial extends StatelessWidget {
                 ),
               ),
             ),
-            if (scale.scale(1) >= 1.5) ...[
+            if (showCaption && scale.scale(1) >= 1.5) ...[
               const SizedBox(height: PomaSpace.sm),
               Text(
                 '$centerTime $centerLabel',
@@ -277,12 +289,13 @@ class DayClockPainter extends CustomPainter {
     required this.highContrast,
     required this.scaler,
     required this.geometry,
+    this.nebula = false,
   });
   final DayClockProjection projection;
   final Map<String, Color> colors;
   final String? selected;
   final ColorScheme scheme;
-  final bool dark, highContrast;
+  final bool dark, highContrast, nebula;
   final TextScaler scaler;
   final DayClockGeometry geometry;
   List<DayClockSector> get ordered => [...projection.sectors]
@@ -378,6 +391,8 @@ class DayClockPainter extends CustomPainter {
     final center = size.center(Offset.zero), radius = size.shortestSide / 2 - 4;
     final face = highContrast
         ? scheme.surface
+        : nebula
+        ? NebulaColors.surface
         : dark
         ? const Color(0xff111c31)
         : const Color(0xffe9edf8);
@@ -386,7 +401,9 @@ class DayClockPainter extends CustomPainter {
       center,
       radius,
       Paint()
-        ..color = dark && !highContrast
+        ..color = nebula
+            ? scheme.outlineVariant
+            : dark && !highContrast
             ? const Color(0xff58698e)
             : scheme.outline
         ..style = PaintingStyle.stroke
@@ -505,6 +522,7 @@ class DayClockPainter extends CustomPainter {
       scheme != oldDelegate.scheme ||
       dark != oldDelegate.dark ||
       highContrast != oldDelegate.highContrast ||
+      nebula != oldDelegate.nebula ||
       scaler != oldDelegate.scaler;
 }
 
@@ -542,11 +560,12 @@ class DayClockHandPainter extends CustomPainter {
     required this.highContrast,
     required this.centerTime,
     required this.centerLabel,
+    this.nebula = false,
   });
   final DayClockGeometry geometry;
   final double? angle;
   final ColorScheme scheme;
-  final bool highContrast;
+  final bool highContrast, nebula;
   final String centerTime, centerLabel;
 
   @override
@@ -569,7 +588,7 @@ class DayClockHandPainter extends CustomPainter {
         center,
         tip,
         Paint()
-          ..color = const Color(0xfff4f7ff)
+          ..color = nebula ? scheme.onSurface : const Color(0xfff4f7ff)
           ..strokeWidth = 2.5
           ..strokeCap = StrokeCap.round,
       );
@@ -583,7 +602,11 @@ class DayClockHandPainter extends CustomPainter {
       center,
       geometry.hubRadius,
       Paint()
-        ..color = highContrast ? scheme.onSurface : const Color(0xffb9a7ff)
+        ..color = highContrast
+            ? scheme.onSurface
+            : nebula
+            ? scheme.primary
+            : const Color(0xffb9a7ff)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.5,
     );
@@ -618,6 +641,8 @@ class DayClockHandPainter extends CustomPainter {
         PomaType.sectionTitle.copyWith(
           fontSize: (size.width * .065).clamp(22, 44),
           color: scheme.onSurface,
+          fontWeight: nebula ? FontWeight.w500 : FontWeight.w600,
+          fontFeatures: const [FontFeature.tabularFigures()],
         ),
       );
       label(
@@ -636,6 +661,7 @@ class DayClockHandPainter extends CustomPainter {
       angle != oldDelegate.angle ||
       scheme != oldDelegate.scheme ||
       highContrast != oldDelegate.highContrast ||
+      nebula != oldDelegate.nebula ||
       geometry.scaler != oldDelegate.geometry.scaler ||
       centerTime != oldDelegate.centerTime ||
       centerLabel != oldDelegate.centerLabel;
