@@ -380,7 +380,7 @@ void main() {
   );
 
   test(
-    'long absence completes one focus and never schedules the ready break',
+    'long absence records one focus and leaves today first Focus ready',
     () async {
       final repository = MemoryRepository();
       final clock = FakeClock()..bootCount = 3;
@@ -402,8 +402,9 @@ void main() {
       await restored.reconcile(forceAlerts: true);
       await restored.reconcile(forceAlerts: true);
       expect(restored.sessions.length, 1);
-      expect(restored.timer.phase, FocusPhase.shortBreak);
+      expect(restored.timer.phase, FocusPhase.focus);
       expect(restored.timer.status, RunStatus.ready);
+      expect(restored.timer.completedRounds, 0);
       expect(alerts.pending, isEmpty);
     },
   );

@@ -48,12 +48,16 @@ class TimerTransition {
     required this.outcome,
     this.completedPhase = false,
     this.completedEarly = false,
+    this.dayReset = false,
     this.completion,
     this.previousRunId,
   });
   final bool changed;
   final bool completedPhase;
   final bool completedEarly;
+
+  /// A date change replaced the ready or paused phase with a fresh Focus phase.
+  final bool dayReset;
   final FocusSession? completion;
 
   /// Identity to cancel/replace even when a break ends without focus history.
@@ -70,9 +74,12 @@ class TimerEngine {
     required TimerSettings settings,
     required ClockReading now,
     TimerSnapshot? restored,
+    DateTime Function(DateTime)? toLocal,
   }) : _settings = TimerSettings.fromJson(settings.toJson()),
+       _toLocal = toLocal ?? _systemLocal,
        _now = now {
     if (restored == null) {
+      _cycleLocalDate = _localDate(now.utcNow);
       _prepare(FocusPhase.focus);
     } else {
       restored.validate();
@@ -80,6 +87,7 @@ class TimerEngine {
       _status = restored.status;
       _totalSeconds = restored.totalSeconds;
       _completedRounds = restored.completedRounds;
+      _cycleLocalDate = restored.cycleLocalDate;
       _remaining = Duration(microseconds: restored.remainingMicros);
       _startedAt = restored.startedAt;
       _runId = restored.runId;
@@ -107,6 +115,8 @@ class TimerEngine {
   }
 
   TimerSettings _settings;
+  final DateTime Function(DateTime) _toLocal;
+  String? _cycleLocalDate;
   ClockReading _now;
   late FocusPhase _phase;
   late RunStatus _status;
@@ -154,6 +164,7 @@ class TimerEngine {
     totalSeconds: _totalSeconds,
     remainingMicros: remainingMicros,
     completedRounds: _completedRounds,
+    cycleLocalDate: _cycleLocalDate,
     deadline: _deadline,
     startedAt: _startedAt,
     runId: _runId,
@@ -174,6 +185,7 @@ class TimerEngine {
     _now = now;
     _settings = const TimerSettings();
     _completedRounds = 0;
+    _cycleLocalDate = _localDate(now.utcNow);
     _segment = 0;
     _recoveryAdjusted = false;
     _prepare(FocusPhase.focus);
@@ -204,7 +216,10 @@ class TimerEngine {
         _status == RunStatus.running && _rawRemaining <= Duration.zero;
     FocusSession? completion;
     var completedEarly = false;
+    var cycleChanged = false;
     if (expired) {
+      // Credit an overdue run to its completion date before preparing today.
+      cycleChanged = _resetCycleDate(_deadline!);
       if (_phase == FocusPhase.focus) {
         completion = _completeFocus(
           endedAt: _deadline!,
@@ -214,13 +229,19 @@ class TimerEngine {
       _advance();
       _revision++;
     }
+    final statusBeforeDayReset = _status;
+    final resetForToday = _resetCycleDate(now.utcNow);
+    cycleChanged = cycleChanged || resetForToday;
+    final dayReset = resetForToday && statusBeforeDayReset != RunStatus.running;
+    if (cycleChanged) _revision++;
     TimerTransition result(
       TimerCommandOutcome outcome, [
       bool changed = false,
     ]) => TimerTransition(
-      changed: expired || recovered || changed,
+      changed: expired || recovered || cycleChanged || changed,
       completedPhase: expired || completedEarly,
       completedEarly: completedEarly,
+      dayReset: dayReset,
       completion: completion,
       previousRunId: beforeRunId,
       outcome: outcome,
@@ -231,10 +252,13 @@ class TimerEngine {
     }
     if (action == TimerAction.reconcile) {
       return result(
-        expired || recovered
+        expired || recovered || cycleChanged
             ? TimerCommandOutcome.applied
             : TimerCommandOutcome.unchanged,
       );
+    }
+    if (dayReset && action != TimerAction.updateSettings) {
+      return result(TimerCommandOutcome.stale);
     }
     if (expired && action != TimerAction.updateSettings) {
       return result(TimerCommandOutcome.completionConsumed);
@@ -325,6 +349,24 @@ class TimerEngine {
     );
     _completedRounds = (_completedRounds + 1).clamp(0, 8);
     return session;
+  }
+
+  static DateTime _systemLocal(DateTime value) => value.toLocal();
+
+  String _localDate(DateTime instant) {
+    final date = _toLocal(instant);
+    return '${date.year.toString().padLeft(4, '0')}-'
+        '${date.month.toString().padLeft(2, '0')}-'
+        '${date.day.toString().padLeft(2, '0')}';
+  }
+
+  bool _resetCycleDate(DateTime instant) {
+    final date = _localDate(instant);
+    if (_cycleLocalDate == date) return false;
+    _cycleLocalDate = date;
+    _completedRounds = 0;
+    if (_status != RunStatus.running) _prepare(FocusPhase.focus);
+    return true;
   }
 
   void _run(ClockReading now) {

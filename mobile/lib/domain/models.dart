@@ -206,6 +206,7 @@ class TimerSnapshot {
     required this.totalSeconds,
     required this.remainingMicros,
     required this.completedRounds,
+    this.cycleLocalDate,
     this.deadline,
     this.startedAt,
     this.runId,
@@ -221,6 +222,7 @@ class TimerSnapshot {
   final int totalSeconds;
   final int remainingMicros;
   final int completedRounds;
+  final String? cycleLocalDate;
   final DateTime? deadline;
   final DateTime? startedAt;
   final String? runId;
@@ -236,6 +238,7 @@ class TimerSnapshot {
     'totalSeconds': totalSeconds,
     'remainingMicros': remainingMicros,
     'completedRounds': completedRounds,
+    'cycleLocalDate': cycleLocalDate,
     'deadline': deadline?.toUtc().toIso8601String(),
     'startedAt': startedAt?.toUtc().toIso8601String(),
     'runId': runId,
@@ -247,6 +250,19 @@ class TimerSnapshot {
   };
 
   void validate() {
+    if (cycleLocalDate case final value?) {
+      final parts = RegExp(r'^(\d{4})-(\d{2})-(\d{2})$').firstMatch(value);
+      if (parts == null) {
+        throw const FormatException('Invalid saved cycle date.');
+      }
+      final year = int.parse(parts[1]!);
+      final month = int.parse(parts[2]!);
+      final day = int.parse(parts[3]!);
+      final date = DateTime.utc(year, month, day);
+      if (date.year != year || date.month != month || date.day != day) {
+        throw const FormatException('Invalid saved cycle date.');
+      }
+    }
     if (totalSeconds < 1 ||
         totalSeconds > 7200 ||
         remainingMicros < 0 ||
@@ -322,6 +338,7 @@ class TimerSnapshot {
         totalSeconds: json['totalSeconds'] as int,
         remainingMicros: json['remainingMicros'] as int,
         completedRounds: json['completedRounds'] as int,
+        cycleLocalDate: json['cycleLocalDate'] as String?,
         deadline: timestamp('deadline'),
         startedAt: timestamp('startedAt'),
         runId: json['runId'] as String?,

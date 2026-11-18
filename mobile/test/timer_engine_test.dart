@@ -8,7 +8,11 @@ void main() {
   late TimerEngine timer;
   setUp(() {
     clock = FakeClock();
-    timer = TimerEngine(settings: const TimerSettings(), now: clock.reading);
+    timer = TimerEngine(
+      settings: const TimerSettings(),
+      now: clock.reading,
+      toLocal: (value) => value,
+    );
   });
   TimerTransition act(
     TimerAction action, {
@@ -27,6 +31,7 @@ void main() {
         settings: timer.settings,
         now: nextClock.reading,
         restored: TimerSnapshot.fromJson(snapshot.toJson()),
+        toLocal: (value) => value,
       );
 
   test(
@@ -44,9 +49,9 @@ void main() {
       clock.advance(const Duration(days: 2));
       final completed = act(TimerAction.reconcile).completion!;
       expect(completed.endedAt, DateTime.utc(2026, 10, 20, 9, 25));
-      expect(timer.phase, FocusPhase.shortBreak);
+      expect(timer.phase, FocusPhase.focus);
       expect(timer.status, RunStatus.ready);
-      expect(timer.completedRounds, 1);
+      expect(timer.completedRounds, 0);
       expect(act(TimerAction.reconcile).changed, isFalse);
     },
   );
@@ -174,7 +179,7 @@ void main() {
       clock.advance(const Duration(minutes: 20));
       expect(act(TimerAction.pause).completion, isNull);
       expect(timer.canFinishEarly, isFalse);
-      clock.advance(const Duration(days: 1));
+      clock.advance(const Duration(hours: 1));
       act(
         TimerAction.resume,
         task: const FocusTask(id: 'other', title: 'Changed'),
@@ -297,7 +302,7 @@ void main() {
         act(paused ? TimerAction.pause : TimerAction.reconcile);
         final saved = timer.snapshot();
         final nextClock = FakeClock(
-          clock.utcNow.add(Duration(seconds: paused ? 86400 : 30)),
+          clock.utcNow.add(const Duration(seconds: 30)),
         );
         final restored = restore(saved, nextClock);
         expect(restored.canFinishEarly, isTrue);
@@ -446,7 +451,7 @@ void main() {
     );
 
     test(
-      'paused $phase recovery excludes days closed and preserves metadata',
+      'same-day paused $phase recovery preserves remaining time and metadata',
       () {
         act(TimerAction.selectPhase, phase: phase);
         act(
@@ -456,7 +461,7 @@ void main() {
         clock.advance(const Duration(seconds: 12, microseconds: 345));
         act(TimerAction.pause);
         final saved = timer.snapshot();
-        final nextClock = FakeClock(clock.utcNow.add(const Duration(days: 3)));
+        final nextClock = FakeClock(clock.utcNow.add(const Duration(hours: 3)));
         final restored = restore(saved, nextClock);
         expect(restored.snapshot().toJson(), saved.toJson());
         restored.apply(TimerAction.resume, nextClock.reading);

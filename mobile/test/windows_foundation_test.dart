@@ -107,8 +107,9 @@ void main() {
       expect(app.sessions.single.endedAt, deadline);
       expect(app.sessions.single.taskTitle, task.title);
       expect(app.sessions.single.focusSeconds, 60);
-      expect(app.timer.phase, FocusPhase.shortBreak);
+      expect(app.timer.phase, FocusPhase.focus);
       expect(app.timer.status, RunStatus.ready);
+      expect(app.timer.completedRounds, 0);
       await app.reconcile();
       expect((await third.readHistoryPage()).sessions, hasLength(1));
     },

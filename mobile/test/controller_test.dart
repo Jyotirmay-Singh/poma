@@ -201,7 +201,8 @@ void main() {
         clock: FakeClock(DateTime.utc(2026, 10, 23)),
       );
       expect(second.sessions, hasLength(1));
-      expect(second.timer.phase, FocusPhase.shortBreak);
+      expect(second.timer.phase, FocusPhase.focus);
+      expect(second.timer.completedRounds, 0);
       expect(second.sessionsOn(DateTime(2026, 10, 23)), isEmpty);
       await second.flush();
       second.dispose();
@@ -318,7 +319,7 @@ void main() {
       await app.updateSettings(const TimerSettings(focusMinutes: 50));
       await app.flush();
       app.dispose();
-      final nextClock = FakeClock(clock.utcNow.add(const Duration(days: 1)));
+      final nextClock = FakeClock(clock.utcNow.add(const Duration(hours: 1)));
       final restored = await AppController.create(repo, clock: nextClock);
       expect(restored.timer.runId, id);
       expect(restored.timer.totalSeconds, 1500);

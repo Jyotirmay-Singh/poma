@@ -46,6 +46,7 @@ void main() {
       await drainReads();
       final resumedForegroundReads = repository.summaryReads - beforeResume;
 
+      expect(repository.writes, 0);
       final beforeDateChange = repository.summaryReads;
       clock.advance(const Duration(days: 1));
       await app.reconcile(forceAlerts: true);
@@ -80,7 +81,7 @@ void main() {
       expect(dateChangeReads, 1);
       expect(unchangedForegroundReads, 0);
       expect(repository.historyReads, 0);
-      expect(repository.writes, 0);
+      expect(repository.writes, 1);
       expect(createSyncs, 1);
       expect(foregroundSyncs, 1);
       expect(app.timer.status, RunStatus.ready);

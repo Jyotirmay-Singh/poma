@@ -79,6 +79,55 @@ const environment = DesktopEnvironment(
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(sqfliteFfiInit);
+  for (final event in [
+    'resume',
+    'timeChanged',
+    'open',
+    'openPopup',
+    'visibility',
+  ]) {
+    test(
+      'Windows $event reconciles a new local day before publishing',
+      () async {
+        final clock = FakeClock(DateTime.utc(2026, 10, 20, 9));
+        final repository = MemoryRepository(
+          SavedState(
+            settings: const TimerSettings(rounds: 3),
+            timer: const TimerSnapshot(
+              phase: FocusPhase.focus,
+              status: RunStatus.ready,
+              totalSeconds: 1500,
+              remainingMicros: 1500000000,
+              completedRounds: 2,
+              cycleLocalDate: '2026-10-20',
+            ),
+          ),
+        );
+        final controller = await AppController.create(
+          repository,
+          clock: clock,
+          toLocal: (value) => value,
+        );
+        final shell = FakeShell();
+        final desktop = DesktopController(controller, shell, environment);
+        addTearDown(() {
+          desktop.dispose();
+          controller.dispose();
+        });
+        await desktop.initialize();
+        // Visibility represents a return from the tray or a hidden main window.
+        await controller.setForeground(false);
+        clock.advance(const Duration(days: 1));
+        await shell.send(event, {'visible': true});
+        expect(controller.timer.completedRounds, 0);
+        expect(controller.timer.phase, FocusPhase.focus);
+        expect(controller.timer.status, RunStatus.ready);
+        expect(repository.state.timer!.cycleLocalDate, '2026-10-21');
+        expect(shell.snapshot['rounds'], 0);
+        expect(shell.snapshot['seconds'], 1500);
+      },
+    );
+  }
   for (final failSave in [false, true]) {
     test(
       'desktop early Skip counts once without a toast, save failure $failSave',

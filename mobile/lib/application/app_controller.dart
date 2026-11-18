@@ -85,6 +85,7 @@ class AppController extends ChangeNotifier {
         settings: state.settings,
         restored: state.timer,
         now: now,
+        toLocal: _toLocal,
       ),
       _savedAlerts = state.alerts,
       _alerts = alerts == null
@@ -494,13 +495,13 @@ class AppController extends ChangeNotifier {
               previousAlert?.runId == transition.previousRunId) {
             _pendingPresentations.add(previousAlert!);
           }
-          _lastPhaseCompletion = PhaseCompletionNotice(
-            transition.previousRunId!,
-            previousPhase,
-          );
-        } else if (transition.changed &&
-            action != TimerAction.reconcile &&
-            action != TimerAction.updateSettings) {
+          _lastPhaseCompletion = transition.dayReset
+              ? null
+              : PhaseCompletionNotice(transition.previousRunId!, previousPhase);
+        } else if (transition.dayReset ||
+            (transition.changed &&
+                action != TimerAction.reconcile &&
+                action != TimerAction.updateSettings)) {
           _lastPhaseCompletion = null;
         }
       } on TimerClockException {
@@ -527,7 +528,7 @@ class AppController extends ChangeNotifier {
           previousDay.year != localNow.year;
       // Reconciliation owns startup/resume reads after updating calendar time.
       // Coalesce a forced refresh and a day change into the same bounded read.
-      if (dayChanged) _scheduleMidnight();
+      if (dayChanged || forceAlerts) _scheduleMidnight();
       if (alertsEnabled != null) _alerts?.setEnabled(alertsEnabled);
       final completed = transition.completion;
       if (completed != null &&
@@ -1047,9 +1048,7 @@ class AppController extends ChangeNotifier {
     _midnight = Timer(
       DateTime(now.year, now.month, now.day + 1).difference(now),
       () {
-        _calendarUtc = DateTime.now().toUtc();
-        _refreshReads(forceAnalytics: true);
-        _scheduleMidnight();
+        unawaited(reconcile().whenComplete(_scheduleMidnight));
       },
     );
   }

@@ -211,9 +211,9 @@ void main() {
           expect(restored.sessions.single.id, id);
           expect(restored.sessions.single.taskTitle, 'Snapshot title');
           expect(restored.sessions.single.endedAt, started.snapshot.deadline);
-          expect(restored.timer.phase, FocusPhase.shortBreak);
+          expect(restored.timer.phase, FocusPhase.focus);
           expect(restored.timer.status, RunStatus.ready);
-          expect(restored.timer.completedRounds, 1);
+          expect(restored.timer.completedRounds, 0);
           await restored.reconcile();
           expect(restored.sessions, hasLength(1));
           restored.dispose();

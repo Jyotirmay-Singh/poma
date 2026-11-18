@@ -126,8 +126,9 @@ void main() {
           expect(restored.sessions.single.id, id);
           expect(restored.sessions.single.endedAt, deadline);
           expect(restored.sessions.single.taskTitle, 'Crash snapshot');
-          expect(restored.timer.phase, FocusPhase.shortBreak);
+          expect(restored.timer.phase, FocusPhase.focus);
           expect(restored.timer.status, RunStatus.ready);
+          expect(restored.timer.completedRounds, 0);
           restored.dispose();
           await repository.close();
           expect((await repository.readHistoryPage()).sessions.length, 1);
