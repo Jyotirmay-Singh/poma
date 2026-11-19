@@ -1,9 +1,18 @@
 import 'dart:io';
 
 /// Probe projects need independent native output directories: the parent has
-/// SQLite loaded. Seed only the immutable download cache, whose content hash is
-/// checked again by sqlite3's build hook, so a crash test needs no new download.
+/// SQLite loaded. Seed immutable notification assets and the download cache,
+/// whose content hash is checked again by sqlite3's build hook, so a crash test
+/// needs no new download.
 void seedProbeNativeCache(Directory probe) {
+  // These shared resources are declared in pubspec, outside Flutter's assets/.
+  for (final source in Directory(
+    'native/resources',
+  ).listSync(recursive: true).whereType<File>()) {
+    final target = File('${probe.path}/${source.path}');
+    target.parent.createSync(recursive: true);
+    source.copySync(target.path);
+  }
   const relativeCache = '.dart_tool/hooks_runner/shared/sqlite3/build';
   final cache = Directory(relativeCache);
   if (!cache.existsSync()) return;

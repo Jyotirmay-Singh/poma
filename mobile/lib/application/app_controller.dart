@@ -239,6 +239,46 @@ class AppController extends ChangeNotifier {
   bool get needsAlertPermission =>
       _alerts != null && !_alerts.state.permissionRequested;
   bool get alertsEnabled => _alerts?.state.enabled ?? false;
+  bool get completionBellEnabled =>
+      (_alerts?.state ?? _savedAlerts).bellEnabled;
+  bool _bellPreviewPending = false;
+  bool get bellPreviewPending => _bellPreviewPending;
+
+  Future<AlertAvailability> previewCompletionBell() async {
+    if (_disposed ||
+        _bellPreviewPending ||
+        cleanupPending ||
+        _resetOperation != null ||
+        _alerts == null) {
+      return AlertAvailability.unavailable;
+    }
+    _bellPreviewPending = true;
+    _notify();
+    final epoch = _actionEpoch;
+    // Serialize with reset and native registration. A preview cannot appear
+    // after reset cleanup or replace the normal native event callback.
+    final operation = _commands.then((_) async {
+      try {
+        if (_disposed || epoch != _actionEpoch || cleanupPending) {
+          return AlertAvailability.unavailable;
+        }
+        await _alerts.initialize(() {
+          _refreshReads();
+          _scheduleMidnight();
+          unawaited(reconcile(forceAlerts: true, checkpoint: true));
+        });
+        return await _alerts.port.previewCompletionBell();
+      } catch (_) {
+        return AlertAvailability.failed;
+      } finally {
+        _bellPreviewPending = false;
+        _notify();
+      }
+    });
+    _commands = operation.then<void>((_) {});
+    return operation;
+  }
+
   int get alertOpenRevision => _alerts?.openRevision ?? 0;
   String? get alertMessage {
     // Explain an unanswered permission choice at Start, not as a denial.
@@ -414,6 +454,8 @@ class AppController extends ChangeNotifier {
     requestPermission: enabled,
     forceAlerts: true,
   );
+  Future<ReconciliationResult> setCompletionBell(bool enabled) =>
+      _enqueue(TimerAction.reconcile, bellEnabled: enabled, forceAlerts: true);
   Future<void> openNotificationSettings() async => _alerts?.port.openSettings();
   Future<void> requestPreciseAlerts() async {
     await _alerts?.port.requestExactAccess();
@@ -462,6 +504,7 @@ class AppController extends ChangeNotifier {
     bool checkpoint = false,
     bool forceAlerts = false,
     bool? alertsEnabled,
+    bool? bellEnabled,
     bool requestPermission = false,
   }) {
     final epoch = _actionEpoch;
@@ -530,6 +573,7 @@ class AppController extends ChangeNotifier {
       // Coalesce a forced refresh and a day change into the same bounded read.
       if (dayChanged || forceAlerts) _scheduleMidnight();
       if (alertsEnabled != null) _alerts?.setEnabled(alertsEnabled);
+      if (bellEnabled != null) _alerts?.setBellEnabled(bellEnabled);
       final completed = transition.completion;
       if (completed != null &&
           (_before == null && _after == null) &&
@@ -540,12 +584,21 @@ class AppController extends ChangeNotifier {
       // Capture state in command order before allowing another user action.
       final snapshot = timer.snapshot();
       _audioEvent(action, transition, now);
-      final alertChanged = _alerts?.update(snapshot, now) ?? false;
+      final alertChanged =
+          _alerts?.update(
+            snapshot,
+            now,
+            transition: transition,
+            action: action,
+            restoration: !_residentEffectsEnabled,
+          ) ??
+          false;
       final save =
           transition.changed ||
               checkpoint ||
               alertChanged ||
-              alertsEnabled != null
+              alertsEnabled != null ||
+              bellEnabled != null
           ? _persist(
               completions: completed == null ? const [] : [completed],
               refreshReads: false,
@@ -574,7 +627,8 @@ class AppController extends ChangeNotifier {
           (forceAlerts ||
               transition.changed ||
               alertChanged ||
-              alertsEnabled != null)) {
+              alertsEnabled != null ||
+              bellEnabled != null)) {
         try {
           await _alerts.initialize(() {
             _refreshReads();
@@ -658,7 +712,11 @@ class AppController extends ChangeNotifier {
         );
         _pendingPresentations.removeAt(0);
         if (first && alertsEnabled) {
-          await _completionPresenter.presentCompletion(request);
+          await _completionPresenter.presentCompletion(
+            request.copyWith(
+              bellEnabled: request.bellEnabled && completionBellEnabled,
+            ),
+          );
         }
       } catch (_) {
         if (_alerts != null) _alerts.availability = AlertAvailability.failed;

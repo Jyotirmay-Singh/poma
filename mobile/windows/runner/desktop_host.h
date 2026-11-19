@@ -90,6 +90,7 @@ class DesktopHost {
   bool menu_open_ = false;
   bool alerts_initialized_ = false;
   bool alerts_enabled_ = true;
+  ULONGLONG bell_preview_tick_ = 0;
   int64_t reminder_generation_ = 0;
   std::set<std::string> reminder_tokens_, reminder_shown_;
   std::vector<Map> reminder_responses_;

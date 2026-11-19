@@ -27,12 +27,16 @@ import java.io.File
 
 /** OS alarms wake a short native receiver. They never need a Dart engine. */
 object PomaAlerts {
-    private const val CHANNEL = "poma_timer_completion_v1"
+    private const val LEGACY_CHANNEL = "poma_timer_completion_v1"
+    private const val CHANNEL = "poma_timer_completion_bell_v1"
+    private const val SILENT_CHANNEL = "poma_timer_completion_silent_v1"
+    private const val PREVIEW_ID = Int.MIN_VALUE + 1
     private const val OPEN = "dev.poma.poma.OPEN_TIMER"
     private const val PREFS = "poma_local_alerts"
     @Volatile private var channel: MethodChannel? = null
     private var alertDatabase: SQLiteDatabase? = null
     private var alertDatabasePath: String? = null
+    private var lastPreviewElapsed = 0L
 
     fun bootCount(context: Context): Int? = try {
         Settings.Global.getInt(context.contentResolver, Settings.Global.BOOT_COUNT).takeIf { it >= 0 }
@@ -75,6 +79,7 @@ object PomaAlerts {
                                     "generation" to item.getLong("generation"), "action" to item.getString("action"))
                             }.toList())
                         }
+                        "previewCompletionBell" -> result.success(previewCompletionBell(context))
                         "clearForReset" -> {
                             // SQLite's reset marker is committed before this idempotent cleanup.
                             val saved = requireNotNull(state(context))
@@ -147,13 +152,70 @@ object PomaAlerts {
 
     private fun createChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= 26) {
-            val value = NotificationChannel(CHANNEL, context.getString(R.string.alert_channel), NotificationManager.IMPORTANCE_DEFAULT)
-            value.description = context.getString(R.string.alert_channel_description)
-            value.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
-                AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION).build())
-            // Existing channels preserve the person's sound/importance/DND choices.
-            manager(context).createNotificationChannel(value)
+            val notifications = manager(context)
+            val legacy = notifications.getNotificationChannel(LEGACY_CHANNEL)
+            val defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            // Channel sound is immutable. Migrate once, preserving user silence,
+            // blocking and custom sounds rather than re-enabling them on upgrade.
+            if (notifications.getNotificationChannel(CHANNEL) == null) {
+                val sound = if (legacy != null && (legacy.sound == null || legacy.sound != defaultSound ||
+                        (Build.VERSION.SDK_INT >= 30 && legacy.hasUserSetSound()))) legacy.sound else bellUri(context)
+                val value = NotificationChannel(CHANNEL, context.getString(R.string.alert_channel),
+                    legacy?.importance ?: NotificationManager.IMPORTANCE_DEFAULT)
+                value.description = context.getString(R.string.alert_channel_description)
+                value.setSound(sound, AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION).build())
+                if (legacy != null) {
+                    value.enableVibration(legacy.shouldVibrate())
+                    legacy.vibrationPattern?.let { value.vibrationPattern = it }
+                    value.lockscreenVisibility = legacy.lockscreenVisibility
+                    value.setShowBadge(legacy.canShowBadge())
+                }
+                notifications.createNotificationChannel(value)
+            }
+            if (notifications.getNotificationChannel(SILENT_CHANNEL) == null) {
+                val value = NotificationChannel(SILENT_CHANNEL, context.getString(R.string.alert_channel_silent),
+                    notifications.getNotificationChannel(CHANNEL).importance)
+                value.description = context.getString(R.string.alert_channel_description)
+                value.setSound(null, null)
+                value.enableVibration(false)
+                notifications.createNotificationChannel(value)
+            }
         }
+    }
+
+    private fun bellUri(context: Context): Uri =
+        Uri.parse("android.resource://${context.packageName}/raw/completion_bell")
+
+    private fun builder(context: Context, bellEnabled: Boolean): Notification.Builder {
+        val value = if (Build.VERSION.SDK_INT >= 26) {
+            Notification.Builder(context, if (bellEnabled) CHANNEL else SILENT_CHANNEL)
+        } else Notification.Builder(context).setSound(if (bellEnabled) bellUri(context) else null,
+            AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION).build())
+        return value.setSmallIcon(dev.poma.poma.R.drawable.ic_stat_poma)
+            .setCategory(Notification.CATEGORY_REMINDER).setVisibility(Notification.VISIBILITY_PRIVATE)
+            .apply {
+                if (!bellEnabled && Build.VERSION.SDK_INT >= 26) {
+                    // Silence children even if the user later changes the
+                    // silent channel's sound in Android settings.
+                    setGroup("poma.timer.silent")
+                    setGroupAlertBehavior(Notification.GROUP_ALERT_SUMMARY)
+                }
+            }
+    }
+
+    @Synchronized
+    private fun previewCompletionBell(context: Context): String {
+        createChannel(context)
+        if (!permitted(context)) return "denied"
+        val now = SystemClock.elapsedRealtime()
+        if (lastPreviewElapsed != 0L && now - lastPreviewElapsed < 2000) return "ready"
+        val value = builder(context, true)
+            .setContentTitle(context.getString(R.string.alert_bell_preview))
+            .setContentText(context.getString(R.string.alert_bell_preview_body)).setAutoCancel(true)
+        if (Build.VERSION.SDK_INT >= 26) value.setTimeoutAfter(5000)
+        manager(context).notify(PREVIEW_ID, value.build())
+        lastPreviewElapsed = now
+        return "ready"
     }
 
     private fun permitted(context: Context): Boolean {
@@ -176,13 +238,31 @@ object PomaAlerts {
 
     private fun deliveryKey(request: JSONObject) = "delivery:${request.getString("runId")}:${request.getLong("generation")}"
 
+    private fun deliveryRequest(saved: JSONObject, run: String, generation: Long): JSONObject? {
+        val current = saved.optJSONObject("current")
+        if (matches(current, run, generation)) return current
+        val completed = saved.optJSONObject("pendingCompletion")
+        return if (matches(completed, run, generation)) completed else null
+    }
+
     @Synchronized
     fun synchronize(context: Context, desired: JSONObject, allowed: Boolean = true): String {
         createChannel(context)
         val current = desired.optJSONObject("current")
+        val completed = desired.optJSONObject("pendingCompletion")
+        val enabled = desired.optBoolean("enabled", true)
+        val permitted = allowed && permitted(context)
+        val kept = JSONArray()
         val registered = JSONArray(prefs(context).getString("registered", "[]")!!)
         for (index in 0 until registered.length()) {
             val old = registered.getJSONObject(index)
+            if (enabled && permitted && matches(completed, old.getString("runId"), old.getLong("generation")) &&
+                matches(state(context)?.optJSONObject("pendingCompletion"), old.getString("runId"), old.getLong("generation"))) {
+                // Keep the existing OS alarm across Dart's natural completion.
+                // Never recreate it: a missing/expired alarm is not a replay job.
+                if (!receipt(context, deliveryKey(old), false)) kept.put(old)
+                continue
+            }
             alarmIntent(context, old, false)?.let { alarms(context).cancel(it); it.cancel() }
             if (!matches(current, old.getString("runId"), old.getLong("generation"))) {
                 manager(context).cancel(old.getInt("notificationId"))
@@ -190,11 +270,14 @@ object PomaAlerts {
         }
         val retired = desired.optJSONArray("retiredIds") ?: JSONArray()
         for (index in 0 until retired.length()) {
-            if (current?.optInt("notificationId") != retired.getInt(index)) manager(context).cancel(retired.getInt(index))
+            if (current?.optInt("notificationId") != retired.getInt(index) &&
+                !(enabled && permitted && completed?.optInt("notificationId") == retired.getInt(index))) {
+                manager(context).cancel(retired.getInt(index))
+            }
         }
-        persist(context, "registered", "[]")
-        if (!desired.optBoolean("enabled", true)) return "disabled"
-        if (!allowed || !permitted(context)) {
+        persist(context, "registered", kept.toString())
+        if (!enabled) return "disabled"
+        if (!permitted) {
             current?.let { manager(context).cancel(it.getInt("notificationId")) }
             return "denied"
         }
@@ -204,7 +287,7 @@ object PomaAlerts {
         val committed = state(context)?.optJSONObject("current")
         check(matches(committed, current.getString("runId"), current.getLong("generation")))
         if (remaining(context, current) <= 0 || receipt(context, deliveryKey(current), false)) return "ready"
-        persist(context, "registered", JSONArray().put(current).toString()) // journal BEFORE OS call
+        persist(context, "registered", kept.put(current).toString()) // journal BEFORE OS call
         val pending = requireNotNull(alarmIntent(context, current, true))
         val at = SystemClock.elapsedRealtime() + (remaining(context, current).coerceAtLeast(1) + 999) / 1000
         val exact = Build.VERSION.SDK_INT < 31 || alarms(context).canScheduleExactAlarms()
@@ -221,9 +304,10 @@ object PomaAlerts {
     @Synchronized
     fun deliver(context: Context, intent: Intent) {
         val saved = state(context) ?: return
-        val request = saved.optJSONObject("current") ?: return
-        if (!saved.getBoolean("enabled") || !matches(request, intent.getStringExtra("runId") ?: "",
-                intent.getLongExtra("generation", -1)) || !permitted(context)) return
+        val run = intent.getStringExtra("runId") ?: ""
+        val generation = intent.getLongExtra("generation", -1)
+        val request = deliveryRequest(saved, run, generation) ?: return
+        if (!saved.getBoolean("enabled") || !permitted(context)) return
         if (remaining(context, request) > 0) { synchronize(context, saved); return }
         database(context)?.let { db ->
         db.beginTransaction()
@@ -232,8 +316,7 @@ object PomaAlerts {
         // concurrent pause/reset either commits first (reject here) or cancels
         // this posted notification after its own transaction commits.
         val latest = state(db) ?: return
-        if (!latest.getBoolean("enabled") || !matches(latest.optJSONObject("current"),
-                request.getString("runId"), request.getLong("generation"))) return
+        if (!latest.getBoolean("enabled") || deliveryRequest(latest, run, generation) == null) return
         val values = android.content.ContentValues().apply {
             put("key", deliveryKey(request)); put("created_at", System.currentTimeMillis())
         }
@@ -249,16 +332,14 @@ object PomaAlerts {
             .putExtra("runId", request.getString("runId")).putExtra("generation", request.getLong("generation"))
         val dismissPending = PendingIntent.getBroadcast(context, request.getInt("notificationId"), dismiss,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        val builder = if (Build.VERSION.SDK_INT >= 26) Notification.Builder(context, CHANNEL) else Notification.Builder(context)
-        builder.setSmallIcon(dev.poma.poma.R.drawable.ic_stat_poma)
-            .setContentTitle(context.getString(if (request.getString("phase") == "focus") R.string.alert_focus_complete else R.string.alert_break_complete))
+        val builder = builder(context, request.optBoolean("bellEnabled", true))
+        builder.setContentTitle(context.getString(if (request.getString("phase") == "focus") R.string.alert_focus_complete else R.string.alert_break_complete))
             .setContentText(context.getString(R.string.alert_body))
             .setCategory(Notification.CATEGORY_REMINDER).setVisibility(Notification.VISIBILITY_PRIVATE)
             .setOnlyAlertOnce(true).setAutoCancel(true).setContentIntent(openPending)
             .setDeleteIntent(dismissPending)
             .addAction(Notification.Action.Builder(null, context.getString(R.string.alert_open), openPending).build())
             .addAction(Notification.Action.Builder(null, context.getString(R.string.alert_dismiss), dismissPending).build())
-        if (Build.VERSION.SDK_INT < 26) builder.setDefaults(Notification.DEFAULT_SOUND or Notification.DEFAULT_VIBRATE)
         manager(context).notify(request.getInt("notificationId"), builder.build())
         alarmIntent(context, request, false)?.cancel()
         db.setTransactionSuccessful()
@@ -270,7 +351,8 @@ object PomaAlerts {
     private fun queueResponse(context: Context, run: String, generation: Long, action: String) {
         val saved = state(context) ?: return
         if (!matches(saved.optJSONObject("current"), run, generation) &&
-            !matches(saved.optJSONObject("previous"), run, generation)) return
+            !matches(saved.optJSONObject("previous"), run, generation) &&
+            !matches(saved.optJSONObject("pendingCompletion"), run, generation)) return
         val queue = JSONObject(prefs(context).getString("responses", "{}")!!)
         queue.put("action:$run:$generation:$action", JSONObject().put("runId", run)
             .put("generation", generation).put("action", action))
@@ -293,10 +375,12 @@ object PomaAlerts {
         val saved = state(context) ?: return
         val current = saved.optJSONObject("current")
         val previous = saved.optJSONObject("previous")
+        val completed = saved.optJSONObject("pendingCompletion")
         val run = intent.getStringExtra("runId") ?: ""
         val generation = intent.getLongExtra("generation", -1)
-        val request = if (matches(current, run, generation)) current else if (matches(previous, run, generation)) previous else null
-        if (request != null && (current == null || matches(current, run, generation))) {
+        val request = if (matches(current, run, generation)) current else if (matches(previous, run, generation)) previous
+            else if (matches(completed, run, generation)) completed else null
+        if (request != null && (current == null || matches(current, run, generation) || matches(completed, run, generation))) {
             manager(context).cancel(request.getInt("notificationId"))
         }
         queueResponse(context, run, generation, "dismiss")

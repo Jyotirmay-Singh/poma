@@ -156,6 +156,52 @@ class SettingsScreen extends StatelessWidget {
         ),
         _SettingsSection(copy.alerts),
         SwitchListTile.adaptive(
+          key: const ValueKey('completion-bell-switch'),
+          contentPadding: EdgeInsets.zero,
+          title: Text(copy.completionBell, style: theme.textTheme.bodyMedium),
+          subtitle: Text(
+            copy.completionBellHelp,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: colors.onSurfaceVariant,
+            ),
+          ),
+          value: controller.completionBellEnabled,
+          onChanged:
+              controller.alertAvailability == null || controller.cleanupPending
+              ? null
+              : controller.setCompletionBell,
+        ),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton.icon(
+            key: const ValueKey('preview-completion-bell'),
+            style: TextButton.styleFrom(
+              disabledForegroundColor: colors.onSurfaceVariant,
+            ),
+            icon: const Icon(Icons.notifications_active_outlined),
+            label: Text(copy.previewBell),
+            onPressed:
+                controller.alertAvailability == null ||
+                    controller.bellPreviewPending ||
+                    controller.cleanupPending
+                ? null
+                : () async {
+                    final result = await controller.previewCompletionBell();
+                    if (!context.mounted) return;
+                    final message = switch (result) {
+                      AlertAvailability.ready ||
+                      AlertAvailability.delayed => copy.bellPreviewRequested,
+                      AlertAvailability.denied ||
+                      AlertAvailability.disabled => copy.bellPreviewDenied,
+                      _ => copy.bellPreviewUnavailable,
+                    };
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(message)));
+                  },
+          ),
+        ),
+        SwitchListTile.adaptive(
           contentPadding: EdgeInsets.zero,
           title: Text(copy.completionAlerts, style: theme.textTheme.bodyMedium),
           subtitle: Text(

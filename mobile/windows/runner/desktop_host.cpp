@@ -2,6 +2,7 @@
 #include "resource.h"
 #include "calendar_links.h"
 #include "focus_time.h"
+#include "completion_bell.h"
 #include <initguid.h>
 #include <oleacc.h>
 #include <shellapi.h>
@@ -1056,6 +1057,22 @@ void DesktopHost::Method(const flutter::MethodCall<V>& call, std::unique_ptr<Res
       }
       result->Success(V(ToastNotificationManager::CreateToastNotifier().Setting() == NotificationSetting::Enabled ? "ready" : "denied")); return;
     }
+    if (method == "previewCompletionBell") {
+      using namespace winrt::Windows::UI::Notifications;
+      if (!IsPackaged()) { result->Success(V("unavailable")); return; }
+      auto notifier = ToastNotificationManager::CreateToastNotifier();
+      if (notifier.Setting() != NotificationSetting::Enabled) { result->Success(V("denied")); return; }
+      const auto now = GetTickCount64();
+      if (!bell_preview_tick_ || now - bell_preview_tick_ >= 2000) {
+        winrt::Windows::Data::Xml::Dom::XmlDocument doc;
+        doc.LoadXml(CompletionBellPreviewXml());
+        ToastNotification toast(doc); toast.Tag(L"bell"); toast.Group(L"bell-preview");
+        toast.ExpirationTime(winrt::clock::now() + std::chrono::seconds(10));
+        notifier.Show(toast);
+        bell_preview_tick_ = now;
+      }
+      result->Success(V("ready")); return;
+    }
     if (method == "showCompletion") {
       if (IsPackaged() && alerts_enabled_) {
         using namespace winrt::Windows::UI::Notifications;
@@ -1067,7 +1084,8 @@ void DesktopHost::Method(const flutter::MethodCall<V>& call, std::unique_ptr<Res
           const auto open = L"open|" + run + L"|" + serial, dismiss = L"dismiss|" + run + L"|" + serial;
           const auto title = Flag(args, "focus") ? L"Focus complete" : L"Break complete";
           const auto xml = L"<toast launch=\"" + open + L"\"><visual><binding template=\"ToastGeneric\"><text>" + title +
-              L"</text><text>Open Poma when you're ready.</text></binding></visual><actions><action content=\"Open timer\" arguments=\"" + open +
+              L"</text><text>Open Poma when you're ready.</text></binding></visual>" + CompletionAudioXml(Flag(args, "bellEnabled", true)) +
+              L"<actions><action content=\"Open timer\" arguments=\"" + open +
               L"\" activationType=\"foreground\"/><action content=\"Dismiss\" arguments=\"" + dismiss + L"\" activationType=\"foreground\"/></actions></toast>";
           winrt::Windows::Data::Xml::Dom::XmlDocument doc; doc.LoadXml(xml);
           ToastNotification toast(doc); toast.Tag(std::to_wstring(Number(args, "notificationId"))); toast.Group(L"timer");

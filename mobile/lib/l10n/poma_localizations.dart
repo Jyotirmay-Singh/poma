@@ -1282,6 +1282,42 @@ abstract class PomaLocalizations {
   /// **'Completion alerts'**
   String get completionAlerts;
 
+  /// No description provided for @completionBell.
+  ///
+  /// In en, this message translates to:
+  /// **'Completion bell'**
+  String get completionBell;
+
+  /// No description provided for @completionBellHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Ring once when focus or a break ends. Requires completion alerts; device notification, volume and quiet-mode settings control sound.'**
+  String get completionBellHelp;
+
+  /// No description provided for @previewBell.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview bell'**
+  String get previewBell;
+
+  /// No description provided for @bellPreviewRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview requested. Device notification and quiet-mode settings control whether you hear it.'**
+  String get bellPreviewRequested;
+
+  /// No description provided for @bellPreviewDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Bell preview is blocked by notification or sound settings. Open notification settings to allow it.'**
+  String get bellPreviewDenied;
+
+  /// No description provided for @bellPreviewUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Bell preview could not be requested. Check notification settings and try again.'**
+  String get bellPreviewUnavailable;
+
   /// No description provided for @desktopHistory.
   ///
   /// In en, this message translates to:

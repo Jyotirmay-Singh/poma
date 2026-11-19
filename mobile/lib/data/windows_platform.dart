@@ -164,7 +164,16 @@ class WindowsLocalAlerts implements LocalAlerts, CompletionPresenter {
         'generation': request.generation,
         'notificationId': request.notificationId,
         'focus': request.phase == FocusPhase.focus,
+        'bellEnabled': request.bellEnabled,
       });
+  @override
+  Future<AlertAvailability> previewCompletionBell() async {
+    final value = await host.channel.invokeMethod<String>(
+      'previewCompletionBell',
+    );
+    return AlertAvailability.values.byName(value ?? 'unavailable');
+  }
+
   @override
   Future<void> requestPermission() async {}
   @override

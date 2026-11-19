@@ -76,6 +76,12 @@ class NativeLocalAlerts implements LocalAlerts {
       _android?.requestExactAlarmsPermission();
 
   @override
+  Future<AlertAvailability> previewCompletionBell() async {
+    final result = await _channel.invokeMethod<String>('previewCompletionBell');
+    return AlertAvailability.values.byName(result ?? 'unavailable');
+  }
+
+  @override
   Future<List<AlertResponse>> responses() async {
     final values = await _channel.invokeListMethod<Object?>('responses') ?? [];
     return values.map((value) {

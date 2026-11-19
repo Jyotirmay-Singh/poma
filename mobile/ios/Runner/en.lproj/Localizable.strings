@@ -3,3 +3,5 @@
 "alert_body" = "Open Poma when you’re ready.";
 "alert_open" = "Open timer";
 "alert_dismiss" = "Dismiss";
+"alert_bell_preview" = "Completion bell preview";
+"alert_bell_preview_body" = "Sound follows your notification and quiet-mode settings.";

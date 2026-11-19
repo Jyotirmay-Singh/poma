@@ -12,10 +12,17 @@ struct PomaAlertRequest: Decodable {
   let phase: String
   let elapsedDeadlineMicros: Int64
   let maximumRemainingMicros: Int64
+  // Optional for saved requests written before the bell preference existed.
+  var bellEnabled: Bool? = nil
 
   var identifier: String { "poma.timer.\(notificationId)" }
   func matches(runId: String, generation: Int64) -> Bool {
     !runId.isEmpty && generation > 0 && self.runId == runId && self.generation == generation
+  }
+  func matchesScheduled(_ request: UNNotificationRequest) -> Bool {
+    request.identifier == identifier &&
+      (request.content.userInfo["pomaGeneration"] as? NSNumber)?.int64Value == generation &&
+      (request.content.userInfo["pomaBellEnabled"] as? Bool) == (bellEnabled != false)
   }
   func notification(elapsedNow: Int64) -> UNNotificationRequest? {
     let remaining = min(maximumRemainingMicros, elapsedDeadlineMicros - elapsedNow)
@@ -25,19 +32,34 @@ struct PomaAlertRequest: Decodable {
       ? NSLocalizedString("alert_focus_complete", value: "Focus complete", comment: "Focus completion notification")
       : NSLocalizedString("alert_break_complete", value: "Break complete", comment: "Break completion notification")
     content.body = NSLocalizedString("alert_body", value: "Open Poma when you’re ready.", comment: "Notification body")
-    content.sound = .default
+    content.sound = bellEnabled == false ? nil : PomaLocalAlerts.bellSound
     content.categoryIdentifier = PomaLocalAlerts.category.identifier
-    content.userInfo = ["pomaRunId": runId, "pomaGeneration": generation]
+    content.userInfo = ["pomaRunId": runId, "pomaGeneration": generation,
+      "pomaBellEnabled": bellEnabled != false]
     return UNNotificationRequest(identifier: identifier, content: content,
       trigger: UNTimeIntervalNotificationTrigger(timeInterval: Double(remaining) / 1_000_000, repeats: false))
   }
 }
 
-private struct PomaAlertState: Decodable {
+struct PomaAlertState: Decodable {
   let enabled: Bool
   let current: PomaAlertRequest?
   let previous: PomaAlertRequest?
+  let pendingCompletion: PomaAlertRequest?
+  let bellEnabled: Bool?
   let retiredIds: [Int]
+
+  func acceptsDelivery(runId: String, generation: Int64) -> Bool {
+    guard enabled else { return false }
+    return current?.matches(runId: runId, generation: generation) == true ||
+      pendingCompletion?.matches(runId: runId, generation: generation) == true
+  }
+
+  func keepsScheduled(identifier: String, generation: Int64?) -> Bool {
+    guard enabled else { return false }
+    return (identifier == current?.identifier && generation == current?.generation) ||
+      (identifier == pendingCompletion?.identifier && generation == pendingCompletion?.generation)
+  }
 }
 
 /// A native journal lets Dismiss finish without starting a headless Dart owner.
@@ -71,6 +93,8 @@ final class PomaAlertResponses {
 
 final class PomaLocalAlerts {
   static let shared = PomaLocalAlerts()
+  static let bellSound = UNNotificationSound(named: UNNotificationSoundName(rawValue: "completion_bell.wav"))
+  static let previewIdentifier = "poma.bell.preview"
   static let category = UNNotificationCategory(identifier: "poma_completion", actions: [
     UNNotificationAction(identifier: "open", title: NSLocalizedString("alert_open", value: "Open timer", comment: "Open timer action"), options: [.foreground]),
     UNNotificationAction(identifier: "dismiss", title: NSLocalizedString("alert_dismiss", value: "Dismiss", comment: "Dismiss notification action"), options: [])
@@ -79,8 +103,11 @@ final class PomaLocalAlerts {
   private let center = UNUserNotificationCenter.current()
   private let journal = PomaAlertResponses()
   private var timeObservers: [NSObjectProtocol] = []
+  private var lastPreviewUptime = -Double.infinity
 
-  static func owns(_ identifier: String) -> Bool { identifier.hasPrefix("poma.timer.") }
+  static func owns(_ identifier: String) -> Bool {
+    identifier.hasPrefix("poma.timer.") || identifier == previewIdentifier
+  }
 
   static func acceptsResponse(current: PomaAlertRequest?, previous: PomaAlertRequest?,
     runId: String, generation: Int64) -> Bool {
@@ -124,6 +151,7 @@ final class PomaLocalAlerts {
         }
         self.synchronize(state, permitted: arguments["permitted"] as? Bool == true, result: result)
       case "responses": result(self.journal.values)
+      case "previewCompletionBell": self.previewCompletionBell(result: result)
       case "clearForReset":
         guard let saved = self.committedState(), saved.current == nil else {
           result(FlutterError(code: "reset_not_saved", message: "Data reset must be saved first", details: nil)); return
@@ -140,6 +168,25 @@ final class PomaLocalAlerts {
         if let key = arguments["key"] as? String { self.journal.acknowledge(key) }
         result(nil)
       default: result(FlutterMethodNotImplemented)
+      }
+    }
+  }
+
+  private func previewCompletionBell(result: @escaping FlutterResult) {
+    center.getNotificationSettings { settings in
+      DispatchQueue.main.async {
+        let authorized = settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional
+        guard authorized && settings.soundSetting == .enabled else { result("denied"); return }
+        let now = ProcessInfo.processInfo.systemUptime
+        guard now - self.lastPreviewUptime >= 2 else { result("ready"); return }
+        self.lastPreviewUptime = now
+        let content = UNMutableNotificationContent()
+        content.title = NSLocalizedString("alert_bell_preview", value: "Completion bell preview", comment: "Bell preview")
+        content.body = NSLocalizedString("alert_bell_preview_body", value: "Sound follows your notification and quiet-mode settings.", comment: "Bell preview help")
+        content.sound = Self.bellSound
+        self.center.add(UNNotificationRequest(identifier: Self.previewIdentifier, content: content, trigger: nil)) { error in
+          DispatchQueue.main.async { result(error == nil ? "ready" : "failed") }
+        }
       }
     }
   }
@@ -168,14 +215,17 @@ final class PomaLocalAlerts {
         let authorized = settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional
         let allowed = permitted && authorized
         let desired = state.enabled && allowed ? state.current : nil
+        let completed = state.enabled && allowed ? state.pendingCompletion : nil
         let obsolete = requests.filter { request in
-          guard Self.owns(request.identifier) else { return false }
-          return request.identifier != desired?.identifier ||
-            (request.content.userInfo["pomaGeneration"] as? NSNumber)?.int64Value != desired?.generation
+          guard request.identifier.hasPrefix("poma.timer.") else { return false }
+          let generation = (request.content.userInfo["pomaGeneration"] as? NSNumber)?.int64Value
+          return !allowed || !state.keepsScheduled(identifier: request.identifier, generation: generation)
         }.map(\.identifier)
         self.center.removePendingNotificationRequests(withIdentifiers: obsolete)
-        var removed = state.retiredIds.map { "poma.timer.\($0)" }
-        if let previous = state.previous, previous.identifier != desired?.identifier { removed.append(previous.identifier) }
+        // Retain only an existing request after natural expiry. Never add a
+        // completed request if it has already fired or disappeared from the OS.
+        var removed = state.retiredIds.map { "poma.timer.\($0)" }.filter { $0 != completed?.identifier }
+        if let previous = state.previous, previous.identifier != desired?.identifier && previous.identifier != completed?.identifier { removed.append(previous.identifier) }
         if !allowed, let current = state.current { removed.append(current.identifier) }
         self.center.removeDeliveredNotifications(withIdentifiers: removed)
         let finish: (String) -> Void = { value in DispatchQueue.main.async { result(value) } }
@@ -191,8 +241,9 @@ final class PomaLocalAlerts {
           self.center.removePendingNotificationRequests(withIdentifiers: [desired.identifier])
           finish("ready"); return
         }
-        if requests.contains(where: { $0.identifier == desired.identifier &&
-            ($0.content.userInfo["pomaGeneration"] as? NSNumber)?.int64Value == desired.generation }) {
+        // Replace legacy system-sound requests as well as changed preferences,
+        // using the same identifier and the original remaining interval.
+        if requests.contains(where: { desired.matchesScheduled($0) }) {
           finish("ready"); return
         }
         self.center.add(notification) { error in
@@ -206,9 +257,19 @@ final class PomaLocalAlerts {
   }
 
   func shouldPresent(_ notification: UNNotification) -> Bool {
+    if notification.request.identifier == Self.previewIdentifier { return true }
     let info = notification.request.content.userInfo
-    guard let run = info["pomaRunId"] as? String, let generation = info["pomaGeneration"] as? NSNumber else { return false }
-    return committedState()?.current?.matches(runId: run, generation: generation.int64Value) == true
+    guard let run = info["pomaRunId"] as? String, let generation = info["pomaGeneration"] as? NSNumber,
+      let state = committedState(), state.enabled else { return false }
+    return state.acceptsDelivery(runId: run, generation: generation.int64Value)
+  }
+
+  func presentationOptions(_ notification: UNNotification) -> UNNotificationPresentationOptions {
+    guard shouldPresent(notification) else { return [] }
+    var options: UNNotificationPresentationOptions = [.alert]
+    let bellEnabled = notification.request.identifier == Self.previewIdentifier || committedState()?.bellEnabled != false
+    if bellEnabled && notification.request.content.sound != nil { options.insert(.sound) }
+    return options
   }
 
   func handle(_ response: UNNotificationResponse) {
@@ -219,7 +280,8 @@ final class PomaLocalAlerts {
     // Explicit request values avoid a Swift 6.3.3 release-optimizer ownership
     // crash in chained optional projections of this decoded state.
     guard Self.acceptsResponse(current: state.current, previous: state.previous,
-      runId: run, generation: generation.int64Value) else { return }
+      runId: run, generation: generation.int64Value) ||
+      state.pendingCompletion?.matches(runId: run, generation: generation.int64Value) == true else { return }
     let action: String
     switch response.actionIdentifier {
     case "open", UNNotificationDefaultActionIdentifier: action = "open"
@@ -228,7 +290,8 @@ final class PomaLocalAlerts {
     }
     journal.append(runId: run, generation: generation.int64Value, action: action)
     // A stale dismissal cannot cancel a resumed segment with the same OS ID.
-    if action == "dismiss", Self.canRemoveDelivered(current: state.current, generation: generation.int64Value) {
+    if action == "dismiss", Self.canRemoveDelivered(current: state.current, generation: generation.int64Value) ||
+      state.pendingCompletion?.matches(runId: run, generation: generation.int64Value) == true {
       center.removeDeliveredNotifications(withIdentifiers: [response.notification.request.identifier])
     }
     DispatchQueue.main.async { self.channel?.invokeMethod("changed", arguments: nil) }

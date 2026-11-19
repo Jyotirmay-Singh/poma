@@ -106,6 +106,57 @@ void main() {
   );
 
   test(
+    'bell preference and natural completion survive SQLite close without a schema change',
+    () async {
+      final repository = SqliteRepository(
+        factory: databaseFactoryFfi,
+        databasePath: path,
+      );
+      addTearDown(repository.close);
+      final clock = FakeClock();
+      final app = await AppController.create(
+        repository,
+        clock: clock,
+        alerts: FakeAlerts(),
+      );
+      addTearDown(app.dispose);
+      await app.updateSettings(app.settings.copyWith(focusMinutes: 1));
+      await app.setCompletionBell(false);
+      await app.toggleTimer();
+      clock.advance(const Duration(minutes: 1));
+      await app.reconcile();
+      await app.flush();
+      final saved = await repository.load();
+      expect(saved.alerts.pendingCompletion?.bellEnabled, isFalse);
+      expect((await repository.readHistoryPage()).sessions, hasLength(1));
+      app.dispose();
+      await app.flush();
+      await repository.close();
+
+      final database = await databaseFactoryFfi.openDatabase(path);
+      expect(await database.getVersion(), 5);
+      await database.close();
+      final reopened = SqliteRepository(
+        factory: databaseFactoryFfi,
+        databasePath: path,
+      );
+      addTearDown(reopened.close);
+      final restored = await AppController.create(
+        reopened,
+        clock: clock,
+        alerts: FakeAlerts(),
+      );
+      addTearDown(restored.dispose);
+      expect(restored.completionBellEnabled, isFalse);
+      expect((await reopened.load()).alerts.pendingCompletion, isNull);
+      expect((await reopened.readHistoryPage()).sessions, hasLength(1));
+      restored.dispose();
+      await restored.flush();
+      await reopened.close();
+    },
+  );
+
+  test(
     'invalid v1 snapshot rejects migration without rewriting database bytes',
     () async {
       await legacyDatabase(corrupt: true);

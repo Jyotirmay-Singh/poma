@@ -559,7 +559,7 @@ void main() {
   });
 
   test(
-    'running alert identity survives midnight and retires after completion',
+    'running alert identity survives midnight and retains natural delivery until cancellation',
     () async {
       final clock = FakeClock(DateTime.utc(2026, 10, 20, 23, 50));
       final repository = MemoryRepository(
@@ -577,10 +577,17 @@ void main() {
       expect(app.timer.completedRounds, 0);
       clock.advance(const Duration(minutes: 15));
       await app.reconcile();
-      expect(alerts.pending, isEmpty);
+      expect(alerts.pending.values.single.runId, request['runId']);
+      expect(
+        repository.state.alerts.pendingCompletion?.runId,
+        request['runId'],
+      );
       expect(repository.state.alerts.current, isNull);
       expect(repository.state.sessions, hasLength(1));
       expect(app.timer.completedRounds, 1);
+      await app.resetTimer();
+      expect(alerts.pending, isEmpty);
+      expect(repository.state.alerts.pendingCompletion, isNull);
     },
   );
 

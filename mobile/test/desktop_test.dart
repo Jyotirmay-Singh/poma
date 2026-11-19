@@ -596,7 +596,9 @@ void main() {
         'generation',
         'notificationId',
         'focus',
+        'bellEnabled',
       });
+      expect(payload['bellEnabled'], isTrue);
       await alerts.requestPermission();
       await alerts.requestExactAccess();
       expect(

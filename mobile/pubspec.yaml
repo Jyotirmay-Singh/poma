@@ -72,6 +72,7 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
+    - native/resources/raw/completion_bell.wav
     - assets/backgrounds/nebula-landscape.webp
     - assets/backgrounds/nebula-portrait.webp
     - assets/branding/google-g.png

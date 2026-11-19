@@ -697,6 +697,28 @@ class PomaLocalizationsEn extends PomaLocalizations {
   String get completionAlerts => 'Completion alerts';
 
   @override
+  String get completionBell => 'Completion bell';
+
+  @override
+  String get completionBellHelp =>
+      'Ring once when focus or a break ends. Requires completion alerts; device notification, volume and quiet-mode settings control sound.';
+
+  @override
+  String get previewBell => 'Preview bell';
+
+  @override
+  String get bellPreviewRequested =>
+      'Preview requested. Device notification and quiet-mode settings control whether you hear it.';
+
+  @override
+  String get bellPreviewDenied =>
+      'Bell preview is blocked by notification or sound settings. Open notification settings to allow it.';
+
+  @override
+  String get bellPreviewUnavailable =>
+      'Bell preview could not be requested. Check notification settings and try again.';
+
+  @override
   String get desktopHistory => 'Analytics';
 
   @override

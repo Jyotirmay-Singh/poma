@@ -19,12 +19,72 @@ class RunnerTests: XCTestCase {
     XCTAssertEqual(request.identifier, "poma.timer.7")
     XCTAssertEqual(request.content.userInfo["pomaRunId"] as? String, "persisted-session")
     XCTAssertEqual(request.content.userInfo["pomaGeneration"] as? Int64, 3)
+    XCTAssertEqual(request.content.userInfo["pomaBellEnabled"] as? Bool, true)
     XCTAssertEqual(request.content.body, "Open Poma when you’re ready.")
   }
 
   func testExpiredAlertIsNotReplayed() {
     XCTAssertNil(alert().notification(elapsedNow: 1_500_000))
     XCTAssertNil(alert().notification(elapsedNow: 9_000_000))
+  }
+
+  func testCompletionBellDefaultsForLegacyRequestsAndCanBeSilent() throws {
+    let legacy = Data("""
+      {"runId":"persisted-session","generation":3,"notificationId":7,"phase":"focus",
+       "elapsedDeadlineMicros":1500000,"maximumRemainingMicros":1000000}
+      """.utf8)
+    var decoded = try JSONDecoder().decode(PomaAlertRequest.self, from: legacy)
+    XCTAssertNotNil(try XCTUnwrap(decoded.notification(elapsedNow: 1_000_000)).content.sound)
+    decoded.bellEnabled = false
+    let silent = try XCTUnwrap(decoded.notification(elapsedNow: 1_000_000))
+    XCTAssertNil(silent.content.sound)
+    XCTAssertEqual(silent.content.userInfo["pomaBellEnabled"] as? Bool, false)
+    XCTAssertEqual(silent.identifier, "poma.timer.7")
+    XCTAssertEqual((silent.trigger as? UNTimeIntervalNotificationTrigger)?.timeInterval, 0.5)
+  }
+
+  func testLegacyScheduledSoundIsReplacedWithoutExtendingTheDeadline() throws {
+    let desired = alert()
+    let current = try XCTUnwrap(desired.notification(elapsedNow: 1_000_000))
+    XCTAssertTrue(desired.matchesScheduled(current))
+    let legacy = UNMutableNotificationContent()
+    legacy.userInfo = ["pomaRunId": desired.runId, "pomaGeneration": desired.generation]
+    let old = UNNotificationRequest(identifier: desired.identifier, content: legacy, trigger: current.trigger)
+    XCTAssertFalse(desired.matchesScheduled(old))
+    var silent = desired
+    silent.bellEnabled = false
+    XCTAssertFalse(silent.matchesScheduled(current))
+    let replaced = try XCTUnwrap(silent.notification(elapsedNow: 1_250_000))
+    XCTAssertEqual((replaced.trigger as? UNTimeIntervalNotificationTrigger)?.timeInterval, 0.25)
+  }
+
+  func testBundledBellAndPreviewIdentity() throws {
+    let url = try XCTUnwrap(Bundle.main.url(forResource: "completion_bell", withExtension: "wav"))
+    let data = try Data(contentsOf: url)
+    XCTAssertEqual(String(data: data.prefix(4), encoding: .ascii), "RIFF")
+    XCTAssertLessThan(data.count, 200_000)
+    XCTAssertTrue(PomaLocalAlerts.owns(PomaLocalAlerts.previewIdentifier))
+    XCTAssertFalse(PomaLocalAlerts.previewIdentifier.hasPrefix("poma.timer."))
+  }
+
+  func testOnlyNaturalCompletionMayKeepAnExistingForegroundNotification() throws {
+    let request = """
+      {"runId":"persisted-session","generation":3,"notificationId":7,"phase":"shortBreak",
+       "elapsedDeadlineMicros":1500000,"maximumRemainingMicros":1000000,"bellEnabled":true}
+      """
+    func saved(enabled: Bool = true, completed: Bool) throws -> PomaAlertState {
+      let json = """
+        {"enabled":\(enabled),"current":null,"previous":\(request),
+         "pendingCompletion":\(completed ? request : "null"),"retiredIds":[7]}
+        """
+      return try JSONDecoder().decode(PomaAlertState.self, from: Data(json.utf8))
+    }
+    let completed = try saved(completed: true)
+    XCTAssertTrue(completed.acceptsDelivery(runId: "persisted-session", generation: 3))
+    XCTAssertTrue(completed.keepsScheduled(identifier: "poma.timer.7", generation: 3))
+    XCTAssertFalse(completed.keepsScheduled(identifier: "poma.timer.7", generation: 2))
+    XCTAssertFalse(try saved(completed: false).acceptsDelivery(runId: "persisted-session", generation: 3))
+    XCTAssertFalse(try saved(enabled: false, completed: true).keepsScheduled(identifier: "poma.timer.7", generation: 3))
   }
 
   func testBreakWordingAndActionsDoNotStartAPhase() throws {

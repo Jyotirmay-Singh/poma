@@ -2,6 +2,7 @@
 #include "calendar_credentials.h"
 #include "calendar_links.h"
 #include "focus_time.h"
+#include "completion_bell.h"
 #include <fstream>
 #include <iterator>
 #include <notificationactivationcallback.h>
@@ -55,6 +56,13 @@ int main(int argc, char** argv) {
   }
   winrt::init_apartment(winrt::apartment_type::single_threaded);
   try {
+    Check(poma::CompletionAudioXml(true).find(L"ms-appx:///data/flutter_assets/native/resources/raw/completion_bell.wav") != std::wstring::npos,
+          "Completion sound uses the bundled bell without a system-sound fallback");
+    Check(poma::CompletionAudioXml(false) == L"<audio silent=\"true\"/>", "Bell off produces a silent toast");
+    const auto preview = poma::CompletionBellPreviewXml();
+    Check(preview.find(poma::CompletionAudioXml(true)) != std::wstring::npos &&
+          preview.find(L"actions") == std::wstring::npos && preview.find(L"launch") == std::wstring::npos,
+          "Bell preview has no timer action identity");
     if (argc > 1) {
       std::ifstream corpus(argv[1]);
       Check(corpus.is_open(), "Shared URL safety corpus is readable");

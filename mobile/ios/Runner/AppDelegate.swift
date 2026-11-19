@@ -72,7 +72,7 @@ import UserNotifications
     willPresent notification: UNNotification,
     withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
     if PomaLocalAlerts.owns(notification.request.identifier) {
-      completionHandler(PomaLocalAlerts.shared.shouldPresent(notification) ? [.alert, .sound] : [])
+      completionHandler(PomaLocalAlerts.shared.presentationOptions(notification))
     } else {
       super.userNotificationCenter(center, willPresent: notification, withCompletionHandler: completionHandler)
     }

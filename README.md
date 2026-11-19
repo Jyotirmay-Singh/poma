@@ -105,6 +105,7 @@ There is no automatic data recovery after uninstalling Poma or losing the phone.
 - Incremental transactional SQLite persistence, v1/v2 migrations, duplicate completion protection, visible save failures, and retry.
 - Confirmed session/history deletion and full local data reset, with interrupted alert cleanup recovery.
 - Native completion alerts, permission/settings controls, cancellation, and Open timer / Dismiss actions. Mobile uses OS scheduling; Windows requires a resident process and installed MSIX identity for toasts. Android offers an inexact fallback when precise alarms are unavailable.
+- A short completion bell for focus and both breaks, with an independent bell switch and preview under Settings → Alerts. Sound follows completion-alert delivery and system quiet modes; see [completion bell behavior and verification](docs/COMPLETION_BELL.md).
 - System, light, and dark appearances; screen-reader labels and layouts that accommodate large text.
 - Phase-specific start actions and inline completion feedback; current and next task labels, accessible daily totals, and permission-specific alert recovery.
 - English localization resources and offline calendar formatting using the device locale and time preference.

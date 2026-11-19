@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="alert_channel">Timer completions</string>
+    <string name="alert_channel_silent">Silent timer completions</string>
+    <string name="alert_bell_preview">Completion bell preview</string>
+    <string name="alert_bell_preview_body">Sound follows your notification and quiet-mode settings.</string>
     <string name="alert_channel_description">Completion of a focus or break you started</string>
     <string name="alert_focus_complete">Focus complete</string>
     <string name="alert_break_complete">Break complete</string>

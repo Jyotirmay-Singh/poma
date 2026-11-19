@@ -23,6 +23,9 @@ abstract interface class LocalAlerts {
   Future<void> requestPermission();
   Future<void> openSettings();
   Future<void> requestExactAccess();
+
+  /// Submits a separate test notification; success does not prove audibility.
+  Future<AlertAvailability> previewCompletionBell();
   Future<List<AlertResponse>> responses();
   Future<void> acknowledgeResponse(AlertResponse response);
   Future<void> clearForReset();

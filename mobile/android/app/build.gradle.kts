@@ -36,6 +36,8 @@ android {
     namespace = "dev.poma.poma"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
+    // The bell has one source shared with iOS and the Windows Flutter bundle.
+    sourceSets.getByName("main").res.srcDir("../../native/resources")
     externalNativeBuild {
         cmake { path = file("src/main/cpp/CMakeLists.txt") }
     }
