@@ -233,6 +233,34 @@ class AppController extends ChangeNotifier {
     return operation;
   }
 
+  /// Merge presentation changes immediately; _persist serializes the writes.
+  /// A window-bounds event must not replace a more recent sidebar choice.
+  Future<void> patchDesktopPreferences({
+    bool? tooltipTitles,
+    bool? sidebarCollapsed,
+    DesktopBounds? bounds,
+  }) async {
+    if (_disposed) return;
+    if (_deferUntilReset(
+      () => unawaited(
+        patchDesktopPreferences(
+          tooltipTitles: tooltipTitles,
+          sidebarCollapsed: sidebarCollapsed,
+          bounds: bounds,
+        ),
+      ),
+    )) {
+      return;
+    }
+    _desktopPreferences = desktopPreferences.copyWith(
+      tooltipTitles: tooltipTitles,
+      sidebarCollapsed: sidebarCollapsed,
+      bounds: bounds,
+    );
+    _notify();
+    await _persist(refreshReads: false);
+  }
+
   final AlertCoordinator? _alerts;
   AlertState _savedAlerts;
   AlertAvailability? get alertAvailability => _alerts?.availability;

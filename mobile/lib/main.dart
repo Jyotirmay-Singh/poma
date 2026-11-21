@@ -521,10 +521,7 @@ class _PomaAppState extends State<PomaApp> with WidgetsBindingObserver {
                       control: true,
                     ): widget.desktop!.requestNewTask,
                   },
-                  child: Focus(
-                    autofocus: true,
-                    child: AppShell(controller: widget.controller),
-                  ),
+                  child: Focus(child: AppShell(controller: widget.controller)),
                 ),
               ),
       ),

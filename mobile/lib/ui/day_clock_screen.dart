@@ -972,15 +972,23 @@ class _DayClockScreenState extends State<DayClockScreen> {
     final title = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Semantics(
-          header: true,
-          child: Text(
-            'Day Clock',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontSize: wide ? 32 : 28,
-              height: 1.25,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const DesktopSidebarLeading(),
+            Expanded(
+              child: Semantics(
+                header: true,
+                child: Text(
+                  'Day Clock',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontSize: wide ? 32 : 28,
+                    height: 1.25,
+                  ),
+                ),
+              ),
             ),
-          ),
+          ],
         ),
         dateControls(),
       ],

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../application/app_controller.dart';
@@ -30,6 +31,55 @@ class _AppShellState extends State<AppShell> {
   String? _announcedRun;
   int _seenDesktopNavigation = 0;
   int _seenNewTask = 0;
+  final _hideSidebarFocus = FocusNode(debugLabel: 'Hide sidebar');
+  final _showSidebarFocus = FocusNode(debugLabel: 'Show sidebar');
+  final _pageFocus = FocusNode(debugLabel: 'Page content');
+
+  @override
+  void dispose() {
+    _hideSidebarFocus.dispose();
+    _showSidebarFocus.dispose();
+    _pageFocus.dispose();
+    super.dispose();
+  }
+
+  void _toggleSidebar() {
+    final collapsed = !widget.controller.desktopPreferences.sidebarCollapsed;
+    unawaited(
+      widget.controller.patchDesktopPreferences(sidebarCollapsed: collapsed),
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (!widget.controller.desktopPreferences.sidebarCollapsed) {
+        _hideSidebarFocus.requestFocus();
+        return;
+      }
+      final button = _showSidebarFocus.context?.findRenderObject();
+      if (button is RenderBox && button.attached) {
+        final top = button.localToGlobal(Offset.zero).dy;
+        final size = MediaQuery.sizeOf(context);
+        if (top >= MediaQuery.paddingOf(context).top &&
+            top + button.size.height <= size.height) {
+          _showSidebarFocus.requestFocus();
+          return;
+        }
+      }
+      // Focusing an off-screen heading would scroll away from the user's work.
+      _pageFocus.requestFocus();
+    });
+  }
+
+  void _toggleSidebarFromKeyboard() {
+    if (MediaQuery.sizeOf(context).width < PomaLayout.navigationRail ||
+        ModalRoute.of(context)?.isCurrent == false ||
+        FocusManager.instance.primaryFocus?.context
+                ?.findAncestorStateOfType<EditableTextState>() !=
+            null) {
+      return;
+    }
+    _toggleSidebar();
+  }
+
   void _goTo(int tab) {
     if (tab == 1) tab = 4;
     DesktopScope.maybeOf(context)?.navigate(tab);
@@ -63,8 +113,10 @@ class _AppShellState extends State<AppShell> {
             _goTo(desktopDestinationOrder[i]),
       const SingleActivator(LogicalKeyboardKey.keyN, control: true):
           _requestNewTask,
+      const SingleActivator(LogicalKeyboardKey.keyB, control: true):
+          _toggleSidebarFromKeyboard,
     },
-    child: child,
+    child: Focus(autofocus: true, child: child),
   );
 
   @override
@@ -164,62 +216,165 @@ class _AppShellState extends State<AppShell> {
       final extended =
           MediaQuery.sizeOf(context).width >= PomaLayout.extendedRail &&
           MediaQuery.textScalerOf(context).scale(1) < 1.5;
+      final collapsed = controller.desktopPreferences.sidebarCollapsed;
+      final railWidth = extended ? 216.0 : 80.0;
+      final hideButton = _SidebarButton(
+        collapsed: false,
+        focusNode: _hideSidebarFocus,
+        onPressed: _toggleSidebar,
+      );
       return _desktopShortcuts(
-        Scaffold(
-          body: Row(
-            children: [
-              Material(
-                color: navigationBackground,
-                child: SafeArea(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: PomaSpace.lg,
+        _DesktopSidebarScope(
+          collapsed: collapsed,
+          onToggle: _toggleSidebar,
+          showFocus: _showSidebarFocus,
+          child: Scaffold(
+            body: Row(
+              children: [
+                ExcludeSemantics(
+                  excluding: collapsed,
+                  child: ExcludeFocus(
+                    excluding: collapsed,
+                    child: IgnorePointer(
+                      ignoring: collapsed,
+                      child: TweenAnimationBuilder<double>(
+                        key: const Key('desktop-sidebar-transition'),
+                        tween: Tween<double>(
+                          begin: collapsed ? 0 : 1,
+                          end: collapsed ? 0 : 1,
                         ),
-                        child: Text(
-                          extended ? 'Poma' : 'P',
-                          style: Theme.of(context).textTheme.headlineSmall,
+                        duration: MediaQuery.disableAnimationsOf(context)
+                            ? Duration.zero
+                            : const Duration(milliseconds: 200),
+                        curve: Curves.easeInOutCubic,
+                        builder: (context, value, child) => ClipRect(
+                          key: const Key('desktop-sidebar'),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            widthFactor: value,
+                            child: child,
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: IntrinsicHeight(
-                            child: NavigationRail(
-                              extended: extended,
-                              minExtendedWidth: 216,
-                              selectedIndex: desktopDestinationOrder.indexOf(
-                                _tab,
-                              ),
-                              onDestinationSelected: (i) =>
-                                  _goTo(desktopDestinationOrder[i]),
-                              destinations: [
-                                for (final entry in [
-                                  (Icons.timelapse, copy.focus),
-                                  (Icons.calendar_month_outlined, 'Calendar'),
-                                  (Icons.schedule_outlined, 'Day Clock'),
-                                  (Icons.bar_chart, copy.desktopHistory),
-                                  (Icons.tune, copy.settings),
-                                ])
-                                  NavigationRailDestination(
-                                    icon: Tooltip(
-                                      message: entry.$2,
-                                      child: Icon(entry.$1),
+                        child: SizedBox(
+                          width: railWidth + 1,
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: railWidth,
+                                child: Material(
+                                  color: navigationBackground,
+                                  child: SafeArea(
+                                    child: Column(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: PomaSpace.lg,
+                                          ),
+                                          child: extended
+                                              ? Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        left: PomaSpace.lg,
+                                                        right: PomaSpace.xs,
+                                                      ),
+                                                  child: Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: Text(
+                                                          'Poma',
+                                                          style: theme
+                                                              .textTheme
+                                                              .headlineSmall,
+                                                        ),
+                                                      ),
+                                                      hideButton,
+                                                    ],
+                                                  ),
+                                                )
+                                              : Column(
+                                                  children: [
+                                                    Text(
+                                                      'P',
+                                                      style: theme
+                                                          .textTheme
+                                                          .headlineSmall,
+                                                    ),
+                                                    const SizedBox(
+                                                      height: PomaSpace.xs,
+                                                    ),
+                                                    hideButton,
+                                                  ],
+                                                ),
+                                        ),
+                                        Expanded(
+                                          child: SingleChildScrollView(
+                                            child: IntrinsicHeight(
+                                              child: NavigationRail(
+                                                extended: extended,
+                                                minWidth: 80,
+                                                minExtendedWidth: 216,
+                                                selectedIndex:
+                                                    desktopDestinationOrder
+                                                        .indexOf(_tab),
+                                                onDestinationSelected: (i) =>
+                                                    _goTo(
+                                                      desktopDestinationOrder[i],
+                                                    ),
+                                                destinations: [
+                                                  for (final entry in [
+                                                    (
+                                                      Icons.timelapse,
+                                                      copy.focus,
+                                                    ),
+                                                    (
+                                                      Icons
+                                                          .calendar_month_outlined,
+                                                      'Calendar',
+                                                    ),
+                                                    (
+                                                      Icons.schedule_outlined,
+                                                      'Day Clock',
+                                                    ),
+                                                    (
+                                                      Icons.bar_chart,
+                                                      copy.desktopHistory,
+                                                    ),
+                                                    (Icons.tune, copy.settings),
+                                                  ])
+                                                    NavigationRailDestination(
+                                                      icon: Tooltip(
+                                                        message: entry.$2,
+                                                        child: Icon(entry.$1),
+                                                      ),
+                                                      label: Text(entry.$2),
+                                                    ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    label: Text(entry.$2),
                                   ),
-                              ],
-                            ),
+                                ),
+                              ),
+                              const VerticalDivider(width: 1),
+                            ],
                           ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-              const VerticalDivider(width: 1),
-              Expanded(child: page),
-            ],
+                Expanded(
+                  child: Focus(
+                    focusNode: _pageFocus,
+                    skipTraversal: true,
+                    child: page,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -312,6 +467,69 @@ class _AppShellState extends State<AppShell> {
       ),
     );
     return desktop == null ? compact : _desktopShortcuts(compact);
+  }
+}
+
+class _DesktopSidebarScope extends InheritedWidget {
+  const _DesktopSidebarScope({
+    required this.collapsed,
+    required this.onToggle,
+    required this.showFocus,
+    required super.child,
+  });
+
+  final bool collapsed;
+  final VoidCallback onToggle;
+  final FocusNode showFocus;
+
+  static _DesktopSidebarScope? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_DesktopSidebarScope>();
+
+  @override
+  bool updateShouldNotify(_DesktopSidebarScope oldWidget) =>
+      collapsed != oldWidget.collapsed ||
+      onToggle != oldWidget.onToggle ||
+      showFocus != oldWidget.showFocus;
+}
+
+class _SidebarButton extends StatelessWidget {
+  const _SidebarButton({
+    required this.collapsed,
+    required this.focusNode,
+    required this.onPressed,
+  });
+
+  final bool collapsed;
+  final FocusNode focusNode;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+    key: Key(collapsed ? 'show-sidebar' : 'hide-sidebar'),
+    focusNode: focusNode,
+    tooltip: collapsed ? 'Show sidebar (Ctrl+B)' : 'Hide sidebar (Ctrl+B)',
+    constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+    onPressed: onPressed,
+    icon: Icon(collapsed ? Icons.chevron_right : Icons.chevron_left),
+  );
+}
+
+/// Restores the app navigation from screens with their own toolbars.
+class DesktopSidebarLeading extends StatelessWidget {
+  const DesktopSidebarLeading({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final sidebar = _DesktopSidebarScope.maybeOf(context);
+    if (sidebar == null || !sidebar.collapsed) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(right: PomaSpace.xs),
+      child: _SidebarButton(
+        collapsed: true,
+        focusNode: sidebar.showFocus,
+        onPressed: sidebar.onToggle,
+      ),
+    );
   }
 }
 
@@ -430,7 +648,8 @@ class ScreenHeading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final heading = Column(
+    final sidebar = _DesktopSidebarScope.maybeOf(context);
+    Widget heading = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Semantics(
@@ -460,6 +679,15 @@ class ScreenHeading extends StatelessWidget {
         ],
       ],
     );
+    if (sidebar?.collapsed == true) {
+      heading = Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const DesktopSidebarLeading(),
+          Expanded(child: heading),
+        ],
+      );
+    }
     return Padding(
       padding: const EdgeInsets.only(bottom: PomaSpace.lg),
       child: LayoutBuilder(

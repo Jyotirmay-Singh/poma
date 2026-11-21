@@ -764,9 +764,17 @@ class _PlannerScreenState extends State<_PlannerWorkspace> {
         if (!compact) add,
       ],
     );
-    final title = Text(
-      widget.clock ? 'Day Clock' : 'Calendar',
-      style: Theme.of(context).textTheme.headlineSmall,
+    final title = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const DesktopSidebarLeading(),
+        Flexible(
+          child: Text(
+            widget.clock ? 'Day Clock' : 'Calendar',
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+        ),
+      ],
     );
     if (!compact) {
       return Row(
@@ -891,6 +899,7 @@ class _PlannerScreenState extends State<_PlannerWorkspace> {
       child: width >= 900 && MediaQuery.textScalerOf(context).scale(1) < 1.5
           ? Row(
               children: [
+                const DesktopSidebarLeading(),
                 if (!sidebar) menu,
                 today,
                 const SizedBox(width: 8),
@@ -908,6 +917,7 @@ class _PlannerScreenState extends State<_PlannerWorkspace> {
               children: [
                 Row(
                   children: [
+                    const DesktopSidebarLeading(),
                     menu,
                     Expanded(child: title),
                     create,

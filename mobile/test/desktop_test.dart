@@ -532,6 +532,7 @@ void main() {
       await controller.updateDesktopPreferences(
         const DesktopPreferences(
           tooltipTitles: false,
+          sidebarCollapsed: true,
           bounds: DesktopBounds(-1800, 40, 1080, 760),
         ),
       );
@@ -546,10 +547,12 @@ void main() {
       controller = await AppController.create(second, clock: FakeClock());
       try {
         expect(controller.desktopPreferences.tooltipTitles, isFalse);
+        expect(controller.desktopPreferences.sidebarCollapsed, isTrue);
         expect(controller.desktopPreferences.bounds?.x, -1800);
         expect(controller.tasks.single.title, 'Local Windows task');
         await controller.deleteAllLocalData();
         expect(controller.desktopPreferences.bounds, isNull);
+        expect(controller.desktopPreferences.sidebarCollapsed, isFalse);
       } finally {
         controller.dispose();
         await second.close();

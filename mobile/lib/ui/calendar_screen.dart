@@ -521,12 +521,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               .controller
                               .desktopPreferences
                               .tooltipTitles,
-                          onChanged: (value) =>
-                              widget.controller.updateDesktopPreferences(
-                                widget.controller.desktopPreferences.copyWith(
-                                  tooltipTitles: value,
-                                ),
-                              ),
+                          onChanged: (value) => widget.controller
+                              .patchDesktopPreferences(tooltipTitles: value),
                         ),
                       ],
                     ),

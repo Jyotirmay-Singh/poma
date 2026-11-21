@@ -1,18 +1,28 @@
 /// Desktop-only presentation preferences. These never control timer time.
 class DesktopPreferences {
-  const DesktopPreferences({this.tooltipTitles = true, this.bounds});
+  const DesktopPreferences({
+    this.tooltipTitles = true,
+    this.sidebarCollapsed = false,
+    this.bounds,
+  });
 
   final bool tooltipTitles;
+  final bool sidebarCollapsed;
   final DesktopBounds? bounds;
 
-  DesktopPreferences copyWith({bool? tooltipTitles, DesktopBounds? bounds}) =>
-      DesktopPreferences(
-        tooltipTitles: tooltipTitles ?? this.tooltipTitles,
-        bounds: bounds ?? this.bounds,
-      );
+  DesktopPreferences copyWith({
+    bool? tooltipTitles,
+    bool? sidebarCollapsed,
+    DesktopBounds? bounds,
+  }) => DesktopPreferences(
+    tooltipTitles: tooltipTitles ?? this.tooltipTitles,
+    sidebarCollapsed: sidebarCollapsed ?? this.sidebarCollapsed,
+    bounds: bounds ?? this.bounds,
+  );
 
   Map<String, Object?> toJson() => {
     'tooltipTitles': tooltipTitles,
+    'sidebarCollapsed': sidebarCollapsed,
     'bounds': bounds?.toJson(),
   };
 
@@ -21,6 +31,9 @@ class DesktopPreferences {
       tooltipTitles: json['tooltipTitles'] is bool
           ? json['tooltipTitles'] as bool
           : true,
+      sidebarCollapsed: json['sidebarCollapsed'] is bool
+          ? json['sidebarCollapsed'] as bool
+          : false,
       bounds: json['bounds'] == null
           ? null
           : DesktopBounds.fromJson(

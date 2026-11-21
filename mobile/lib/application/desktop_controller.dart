@@ -321,9 +321,7 @@ class DesktopController extends ChangeNotifier {
         case 'bounds':
           try {
             final bounds = DesktopBounds.fromJson(values);
-            await controller.updateDesktopPreferences(
-              controller.desktopPreferences.copyWith(bounds: bounds),
-            );
+            await controller.patchDesktopPreferences(bounds: bounds);
           } on FormatException {
             // A transient minimized/invalid rectangle is not a saved position.
           }
