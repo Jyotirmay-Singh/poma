@@ -1133,20 +1133,23 @@ class _PlannerScreenState extends State<_PlannerWorkspace> {
         ? 'Loading schedule'
         : verified
         ? pending == 0
-              ? 'Schedule updated'
+              ? null
               : '$pending waiting to sync'
         : 'Saved schedule · availability unknown';
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Icon(
-          verified ? Icons.check_circle_outline : Icons.info_outline,
-          size: 18,
-        ),
-        const SizedBox(width: PomaSpace.xs),
-        Expanded(
-          child: Text(label, style: Theme.of(context).textTheme.bodySmall),
-        ),
+        if (label != null) ...[
+          Icon(
+            verified ? Icons.check_circle_outline : Icons.info_outline,
+            size: 18,
+          ),
+          const SizedBox(width: PomaSpace.xs),
+          Expanded(
+            child: Text(label, style: Theme.of(context).textTheme.bodySmall),
+          ),
+        ] else
+          const Spacer(),
         IconButton(
           tooltip: 'Refresh schedule',
           onPressed: read.rangeLoading
